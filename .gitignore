@@ -1,0 +1,16 @@
+dist/js
+node_modules
+.env
+.env.prod
+.firebaserc
+webdist/*
+dist/extension
+dist/extension/js
+dist/extension/img
+dist/extension/background.html
+dist/extension/popup.html
+dist/*.zip
+dist/web
+docker/default.conf
+server-fonts/*
+Dockerfile

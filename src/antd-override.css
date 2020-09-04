@@ -1,0 +1,28 @@
+.ant-message {
+  z-index: 9000 !important;
+}
+
+.ant-modal-mask {
+  z-index: 5400 !important;
+}
+
+.ant-modal-wrap {
+  z-index: 5500 !important;
+}
+
+.ant-popover {
+  z-index: 5500 !important;
+}
+
+.ant-select-dropdown,
+.ant-dropdown {
+  z-index: 6000 !important;
+}
+
+.ant-dropdown-menu-submenu {
+  z-index: 6050 !important;
+}
+
+.ant-tooltip {
+  z-index: 6000 !important;
+}

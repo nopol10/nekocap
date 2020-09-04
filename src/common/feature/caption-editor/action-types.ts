@@ -1,0 +1,42 @@
+export const reducerName = "captionEditor";
+
+export const captionEditorActionTypes = {
+  createNewCaption: `${reducerName}/createNewCaption`,
+  loadLocallySavedCaption: `${reducerName}/loadLocallySavedCaption`,
+  submitCaption: `${reducerName}/submitCaption`,
+  updateShowEditor: `${reducerName}/updateShowEditor`,
+  generateCaptionAndShowEditor: `${reducerName}/generateCaptionAndShowEditor`,
+
+  saveLocalCaption: `${reducerName}/saveLocalCaption`,
+  exportCaption: `${reducerName}/exportCaption`,
+  undoTrigger: `${reducerName}/undoTrigger`,
+  redoTrigger: `${reducerName}/redoTrigger`,
+  updateKeyboardShortcutType: `${reducerName}/updateKeyboardShortcutType`,
+  undo: `${reducerName}/undo`,
+  redo: `${reducerName}/redo`,
+  clearHistory: `${reducerName}/clearHistory`,
+  setEditorCaption: `${reducerName}/setEditorCaption`,
+  setEditorRawCaption: `${reducerName}/setEditorRawCaption`,
+  setEditorCaptionAfterEdit: `${reducerName}/setEditorCaptionAfterEdit`,
+  setCaptionLanguage: `${reducerName}/setCaptionLanguage`,
+  setShowEditor: `${reducerName}/setShowEditor`,
+  setEditorShortcuts: `${reducerName}/setEditorShortcuts`,
+  // #region Caption modification actions
+  updateEditorCaption: `${reducerName}/updateEditorCaption`,
+  modifyCaption: `${reducerName}/modifyCaption`,
+  modifyCaptionTrackSettings: `${reducerName}/modifyCaptionTrackSettings`,
+  modifyCaptionGlobalSettings: `${reducerName}/modifyCaptionGlobalSettings`,
+  modifyCaptionStartTimeMs: `${reducerName}/modifyCaptionStartTimeMs`,
+  modifyCaptionEndTimeMs: `${reducerName}/modifyCaptionEndTimeMs`,
+  modifyCaptionStartTime: `${reducerName}/modifyCaptionStartTime`,
+  modifyCaptionEndTime: `${reducerName}/modifyCaptionEndTime`,
+  modifyCaptionText: `${reducerName}/modifyCaptionText`,
+  modifyCaptionTime: `${reducerName}/modifyCaptionTime`,
+  changeCaptionTrackId: `${reducerName}/changeCaptionTrackId`,
+  deleteCaption: `${reducerName}/deleteCaption`,
+  addCaptionToTrackRelative: `${reducerName}/addCaptionToTrackRelative`,
+  addCaptionToTrackTime: `${reducerName}/addCaptionToTrackTime`,
+  addTrack: `${reducerName}/addTrack`,
+  removeTrack: `${reducerName}/removeTrack`,
+  // #endregion
+};

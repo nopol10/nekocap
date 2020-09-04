@@ -1,0 +1,60 @@
+{
+  "manifest_version": 2,
+
+  "name": "NekoCap",
+  "description": "NekoCap",
+  "version": "0.2.10",
+
+  "browser_action": {
+    "default_icon": "icon16.png",
+    "default_popup": "popup.html"
+  },
+
+  "background": {
+    "page": "background.html",
+    "persistent": false
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.tver.jp/*",
+        "https://*.nicovideo.jp/*",
+        "https://*.vimeo.com/*",
+        "https://*.bilibili.com/*"
+      ],
+      "run_at": "document_end",
+      "js": ["js/content.js"]
+    },
+    {
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.tver.jp/*",
+        "https://*.nicovideo.jp/*",
+        "https://*.vimeo.com/*",
+        "https://*.bilibili.com/*"
+      ],
+      "run_at": "document_start",
+      "css": ["js/content.css"]
+    }
+  ],
+
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+
+  "permissions": ["storage", "webNavigation"],
+
+  "web_accessible_resources": [
+    "img/*.jpg",
+    "img/*.png",
+    "img/*.gif",
+    "img/*.svg",
+    "sub-assets/*.*",
+    "js/subtitle-octopus/*.*"
+  ],
+  "content_security_policy": "script-src 'self' https://*.google.com;",
+}

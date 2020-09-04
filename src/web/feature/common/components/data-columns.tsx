@@ -1,0 +1,181 @@
+import Typography from "antd/lib/typography";
+import * as dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import React from "react";
+import {
+  CaptionListFields,
+  VideoFields,
+  VideoSource,
+} from "@/common/feature/video/types";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { languages } from "@/common/languages";
+import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
+import { Tooltip } from "antd";
+import { getVideoSourceIcon } from "@/common/processor-utils";
+import { Link as RouterLink } from "react-router-dom";
+import { hasTag } from "@/common/caption-utils";
+import { captionTags } from "@/common/constants";
+import { AudioDescribedTag } from "@/common/components/ws-tag";
+import { routeNames } from "../../route-types";
+import { Processor } from "@/content/processors/processor";
+const { Link } = Typography;
+dayjs.extend(relativeTime);
+
+export const getTooltippedDate = (unixSeconds: number) => {
+  const dayjsDate = dayjs.unix(unixSeconds);
+  const date = dayjsDate.format("YYYY-MM-DD HH:mm:ss");
+  const display = dayjsDate.fromNow();
+  return <Tooltip title={date}>{display}</Tooltip>;
+};
+
+export const captionColumns = {
+  videoName: {
+    title: "Video Name",
+    dataIndex: "videoName",
+    key: "videoName",
+    render: (text, record: CaptionListFields, index) => {
+      const processor = videoSourceToProcessorMap[record.videoSource];
+      if (!processor) {
+        return text;
+      }
+      const link = processor.generateVideoLink(record.videoId);
+      return (
+        <>
+          <Link href={link} target="_blank">
+            {text}
+          </Link>
+          {hasTag(record.tags, captionTags.audioDescribed) && (
+            <AudioDescribedTag />
+          )}
+        </>
+      );
+    },
+  },
+  thumbnail: {
+    title: "",
+    key: "thumbnail",
+    render: (text, record: CaptionListFields, index) => {
+      const processor = videoSourceToProcessorMap[record.videoSource];
+      if (!processor) {
+        return text;
+      }
+      return <img style={{ maxWidth: "64px" }} src={record.thumbnailUrl} />;
+    },
+  },
+  videoSource: {
+    title: "Source",
+    dataIndex: "videoSource",
+    key: "videoSource",
+    align: "center",
+    render: (text, record: CaptionListFields, index) => {
+      const processor: Processor =
+        videoSourceToProcessorMap[record.videoSource];
+      return processor.name;
+    },
+  },
+  createdDate: {
+    title: "Uploaded",
+    dataIndex: "createdDate",
+    key: "createdDate",
+    render: (text, record, index) => {
+      return getTooltippedDate(text);
+    },
+  },
+  videoLanguage: {
+    title: "Video Language",
+    dataIndex: "videoLanguage",
+    key: "videoLanguage",
+    render: (text, record, index) => {
+      return languages[record.videoLanguage];
+    },
+  },
+  captionLanguage: {
+    title: "Caption Language",
+    dataIndex: "language",
+    key: "language",
+    render: (text, record, index) => {
+      return languages[record.language];
+    },
+  },
+  fromToLanguage: {
+    title: "Language",
+    key: "language",
+    render: (text, record, index) => {
+      const fromLanguage = languages[record.videoLanguage];
+      const toLanguage = languages[record.language];
+      return (
+        <span>
+          {fromLanguage} <CaretRightOutlined /> <b>{toLanguage}</b>
+        </span>
+      );
+    },
+  },
+  updatedDate: {
+    title: "Updated",
+    dataIndex: "updatedDate",
+    key: "updatedDate",
+    render: (text, record, index) => {
+      return getTooltippedDate(text);
+    },
+  },
+  captioner: {
+    title: "Captioner",
+    dataIndex: "creatorName",
+    key: "creatorName",
+    render: (text, record, index) => {
+      return (
+        <RouterLink
+          to={{
+            pathname: `${routeNames.profile.main.replace(
+              ":id",
+              record.creatorId
+            )}`,
+          }}
+        >
+          {text}
+        </RouterLink>
+      );
+    },
+  },
+};
+
+export const videoColumns = {
+  videoName: {
+    title: "Video Name",
+    dataIndex: "name",
+    key: "name",
+    render: (text, record: VideoFields, index) => {
+      const processor = videoSourceToProcessorMap[record.source];
+      if (!processor) {
+        return text;
+      }
+      const link = processor.generateVideoLink(record.sourceId);
+      return (
+        <>
+          <Link href={link} target="_blank">
+            {text}
+          </Link>
+        </>
+      );
+    },
+  },
+  captionCount: {
+    title: "Caption count",
+    dataIndex: "captionCount",
+    key: "captionCount",
+    render: (text, record: VideoFields, index) => {
+      const processor = videoSourceToProcessorMap[record.source];
+      if (!processor) {
+        return text;
+      }
+      const link = processor.generateVideoLink(record.sourceId);
+      return (
+        <>
+          <Link href={link} target="_blank">
+            {text}
+          </Link>
+        </>
+      );
+    },
+  },
+};

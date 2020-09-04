@@ -1,0 +1,29 @@
+/* stylelint-disable at-rule-no-unknown */
+.ant-dropdown {
+  svg {
+    vertical-align: baseline;
+  }
+}
+.scoped-antd {
+  @import "./ant-global.less";
+
+  svg {
+    width: auto;
+  }
+
+  color: @text-color;
+  font-size: @font-size-base;
+  font-family: @font-family;
+  font-variant: @font-variant-base;
+  line-height: @line-height-base;
+  background-color: @body-background; // 2
+  font-feature-settings: @font-feature-settings-base;
+
+  @import "~antd/lib/style/themes/index.less";
+  @import "~antd/lib/style/mixins/index.less";
+  @import "~antd/lib/style/core/base.less";
+  @import "~antd/lib/style/core/iconfont.less";
+  @import "~antd/lib/style/core/motion.less";
+
+  @import "theme.scss";
+}

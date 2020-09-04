@@ -1,0 +1,10 @@
+$base: #ffa62b;
+$white: #fcfaf9;
+
+.hello {
+  color: green;
+}
+:export {
+  base: $base;
+  white: $white;
+}
