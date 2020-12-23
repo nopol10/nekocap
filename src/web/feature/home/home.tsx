@@ -16,7 +16,7 @@ import { PopularCaptions } from "./containers/popular-captions";
 import { NekoLogo } from "@/common/components/neko-logo";
 import { Instructions } from "./components/instructions";
 import { FeatureList } from "./components/feature-list";
-import { DISCORD_INVITE_LINK } from "@/common/constants";
+import { CHROME_DOWNLOAD_LINK, DISCORD_INVITE_LINK } from "@/common/constants";
 
 const { Content } = Layout;
 const { Link } = Typography;
@@ -151,10 +151,7 @@ export const Home = () => {
             <em>View</em>, <em>create</em> and <em>share</em> your captions
           </WSTitle>
           <Badges>
-            <a
-              target="_blank"
-              href="https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj"
-            >
+            <a target="_blank" href={CHROME_DOWNLOAD_LINK}>
               <img id="chrome-badge" src={chromeLogo} />
             </a>
           </Badges>

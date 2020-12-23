@@ -9,6 +9,7 @@ import useEditorImage from "@/assets/images/instructions/use-editor.jpg";
 import noCaptionImage from "@/assets/images/instructions/no-caption-page.jpg";
 import { getImageLink } from "@/common/chrome-utils";
 import { Col, Collapse, Row } from "antd";
+import { CHROME_DOWNLOAD_LINK } from "@/common/constants";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -61,10 +62,7 @@ export const Instructions = () => {
                 <StepNumber>1</StepNumber>
                 <span>
                   Download the extension for{" "}
-                  <a
-                    target="_blank"
-                    href="https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj"
-                  >
+                  <a target="_blank" href={CHROME_DOWNLOAD_LINK}>
                     Chrome
                   </a>
                 </span>
@@ -98,7 +96,10 @@ export const Instructions = () => {
               <div>
                 <StepNumber>1</StepNumber>
                 <span>
-                  Download the extension for <a href="#">Chrome</a>
+                  Download the extension for{" "}
+                  <a target="_blank" href={CHROME_DOWNLOAD_LINK}>
+                    Chrome
+                  </a>
                 </span>
               </div>
               <img src={getImageLink(downloadExtensionImage)} />

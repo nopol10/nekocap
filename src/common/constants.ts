@@ -34,3 +34,6 @@ export const WEBEXT_ERROR_MESSAGE =
   "Looks like there is an error in the background page. You might want to inspect your background page for more details.";
 
 export const DISCORD_INVITE_LINK = "https://discord.gg/xZ9YEXY5pd";
+
+export const CHROME_DOWNLOAD_LINK =
+  "https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj";
