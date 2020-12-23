@@ -1,6 +1,7 @@
 import Space from "antd/lib/space";
 import Spin from "antd/lib/spin";
 import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
+import GithubOutlined from "@ant-design/icons/GithubOutlined";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { WSButton } from "@/common/components/ws-button";
@@ -20,6 +21,9 @@ const Socials = styled.div`
     color: ${colors.socialIcon};
     :hover {
       color: ${colors.socialIconHovered};
+    }
+    &:not(:last-child) {
+      margin-right: 15px;
     }
   }
 `;
@@ -61,6 +65,9 @@ export const WebHeader = () => {
       <Socials>
         <a href="https://www.twitter.com/nekocaption" target="_blank">
           <TwitterOutlined />
+        </a>
+        <a href="https://github.com/nopol10/nekocap" target="_blank">
+          <GithubOutlined />
         </a>
       </Socials>
       <Spin spinning={isLoggingOut}>
