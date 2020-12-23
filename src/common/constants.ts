@@ -33,7 +33,9 @@ export const VIDEO_ELEMENT_CONTAINER_ID = "nekocap-video-page-container";
 export const WEBEXT_ERROR_MESSAGE =
   "Looks like there is an error in the background page. You might want to inspect your background page for more details.";
 
-export const DISCORD_INVITE_LINK = "https://discord.gg/xZ9YEXY5pd";
+export const DISCORD_INVITE_URL = "https://discord.gg/xZ9YEXY5pd";
 
-export const CHROME_DOWNLOAD_LINK =
+export const CHROME_DOWNLOAD_URL =
   "https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj";
+
+export const GITHUB_URL = "https://github.com/nopol10/nekocap";

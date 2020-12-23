@@ -16,7 +16,11 @@ import { PopularCaptions } from "./containers/popular-captions";
 import { NekoLogo } from "@/common/components/neko-logo";
 import { Instructions } from "./components/instructions";
 import { FeatureList } from "./components/feature-list";
-import { CHROME_DOWNLOAD_LINK, DISCORD_INVITE_LINK } from "@/common/constants";
+import {
+  CHROME_DOWNLOAD_URL,
+  DISCORD_INVITE_URL,
+  GITHUB_URL,
+} from "@/common/constants";
 
 const { Content } = Layout;
 const { Link } = Typography;
@@ -149,14 +153,22 @@ export const Home = () => {
           <WaveDivider />
           <WSTitle level={2} textAlign={"center"}>
             <em>View</em>, <em>create</em> and <em>share</em> your captions
+            <br />
+            with this{" "}
+            <em>
+              <a target="_blank" href={GITHUB_URL}>
+                open source
+              </a>
+            </em>{" "}
+            browser extension
           </WSTitle>
           <Badges>
-            <a target="_blank" href={CHROME_DOWNLOAD_LINK}>
+            <a target="_blank" href={CHROME_DOWNLOAD_URL}>
               <img id="chrome-badge" src={chromeLogo} />
             </a>
           </Badges>
           <Badges>
-            <a target="_blank" href={DISCORD_INVITE_LINK}>
+            <a target="_blank" href={DISCORD_INVITE_URL}>
               <img id="discord-badge" src={discordLogo} />
             </a>
           </Badges>

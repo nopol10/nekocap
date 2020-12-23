@@ -9,6 +9,7 @@ import {
 } from "@/common/substation-fonts";
 import Title from "antd/lib/typography/Title";
 import { startCase } from "lodash";
+import { SupportedSites } from "@/common/components/supported-sites";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -73,18 +74,42 @@ const FontList = () => {
   );
 };
 
+const SupportSiteList = () => {
+  return (
+    <div>
+      <Title level={3}>Supported sites</Title>
+      <SupportedSites />
+    </div>
+  );
+};
+
 const features: Feature[] = [
   {
     title: "Easy to use",
-    description: (
-      <span>
-        View captions without leaving{" "}
-        <a target="_blank" href="https://www.youtube.com">
-          Youtube
-        </a>{" "}
-        and other supported video sites
-      </span>
-    ),
+    description: () => {
+      const [listOpened, setListOpened] = useState(false);
+      const handleOpenList = () => {
+        setListOpened(true);
+      };
+      const handleCloseList = () => {
+        setListOpened(false);
+      };
+      return (
+        <span>
+          View captions without leaving{" "}
+          <a target="_blank" href="https://www.youtube.com">
+            Youtube
+          </a>{" "}
+          and other supported{" "}
+          <a href="#" onClick={handleOpenList}>
+            video sites
+          </a>
+          <Modal visible={listOpened} onCancel={handleCloseList} footer={null}>
+            <SupportSiteList />
+          </Modal>
+        </span>
+      );
+    },
   },
   {
     title: "Advanced effects (experimental)",

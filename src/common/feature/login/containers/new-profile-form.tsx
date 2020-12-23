@@ -10,7 +10,7 @@ import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { languageOptions } from "@/common/language-utils";
 import styled from "styled-components";
 import TextArea from "antd/lib/input/TextArea";
-import { DISCORD_INVITE_LINK } from "@/common/constants";
+import { DISCORD_INVITE_URL } from "@/common/constants";
 const { Title, Text, Link } = Typography;
 
 const Page = styled.div``;
@@ -92,7 +92,7 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
         </Form.Item>
         <Title level={5}>
           We do not collect emails so please join the NekoCap Discord{" "}
-          <a href={DISCORD_INVITE_LINK} target="_blank">
+          <a href={DISCORD_INVITE_URL} target="_blank">
             here
           </a>{" "}
           to get the latest news and updates.

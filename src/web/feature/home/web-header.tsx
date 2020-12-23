@@ -13,6 +13,7 @@ import { LoginModal } from "./login-modal";
 import { BasicSearchBar } from "./containers/basic-search-bar";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
+import { GITHUB_URL } from "@/common/constants";
 
 const Socials = styled.div`
   margin-right: auto;
@@ -66,7 +67,7 @@ export const WebHeader = () => {
         <a href="https://www.twitter.com/nekocaption" target="_blank">
           <TwitterOutlined />
         </a>
-        <a href="https://github.com/nopol10/nekocap" target="_blank">
+        <a href={GITHUB_URL} target="_blank">
           <GithubOutlined />
         </a>
       </Socials>

@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { Button, Typography } from "antd";
 import { NekoLogo } from "@/common/components/neko-logo";
 import { PopupPage } from "@/popup/common/components/popup-page";
+import { SupportedSites } from "@/common/components/supported-sites";
 const { Link, Title } = Typography;
 
 const HelloText = styled.div`
@@ -45,33 +46,7 @@ export const UserDashboard = () => {
       <div>
         Visit one of the supported sites to start viewing and creating captions:
       </div>
-      <ul>
-        <li>
-          <SiteLink href="https://www.youtube.com/" target="_blank">
-            Youtube
-          </SiteLink>
-        </li>
-        <li>
-          <SiteLink href="https://www.nicovideo.jp/" target="_blank">
-            niconico
-          </SiteLink>
-        </li>
-        <li>
-          <SiteLink href="https://vimeo.com/" target="_blank">
-            Vimeo
-          </SiteLink>
-        </li>
-        <li>
-          <SiteLink href="https://www.bilibili.com/" target="_blank">
-            bilibili
-          </SiteLink>
-        </li>
-        <li>
-          <SiteLink href="https://tver.jp/" target="_blank">
-            TVer
-          </SiteLink>
-        </li>
-      </ul>
+      <SupportedSites />
       <Buttons>
         <Button onClick={handleClickLogout}>Logout</Button>
       </Buttons>

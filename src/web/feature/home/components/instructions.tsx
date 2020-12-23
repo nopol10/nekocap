@@ -9,7 +9,7 @@ import useEditorImage from "@/assets/images/instructions/use-editor.jpg";
 import noCaptionImage from "@/assets/images/instructions/no-caption-page.jpg";
 import { getImageLink } from "@/common/chrome-utils";
 import { Col, Collapse, Row } from "antd";
-import { CHROME_DOWNLOAD_LINK } from "@/common/constants";
+import { CHROME_DOWNLOAD_URL } from "@/common/constants";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -62,7 +62,7 @@ export const Instructions = () => {
                 <StepNumber>1</StepNumber>
                 <span>
                   Download the extension for{" "}
-                  <a target="_blank" href={CHROME_DOWNLOAD_LINK}>
+                  <a target="_blank" href={CHROME_DOWNLOAD_URL}>
                     Chrome
                   </a>
                 </span>
@@ -97,7 +97,7 @@ export const Instructions = () => {
                 <StepNumber>1</StepNumber>
                 <span>
                   Download the extension for{" "}
-                  <a target="_blank" href={CHROME_DOWNLOAD_LINK}>
+                  <a target="_blank" href={CHROME_DOWNLOAD_URL}>
                     Chrome
                   </a>
                 </span>
