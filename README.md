@@ -5,8 +5,20 @@
 </p>
 
 <h1 align="center">NekoCap</h1>
-<div align="center">A browser extension for creating, uploading and viewing community created captions on video sharing sites such as YouTube, Vimeo and niconico.</div>
+<div align="center">A browser extension for creating, uploading and viewing community created captions on video sharing sites such as YouTube, Vimeo and niconico.
 <br/>
+Get the extension:
+<a href="https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj" target="_blank" rel="noopener">
+        Chrome / Edge
+</a>
+<br/>
+Website:
+<a href="https://nekocap.com/" target="_blank" rel="noopener">
+        NekoCap.com
+</a>
+</div>
+<br/>
+
 <div align="center"><font size="3">Join the Discord here:</font></div>
 <div align="center">
 
