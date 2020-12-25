@@ -18,6 +18,10 @@ import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
 import { getUIElement } from "../processors/processor";
 import { useCaptionContainerUpdate, useVideoElementUpdate } from "@/hooks";
 import { EditorContainer } from "./editor-container";
+import {
+  shouldHideVideoPageMenuSelector,
+  userExtensionPreferenceSelector,
+} from "@/background/feature/user-extension-preference/selectors";
 
 const InlineMenuWrapper = styled.div`
   display: flex;
@@ -43,6 +47,9 @@ export const VideoHome = () => {
   const rawEditorData = useSelector(tabEditorRawDataSelector(window.tabId));
   const isUserCaptionLoaded = useSelector(
     isUserCaptionLoadedSelector(window.tabId)
+  );
+  const shouldHideVideoPageMenu = useSelector(
+    shouldHideVideoPageMenuSelector(window.tabId)
   );
   const { renderer, showCaption = true } = videoData || {};
   const caption =
@@ -103,12 +110,14 @@ export const VideoHome = () => {
 
   return ReactDOM.createPortal(
     <>
-      <InlineMenuWrapper className="scoped-antd">
-        <VideoPageMenu />
-        <InlineLogoWrapper>
-          <NekoLogo />
-        </InlineLogoWrapper>
-      </InlineMenuWrapper>
+      {!shouldHideVideoPageMenu && (
+        <InlineMenuWrapper className="scoped-antd">
+          <VideoPageMenu />
+          <InlineLogoWrapper>
+            <NekoLogo />
+          </InlineLogoWrapper>
+        </InlineMenuWrapper>
+      )}
       {shouldRenderEditor && <EditorContainer />}
       {renderer === CaptionRendererType.Default && (
         <CaptionRenderer
