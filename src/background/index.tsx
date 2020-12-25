@@ -2,32 +2,18 @@ import React, { useEffect, useRef } from "react";
 import { wrapStore } from "webext-redux";
 
 import { Provider, useDispatch } from "react-redux";
-import { initStore } from "./common/store";
 import ReactDOM from "react-dom";
 import { ChromeMessage, ChromeMessageType } from "@/common/types";
-import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import { autoLogin } from "@/common/feature/login/actions";
 import debounce from "lodash/debounce";
 import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
-import { rootSaga } from "@/common/store/saga";
 import { initFirebase } from "./firebase";
 import * as firebase from "firebase/app";
 import "firebase/auth";
+import { store } from "./common/store";
 
 // Firebase for auth
 initFirebase();
-
-const initializeProviders = () => {
-  // TODO allow it to be configured from env
-  window.backendProvider = new ParseProvider();
-};
-
-initializeProviders();
-const store = initStore(
-  rootSaga,
-  window.backendProvider.getReducers(),
-  window.backendProvider.getMiddlewares()
-);
 
 wrapStore(store);
 

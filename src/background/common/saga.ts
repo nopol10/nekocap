@@ -1,12 +1,13 @@
 import { all } from "redux-saga/effects";
-import loginSagas from "../feature/login/sagas";
-import { ChromeMessageType } from "../types";
+import loginSagas from "../../common/feature/login/sagas";
+import { ChromeMessageType } from "../../common/types";
 import videoSagas from "@/background/feature/video/sagas";
 import captionEditorSaga from "@/background/feature/caption-editor/sagas";
-import captionerSagas from "../feature/captioner/sagas";
-import publicDashboardSaga from "../feature/public-dashboard/sagas";
-import profileSaga from "../feature/profile/sagas";
-import captionReviewSaga from "../feature/caption-review/sagas";
+import captionerSagas from "../../common/feature/captioner/sagas";
+import publicDashboardSaga from "../../common/feature/public-dashboard/sagas";
+import profileSaga from "../../common/feature/profile/sagas";
+import captionReviewSaga from "../../common/feature/caption-review/sagas";
+import userExtensionPreerenceSaga from "@/background/feature/user-extension-preference/sagas";
 
 export function* rootSaga() {
   yield all([
@@ -17,6 +18,7 @@ export function* rootSaga() {
     ...profileSaga,
     ...captionReviewSaga,
     ...captionEditorSaga,
+    ...userExtensionPreerenceSaga,
   ]);
 }
 
