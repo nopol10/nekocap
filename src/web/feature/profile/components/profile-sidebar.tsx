@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import Layout from "antd/lib/layout";
-import { Button, Input, Skeleton, Space, Typography } from "antd";
+import { Button, Input, Select, Skeleton, Space, Typography } from "antd";
 import {
   CaptionerFields,
   CaptionerPrivateFields,
@@ -14,6 +14,9 @@ import { Controller, useForm } from "react-hook-form";
 import { EditProfileFields } from "@/common/feature/profile/types";
 import { WSButton } from "@/common/components/ws-button";
 import { WSMarkdown } from "@/common/components/ws-markdown";
+import { languageOptions } from "@/common/language-utils";
+import { languages } from "@/common/languages";
+
 const { Title, Text, Link } = Typography;
 const { Sider } = Layout;
 const { TextArea } = Input;
@@ -65,6 +68,7 @@ export const ProfileSidebar = ({
   const {
     profileMessage,
     donationLink,
+    languageCodes,
     isReviewerManager: isProfileUserReviewerManager,
     isReviewer: isProfileUserReviewer,
   } = captioner;
@@ -160,6 +164,44 @@ export const ProfileSidebar = ({
                   style={{ height: "400px" }}
                 />
               </>
+            )}
+          </ProfileField>
+          <ProfileField>
+            {(isEditing ||
+              (!isEditing && languageCodes && languageCodes.length > 0)) && (
+              <Title level={3}>Proficient languages</Title>
+            )}
+            {!isEditing && (
+              <ul>
+                {languageCodes.map((languageCode) => {
+                  return <li key={languageCode}>{languages[languageCode]}</li>;
+                })}
+              </ul>
+            )}
+            {isEditing && (
+              <Controller
+                as={Select}
+                name={"languageCodes"}
+                control={control}
+                mode={"multiple"}
+                showSearch
+                size={"large"}
+                style={{ width: "100%" }}
+                placeholder={"You can select more than 1!"}
+                defaultValue={languageCodes}
+                disabled={!isEditing}
+                filterOption={(input, option) =>
+                  option.props.children
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0 ||
+                  option.props.value
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0
+                }
+                rules={{ required: true, minLength: 1 }}
+              >
+                {languageOptions}
+              </Controller>
             )}
           </ProfileField>
 
