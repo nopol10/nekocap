@@ -7,6 +7,14 @@ import { profileReducer } from "@/common/feature/profile/reducers";
 import { captionReviewReducer } from "@/common/feature/caption-review/reducers";
 import { searchReducer } from "@/common/feature/search/reducers";
 import { captionEditorReducer } from "../feature/caption-editor/reducers";
+import { userExtensionPreferenceReducer } from "../feature/user-extension-preference/reducers";
+import { persistReducer } from "redux-persist";
+import { syncStorage } from "redux-persist-webextension-storage";
+
+const userExtensionPreferenceSyncStorageConfig = {
+  key: "userExtensionPreferenceSyncStorage",
+  storage: syncStorage,
+};
 
 export const createRootReducer = (additionalReducers?: ReducersMapObject) => {
   return combineReducers({
@@ -21,5 +29,9 @@ export const createRootReducer = (additionalReducers?: ReducersMapObject) => {
     profile: profileReducer,
     search: searchReducer,
     captionEditor: captionEditorReducer,
+    userExtensionPreference: persistReducer(
+      userExtensionPreferenceSyncStorageConfig,
+      userExtensionPreferenceReducer
+    ),
   });
 };
