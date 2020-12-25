@@ -34,6 +34,10 @@ const ProfileMessage = styled(Text)`
   margin-bottom: 20px;
 `;
 
+const ProfileField = styled.div`
+  margin-bottom: 10px;
+`;
+
 export const ProfileSidebar = ({
   captioner,
   privateData,
@@ -127,7 +131,7 @@ export const ProfileSidebar = ({
     <Form onFinish={handleSubmit(onSubmit)} style={{ display: "flex" }}>
       <ProfileSider width={"420px"}>
         <Skeleton loading={isLoading}>
-          <div>
+          <ProfileField>
             <Title level={3}>
               About{" "}
               {isEditing && (
@@ -157,36 +161,37 @@ export const ProfileSidebar = ({
                 />
               </>
             )}
-          </div>
-          {donationLink && (
-            <div>
+          </ProfileField>
+
+          <ProfileField>
+            {(isEditing || (!isEditing && donationLink)) && (
               <Title level={3}>
                 Donate <FontAwesomeIcon icon={faHandHoldingUsd} />
               </Title>
-              {!isEditing && (
-                <ProfileMessage>
-                  <Link
-                    target="_blank"
-                    href={donationLink}
-                    style={{ fontSize: "1.2em" }}
-                  >
-                    {donationLink}
-                  </Link>
-                </ProfileMessage>
-              )}
-              {isEditing && (
-                <div style={{ marginBottom: "20px" }}>
-                  <Controller
-                    name={"donationLink"}
-                    as={Input}
-                    type={"url"}
-                    control={control}
-                    defaultValue={donationLink}
-                  />
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            {!isEditing && (
+              <ProfileMessage>
+                <Link
+                  target="_blank"
+                  href={donationLink}
+                  style={{ fontSize: "1.2em" }}
+                >
+                  {donationLink}
+                </Link>
+              </ProfileMessage>
+            )}
+            {isEditing && (
+              <div style={{ marginBottom: "20px" }}>
+                <Controller
+                  name={"donationLink"}
+                  as={Input}
+                  type={"url"}
+                  control={control}
+                  defaultValue={donationLink}
+                />
+              </div>
+            )}
+          </ProfileField>
           {isEditing && (
             <div style={{ textAlign: "right" }}>
               <WSButton
