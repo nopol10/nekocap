@@ -23,6 +23,7 @@ export const captionEditorActionTypes = {
   setEditorShortcuts: `${reducerName}/setEditorShortcuts`,
   // #region Caption modification actions
   updateEditorCaption: `${reducerName}/updateEditorCaption`,
+  modifyCaptionWithMultipleActions: `${reducerName}/modifyCaptionWithMultipleActions`,
   modifyCaption: `${reducerName}/modifyCaption`,
   modifyCaptionTrackSettings: `${reducerName}/modifyCaptionTrackSettings`,
   modifyCaptionGlobalSettings: `${reducerName}/modifyCaptionGlobalSettings`,

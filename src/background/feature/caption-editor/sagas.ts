@@ -35,6 +35,7 @@ import {
   modifyCaptionText,
   modifyCaptionTime,
   modifyCaptionTrackSettings,
+  modifyCaptionWithMultipleActions,
   redoEditorAction,
   redoEditorTriggerAction,
   removeTrack,
@@ -96,12 +97,10 @@ const isActionType = <T>(
   return action.type === creator.type;
 };
 
-function* updateEditorCaptionSaga({ payload }: PayloadAction<UpdateCaption>) {
-  const { action, tabId } = payload;
-  const tabEditorData: TabEditorData = yield select(
-    tabEditorDataSelector(tabId)
-  );
-  const { caption } = tabEditorData;
+const generateNewCaptionData = (
+  action: PayloadAction<any>,
+  caption: CaptionContainer
+) => {
   let error: string = "";
   let newCaptionData: CaptionDataContainer;
   if (isActionType(action, modifyCaption)) {
@@ -242,13 +241,38 @@ function* updateEditorCaptionSaga({ payload }: PayloadAction<UpdateCaption>) {
     error = result.error;
     newCaptionData = result.caption;
   }
-  if (error || !newCaptionData) {
-    // TODO send error message to content script
-    return;
-  }
-  const updatedCaption = { ...caption, data: newCaptionData };
+  return { error, newCaptionData };
+};
 
-  yield put(setEditorCaptionAfterEdit({ caption: updatedCaption, tabId }));
+function* updateEditorCaptionSaga({
+  payload,
+  meta,
+}: ThunkedPayloadAction<UpdateCaption>) {
+  const { action, tabId } = payload;
+  const tabEditorData: TabEditorData = yield select(
+    tabEditorDataSelector(tabId)
+  );
+  const { caption } = tabEditorData;
+  const actions = isActionType(action, modifyCaptionWithMultipleActions)
+    ? action.payload.actions
+    : [action];
+  let updatedCaption = { ...caption };
+  for (let i = 0; i < actions.length; i++) {
+    const { error, newCaptionData } = generateNewCaptionData(
+      actions[i],
+      updatedCaption
+    );
+    updatedCaption.data = newCaptionData;
+    if (error || !newCaptionData) {
+      // TODO send error message to content script
+      return;
+    }
+  }
+
+  yield put({
+    ...setEditorCaptionAfterEdit({ caption: updatedCaption, tabId }),
+    meta,
+  });
 }
 
 function* undoEditorTriggerSaga({ payload }: PayloadAction<TabbedType>) {

@@ -99,3 +99,7 @@ export const isInputElementSelected = () => {
 export const roundMs = (timeMs: number) => {
   return Math.round(timeMs / 1000) * 1000;
 };
+
+export const generateRandomId = () => {
+  return Math.random().toString(36).substr(2) + Date.now().toString(36);
+};

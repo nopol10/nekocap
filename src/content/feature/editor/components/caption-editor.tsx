@@ -34,7 +34,7 @@ import { AutoSizer, List, ListRowProps } from "react-virtualized";
 import { DurationInput } from "@/common/components/duration-input";
 import * as dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import debounce from "lodash/debounce";
+import debounce from "@/common/debounce";
 import { isEqual } from "lodash";
 import { colors } from "@/common/colors";
 import { CaptionMutators, useCaptionDrag } from "../utils";
@@ -62,7 +62,7 @@ import { Gutter } from "antd/lib/grid/row";
 import { WarningText } from "@/common/components/warning-text";
 import { clamp, isInputElementSelected } from "@/common/utils";
 import NekoLogoSvg from "@/assets/images/nekocap.svg";
-import { AnyAction } from "@reduxjs/toolkit";
+import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
 import {
   modifyCaption,
   modifyCaptionGlobalSettings,
@@ -77,8 +77,10 @@ import {
   deleteCaption,
   addTrack,
   removeTrack,
+  modifyCaptionWithMultipleActions,
 } from "@/common/feature/caption-editor/actions";
 import { getImageLink } from "@/common/chrome-utils";
+import { findClosestCaption } from "@/common/feature/video/utils";
 
 dayjs.extend(duration);
 
@@ -426,7 +428,7 @@ type CaptionEditorProps = UndoComponentProps & {
   videoElement: HTMLVideoElement;
   captionContainerElement: HTMLElement;
   videoMenuComponent: ReactNode;
-  updateCaption: (action: AnyAction) => void;
+  updateCaption: (action: AnyAction, callback?: () => void) => void;
   keyboardShortcuts: { [id: string]: KeySequence };
   onSave: () => void;
   onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
@@ -468,6 +470,7 @@ const CaptionEditorInternal = ({
    */
   const captionListKeySuffix = useRef<number>(0);
   const focusNewCaptionIndex = useRef<number>(-1);
+  const lastDebouncedAction = useRef<PayloadAction<any>>(undefined);
   const hotKeysRef = useRef<HTMLDivElement>(null);
   const videoDimensions = useRef<Coords>({ x: 0, y: 0 });
   const [isPlaying, setIsPlaying, isPlayingRef] = useVideoPlayPause(
@@ -840,13 +843,39 @@ const CaptionEditorInternal = ({
       // In that case, react hotkeys will treat the keys used to trigger this action as still pressed, preventing other
       // hotkeys from working until a refocus
       const inputElement = document.activeElement;
+      let batchUpdates = false;
+      if (debouncedUpdateCaption.pending()) {
+        // We'll do the update and creation of new caption together
+        batchUpdates = true;
+        debouncedUpdateCaption.cancel();
+      } else {
+        debouncedUpdateCaption.flush();
+      }
+
       const temporaryKeyupListener = () => {
-        handleNewCaption(selectedTrack, newTime);
+        if (batchUpdates) {
+          captionListKeySuffix.current++;
+          updateCaption(
+            modifyCaptionWithMultipleActions({
+              actions: [
+                lastDebouncedAction.current,
+                addCaptionToTrackTime({
+                  trackId: selectedTrack,
+                  timeMs: newTime,
+                  skipValidityChecks: false,
+                }),
+              ],
+            })
+          );
+        } else {
+          handleNewCaption(selectedTrack, newTime);
+        }
         focusNewCaptionIndex.current = newCaptionId;
         inputElement.removeEventListener("keyup", temporaryKeyupListener);
       };
       inputElement.addEventListener("keyup", temporaryKeyupListener);
     } else {
+      debouncedUpdateCaption.flush();
       handleNewCaption(selectedTrack, newTime);
       focusNewCaptionIndex.current = newCaptionId;
     }
@@ -869,6 +898,10 @@ const CaptionEditorInternal = ({
   }, [captionListKeySuffix, onRedo]);
 
   const debouncedUpdateCaption = debounce(updateCaption, 500);
+  const queueDebounceUpdateCaption = (action: PayloadAction<any>) => {
+    lastDebouncedAction.current = { ...action };
+    debouncedUpdateCaption(action);
+  };
 
   const handleChangeTimelineZoom = (value: number) => {
     setTimelineScale(value);
@@ -942,7 +975,24 @@ const CaptionEditorInternal = ({
   ) => {
     if (finalTrackId === trackId) {
       captionListKeySuffix.current++;
-      updateCaption(modifyCaptionTime({ trackId, captionId, startMs, endMs }));
+      // Dry run to get new id after changing the time so that we can set the selected caption to the right one
+      const { caption } = CaptionMutators.modifyCaptionTime(
+        data,
+        trackId,
+        captionId,
+        startMs,
+        endMs
+      );
+      const newIndex = findClosestCaption(
+        caption.tracks[trackId].cues,
+        startMs
+      );
+      updateCaption(
+        modifyCaptionTime({ trackId, captionId, startMs, endMs }),
+        () => {
+          setSelectedCaption(newIndex);
+        }
+      );
     } else {
       captionListKeySuffix.current++;
       updateCaption(
@@ -968,7 +1018,7 @@ const CaptionEditorInternal = ({
   const handleChangeStartTime = (trackId: number, captionId: number) => (
     event: ChangeEvent<HTMLInputElement>
   ) => {
-    debouncedUpdateCaption(
+    queueDebounceUpdateCaption(
       modifyCaptionStartTime({
         trackId,
         captionId,
@@ -988,7 +1038,7 @@ const CaptionEditorInternal = ({
   const handleChangeEndTime = (trackId: number, captionId: number) => (
     event: ChangeEvent<HTMLInputElement>
   ) => {
-    debouncedUpdateCaption(
+    queueDebounceUpdateCaption(
       modifyCaptionEndTime({
         trackId,
         captionId,
@@ -1000,7 +1050,7 @@ const CaptionEditorInternal = ({
   const handleChangeCaptionText = (trackId: number, captionId: number) => (
     event: ChangeEvent<HTMLTextAreaElement>
   ) => {
-    debouncedUpdateCaption(
+    queueDebounceUpdateCaption(
       modifyCaptionText({ trackId, captionId, text: event.target.value })
     );
   };
@@ -1272,6 +1322,11 @@ const CaptionEditorInternal = ({
     return null;
   };
 
+  const handleShortcutSave = (event: Event) => {
+    event.preventDefault();
+    onSave();
+  };
+
   const hotkeyHandlers: EditorShortcutHandlers = {
     [EDITOR_KEYS.PLAY_PAUSE]: handleClickPlay,
     [EDITOR_KEYS.SET_START_TO_CURRENT_TIME]: handleSetStartToCurrentTime,
@@ -1285,6 +1340,7 @@ const CaptionEditorInternal = ({
     [EDITOR_KEYS.SEEK_FORWARD_5_SECONDS]: handleSeekShortcut(5000),
     [EDITOR_KEYS.SEEK_BACK_5_SECONDS]: handleSeekShortcut(-5000),
     [EDITOR_KEYS.NEW_CAPTION]: handleNewCaptionFromShortcut,
+    [EDITOR_KEYS.SAVE]: handleShortcutSave,
   };
 
   return ReactDOM.createPortal(

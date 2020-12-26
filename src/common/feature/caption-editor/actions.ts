@@ -43,6 +43,10 @@ export type UpdateCaption<
   action: PayloadAction<T>;
 };
 
+export type ModifyCaptionWithMultipleActions = CaptionAction & {
+  actions: PayloadAction<any>[];
+};
+
 export type ModifyCaption = CaptionAction & {
   trackId: number;
   captionId: number;
@@ -209,8 +213,12 @@ export const setEditorShortcuts = createAction<SetEditorShortcuts>(
 
 //#region Caption modification actions
 
-export const updateEditorCaption = createAction<UpdateCaption>(
+export const updateEditorCaption = createThunkedActionCreator<UpdateCaption>(
   captionEditorActionTypes.updateEditorCaption
+);
+
+export const modifyCaptionWithMultipleActions = createAction<ModifyCaptionWithMultipleActions>(
+  captionEditorActionTypes.modifyCaptionWithMultipleActions
 );
 
 export const modifyCaption = createAction<ModifyCaption>(
