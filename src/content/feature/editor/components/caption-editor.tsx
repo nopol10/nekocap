@@ -826,7 +826,6 @@ const CaptionEditorInternal = ({
         data.tracks[selectedTrack].cues[selectedCaption].end
       );
     }
-    debouncedUpdateCaption.flush();
     // Dry run adding it to see what the new id will be
     const { newCaptionId } = CaptionMutators.addCaptionToTrackTime(
       data,
@@ -847,7 +846,9 @@ const CaptionEditorInternal = ({
         inputElement.removeEventListener("keyup", temporaryKeyupListener);
       };
       inputElement.addEventListener("keyup", temporaryKeyupListener);
+      debouncedUpdateCaption.flush();
     } else {
+      debouncedUpdateCaption.flush();
       handleNewCaption(selectedTrack, newTime);
       focusNewCaptionIndex.current = newCaptionId;
     }
