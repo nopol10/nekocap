@@ -84,8 +84,14 @@ export const EditorContainer = () => {
   );
 
   const handleUpdateCaption = useCallback(
-    (action: PayloadAction<CaptionAction>) => {
-      dispatch(updateEditorCaption({ action, tabId: window.tabId }));
+    (action: PayloadAction<CaptionAction>, callback?: () => void) => {
+      dispatch(updateEditorCaption({ action, tabId: window.tabId })).then(
+        () => {
+          if (callback) {
+            callback();
+          }
+        }
+      );
     },
     []
   );

@@ -244,7 +244,10 @@ const generateNewCaptionData = (
   return { error, newCaptionData };
 };
 
-function* updateEditorCaptionSaga({ payload }: PayloadAction<UpdateCaption>) {
+function* updateEditorCaptionSaga({
+  payload,
+  meta,
+}: ThunkedPayloadAction<UpdateCaption>) {
   const { action, tabId } = payload;
   const tabEditorData: TabEditorData = yield select(
     tabEditorDataSelector(tabId)
@@ -266,7 +269,10 @@ function* updateEditorCaptionSaga({ payload }: PayloadAction<UpdateCaption>) {
     }
   }
 
-  yield put(setEditorCaptionAfterEdit({ caption: updatedCaption, tabId }));
+  yield put({
+    ...setEditorCaptionAfterEdit({ caption: updatedCaption, tabId }),
+    meta,
+  });
 }
 
 function* undoEditorTriggerSaga({ payload }: PayloadAction<TabbedType>) {

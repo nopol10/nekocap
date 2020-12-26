@@ -213,7 +213,7 @@ export const setEditorShortcuts = createAction<SetEditorShortcuts>(
 
 //#region Caption modification actions
 
-export const updateEditorCaption = createAction<UpdateCaption>(
+export const updateEditorCaption = createThunkedActionCreator<UpdateCaption>(
   captionEditorActionTypes.updateEditorCaption
 );
 
