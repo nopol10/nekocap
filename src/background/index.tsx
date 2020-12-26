@@ -10,6 +10,7 @@ import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
 import { initFirebase } from "./firebase";
 import * as firebase from "firebase/app";
 import "firebase/auth";
+import "./common/provider";
 import { store } from "./common/store";
 
 // Firebase for auth
@@ -40,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
   ReactDOM.render(
     <Provider store={store}>
       <Wrapper providerProps={window.backendProvider.getWrapperProps(store)}>
-        <BackgroundPage>Hi</BackgroundPage>
+        <BackgroundPage>NekoCap</BackgroundPage>
       </Wrapper>
     </Provider>,
     document.getElementById("background")

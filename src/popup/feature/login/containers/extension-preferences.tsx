@@ -2,10 +2,8 @@ import * as React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { userExtensionPreferenceSelector } from "@/background/feature/user-extension-preference/selectors";
-import { Skeleton, Switch } from "antd";
+import { Switch } from "antd";
 import { setHideToolbarIfNoCaptions } from "@/background/feature/user-extension-preference/actions";
-import { persistor } from "@/background/common/store";
-import { PersistGate } from "redux-persist/integration/react";
 import { colors } from "@/common/colors";
 
 const Wrapper = styled.div`
@@ -46,17 +44,15 @@ export const ExtensionPreferences = () => {
   return (
     <Wrapper>
       <h2>Settings</h2>
-      <PersistGate persistor={persistor} loading={<Skeleton />}>
-        <SwitchField>
-          <FieldLabel>Hide toolbar if no captions are found</FieldLabel>
-          <FieldControl>
-            <Switch
-              defaultChecked={hideToolbarIfNoCaptions}
-              onChange={handleChangeHideToolbarIfNoCaptions}
-            />
-          </FieldControl>
-        </SwitchField>
-      </PersistGate>
+      <SwitchField>
+        <FieldLabel>Hide toolbar if no captions are found</FieldLabel>
+        <FieldControl>
+          <Switch
+            defaultChecked={hideToolbarIfNoCaptions}
+            onChange={handleChangeHideToolbarIfNoCaptions}
+          />
+        </FieldControl>
+      </SwitchField>
     </Wrapper>
   );
 };
