@@ -8,6 +8,7 @@ import { getImageLink } from "../chrome-utils";
 export const MediumTag = styled.img`
   width: 50px;
   border-radius: 10px;
+  vertical-align: middle;
 `;
 
 export const SmallTag = styled.img`
