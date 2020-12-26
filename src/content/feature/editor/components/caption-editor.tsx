@@ -80,6 +80,7 @@ import {
   modifyCaptionWithMultipleActions,
 } from "@/common/feature/caption-editor/actions";
 import { getImageLink } from "@/common/chrome-utils";
+import { findClosestCaption } from "@/common/feature/video/utils";
 
 dayjs.extend(duration);
 
@@ -427,7 +428,7 @@ type CaptionEditorProps = UndoComponentProps & {
   videoElement: HTMLVideoElement;
   captionContainerElement: HTMLElement;
   videoMenuComponent: ReactNode;
-  updateCaption: (action: AnyAction) => void;
+  updateCaption: (action: AnyAction, callback?: () => void) => void;
   keyboardShortcuts: { [id: string]: KeySequence };
   onSave: () => void;
   onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
@@ -974,7 +975,24 @@ const CaptionEditorInternal = ({
   ) => {
     if (finalTrackId === trackId) {
       captionListKeySuffix.current++;
-      updateCaption(modifyCaptionTime({ trackId, captionId, startMs, endMs }));
+      // Dry run to get new id after changing the time so that we can set the selected caption to the right one
+      const { caption } = CaptionMutators.modifyCaptionTime(
+        data,
+        trackId,
+        captionId,
+        startMs,
+        endMs
+      );
+      const newIndex = findClosestCaption(
+        caption.tracks[trackId].cues,
+        startMs
+      );
+      updateCaption(
+        modifyCaptionTime({ trackId, captionId, startMs, endMs }),
+        () => {
+          setSelectedCaption(newIndex);
+        }
+      );
     } else {
       captionListKeySuffix.current++;
       updateCaption(
