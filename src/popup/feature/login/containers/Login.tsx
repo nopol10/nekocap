@@ -10,6 +10,7 @@ import { PopupPage } from "@/popup/common/components/popup-page";
 import { NekoLogo } from "@/common/components/neko-logo";
 import googleLoginImage from "@/assets/images/google/btn_google_signin_light_normal_web@2x.png";
 import { AuthButton } from "@/common/components/auth-button";
+import { ExtensionPreferences } from "./extension-preferences";
 import { getImageLink } from "@/common/chrome-utils";
 import styled from "styled-components";
 
@@ -62,7 +63,7 @@ export const Login = () => {
     <Page>
       <NekoLogo width="80%" />
       <Intro>
-        Log in to create, upload and rate captions
+        Log in to create, upload and rate captions.
         <br />
         If you just want to view captions, you do not need to create an account.
       </Intro>
@@ -71,6 +72,7 @@ export const Login = () => {
         onClick={handleClickLoginGoogle}
         href="#"
       />
+      <ExtensionPreferences />
     </Page>
   );
 };

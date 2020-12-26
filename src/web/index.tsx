@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { initStore } from "@/background/common/store";
+import { initStore } from "@/common/store/store";
 import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import "../ant.less";
 import { Main } from "./feature/home/main";
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   initializeProviders();
-  const store = initStore(
+  const { store } = initStore(
     rootWebSaga,
     window.backendProvider.getReducers(),
     window.backendProvider.getMiddlewares()

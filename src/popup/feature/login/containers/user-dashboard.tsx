@@ -4,20 +4,16 @@ import { logout } from "@/common/feature/login/actions";
 import { userDataSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import styled from "styled-components";
-import { Button, Typography } from "antd";
+import { Button } from "antd";
 import { NekoLogo } from "@/common/components/neko-logo";
 import { PopupPage } from "@/popup/common/components/popup-page";
 import { SupportedSites } from "@/common/components/supported-sites";
-const { Link, Title } = Typography;
+import { ExtensionPreferences } from "./extension-preferences";
 
 const HelloText = styled.div`
   font-size: 14px;
   margin-top: 20px;
   margin-bottom: 20px;
-`;
-
-const SiteLink = styled(Link)`
-  font-weight: bold;
 `;
 
 const Buttons = styled.div`
@@ -47,6 +43,7 @@ export const UserDashboard = () => {
         Visit one of the supported sites to start viewing and creating captions:
       </div>
       <SupportedSites />
+      <ExtensionPreferences />
       <Buttons>
         <Button onClick={handleClickLogout}>Logout</Button>
       </Buttons>

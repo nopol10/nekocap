@@ -22,7 +22,7 @@ import {
   setCaptionerPrivateData,
 } from "../captioner/actions";
 import { CaptionerState } from "../captioner/types";
-import { routePopup } from "@/common/store/saga";
+import { routePopup } from "@/background/common/saga";
 import { isInExtension } from "@/common/client-utils";
 import {
   LoginMethod,
