@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "NekoCap",
-  "description": "NekoCap",
-  "version": "0.2.10",
+  "description": "Create and upload community captions for YouTube videos (and more) with this easy to use extension that supports SSA/ASS rendering.",
+  "version": "0.2.11",
 
   "browser_action": {
     "default_icon": "icon16.png",
