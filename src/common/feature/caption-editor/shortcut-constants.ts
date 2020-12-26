@@ -13,6 +13,7 @@ const DEFAULT_SHORTCUTS: EditorShortcuts = {
   SET_START_TO_CURRENT_TIME: "shift+q",
   SET_END_TO_CURRENT_TIME: "shift+e",
   NEW_CAPTION: "enter",
+  SAVE: "ctrl+s",
 };
 
 const YOUTUBE_EDITOR_SHORTCUTS: EditorShortcuts = {
@@ -47,6 +48,7 @@ const AEGISUB_EDITOR_SHORTCUTS: EditorShortcuts = {
 
 // Names are defined separately from the editor shortcut objects so I don't have to rewrite the same name for each set of definitions
 export const SHORTCUT_NAME: { [id in keyof typeof EDITOR_KEYS] } = {
+  SAVE: "Save",
   PLAY_PAUSE: "Play",
   GO_TO_PREVIOUS_CAPTION: "Previous Caption",
   GO_TO_NEXT_CAPTION: "Next Caption",

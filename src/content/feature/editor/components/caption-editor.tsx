@@ -1272,6 +1272,11 @@ const CaptionEditorInternal = ({
     return null;
   };
 
+  const handleShortcutSave = (event: Event) => {
+    event.preventDefault();
+    onSave();
+  };
+
   const hotkeyHandlers: EditorShortcutHandlers = {
     [EDITOR_KEYS.PLAY_PAUSE]: handleClickPlay,
     [EDITOR_KEYS.SET_START_TO_CURRENT_TIME]: handleSetStartToCurrentTime,
@@ -1285,6 +1290,7 @@ const CaptionEditorInternal = ({
     [EDITOR_KEYS.SEEK_FORWARD_5_SECONDS]: handleSeekShortcut(5000),
     [EDITOR_KEYS.SEEK_BACK_5_SECONDS]: handleSeekShortcut(-5000),
     [EDITOR_KEYS.NEW_CAPTION]: handleNewCaptionFromShortcut,
+    [EDITOR_KEYS.SAVE]: handleShortcutSave,
   };
 
   return ReactDOM.createPortal(
