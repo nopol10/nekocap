@@ -41,6 +41,7 @@ import {
   removeTrack,
   saveLocalCaption,
   setEditorCaptionAfterEdit,
+  setEditorRawCaption,
   setEditorShortcuts,
   setLoadedCaptionLanguage,
   setShowEditor,
@@ -461,7 +462,6 @@ function* createNewCaptionSaga({
   payload,
 }: ThunkedPayloadAction<CreateNewCaption>) {
   const { tabId, videoId, videoSource } = payload;
-  yield put(setShowEditor({ show: true, tabId }));
   yield put(clearHistory(tabId));
   const emptyCaptionContainer: CaptionContainer = {
     data: {
@@ -477,9 +477,12 @@ function* createNewCaptionSaga({
     videoSource,
   };
   // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
-  yield put(
-    setEditorCaptionAfterEdit({ caption: emptyCaptionContainer, tabId })
-  );
+  // @ts-ignore
+  yield put([
+    setShowEditor({ show: true, tabId }),
+    setEditorRawCaption({ rawCaption: undefined, tabId }),
+    setEditorCaptionAfterEdit({ caption: emptyCaptionContainer, tabId }),
+  ]);
 }
 
 function* updateShowEditorSaga({
