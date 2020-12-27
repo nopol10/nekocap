@@ -2,9 +2,16 @@ import { Tooltip } from "antd";
 import Button, { ButtonProps } from "antd/lib/button";
 import { TooltipProps } from "antd/lib/tooltip";
 import React, { ReactNode } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { darkModeSelector } from "../processor-utils";
+import { colors } from "@/common/colors";
 
-export const WSButton = styled(Button)``;
+export const WSButton = styled(Button)`
+  ${darkModeSelector(css`
+    color: ${colors.white};
+    background: transparent;
+  `)}
+`;
 
 type ButtonWithTooltipProps = {
   title: string;

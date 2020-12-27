@@ -2,8 +2,11 @@ import { AntdIconProps } from "@ant-design/icons/lib/components/AntdIcon";
 import YoutubeFilled from "@ant-design/icons/YoutubeFilled";
 import { Typography } from "antd";
 import React, { ReactNode } from "react";
+import { css } from "styled-components";
 import { Processor } from "../content/processors/processor";
+import { EDITOR_PORTAL_ELEMENT_ID } from "./constants";
 import { VideoSource } from "./feature/video/types";
+import { videoSourceToProcessorMap } from "./feature/video/utils";
 
 export const getVideoSourceIcon = (
   videoSource: VideoSource,
@@ -30,4 +33,21 @@ export const getClickableVideoLink = (
       {videoName}
     </Typography.Link>
   );
+};
+
+export const darkModeSelector = (
+  styles: ReturnType<typeof css> | string
+): ReturnType<typeof css> | string => {
+  const selector = Object.values(videoSourceToProcessorMap)
+    .map((processor) => processor.darkModeSelector)
+    .filter(Boolean)
+    .join(",");
+  if (!selector) {
+    return "";
+  }
+  return css`
+    ${selector} .use-site-dark-mode&, ${selector} .use-site-dark-mode & {
+      ${styles}
+    }
+  `;
 };

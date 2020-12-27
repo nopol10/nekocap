@@ -54,8 +54,35 @@ import {
 import { CAPTION_RENDERER_DATA } from "@/common/feature/video/constants";
 import Button from "antd/lib/button";
 import { CaptionFileFormat } from "@/common/types";
+import { WSButton } from "@/common/components/ws-button";
+import styled, { css } from "styled-components";
+import { styledNoPass } from "@/common/style-utils";
+import { darkModeSelector } from "@/common/processor-utils";
+import { WSSelect } from "@/common/components/ws-select";
 
 const { OptGroup } = Select;
+
+type LikeTextProps = {
+  activated?: boolean;
+};
+
+const LikeText = styledNoPass<LikeTextProps, "span">("span")`
+  color: ${({ activated }: LikeTextProps) =>
+    activated ? colors.like : undefined};
+  ${darkModeSelector(css`
+    color: ${({ activated }: LikeTextProps) =>
+      activated ? colors.darkModeLike : colors.white};
+  `)}
+`;
+
+const DislikeText = styledNoPass<LikeTextProps, "span">("span")`
+  color: ${({ activated }: LikeTextProps) =>
+    activated ? colors.dislike : undefined};
+  ${darkModeSelector(css`
+    color: ${({ activated }: LikeTextProps) =>
+      activated ? colors.darkModeDislike : colors.white};
+  `)}
+`;
 
 const CreateCaptionWarningModal = ({ visible, onCancel }) => {
   const dispatch = useDispatch();
@@ -363,7 +390,7 @@ export const VideoPageMenu = ({
     }
     const label = showCaption ? "Hide" : "Show";
 
-    return <Button onClick={handleClickShowHideCaption}>{label}</Button>;
+    return <WSButton onClick={handleClickShowHideCaption}>{label}</WSButton>;
   };
 
   const renderShowEditorButton = () => {
@@ -413,9 +440,7 @@ export const VideoPageMenu = ({
                 }}
               />
             </Expandable>
-            <span style={{ color: userLike ? colors.like : undefined }}>
-              {likes}
-            </span>
+            <LikeText activated={userLike}>{likes}</LikeText>
           </div>
         </Tooltip>
         <Tooltip placement={"top"} title={"I dislike this caption"}>
@@ -430,9 +455,7 @@ export const VideoPageMenu = ({
                 }}
               />
             </Expandable>
-            <span style={{ color: userDislike ? colors.dislike : undefined }}>
-              {dislikes}
-            </span>
+            <DislikeText activated={userDislike}>{dislikes}</DislikeText>
           </div>
         </Tooltip>
       </Space>
@@ -448,11 +471,11 @@ export const VideoPageMenu = ({
       const label = !!loadingCaptionListError
         ? "Error, hover to view"
         : "No captions found";
-      return <Button disabled={true}>{label}</Button>;
+      return <WSButton disabled={true}>{label}</WSButton>;
     }
 
     return (
-      <Select
+      <WSSelect
         placeholder={`Select caption (${tabData.serverCaptionList.length} available)`}
         optionLabelProp={"label"}
         onChange={handleLoadServerCaption}
@@ -465,7 +488,7 @@ export const VideoPageMenu = ({
         }}
       >
         {captionOptions}
-      </Select>
+      </WSSelect>
     );
   };
 
@@ -483,12 +506,12 @@ export const VideoPageMenu = ({
         )}
         {availableRenderers.length > 0 && (
           <Dropdown overlay={renderRendererMenu()} placement={"topCenter"}>
-            <Button>Renderer</Button>
+            <WSButton>Renderer</WSButton>
           </Dropdown>
         )}
         {
           <Dropdown overlay={renderEditorMenu()} placement={"topCenter"}>
-            <Button>Editor</Button>
+            <WSButton>Editor</WSButton>
           </Dropdown>
         }
         {renderShowHideButton()}

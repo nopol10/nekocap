@@ -54,6 +54,7 @@ export interface Processor {
    */
   editorVideoPlayerStyles: string;
   globalStyles?: string;
+  darkModeSelector?: string;
   getVideoId: () => string;
   generateVideoLink: (videoId: string) => string;
   /**

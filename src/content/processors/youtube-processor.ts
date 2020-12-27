@@ -35,6 +35,7 @@ export const YoutubeProcessor: Processor = {
     left: 0 !important;
   }
   `,
+  darkModeSelector: 'html[dark="true"]',
   getVideoId: () => {
     const matches = window.location.href.match(
       /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/

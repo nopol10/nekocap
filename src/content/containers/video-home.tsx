@@ -11,17 +11,15 @@ import { colors } from "@/common/colors";
 import { CaptionRenderer } from "./caption-renderer";
 import { VideoPageMenu } from "./video-page-menu";
 import { OctopusRenderer } from "./octopus-renderer";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { NekoLogo } from "@/common/components/neko-logo";
 import ReactDOM from "react-dom";
 import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
 import { getUIElement } from "../processors/processor";
 import { useCaptionContainerUpdate, useVideoElementUpdate } from "@/hooks";
 import { EditorContainer } from "./editor-container";
-import {
-  shouldHideVideoPageMenuSelector,
-  userExtensionPreferenceSelector,
-} from "@/background/feature/user-extension-preference/selectors";
+import { shouldHideVideoPageMenuSelector } from "@/background/feature/user-extension-preference/selectors";
+import { darkModeSelector } from "@/common/processor-utils";
 
 const InlineMenuWrapper = styled.div`
   display: flex;
@@ -31,10 +29,15 @@ const InlineMenuWrapper = styled.div`
   margin-top: 5px;
   padding: 5px;
   border: 1px solid ${colors.divider};
-  background-color: ${colors.white};
+  background-color: ${colors.white}59;
   & > div:first-child {
     margin-right: auto;
   }
+  ${darkModeSelector(
+    css`
+      background-color: transparent;
+    `
+  )}
 `;
 
 const InlineLogoWrapper = styled.div`
@@ -111,7 +114,7 @@ export const VideoHome = () => {
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
-        <InlineMenuWrapper className="scoped-antd">
+        <InlineMenuWrapper className="scoped-antd use-site-dark-mode">
           <VideoPageMenu />
           <InlineLogoWrapper>
             <NekoLogo />
