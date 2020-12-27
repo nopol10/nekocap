@@ -42,8 +42,8 @@ export const TVerProcessor: Processor = {
   generateThumbnailLink: async (videoId: string) => {
     return ``;
   },
-  clearHotkeys: () => {},
-  restoreHotkeys: () => {},
+  onEditorOpen: () => {},
+  onEditorClose: () => {},
   getPageType: (url: string) => {
     if (
       url.match(

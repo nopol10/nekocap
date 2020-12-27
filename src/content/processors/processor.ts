@@ -61,8 +61,8 @@ export interface Processor {
    * Do not call generateThumbnailLink in the UI as it might perform fetch requests
    */
   generateThumbnailLink: (videoId: string) => Promise<string>;
-  clearHotkeys: () => void;
-  restoreHotkeys: () => void;
+  onEditorOpen: () => void;
+  onEditorClose: () => void;
   getPageType: (url: string) => PageType;
   waitUntilPageIsReady?: () => Promise<void>;
 }

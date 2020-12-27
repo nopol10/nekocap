@@ -1,5 +1,34 @@
+import { EDITOR_OPEN_ATTRIBUTE } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import { Processor } from "./processor";
+
+const disableYoutubeHotkeys = () => {
+  const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
+
+  if (hotkeyManager) {
+    window.backupHotkeyParentElement = hotkeyManager.parentNode;
+    window.backupHotkeyElement = hotkeyManager;
+    const clone = hotkeyManager.cloneNode(false);
+    hotkeyManager.parentNode.replaceChild(clone, hotkeyManager);
+    clone.parentNode.removeChild(clone);
+  }
+
+  const player = document.getElementById("player");
+  if (player) {
+    player.blur();
+  }
+  const movie_player = document.getElementById("movie_player");
+  if (movie_player) {
+    movie_player.blur();
+  }
+};
+
+const enableYoutubeHotkeys = () => {
+  if (!window.backupHotkeyParentElement || !window.backupHotkeyElement) {
+    return;
+  }
+  window.backupHotkeyParentElement.appendChild(window.backupHotkeyElement);
+};
 
 export const YoutubeProcessor: Processor = {
   type: VideoSource.Youtube,
@@ -35,6 +64,21 @@ export const YoutubeProcessor: Processor = {
     left: 0 !important;
   }
   `,
+  /**
+   * Hide comments and "up next" elements when the editor is open to prevent elements that are being loaded in the background
+   * from degrading the performance of the editor and making the page longer and longer
+   */
+  globalStyles: `
+    body[${EDITOR_OPEN_ATTRIBUTE}="true"] {
+      ytd-comments {
+        display: none;
+      }
+
+      #secondary {
+        display: none;
+      }
+    }
+  `,
   darkModeSelector: 'html[dark="true"]',
   getVideoId: () => {
     const matches = window.location.href.match(
@@ -49,31 +93,11 @@ export const YoutubeProcessor: Processor = {
   generateThumbnailLink: async (videoId: string) => {
     return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
   },
-  clearHotkeys: () => {
-    const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
-
-    if (hotkeyManager) {
-      window.backupHotkeyParentElement = hotkeyManager.parentNode;
-      window.backupHotkeyElement = hotkeyManager;
-      const clone = hotkeyManager.cloneNode(false);
-      hotkeyManager.parentNode.replaceChild(clone, hotkeyManager);
-      clone.parentNode.removeChild(clone);
-    }
-
-    const player = document.getElementById("player");
-    if (player) {
-      player.blur();
-    }
-    const movie_player = document.getElementById("movie_player");
-    if (movie_player) {
-      movie_player.blur();
-    }
+  onEditorOpen: () => {
+    disableYoutubeHotkeys();
   },
-  restoreHotkeys: () => {
-    if (!window.backupHotkeyParentElement || !window.backupHotkeyElement) {
-      return;
-    }
-    window.backupHotkeyParentElement.appendChild(window.backupHotkeyElement);
+  onEditorClose: () => {
+    enableYoutubeHotkeys();
   },
   getPageType: (url: string) => {
     if (

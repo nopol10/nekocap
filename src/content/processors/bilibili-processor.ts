@@ -45,8 +45,8 @@ export const BilibiliProcessor: Processor = {
   generateThumbnailLink: async function (videoId: string) {
     return "";
   },
-  clearHotkeys: () => {},
-  restoreHotkeys: () => {},
+  onEditorOpen: () => {},
+  onEditorClose: () => {},
   getPageType: (url: string) => {
     if (url.match(videoMatchingRegex)) {
       return PageType.Video;

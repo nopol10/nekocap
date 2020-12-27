@@ -23,6 +23,7 @@ import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { CaptionEditor } from "../feature/editor/components/caption-editor";
 import { VideoPageMenu } from "./video-page-menu";
 import { PayloadAction } from "@reduxjs/toolkit";
+import { EDITOR_OPEN_ATTRIBUTE } from "@/common/constants";
 
 const editorMenuComponent = <VideoPageMenu inEditorScreen={true} />;
 
@@ -45,9 +46,11 @@ export const EditorContainer = () => {
       return;
     }
     if (showEditor) {
-      window.selectedProcessor.clearHotkeys();
+      document.body.setAttribute(EDITOR_OPEN_ATTRIBUTE, "true");
+      window.selectedProcessor.onEditorOpen();
     } else {
-      window.selectedProcessor.restoreHotkeys();
+      document.body.removeAttribute(EDITOR_OPEN_ATTRIBUTE);
+      window.selectedProcessor.onEditorClose();
     }
   }, [showEditor]);
 

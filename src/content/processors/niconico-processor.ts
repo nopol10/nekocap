@@ -36,8 +36,8 @@ export const NicoNicoProcessor: Processor = {
     // TODO make it work
     return ``;
   },
-  clearHotkeys: () => {},
-  restoreHotkeys: () => {},
+  onEditorOpen: () => {},
+  onEditorClose: () => {},
   getPageType: (url: string) => {
     if (url.match(videoMatchingRegex)) {
       return PageType.Video;

@@ -44,8 +44,8 @@ export const VimeoProcessor: Processor = {
       return "";
     }
   },
-  clearHotkeys: () => {},
-  restoreHotkeys: () => {},
+  onEditorOpen: () => {},
+  onEditorClose: () => {},
   getPageType: (url: string) => {
     if (url.match(videoMatchingRegex)) {
       return PageType.Video;
