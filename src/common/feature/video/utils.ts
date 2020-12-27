@@ -48,8 +48,8 @@ export const findClosestCaption = (
    */
   let currentIndex = foundIndex;
   for (; currentIndex > 0; currentIndex--) {
-    if (time > captions[currentIndex].end) {
-      return currentIndex + 1;
+    if (currentIndex - 1 >= 0 && time > captions[currentIndex - 1].end) {
+      return currentIndex;
     }
   }
 

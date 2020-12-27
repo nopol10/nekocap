@@ -985,7 +985,7 @@ const CaptionEditorInternal = ({
       );
       const newIndex = findClosestCaption(
         caption.tracks[trackId].cues,
-        startMs
+        startMs + (endMs - startMs) / 2
       );
       updateCaption(
         modifyCaptionTime({ trackId, captionId, startMs, endMs }),
