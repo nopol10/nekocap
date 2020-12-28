@@ -30,9 +30,9 @@ export const ButtonWithTooltip = ({
 }: ButtonWithTooltipProps) => {
   return (
     <Tooltip title={title} {...tooltipProps}>
-      <Button onClick={onClick} {...buttonProps}>
+      <WSButton onClick={onClick} {...buttonProps}>
         {children}
-      </Button>
+      </WSButton>
     </Tooltip>
   );
 };

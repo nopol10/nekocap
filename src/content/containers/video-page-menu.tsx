@@ -15,6 +15,7 @@ import {
   likeCaption,
   dislikeCaption,
   updateRenderer,
+  closeMenuBar,
 } from "@/common/feature/video/actions";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import {
@@ -34,6 +35,7 @@ import {
 import DislikeTwoTone from "@ant-design/icons/DislikeTwoTone";
 import LikeTwoTone from "@ant-design/icons/LikeTwoTone";
 import CheckOutlined from "@ant-design/icons/CheckOutlined";
+import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import { colors } from "@/common/colors";
 import { Expandable } from "@/common/components/expandable";
 import { captionTags } from "@/common/constants";
@@ -52,10 +54,9 @@ import {
   updateShowEditor,
 } from "@/common/feature/caption-editor/actions";
 import { CAPTION_RENDERER_DATA } from "@/common/feature/video/constants";
-import Button from "antd/lib/button";
 import { CaptionFileFormat } from "@/common/types";
 import { WSButton } from "@/common/components/ws-button";
-import styled, { css } from "styled-components";
+import { css } from "styled-components";
 import { styledNoPass } from "@/common/style-utils";
 import { darkModeSelector } from "@/common/processor-utils";
 import { WSSelect } from "@/common/components/ws-select";
@@ -388,7 +389,7 @@ export const VideoPageMenu = ({
     if (!caption) {
       return null;
     }
-    const label = showCaption ? "Hide" : "Show";
+    const label = showCaption ? "Hide caption" : "Show caption";
 
     return <WSButton onClick={handleClickShowHideCaption}>{label}</WSButton>;
   };
@@ -492,11 +493,18 @@ export const VideoPageMenu = ({
     );
   };
 
+  const handleCloseMenuBar = () => {
+    dispatch(closeMenuBar({ tabId: window.tabId }));
+  };
+
   return (
     <>
       <Space>
         {!inEditorScreen && (
           <>
+            <WSButton onClick={handleCloseMenuBar}>
+              <CloseOutlined />
+            </WSButton>
             <Spin spinning={isLoadingCaptionList}>
               <Tooltip trigger={"hover"} title={loadingCaptionListError}>
                 {renderCaptionList()}

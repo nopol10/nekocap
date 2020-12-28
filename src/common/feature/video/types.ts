@@ -59,6 +59,7 @@ export type TabVideoData = {
   serverCaptionList?: LoadCaptionsResult[];
   renderer: CaptionRendererType;
   pageType: PageType;
+  menuHidden: boolean;
 };
 
 export type VideoState = {
@@ -144,6 +145,10 @@ export type SetServerCaptions = TabbedType & {
 
 export type SetRenderer = TabbedType & {
   renderer: CaptionRendererType;
+};
+
+export type SetMenuHidden = TabbedType & {
+  hidden: boolean;
 };
 
 export type SubmitCaption = TabbedType & {

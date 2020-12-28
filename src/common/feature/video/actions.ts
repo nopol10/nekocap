@@ -3,9 +3,9 @@ import {
   createSignalActionInState,
   createThunkedActionCreator,
 } from "@/common/store/action";
-import { TabbedType } from "@/common/types";
+import type { TabbedType } from "@/common/types";
 import { videoActionTypes } from "./action-types";
-import {
+import type {
   RequestFreshTabData,
   LoadServerCaption,
   LoadCaptions,
@@ -15,6 +15,7 @@ import {
   UpdateLoadedCaptionFromFile,
   SetRenderer,
   SetContentPageType,
+  SetMenuHidden,
 } from "./types";
 
 const csa = createSignalActionInState("video", true);
@@ -50,6 +51,14 @@ export const updateRenderer = createAction<SetRenderer>(
   videoActionTypes.updateRenderer
 );
 
+export const closeMenuBar = createAction<TabbedType>(
+  videoActionTypes.closeMenuBar
+);
+
+export const openMenuBar = createAction<TabbedType>(
+  videoActionTypes.openMenuBar
+);
+
 export const requestFreshTabData = createAction<RequestFreshTabData>(
   videoActionTypes.requestFreshTabData
 );
@@ -82,4 +91,8 @@ export const setServerCaptions = createAction<SetServerCaptions>(
 
 export const setRenderer = createAction<SetRenderer>(
   videoActionTypes.setRenderer
+);
+
+export const setMenuHidden = createAction<SetMenuHidden>(
+  videoActionTypes.setMenuHidden
 );

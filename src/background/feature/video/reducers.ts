@@ -6,6 +6,7 @@ import {
   loadCaptions,
   setContentPageType,
   setLoadedCaption,
+  setMenuHidden,
   setRenderer,
   setServerCaptions,
   setShowCaption,
@@ -23,6 +24,7 @@ const defaultTabVideoData: TabVideoData = {
   showCaption: true,
   renderer: CaptionRendererType.Default,
   pageType: PageType.SearchResults,
+  menuHidden: false,
 };
 
 export const videoReducer = createReducer<VideoState>(
@@ -111,6 +113,21 @@ export const videoReducer = createReducer<VideoState>(
           },
         };
       })
+      .addCase(setMenuHidden, (state, action) => {
+        const { payload } = action;
+        const { hidden, tabId } = payload;
+        const currentTab: TabVideoData = { ...state.tabData[tabId] };
+        return {
+          ...state,
+          tabData: {
+            ...state.tabData,
+            [tabId]: {
+              ...currentTab,
+              menuHidden: hidden,
+            },
+          },
+        };
+      })
       .addCase(clearTabData, (state, action) => {
         const { payload } = action;
         const { tabId } = payload;
@@ -123,6 +140,7 @@ export const videoReducer = createReducer<VideoState>(
               showEditorIfPossible: true,
               renderer: CaptionRendererType.Default,
               pageType: PageType.SearchResults,
+              menuHidden: false,
             },
           },
         };

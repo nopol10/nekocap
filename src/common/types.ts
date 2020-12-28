@@ -9,7 +9,13 @@ export enum ChromeMessageType {
   GetTabId,
   ContentScriptUpdate,
   SaveFile,
+  InfoMessage,
 }
+
+export type NotificationMessage = {
+  message: string;
+  duration?: number;
+};
 
 export type TabbedType = {
   tabId: number;

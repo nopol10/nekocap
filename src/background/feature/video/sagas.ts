@@ -22,6 +22,9 @@ import {
   setContentPageType,
   closeTab,
   unsetTabData,
+  closeMenuBar,
+  setMenuHidden,
+  openMenuBar,
 } from "@/common/feature/video/actions";
 import { videoActionTypes } from "@/common/feature/video/action-types";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -40,7 +43,12 @@ import {
   PageType,
 } from "@/common/feature/video/types";
 import { convertToCaptionContainer } from "@/common/feature/video/utils";
-import { CaptionFileFormat, TabbedType } from "@/common/types";
+import {
+  CaptionFileFormat,
+  ChromeMessageType,
+  NotificationMessage,
+  TabbedType,
+} from "@/common/types";
 import {
   loadedCaptionSelector,
   tabVideoDataSelector,
@@ -112,6 +120,24 @@ function* updateShowCaptionSaga({ payload }: PayloadAction<SetShowCaption>) {
 function* updateRendererSaga({ payload }: PayloadAction<SetRenderer>) {
   // TODO: check to make sure the renderer can be used
   yield put(setRenderer(payload));
+}
+
+function* closeMenuBarSaga({ payload }: PayloadAction<TabbedType>) {
+  const { tabId } = payload;
+  const infoMessage: NotificationMessage = {
+    message:
+      "You can open the menu again by clicking the NekoCap icon in the extensions toolbar",
+    duration: 4,
+  };
+  chrome.tabs.sendMessage(tabId, {
+    type: ChromeMessageType.InfoMessage,
+    payload: infoMessage,
+  });
+  yield put(setMenuHidden({ tabId, hidden: true }));
+}
+
+function* openMenuBarSaga({ payload }: PayloadAction<TabbedType>) {
+  yield put(setMenuHidden({ tabId: payload.tabId, hidden: false }));
 }
 
 /**
@@ -261,6 +287,8 @@ function* videoSaga() {
   yield takeLatest(closeTab, safe(closeTabSaga));
 
   yield takeLatest(updateRenderer.type, safe(updateRendererSaga));
+  yield takeLatest(closeMenuBar.type, safe(closeMenuBarSaga));
+  yield takeLatest(openMenuBar.type, safe(openMenuBarSaga));
 }
 
 export default [fork(videoSaga)];

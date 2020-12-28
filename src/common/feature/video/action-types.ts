@@ -4,6 +4,8 @@ export const videoActionTypes = {
   updateLoadedCaptionFromFile: `${reducerName}/updateLoadedCaptionFromFile`,
   updateShowCaption: `${reducerName}/updateShowCaption`,
   updateRenderer: `${reducerName}/updateRenderer`,
+  closeMenuBar: `${reducerName}/closeMenuBar`,
+  openMenuBar: `${reducerName}/openMenuBar`,
   loadCaptions: `${reducerName}/loadCaptions`,
   loadServerCaption: `${reducerName}/loadServerCaption`,
   likeCaption: `${reducerName}/likeCaption`,
@@ -18,4 +20,5 @@ export const videoActionTypes = {
   setServerCaptions: `${reducerName}/setServerCaptions`,
   setShowEditor: `${reducerName}/setShowEditor`,
   setRenderer: `${reducerName}/setRenderer`,
+  setMenuHidden: `${reducerName}/setMenuHidden`,
 };

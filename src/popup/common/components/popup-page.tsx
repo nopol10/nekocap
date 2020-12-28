@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { colors } from "@/common/colors";
 
 export const PopupPage = styled.div<{ width?: string }>`
   display: flex;
