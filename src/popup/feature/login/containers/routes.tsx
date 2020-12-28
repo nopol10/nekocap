@@ -6,7 +6,7 @@ import { UserDashboard } from "./user-dashboard";
 import { Login } from "./login";
 import { UserProfile } from "./user-profile";
 
-export default function () {
+const PopupRoutes = () => {
   return (
     <>
       <Route exact path={["/", loginRoutes.popup.login]}>
@@ -20,4 +20,6 @@ export default function () {
       </ProtectedRoute>
     </>
   );
-}
+};
+
+export default PopupRoutes;

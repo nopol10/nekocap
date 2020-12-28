@@ -143,6 +143,7 @@ export const ProfileSidebar = ({
                   <Link
                     href="https://www.markdownguide.org/cheat-sheet/"
                     target="_blank"
+                    rel="noreferrer"
                   >
                     (Formatting in Markdown is supported)
                   </Link>
@@ -215,6 +216,7 @@ export const ProfileSidebar = ({
               <ProfileMessage>
                 <Link
                   target="_blank"
+                  rel="noreferrer"
                   href={donationLink}
                   style={{ fontSize: "1.2em" }}
                 >

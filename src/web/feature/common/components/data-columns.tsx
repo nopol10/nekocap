@@ -33,7 +33,7 @@ export const captionColumns = {
     title: "Video Name",
     dataIndex: "videoName",
     key: "videoName",
-    render: (text, record: CaptionListFields, index) => {
+    render: function render(text, record: CaptionListFields) {
       const processor = videoSourceToProcessorMap[record.videoSource];
       if (!processor) {
         return text;
@@ -41,7 +41,7 @@ export const captionColumns = {
       const link = processor.generateVideoLink(record.videoId);
       return (
         <>
-          <Link href={link} target="_blank">
+          <Link href={link} target="_blank" rel="noreferrer">
             {text}
           </Link>
           {hasTag(record.tags, captionTags.audioDescribed) && (
@@ -54,7 +54,7 @@ export const captionColumns = {
   thumbnail: {
     title: "",
     key: "thumbnail",
-    render: (text, record: CaptionListFields, index) => {
+    render: function render(text, record: CaptionListFields) {
       const processor = videoSourceToProcessorMap[record.videoSource];
       if (!processor) {
         return text;
@@ -67,7 +67,7 @@ export const captionColumns = {
     dataIndex: "videoSource",
     key: "videoSource",
     align: "center",
-    render: (text, record: CaptionListFields, index) => {
+    render: (text, record: CaptionListFields): string => {
       const processor: Processor =
         videoSourceToProcessorMap[record.videoSource];
       return processor.name;
@@ -77,7 +77,7 @@ export const captionColumns = {
     title: "Uploaded",
     dataIndex: "createdDate",
     key: "createdDate",
-    render: (text, record, index) => {
+    render: (text) => {
       return getTooltippedDate(text);
     },
   },
@@ -100,7 +100,7 @@ export const captionColumns = {
   fromToLanguage: {
     title: "Language",
     key: "language",
-    render: (text, record, index) => {
+    render: function render(text, record, index) {
       const fromLanguage = languages[record.videoLanguage];
       const toLanguage = languages[record.language];
       return (
@@ -122,7 +122,7 @@ export const captionColumns = {
     title: "Captioner",
     dataIndex: "creatorName",
     key: "creatorName",
-    render: (text, record, index) => {
+    render: function render(text, record, index) {
       return (
         <RouterLink
           to={{
@@ -144,7 +144,7 @@ export const videoColumns = {
     title: "Video Name",
     dataIndex: "name",
     key: "name",
-    render: (text, record: VideoFields, index) => {
+    render: function render(text, record: VideoFields, index) {
       const processor = videoSourceToProcessorMap[record.source];
       if (!processor) {
         return text;
@@ -152,7 +152,7 @@ export const videoColumns = {
       const link = processor.generateVideoLink(record.sourceId);
       return (
         <>
-          <Link href={link} target="_blank">
+          <Link href={link} target="_blank" rel="noreferrer">
             {text}
           </Link>
         </>
@@ -163,7 +163,7 @@ export const videoColumns = {
     title: "Caption count",
     dataIndex: "captionCount",
     key: "captionCount",
-    render: (text, record: VideoFields, index) => {
+    render: function render(text, record: VideoFields, index) {
       const processor = videoSourceToProcessorMap[record.source];
       if (!processor) {
         return text;
@@ -171,7 +171,7 @@ export const videoColumns = {
       const link = processor.generateVideoLink(record.sourceId);
       return (
         <>
-          <Link href={link} target="_blank">
+          <Link href={link} target="_blank" rel="noreferrer">
             {text}
           </Link>
         </>

@@ -62,7 +62,11 @@ export const Instructions = () => {
                 <StepNumber>1</StepNumber>
                 <span>
                   Download the extension for{" "}
-                  <a target="_blank" href={CHROME_DOWNLOAD_URL}>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={CHROME_DOWNLOAD_URL}
+                  >
                     Chrome
                   </a>
                 </span>
@@ -97,7 +101,11 @@ export const Instructions = () => {
                 <StepNumber>1</StepNumber>
                 <span>
                   Download the extension for{" "}
-                  <a target="_blank" href={CHROME_DOWNLOAD_URL}>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={CHROME_DOWNLOAD_URL}
+                  >
                     Chrome
                   </a>
                 </span>

@@ -87,12 +87,24 @@ export const Profile = ({
   isLoadingCaptionPage,
   isEditing,
   canEdit,
-  onSetEditing = () => {},
-  onSubmitEdit = () => {},
-  onAssignReviewerManager = () => {},
-  onAssignReviewer = () => {},
-  onVerifyCaptioner = () => {},
-  onBanCaptioner = () => {},
+  onSetEditing = () => {
+    /*do nothing*/
+  },
+  onSubmitEdit = () => {
+    /*do nothing*/
+  },
+  onAssignReviewerManager = () => {
+    /*do nothing*/
+  },
+  onAssignReviewer = () => {
+    /*do nothing*/
+  },
+  onVerifyCaptioner = () => {
+    /*do nothing*/
+  },
+  onBanCaptioner = () => {
+    /*do nothing*/
+  },
 }: ProfileProps) => {
   const {
     captionCount,

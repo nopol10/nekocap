@@ -32,7 +32,7 @@ export const TVerProcessor: Processor = {
   `,
   getVideoId: () => {
     const matches = window.location.href.match(
-      /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(\&\S+)?/
+      /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/
     );
     return matches[3];
   },
@@ -42,12 +42,16 @@ export const TVerProcessor: Processor = {
   generateThumbnailLink: async (videoId: string) => {
     return ``;
   },
-  onEditorOpen: () => {},
-  onEditorClose: () => {},
+  onEditorOpen: () => {
+    /* no content */
+  },
+  onEditorClose: () => {
+    /* no content */
+  },
   getPageType: (url: string) => {
     if (
       url.match(
-        /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(\&\S+)?/
+        /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/
       )
     ) {
       return PageType.Video;

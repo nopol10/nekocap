@@ -1,10 +1,7 @@
 import debounce from "lodash/debounce";
 import {
   DependencyList,
-  Dispatch,
   MutableRefObject,
-  RefObject,
-  SetStateAction,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -60,12 +57,8 @@ export const useStateRef = <S>(
 export const useStateAutoRef = <S>(
   initialState: S
 ): [S, (a: S) => void, MutableRefObject<S>] => {
-  let state: S;
-  let setState: Dispatch<SetStateAction<S>> | Dispatch<SetStateAction<S>>;
-  let ref: MutableRefObject<S>;
-
-  [state, setState] = useState<S>(initialState);
-  ref = useRef<S>(initialState);
+  const [state, setState] = useState<S>(initialState);
+  const ref = useRef<S>(initialState);
 
   const setStateExternal = (value: S) => {
     ref.current = value;
@@ -102,7 +95,7 @@ export const useDrag = (
   onStart: (x: number, y: number) => { x: number; y: number }, // Callback on start of drag that returns a corrected start coordinates
   onMove: (start: Coords, corrected: Coords, delta: Coords) => void,
   onStop: (start: Coords, corrected: Coords, delta: Coords) => void,
-  blockClick: boolean = false,
+  blockClick = false,
   dependencies: DependencyList = []
 ) => {
   const isDraggingRef = useRef<boolean>(false);

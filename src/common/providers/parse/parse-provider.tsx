@@ -91,7 +91,9 @@ const loginWithGoogle = async (
 
 //#region Auth Providers
 const googleProvider: Parse.AuthProvider = {
-  authenticate() {},
+  authenticate() {
+    /* no-content */
+  },
 
   restoreAuthentication() {
     return true;
@@ -101,11 +103,15 @@ const googleProvider: Parse.AuthProvider = {
     return "google";
   },
 
-  deauthenticate() {},
+  deauthenticate() {
+    /* no-content */
+  },
 };
 
 const firebaseProvider: Parse.AuthProvider = {
-  authenticate() {},
+  authenticate() {
+    /* no-content */
+  },
 
   restoreAuthentication() {
     return true;
@@ -115,12 +121,14 @@ const firebaseProvider: Parse.AuthProvider = {
     return "firebase";
   },
 
-  deauthenticate() {},
+  deauthenticate() {
+    /* no-content */
+  },
 };
 
 //#endregion
 
-type ParseState = RootState & {};
+type ParseState = RootState;
 
 export class ParseProvider implements BackendProvider<ParseState> {
   type() {
@@ -204,7 +212,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       };
     }
 
-    let storedData: { login: LoginStorage } | undefined = undefined;
+    const storedData: { login: LoginStorage } | undefined = undefined;
 
     let loginOpts: Parse.FullOptions = undefined;
     if (storedData && storedData.login && storedData.login.sessionToken) {
@@ -526,7 +534,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       "search",
       params
     );
-    let results: VideoSearchResults = {
+    const results: VideoSearchResults = {
       status: response.status,
       hasMoreResults: response.hasMoreResults,
       error: response.error,

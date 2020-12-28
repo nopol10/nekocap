@@ -18,7 +18,7 @@ type Catch = {
 
 export const createSignalActionInState = (
   stateKey: string,
-  tabbed: boolean = false
+  tabbed = false
 ) => <R = void, S = void, F = void>(actionType: string) => {
   return createSignalAction<R, S, F>(actionType, stateKey, tabbed);
 };
@@ -35,8 +35,8 @@ export type SignalActionRequestResultMeta = {
 
 export const createSignalAction = <R = void, S = void, F = void>(
   actionType: string,
-  stateKey: string = "",
-  tabbed: boolean = false
+  stateKey = "",
+  tabbed = false
 ) => {
   const requestType = `SIGNAL/${actionType}/REQUEST`;
   const successType = `SIGNAL/${actionType}/SUCCESS`;
@@ -240,7 +240,7 @@ export const createSignalAction = <R = void, S = void, F = void>(
             yield put({ ...promiseAction, meta });
           }
         } catch (error) {
-          let errorPayload: ErrorType = { error: error.message };
+          const errorPayload: ErrorType = { error: error.message };
           if (tabbed) {
             const incomingPayload = (action.payload as unknown) as TabbedType;
             errorPayload.tabId = incomingPayload.tabId;

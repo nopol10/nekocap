@@ -127,7 +127,7 @@ const alignContainer = (
   alignment: CaptionAlignment,
   videoElementHeight: number,
   coords?: Coords,
-  coordType: string = "none"
+  coordType = "none"
 ) => {
   const alignmentData = alignmentDataMap[alignment];
   const leftValue = coords ? coords.x * 100 : alignmentData.leftDefault;

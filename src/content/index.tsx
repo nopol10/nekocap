@@ -59,7 +59,7 @@ const refreshVideoMeta = async () => {
     window.videoId = videoId;
     window.videoSource = videoSource;
 
-    let extensionContainer = document.getElementById(
+    const extensionContainer = document.getElementById(
       VIDEO_ELEMENT_CONTAINER_ID
     );
     return extensionContainer;

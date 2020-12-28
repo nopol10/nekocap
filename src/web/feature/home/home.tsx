@@ -156,19 +156,19 @@ export const Home = () => {
             <br />
             with this{" "}
             <em>
-              <a target="_blank" href={GITHUB_URL}>
+              <a target="_blank" rel="noreferrer" href={GITHUB_URL}>
                 open source
               </a>
             </em>{" "}
             browser extension
           </WSTitle>
           <Badges>
-            <a target="_blank" href={CHROME_DOWNLOAD_URL}>
+            <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
               <img id="chrome-badge" src={chromeLogo} />
             </a>
           </Badges>
           <Badges>
-            <a target="_blank" href={DISCORD_INVITE_URL}>
+            <a target="_blank" rel="noreferrer" href={DISCORD_INVITE_URL}>
               <img id="discord-badge" src={discordLogo} />
             </a>
           </Badges>

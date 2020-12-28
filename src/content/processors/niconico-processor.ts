@@ -2,7 +2,7 @@ import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Processor } from "./processor";
 
-const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(nicovideo.jp)\/((watch)\/([A-Za-z0-9._%-]*))(\&\S+)?/;
+const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(nicovideo.jp)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/;
 /**
  * Processor for NicoNico
  */
@@ -36,8 +36,12 @@ export const NicoNicoProcessor: Processor = {
     // TODO make it work
     return ``;
   },
-  onEditorOpen: () => {},
-  onEditorClose: () => {},
+  onEditorOpen: () => {
+    /* no content */
+  },
+  onEditorClose: () => {
+    /* no content */
+  },
   getPageType: (url: string) => {
     if (url.match(videoMatchingRegex)) {
       return PageType.Video;

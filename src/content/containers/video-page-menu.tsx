@@ -85,7 +85,13 @@ const DislikeText = styledNoPass<LikeTextProps, "span">("span")`
   `)}
 `;
 
-const CreateCaptionWarningModal = ({ visible, onCancel }) => {
+const CreateCaptionWarningModal = ({
+  visible,
+  onCancel,
+}: {
+  visible: boolean;
+  onCancel: (e?: React.MouseEvent<HTMLElement>) => void;
+}) => {
   const dispatch = useDispatch();
   const handleOpenEditor = () => {
     dispatch(
@@ -260,7 +266,9 @@ export const VideoPageMenu = ({
         tabId: window.tabId,
       })
     )
-      .then(() => {})
+      .then(() => {
+        /* no content */
+      })
       .catch(() => {
         message.error("Could not find a saved caption for this video!");
       });
@@ -469,7 +477,7 @@ export const VideoPageMenu = ({
       !tabData.serverCaptionList ||
       tabData.serverCaptionList.length <= 0
     ) {
-      const label = !!loadingCaptionListError
+      const label = loadingCaptionListError
         ? "Error, hover to view"
         : "No captions found";
       return <WSButton disabled={true}>{label}</WSButton>;

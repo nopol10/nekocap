@@ -27,7 +27,6 @@ const OctopusRendererInternal = ({
     width: 0,
     height: 0,
   });
-  const previousTime = useRef<number>(-1);
 
   const updateCaptionContainer = (width: number, height: number) => {
     if (!localCaptionContainer.current) {
@@ -40,15 +39,6 @@ const OctopusRendererInternal = ({
     localCaptionContainer.current.style.width = `${width}px`;
     localCaptionContainer.current.style.height = `${height}px`;
   };
-
-  // Create the caption element to render into
-  useEffect(() => {
-    if (!captionContainerElement) {
-      return;
-    }
-
-    return () => {};
-  }, [captionContainerElement]);
 
   useEffect(() => {
     const canvas = document.querySelector(
@@ -64,7 +54,7 @@ const OctopusRendererInternal = ({
     if (!videoElement) {
       return;
     }
-    var options = {
+    const options = {
       video: videoElement,
       subContent: rawCaption,
       availableFonts: SUBSTATION_FONT_LIST,
@@ -95,21 +85,6 @@ const OctopusRendererInternal = ({
       }
     };
   }, [videoElement, rawCaption]);
-
-  const handleTimeUpdate = useCallback(
-    (deltaTime?: number, forceUpdate?: boolean) => {},
-    [videoElement, rawCaption]
-  );
-
-  useResize(videoElement, updateCaptionContainer, 0, [
-    videoElement,
-    handleTimeUpdate,
-  ]);
-
-  // Effect to force rerendering of the caption when the caption data is changed
-  useEffect(() => {
-    handleTimeUpdate(0, true);
-  }, [rawCaption]);
 
   return <></>;
 };

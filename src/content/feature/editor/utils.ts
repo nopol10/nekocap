@@ -332,7 +332,7 @@ export class CaptionMutators {
     trackId: number,
     timeMs: number,
     newCue?: NekoCaption,
-    skipValidityChecks: boolean = false
+    skipValidityChecks = false
   ): CaptionMutatorResult & { newCaptionId: number } {
     const track: Track = { ...caption.tracks[trackId] };
     const { cues } = track;

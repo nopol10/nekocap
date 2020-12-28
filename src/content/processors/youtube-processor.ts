@@ -82,7 +82,7 @@ export const YoutubeProcessor: Processor = {
   darkModeSelector: 'html[dark="true"]',
   getVideoId: () => {
     const matches = window.location.href.match(
-      /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/
+      /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
     );
     const videoId = matches[6];
     return videoId;
@@ -102,7 +102,7 @@ export const YoutubeProcessor: Processor = {
   getPageType: (url: string) => {
     if (
       url.match(
-        /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be.com\/\S*(?:watch|embed)(?:(?:(?=\/[^&\s\?]+(?!\S))\/)|(?:\S*v=|v\/)))([^&\s\?]+)/
+        /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be.com\/\S*(?:watch|embed)(?:(?:(?=\/[^&\s?]+(?!\S))\/)|(?:\S*v=|v\/)))([^&\s?]+)/
       )
     ) {
       return PageType.Video;

@@ -274,7 +274,7 @@ export const SettingsPanel = ({
 
   const renderGlobalPane = () => {
     const globalAlignment = caption.settings?.layout?.alignment;
-    let position = caption.settings?.layout?.position || { x: 0, y: 0 };
+    const position = caption.settings?.layout?.position || { x: 0, y: 0 };
     return (
       <Form>
         <Form.Item label="Alignment" wrapperCol={{ span: 8 }}>
@@ -306,7 +306,7 @@ export const SettingsPanel = ({
       return null;
     }
     const trackAlignment = track.settings?.layout?.alignment;
-    let position = track.settings?.layout?.position || { x: 0, y: 0 };
+    const position = track.settings?.layout?.position || { x: 0, y: 0 };
     return (
       <Form>
         <Form.Item label="Alignment" wrapperCol={{ span: 8 }}>
@@ -343,7 +343,7 @@ export const SettingsPanel = ({
     }
 
     const captionAlignment = captionData.layout?.alignment;
-    let position = captionData.layout?.position || { x: 0, y: 0 };
+    const position = captionData.layout?.position || { x: 0, y: 0 };
     return (
       <Form>
         <Form.Item label="Alignment" wrapperCol={{ span: 8 }}>

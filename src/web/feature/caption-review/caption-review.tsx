@@ -122,7 +122,7 @@ const rejectionColumns = [
     ),
     dataIndex: "reviewerName",
     key: "reviewerName",
-    render: (text, record: ReviewActionDetails, index) => {
+    render: function render(text, record: ReviewActionDetails, index) {
       return (
         <RouterLink
           to={{
@@ -149,7 +149,7 @@ const rejectionColumns = [
     title: "Reason",
     dataIndex: "reason",
     key: "reason",
-    render: (text, record: ReviewActionDetails, index) => {
+    render: function render(text, record: ReviewActionDetails, index) {
       return (
         <>
           <div>
@@ -276,7 +276,11 @@ export const CaptionReview = () => {
     }
     return (
       <b>
-        <Link href={processor.generateVideoLink(videoId)} target="_blank">
+        <Link
+          href={processor.generateVideoLink(videoId)}
+          target="_blank"
+          rel="noreferrer"
+        >
           {videoName}
         </Link>
       </b>

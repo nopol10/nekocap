@@ -185,7 +185,7 @@ const TIMEBAR_INTERVALS = [
 const getTimelineParameters = (scale: number, videoDurationMs: number) => {
   let markerSeparation = scale * DEFAULT_100_MS_WIDTH; // How many pixels per selected interval's duration
   let interval = TIMEBAR_INTERVALS[0];
-  let minDistance = MIN_MARKER_DISTANCE;
+  const minDistance = MIN_MARKER_DISTANCE;
   for (
     let i = 1;
     markerSeparation < minDistance && i < TIMEBAR_INTERVALS.length;
@@ -605,7 +605,7 @@ export const EditorTimeline = ({
     let i = 0,
       totalCuesAtTrack = 0;
     for (i = 0, totalCuesAtTrack = 0; i < caption.tracks.length; i++) {
-      let totalCuesBeforeCurrentTrack = totalCuesAtTrack;
+      const totalCuesBeforeCurrentTrack = totalCuesAtTrack;
       totalCuesAtTrack += caption.tracks[i].cues.length || 0;
       trackId = i;
       if (index < totalCuesAtTrack) {
@@ -764,6 +764,7 @@ export const EditorTimeline = ({
           draggableTrack={false}
           renderTrack={({ props, children }) => {
             return (
+              // eslint-disable-next-line react/prop-types
               <RangeTrack {...props} style={{ ...props.style }}>
                 {children}
               </RangeTrack>
