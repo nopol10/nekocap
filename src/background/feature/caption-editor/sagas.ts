@@ -479,6 +479,7 @@ function* createNewCaptionSaga({
   // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
   // @ts-ignore
   yield put([
+    setRenderer({ renderer: CaptionRendererType.Default, tabId }),
     setShowEditor({ show: true, tabId }),
     setEditorRawCaption({ rawCaption: undefined, tabId }),
     setEditorCaptionAfterEdit({ caption: emptyCaptionContainer, tabId }),
