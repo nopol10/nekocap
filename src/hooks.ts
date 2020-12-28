@@ -1,10 +1,7 @@
 import debounce from "lodash/debounce";
 import {
   DependencyList,
-  Dispatch,
   MutableRefObject,
-  RefObject,
-  SetStateAction,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -60,12 +57,8 @@ export const useStateRef = <S>(
 export const useStateAutoRef = <S>(
   initialState: S
 ): [S, (a: S) => void, MutableRefObject<S>] => {
-  let state: S;
-  let setState: Dispatch<SetStateAction<S>> | Dispatch<SetStateAction<S>>;
-  let ref: MutableRefObject<S>;
-
-  [state, setState] = useState<S>(initialState);
-  ref = useRef<S>(initialState);
+  const [state, setState] = useState<S>(initialState);
+  const ref = useRef<S>(initialState);
 
   const setStateExternal = (value: S) => {
     ref.current = value;

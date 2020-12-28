@@ -58,6 +58,7 @@ const FontList = () => {
                 <List.Item>
                   <a
                     target="_blank"
+                    rel="noreferrer"
                     href={`https://fonts.google.com/?query=${getSearchableFontName(
                       fontName
                     )}`}
@@ -86,7 +87,7 @@ const SupportSiteList = () => {
 const features: Feature[] = [
   {
     title: "Easy to use",
-    description: () => {
+    description: function description() {
       const [listOpened, setListOpened] = useState(false);
       const handleOpenList = () => {
         setListOpened(true);
@@ -97,7 +98,7 @@ const features: Feature[] = [
       return (
         <span>
           View captions without leaving{" "}
-          <a target="_blank" href="https://www.youtube.com">
+          <a target="_blank" rel="noreferrer" href="https://www.youtube.com">
             Youtube
           </a>{" "}
           and other supported{" "}
@@ -113,7 +114,7 @@ const features: Feature[] = [
   },
   {
     title: "Advanced effects (experimental)",
-    description: () => {
+    description: function description() {
       const [fontListOpened, setFontListOpened] = useState(false);
       const handleOpenFontList = () => {
         setFontListOpened(true);
@@ -127,6 +128,7 @@ const features: Feature[] = [
           using the advanced renderer made possible by{" "}
           <a
             target="_blank"
+            rel="noreferrer"
             href="https://github.com/Dador/JavascriptSubtitlesOctopus"
           >
             Subtitle Octopus
@@ -150,8 +152,8 @@ const features: Feature[] = [
     title: "Convenient editor",
     description: (
       <span>
-        Create captions with the built-in editor directly in a video's page with
-        the extension.
+        Create captions with the built-in editor directly in a video&apos;s page
+        with the extension.
         <br />
         Manual caption positioning, keyboard shortcuts are supported.
         <br />
@@ -173,8 +175,8 @@ const features: Feature[] = [
     title: "Community moderation",
     description: (
       <span>
-        Nekocap's website comes with tools to let community moderators verify or
-        reject submitted captions.
+        NekoCap&apos;s website comes with tools to let community moderators
+        verify or reject submitted captions.
         <br />
         However, we need volunteers who are fluent in different languages to
         help moderate submitted captions.

@@ -108,8 +108,8 @@ export const EXCLUDED_FONTS = [
 ];
 
 const flattenAndProcessFontList = (
-  fontsObject: object,
-  output: object = {}
+  fontsObject: Record<string, Record<string, string> | string>,
+  output: Record<string, string> = {}
 ) => {
   for (const key in fontsObject) {
     const fontObject = fontsObject[key];

@@ -1,7 +1,7 @@
 import styled, { ThemedStyledFunction } from "styled-components";
 
 export const styledNoPass = <
-  O extends object,
+  O extends Record<string, unknown>,
   C extends keyof JSX.IntrinsicElements | React.ComponentType<any> = "div"
 >(
   type: C

@@ -72,7 +72,7 @@ export const CaptionList = ({
     tableColumns.push({
       title: "Actions",
       key: "actions",
-      render: (text, record, index) => {
+      render: function render(text, record, index) {
         return (
           <>
             <Space>

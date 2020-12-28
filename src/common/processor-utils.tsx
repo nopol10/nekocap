@@ -29,7 +29,7 @@ export const getClickableVideoLink = (
   }
   const link = processor.generateVideoLink(sourceId);
   return (
-    <Typography.Link href={link} target="_blank">
+    <Typography.Link href={link} target="_blank" rel="noreferrer">
       {videoName}
     </Typography.Link>
   );

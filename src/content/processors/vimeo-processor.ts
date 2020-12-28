@@ -1,7 +1,7 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Processor } from "./processor";
 
-const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(vimeo.com)\/([A-Za-z0-9._%-]*)(\&\S+)?/;
+const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(vimeo.com)\/([A-Za-z0-9._%-]*)(&\S+)?/;
 /**
  * Processor for Vimeo
  */
@@ -44,8 +44,12 @@ export const VimeoProcessor: Processor = {
       return "";
     }
   },
-  onEditorOpen: () => {},
-  onEditorClose: () => {},
+  onEditorOpen: () => {
+    /* no content */
+  },
+  onEditorClose: () => {
+    /* no content */
+  },
   getPageType: (url: string) => {
     if (url.match(videoMatchingRegex)) {
       return PageType.Video;

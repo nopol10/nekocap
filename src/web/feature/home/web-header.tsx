@@ -64,10 +64,14 @@ export const WebHeader = () => {
         />
       )}
       <Socials>
-        <a href="https://www.twitter.com/nekocaption" target="_blank">
+        <a
+          href="https://www.twitter.com/nekocaption"
+          target="_blank"
+          rel="noreferrer"
+        >
           <TwitterOutlined />
         </a>
-        <a href={GITHUB_URL} target="_blank">
+        <a href={GITHUB_URL} target="_blank" rel="noreferrer">
           <GithubOutlined />
         </a>
       </Socials>

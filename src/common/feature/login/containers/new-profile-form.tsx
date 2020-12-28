@@ -28,7 +28,11 @@ const profileMessageLabel = (
     <br />
     <Text style={{ fontSize: "0.85em", whiteSpace: "break-spaces" }}>
       (Formatting in{" "}
-      <Link href="https://www.markdownguide.org/cheat-sheet/" target="_blank">
+      <Link
+        href="https://www.markdownguide.org/cheat-sheet/"
+        target="_blank"
+        rel="noreferrer"
+      >
         Markdown
       </Link>{" "}
       is supported)
@@ -77,7 +81,8 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
         Fill in some basic information before we get started!
       </Title>
       <Title level={5} style={{ marginBottom: "20px" }}>
-        Don't worry, you can edit these later (apart from your display name)
+        Don&apos;t worry, you can edit these later (apart from your display
+        name)
       </Title>
       <Form onFinish={handleSubmit(onSubmit)}>
         <Form.Item label="Display name" labelCol={labelSpan}>
@@ -92,7 +97,7 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
         </Form.Item>
         <Title level={5}>
           We do not collect emails so please join the NekoCap Discord{" "}
-          <a href={DISCORD_INVITE_URL} target="_blank">
+          <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer">
             here
           </a>{" "}
           to get the latest news and updates.

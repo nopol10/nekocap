@@ -18,24 +18,6 @@ export const waitForElement = async <T extends HTMLElement>(
   });
 };
 
-export const waitForMs = async (duration: number) => {
-  return new Promise(async (resolve) => {
-    setTimeout(resolve, duration);
-  });
-};
-
-export const waitUntilCondition = async (
-  callback: () => boolean,
-  interval = 100
-) => {
-  return new Promise<void>(async (resolve) => {
-    while (!callback()) {
-      await waitForMs(interval);
-    }
-    resolve();
-  });
-};
-
 export const getLimitOffsetFromPagination = (
   pageSize: number,
   pageNumber: number

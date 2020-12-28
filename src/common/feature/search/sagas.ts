@@ -70,6 +70,7 @@ function* searchSuccessSaga({
 
 function* searchFromBasicBarSaga({ payload: title }: PayloadAction<string>) {
   webHistory.push(routeNames.search.replace(":title?", title));
+  yield;
 }
 
 function* searchSaga() {

@@ -2,7 +2,7 @@ import { PageType, VideoSource } from "@/common/feature/video/types";
 import { waitForElement } from "@/common/utils";
 import type { Processor } from "./processor";
 
-const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/video\/([A-Za-z0-9._%-]*)(\&\S+)?/;
+const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
 /**
  * Processor for Bilibili
  */
@@ -45,8 +45,12 @@ export const BilibiliProcessor: Processor = {
   generateThumbnailLink: async function (videoId: string) {
     return "";
   },
-  onEditorOpen: () => {},
-  onEditorClose: () => {},
+  onEditorOpen: () => {
+    /* no content */
+  },
+  onEditorClose: () => {
+    /* no content */
+  },
   getPageType: (url: string) => {
     if (url.match(videoMatchingRegex)) {
       return PageType.Video;

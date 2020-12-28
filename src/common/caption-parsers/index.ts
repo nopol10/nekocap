@@ -85,14 +85,12 @@ export const parseCaption = (
   switch (fileType.toLowerCase()) {
     case CaptionFileFormat.srt:
     case CaptionFileFormat.vtt:
-      const parsedSrt = parse(content);
-      return convertSrtCaptionsToNekoCaptionData(parsedSrt);
+      return convertSrtCaptionsToNekoCaptionData(parse(content));
     case CaptionFileFormat.sbv:
       return parseSBV(content);
     case CaptionFileFormat.ass:
     case CaptionFileFormat.ssa:
-      const compiledAss = compileAss(content, {});
-      return convertAssCaptionsToNekoCaptionData(compiledAss);
+      return convertAssCaptionsToNekoCaptionData(compileAss(content, {}));
     default:
       return { tracks: [] };
   }

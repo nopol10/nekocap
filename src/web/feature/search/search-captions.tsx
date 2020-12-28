@@ -248,6 +248,7 @@ export const SearchCaptions = () => {
               <a
                 href={processor.generateVideoLink(sourceId)}
                 target="_blank"
+                rel="noreferrer"
                 style={{ width: "100%" }}
               >
                 <img style={{ width: "100%" }} src={thumbnailUrl} />
@@ -260,7 +261,7 @@ export const SearchCaptions = () => {
                   <ul>
                     {languageList.map((language) => {
                       return (
-                        <li>
+                        <li key={language}>
                           {languages[language]} - {captions[language]}
                         </li>
                       );

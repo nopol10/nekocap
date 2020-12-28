@@ -25,6 +25,8 @@ const StyledNumberFormat = styled(NumberFormat)`
 type DurationInputProps = {
   numberFormatProps?: NumberFormatProps;
   onKeyboardShortcutInput?: (value: string) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  value: string;
   [key: string]: any;
 };
 
@@ -32,7 +34,6 @@ export const DurationInput = ({
   numberFormatProps,
   value,
   onKeyboardShortcutInput,
-  inputProps,
   onChange,
   ...rest
 }: DurationInputProps) => {

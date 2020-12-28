@@ -74,9 +74,10 @@ export const VideoHome = () => {
   /**
    * Effect for moving the video element to the editor and back
    */
+
   useEffect(() => {
     // Move the element to the correct spot
-    new Promise(async () => {
+    (async () => {
       if (window.selectedProcessor.waitUntilPageIsReady) {
         await window.selectedProcessor.waitUntilPageIsReady();
       }
@@ -86,13 +87,15 @@ export const VideoHome = () => {
       if (!extensionUIElement) {
         return;
       }
-      const videoUIElement = document.getElementById(VIDEO_ELEMENT_CONTAINER_ID);
+      const videoUIElement = document.getElementById(
+        VIDEO_ELEMENT_CONTAINER_ID
+      );
       if (!videoUIElement) {
         return;
       }
       videoUIElement.style.display = "";
       extensionUIElement.insertAdjacentElement("afterend", videoUIElement);
-    });
+    })();
     return () => {
       // Move the video ui container back to the body
       const videoUIElement = document.getElementById(

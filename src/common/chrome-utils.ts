@@ -23,8 +23,8 @@ export const getImageLink = (imageName: string) => {
   return `${imageName}`;
 };
 
-export namespace chromeProm {
-  export const storage = {
+export const chromeProm = {
+  storage: {
     local: {
       get: async (items: string[]): Promise<any> => {
         if (!chrome) {
@@ -53,5 +53,5 @@ export namespace chromeProm {
         );
       },
     },
-  };
-}
+  },
+};

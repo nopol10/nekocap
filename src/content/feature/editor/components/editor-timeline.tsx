@@ -764,6 +764,7 @@ export const EditorTimeline = ({
           draggableTrack={false}
           renderTrack={({ props, children }) => {
             return (
+              // eslint-disable-next-line react/prop-types
               <RangeTrack {...props} style={{ ...props.style }}>
                 {children}
               </RangeTrack>

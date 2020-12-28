@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import { wrapStore } from "webext-redux";
 
 import { Provider, useDispatch } from "react-redux";
@@ -18,7 +18,7 @@ initFirebase();
 
 wrapStore(store);
 
-const BackgroundPage = ({ children }) => {
+const BackgroundPage = ({ children }: { children?: ReactNode }) => {
   const dispatch = useDispatch();
   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
   const autoLoggedIn = useRef<boolean>(false);
