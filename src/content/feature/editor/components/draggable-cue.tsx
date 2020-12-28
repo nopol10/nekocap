@@ -141,7 +141,7 @@ export const DraggableCue = ({
     }
     const dragDistance = event.clientX - dragStartX.current;
     const newLeft = propertiesBeforeDragging.current.left + dragDistance;
-    let hoveredTrackId = getHoveredTrackId(event.clientY);
+    const hoveredTrackId = getHoveredTrackId(event.clientY);
     if (trackCount > 1 && hoveredTrackId >= 0 && hoveredTrackId < trackCount) {
       containerElementRef.current.style.top = `${
         hoveredTrackId * TRACK_BASE_HEIGHT + CUE_HEIGHT / 2
@@ -166,7 +166,7 @@ export const DraggableCue = ({
     const dragDistance = event.clientX - dragStartX.current;
     const finalLeft = propertiesBeforeDragging.current.left + dragDistance;
     const finalRight = finalLeft + propertiesBeforeDragging.current.width;
-    let hoveredTrackId = getHoveredTrackId(event.clientY);
+    const hoveredTrackId = getHoveredTrackId(event.clientY);
 
     if (onCueDragEnd) {
       onCueDragEnd(finalLeft, finalRight, hoveredTrackId);

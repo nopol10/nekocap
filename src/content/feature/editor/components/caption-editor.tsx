@@ -718,7 +718,7 @@ const CaptionEditorInternal = ({
         return;
       }
       event.preventDefault();
-      let newStartTime = videoElement.currentTime * 1000;
+      const newStartTime = videoElement.currentTime * 1000;
       let newEndTime = caption.end;
       if (caption.end < newStartTime) {
         // If the start time is after the end time, we'll shift the end time so that the same duration remains
@@ -750,7 +750,7 @@ const CaptionEditorInternal = ({
         return;
       }
       event.preventDefault();
-      let newEndTime = videoElement.currentTime * 1000;
+      const newEndTime = videoElement.currentTime * 1000;
       let newStartTime = caption.start;
       if (caption.start > newEndTime) {
         // If the end time is before the start time, we'll shift the start time so that the same duration remains
@@ -937,7 +937,7 @@ const CaptionEditorInternal = ({
 
   const setVideoTime = (
     timeInSeconds: number,
-    scrollTimeline: boolean = true
+    scrollTimeline = true
   ) => {
     if (videoElement) {
       videoElement.currentTime = timeInSeconds;

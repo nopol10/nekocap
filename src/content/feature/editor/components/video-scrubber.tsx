@@ -100,7 +100,7 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
 
   const handlePlayheadDragStart = useCallback(
     (x: number, y: number) => {
-      let actualX = parseInt(scrubberPlayhead.style.left) || 0;
+      const actualX = parseInt(scrubberPlayhead.style.left) || 0;
       wasPaused.current = videoElement.paused;
       videoElement.pause();
       return { x: actualX, y };
@@ -109,7 +109,7 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
   );
 
   const setTimeIndicator = (x: number, time: number) => {
-    let indicatorX = Math.min(
+    const indicatorX = Math.min(
       Math.max(INDICATOR_WIDTH / 2, x),
       scrubberWidth.current - INDICATOR_WIDTH / 2
     );

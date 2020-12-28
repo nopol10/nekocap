@@ -80,13 +80,13 @@ export const VideoHome = () => {
       if (window.selectedProcessor.waitUntilPageIsReady) {
         await window.selectedProcessor.waitUntilPageIsReady();
       }
-      let extensionUIElement: HTMLElement = await getUIElement(
+      const extensionUIElement: HTMLElement = await getUIElement(
         window.selectedProcessor
       );
       if (!extensionUIElement) {
         return;
       }
-      let videoUIElement = document.getElementById(VIDEO_ELEMENT_CONTAINER_ID);
+      const videoUIElement = document.getElementById(VIDEO_ELEMENT_CONTAINER_ID);
       if (!videoUIElement) {
         return;
       }

@@ -2,8 +2,8 @@ export const waitForElement = async <T extends HTMLElement>(
   selector: string
 ): Promise<T> => {
   return new Promise<T>((resolve) => {
-    let observer = new MutationObserver(function (mutations, me) {
-      let element = document.querySelector(selector);
+    const observer = new MutationObserver(function (mutations, me) {
+      const element = document.querySelector(selector);
       if (element) {
         me.disconnect(); // stop observing
         resolve(element as T);
@@ -26,7 +26,7 @@ export const waitForMs = async (duration: number) => {
 
 export const waitUntilCondition = async (
   callback: () => boolean,
-  interval: number = 100
+  interval = 100
 ) => {
   return new Promise<void>(async (resolve) => {
     while (!callback()) {

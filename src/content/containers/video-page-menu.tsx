@@ -469,7 +469,7 @@ export const VideoPageMenu = ({
       !tabData.serverCaptionList ||
       tabData.serverCaptionList.length <= 0
     ) {
-      const label = !!loadingCaptionListError
+      const label = loadingCaptionListError
         ? "Error, hover to view"
         : "No captions found";
       return <WSButton disabled={true}>{label}</WSButton>;

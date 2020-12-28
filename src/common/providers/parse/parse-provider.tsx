@@ -204,7 +204,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       };
     }
 
-    let storedData: { login: LoginStorage } | undefined = undefined;
+    const storedData: { login: LoginStorage } | undefined = undefined;
 
     let loginOpts: Parse.FullOptions = undefined;
     if (storedData && storedData.login && storedData.login.sessionToken) {
@@ -526,7 +526,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       "search",
       params
     );
-    let results: VideoSearchResults = {
+    const results: VideoSearchResults = {
       status: response.status,
       hasMoreResults: response.hasMoreResults,
       error: response.error,

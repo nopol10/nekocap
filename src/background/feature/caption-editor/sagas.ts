@@ -102,7 +102,7 @@ const generateNewCaptionData = (
   action: PayloadAction<any>,
   caption: CaptionContainer
 ) => {
-  let error: string = "";
+  let error = "";
   let newCaptionData: CaptionDataContainer;
   if (isActionType(action, modifyCaption)) {
     const { captionId, newCaption, trackId } = action.payload;
@@ -257,7 +257,7 @@ function* updateEditorCaptionSaga({
   const actions = isActionType(action, modifyCaptionWithMultipleActions)
     ? action.payload.actions
     : [action];
-  let updatedCaption = { ...caption };
+  const updatedCaption = { ...caption };
   for (let i = 0; i < actions.length; i++) {
     const { error, newCaptionData } = generateNewCaptionData(
       actions[i],
@@ -432,7 +432,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
     tabEditorRawDataSelector(tabId)
   );
   // The raw caption will be compressed locally and decompressed on retrieval
-  let processedRawCaption = { ...rawCaption };
+  const processedRawCaption = { ...rawCaption };
   if (processedRawCaption.data) {
     processedRawCaption.data = lzCompress(rawCaption.data);
   }

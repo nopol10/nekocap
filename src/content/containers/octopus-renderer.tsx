@@ -64,7 +64,7 @@ const OctopusRendererInternal = ({
     if (!videoElement) {
       return;
     }
-    var options = {
+    const options = {
       video: videoElement,
       subContent: rawCaption,
       availableFonts: SUBSTATION_FONT_LIST,
