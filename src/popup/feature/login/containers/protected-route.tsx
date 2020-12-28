@@ -1,14 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RouteProps } from "react-router";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { loginRoutes } from "@/common/feature/login/routes";
-import { Skeleton } from "antd";
+import { Button, Skeleton } from "antd";
 import { PopupPage } from "@/popup/common/components/popup-page";
 
 type ProtectedRouteType = RouteProps;
+
+const LoadingPage = () => {
+  const [showReload, setShowReload] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setShowReload(true);
+    }, 2500);
+  }, []);
+
+  const handleReload = () => {
+    chrome.runtime.reload();
+  };
+  return (
+    <PopupPage>
+      <Skeleton active={true} />
+      {showReload && (
+        <div style={{ textAlign: "center" }}>
+          <div>Taking too long?</div>
+          <Button
+            onClick={handleReload}
+            style={{ marginLeft: "auto", marginRight: "auto" }}
+          >
+            Reload
+          </Button>
+        </div>
+      )}
+    </PopupPage>
+  );
+};
 
 const ProtectedRoute = ({ children, ...rest }: ProtectedRouteType) => {
   const isLoggedIn = useSelector(isLoggedInSelector);
@@ -29,11 +58,7 @@ const ProtectedRoute = ({ children, ...rest }: ProtectedRouteType) => {
           );
         }
         if (isLoggedIn && !captioner.captioner) {
-          return (
-            <PopupPage>
-              <Skeleton active={true} />
-            </PopupPage>
-          );
+          return <LoadingPage />;
         }
 
         if (
