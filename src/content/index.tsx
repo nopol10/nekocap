@@ -2,13 +2,19 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { Store } from "webext-redux";
+import { message as notificationMessage } from "antd";
 import {
   getVideoTitle,
   getVideoElement,
   Processor,
 } from "./processors/processor";
 import "../antd-override.css";
-import { ChromeMessage, ChromeMessageType, ProviderType } from "@/common/types";
+import {
+  ChromeMessage,
+  ChromeMessageType,
+  NotificationMessage,
+  ProviderType,
+} from "@/common/types";
 import { ContentHome } from "./containers/content-home";
 import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import "../ant-global-scoped.less";
@@ -126,6 +132,12 @@ const initialize = async () => {
           });
         });
         return true;
+      } else if (message.type === ChromeMessageType.InfoMessage) {
+        const infoMessage = message.payload as NotificationMessage;
+        notificationMessage.info(
+          infoMessage.message,
+          infoMessage.duration || 4
+        );
       }
     }
   );

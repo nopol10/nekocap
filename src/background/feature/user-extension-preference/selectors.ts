@@ -18,6 +18,9 @@ export const shouldHideVideoPageMenuSelector = (tabId: number) =>
       tabData: TabVideoData,
       isLoadingCaptions: boolean
     ) => {
+      if (tabData.menuHidden) {
+        return true;
+      }
       if (!userExtensionPreference.hideToolbarIfNoCaptions) {
         return false;
       }

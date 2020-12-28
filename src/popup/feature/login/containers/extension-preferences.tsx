@@ -5,6 +5,10 @@ import { userExtensionPreferenceSelector } from "@/background/feature/user-exten
 import { Switch } from "antd";
 import { setHideToolbarIfNoCaptions } from "@/background/feature/user-extension-preference/actions";
 import { colors } from "@/common/colors";
+import { useEffect, useState } from "react";
+import { tabVideoDataSelector } from "@/common/feature/video/selectors";
+import { WSButton } from "@/common/components/ws-button";
+import { openMenuBar } from "@/common/feature/video/actions";
 
 const Wrapper = styled.div`
   border-top: 1px solid ${colors.divider};
@@ -22,29 +26,54 @@ const FieldLabel = styled.div`
   font-size: 14px;
 `;
 
-const SwitchField = styled.div`
+const Field = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
+  padding: 10px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid ${colors.divider}6b;
+  }
 `;
 
 const FieldControl = styled.div``;
 
 export const ExtensionPreferences = () => {
   const dispatch = useDispatch();
+  const [tabId, setTabId] = useState(0);
   const { hideToolbarIfNoCaptions } = useSelector(
     userExtensionPreferenceSelector
   );
+
+  const tabData = useSelector(tabVideoDataSelector(tabId));
+
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      setTabId(tabs[0].id);
+    });
+  }, []);
 
   const handleChangeHideToolbarIfNoCaptions = (checked: boolean) => {
     dispatch(setHideToolbarIfNoCaptions(checked));
   };
 
+  const handleClickShowMenu = () => {
+    dispatch(openMenuBar({ tabId: tabId }));
+  };
+
   return (
     <Wrapper>
       <h2>Settings</h2>
-      <SwitchField>
+      {tabData && tabData.menuHidden && (
+        <Field>
+          <FieldLabel>Menu currently hidden</FieldLabel>
+          <WSButton onClick={handleClickShowMenu}>Show</WSButton>
+        </Field>
+      )}
+      <Field>
         <FieldLabel>Hide toolbar if no captions are found</FieldLabel>
         <FieldControl>
           <Switch
@@ -52,7 +81,7 @@ export const ExtensionPreferences = () => {
             onChange={handleChangeHideToolbarIfNoCaptions}
           />
         </FieldControl>
-      </SwitchField>
+      </Field>
     </Wrapper>
   );
 };
