@@ -13,7 +13,6 @@
     "watch": "concurrently \"npm:watch:ext\" \"npm:watch:web\"",
     "watch:ext": "webpack-dev-server --config webpack.extension.js --mode=development",
     "watch:web": "webpack-dev-server --config webpack.web.js --mode=development",
-    "start:build": "npx http-server ./dist/web -p 12341",
     "analyze:ext": "webpack --config webpack.extension.js --mode=production --analyze=true",
     "analyze:web": "webpack --config webpack.web.js --mode=production --analyze=true"
   },
