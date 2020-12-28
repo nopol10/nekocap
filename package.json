@@ -14,7 +14,9 @@
     "watch:ext": "webpack-dev-server --config webpack.extension.js --mode=development",
     "watch:web": "webpack-dev-server --config webpack.web.js --mode=development",
     "analyze:ext": "webpack --config webpack.extension.js --mode=production --analyze=true",
-    "analyze:web": "webpack --config webpack.web.js --mode=production --analyze=true"
+    "analyze:web": "webpack --config webpack.web.js --mode=production --analyze=true",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "eslint --ext .ts,.tsx --fix ./src"
   },
   "author": "nopol10",
   "license": "gpl-3.0",
