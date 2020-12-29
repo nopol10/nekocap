@@ -1,7 +1,6 @@
 import * as React from "react";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { isEqual } from "lodash";
-import { useResize } from "@/hooks";
 import * as SubtitlesOctopus from "../../libs/subtitle-octopus/subtitles-octopus";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 
@@ -15,7 +14,6 @@ interface OctopusRendererProps {
 const OctopusRendererInternal = ({
   rawCaption,
   videoElement,
-  captionContainerElement,
   showCaption,
 }: OctopusRendererProps) => {
   /**
@@ -27,18 +25,6 @@ const OctopusRendererInternal = ({
     width: 0,
     height: 0,
   });
-
-  const updateCaptionContainer = (width: number, height: number) => {
-    if (!localCaptionContainer.current) {
-      return;
-    }
-    containerDimensions.current = {
-      width: videoElement.offsetWidth,
-      height: videoElement.offsetHeight,
-    };
-    localCaptionContainer.current.style.width = `${width}px`;
-    localCaptionContainer.current.style.height = `${height}px`;
-  };
 
   useEffect(() => {
     const canvas = document.querySelector(
@@ -54,6 +40,17 @@ const OctopusRendererInternal = ({
     if (!videoElement) {
       return;
     }
+    const onReady = () => {
+      /**
+       * This is a workaround to prevent the ASS from rendering at a low framerate when an ASS caption is loaded.
+       * For some as yet unknown reason pausing and playing stops the lag from happening.
+       * Setting the time of the video also works as a workaround.
+       */
+      if (!videoElement.paused) {
+        videoElement.pause();
+        videoElement.play();
+      }
+    };
     const options = {
       video: videoElement,
       subContent: rawCaption,
@@ -66,9 +63,10 @@ const OctopusRendererInternal = ({
       ),
       lossyRender: true,
       debug: true,
+      onReady,
     };
     octopusInstance.current = new SubtitlesOctopus(options);
-    octopusInstance.current.setCurrentTime(videoElement.duration);
+    octopusInstance.current.setCurrentTime(videoElement.currentTime);
     // Update the caption container's width and height to match the video to prevent subs from going into the black bars
     if (localCaptionContainer.current) {
       containerDimensions.current = {
