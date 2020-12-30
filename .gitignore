@@ -14,3 +14,4 @@ dist/web
 docker/default.conf
 server-fonts/*
 Dockerfile
+.eslintcache
