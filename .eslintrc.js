@@ -6,6 +6,7 @@ module.exports = {
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
+    "prettier",
   ],
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",
