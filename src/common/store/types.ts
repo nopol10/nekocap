@@ -6,7 +6,7 @@ import { ProfileState } from "../feature/profile/types";
 import { CaptionReviewState } from "../feature/caption-review/types";
 import { SearchState } from "../feature/search/types";
 import { CaptionEditorState } from "../feature/caption-editor/types";
-import { UserExtensionPreferenceState } from "../../background/feature/user-extension-preference/types";
+import { UserExtensionPreferenceState } from "../../extension/background/feature/user-extension-preference/types";
 
 export type RootState = {
   login: LoginState;

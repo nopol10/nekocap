@@ -6,7 +6,7 @@ import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { loginRoutes } from "@/common/feature/login/routes";
 import { Button, Skeleton } from "antd";
-import { PopupPage } from "@/popup/common/components/popup-page";
+import { PopupPage } from "@/extension/popup/common/components/popup-page";
 
 type ProtectedRouteType = RouteProps;
 

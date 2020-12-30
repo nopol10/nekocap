@@ -8,7 +8,7 @@ import {
   getVideoElement,
   Processor,
 } from "./processors/processor";
-import "../antd-override.css";
+import "@/antd-override.css";
 import {
   ChromeMessage,
   ChromeMessageType,
@@ -17,8 +17,8 @@ import {
 } from "@/common/types";
 import { ContentHome } from "./containers/content-home";
 import { ParseProvider } from "@/common/providers/parse/parse-provider";
-import "../ant-global-scoped.less";
-import "../ant-content.less";
+import "../../ant-global-scoped.less";
+import "../../ant-content.less";
 import "react-virtualized/styles.css";
 import {
   EDITOR_PORTAL_ELEMENT_ID,
@@ -27,7 +27,7 @@ import {
 } from "@/common/constants";
 import { ExportCaptionResult } from "@/common/feature/caption-editor/types";
 import { saveAs } from "file-saver";
-import "../libs/patch-worker/patch-worker";
+import "../../libs/patch-worker/patch-worker";
 import { PageType } from "@/common/feature/video/types";
 import { requestFreshTabData } from "@/common/feature/video/actions";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";

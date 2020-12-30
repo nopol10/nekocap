@@ -88,7 +88,7 @@ import { parseCaption, stringifyCaption } from "@/common/caption-parsers";
 import { convertToCaptionContainer } from "@/common/feature/video/utils";
 import { compressToBase64 as lzCompress } from "lz-string";
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
-import { CaptionMutators } from "@/content/feature/editor/utils";
+import { CaptionMutators } from "@/extension/content/feature/editor/utils";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
 
 const isActionType = <T>(

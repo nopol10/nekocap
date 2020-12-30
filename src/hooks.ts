@@ -11,7 +11,7 @@ import {
 import { TIME } from "./common/constants";
 import { Coords } from "./common/types";
 import { clearSelection } from "./common/utils";
-import { getVideoElement } from "./content/processors/processor";
+import { getVideoElement } from "./extension/content/processors/processor";
 
 /**
  * Adapted from https://css-tricks.com/using-requestanimationframe-with-react-hooks/

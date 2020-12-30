@@ -6,9 +6,9 @@ import LoginRoutes from "./feature/login/containers/routes";
 import { Store } from "webext-redux";
 import { ChromeMessage, ChromeMessageType } from "@/common/types";
 import { appHistory } from "./common/store";
-import "../ant.less";
+import "../../ant.less";
 import { requestBackgroundPageVariable } from "@/common/chrome-utils";
-import "@/popup/common/styles/index.scss";
+import "@/extension/popup/common/styles/index.scss";
 
 chrome.runtime.onMessage.addListener(
   (request: ChromeMessage, sender, sendResponse) => {

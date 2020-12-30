@@ -1,6 +1,5 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
@@ -28,9 +27,12 @@ module.exports = (env, argv, customEnv = {}) => {
   return {
     mode: devMode ? "development" : "production",
     entry: {
-      "js/popup": path.join(__dirname, "src/popup/index.tsx"),
-      "js/background": path.join(__dirname, "src/background/index.tsx"),
-      "js/content": path.join(__dirname, "src/content/index.tsx"),
+      "js/popup": path.join(__dirname, "src/extension/popup/index.tsx"),
+      "js/background": path.join(
+        __dirname,
+        "src/extension/background/index.tsx"
+      ),
+      "js/content": path.join(__dirname, "src/extension/content/index.tsx"),
     },
     output: {
       path: path.join(__dirname, "dist", "extension"),
@@ -55,13 +57,20 @@ module.exports = (env, argv, customEnv = {}) => {
             to: path.resolve(__dirname, "dist", "extension"),
           },
           {
-            from: path.resolve(__dirname, "src", "popup", "popup.html"),
+            from: path.resolve(
+              __dirname,
+              "src",
+              "extension",
+              "popup",
+              "popup.html"
+            ),
             to: path.resolve(__dirname, "dist", "extension", "popup.html"),
           },
           {
             from: path.resolve(
               __dirname,
               "src",
+              "extension",
               "background",
               "background.html"
             ),

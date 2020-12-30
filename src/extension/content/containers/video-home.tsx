@@ -18,7 +18,7 @@ import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
 import { getUIElement } from "../processors/processor";
 import { useCaptionContainerUpdate, useVideoElementUpdate } from "@/hooks";
 import { EditorContainer } from "./editor-container";
-import { shouldHideVideoPageMenuSelector } from "@/background/feature/user-extension-preference/selectors";
+import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { darkModeSelector } from "@/common/processor-utils";
 
 const InlineMenuWrapper = styled.div`

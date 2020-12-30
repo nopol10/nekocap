@@ -6,7 +6,7 @@ import { Redirect } from "react-router-dom";
 import { loginRoutes } from "@/common/feature/login/routes";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
-import { PopupPage } from "@/popup/common/components/popup-page";
+import { PopupPage } from "@/extension/popup/common/components/popup-page";
 import { NekoLogo } from "@/common/components/neko-logo";
 import googleLoginImage from "@/assets/images/google/btn_google_signin_light_normal_web@2x.png";
 import { AuthButton } from "@/common/components/auth-button";

@@ -3,7 +3,7 @@ import {
   Middleware,
   ReducersMapObject,
 } from "@reduxjs/toolkit";
-import { createRootReducer } from "../../background/common/reducer";
+import { createRootReducer } from "../../extension/background/common/reducer";
 import createSagaMiddleware from "redux-saga";
 import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
 import { reduxBatch } from "@manaflair/redux-batch";

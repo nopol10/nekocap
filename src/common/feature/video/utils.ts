@@ -1,14 +1,14 @@
-import type { Processor } from "@/content/processors/processor";
-import { YoutubeProcessor } from "@/content/processors/youtube-processor";
+import type { Processor } from "@/extension/content/processors/processor";
+import { YoutubeProcessor } from "@/extension/content/processors/youtube-processor";
 import { CaptionContainer, VideoSource } from "./types";
 import type {
   NekoCaption,
   CaptionDataContainer,
 } from "../../caption-parsers/types";
-import { TVerProcessor } from "@/content/processors/tver-processor";
-import { NicoNicoProcessor } from "@/content/processors/niconico-processor";
-import { VimeoProcessor } from "@/content/processors/vimeo-processor";
-import { BilibiliProcessor } from "@/content/processors/bilibili-processor";
+import { TVerProcessor } from "@/extension/content/processors/tver-processor";
+import { NicoNicoProcessor } from "@/extension/content/processors/niconico-processor";
+import { VimeoProcessor } from "@/extension/content/processors/vimeo-processor";
+import { BilibiliProcessor } from "@/extension/content/processors/bilibili-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption

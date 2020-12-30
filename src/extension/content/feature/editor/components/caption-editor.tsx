@@ -449,10 +449,9 @@ const CaptionEditorInternal = ({
   onExport,
   keyboardShortcuts,
 }: CaptionEditorProps) => {
-  const [
-    editorVideoContainer,
-    editorVideoContainerRef,
-  ] = useStateRef<HTMLDivElement>(null);
+  const [editorVideoContainer, editorVideoContainerRef] = useStateRef<
+    HTMLDivElement
+  >(null);
   const originalCaptionContainerParent = useRef<HTMLElement>();
   const setTimelineScroll = useRef<SetTimelineScroll>(undefined);
   const textEditorScrollRef = useRef<List>(null);
@@ -461,10 +460,9 @@ const CaptionEditorInternal = ({
   const [selectedTrack, setSelectedTrack] = useState(0);
   const [selectedCaption, setSelectedCaption] = useState<number>(-1);
   // Whether we are currently changing the global, track or caption's position
-  const [
-    currentMoveType,
-    setCurrentMoveType,
-  ] = useState<CaptionModificationState>(CaptionModificationState.None);
+  const [currentMoveType, setCurrentMoveType] = useState<
+    CaptionModificationState
+  >(CaptionModificationState.None);
   /**
    * We add this to the caption text editor list items' keys to force the list to refresh correctly when captions are added
    */
@@ -935,10 +933,7 @@ const CaptionEditorInternal = ({
     }
   };
 
-  const setVideoTime = (
-    timeInSeconds: number,
-    scrollTimeline = true
-  ) => {
+  const setVideoTime = (timeInSeconds: number, scrollTimeline = true) => {
     if (videoElement) {
       videoElement.currentTime = timeInSeconds;
     }

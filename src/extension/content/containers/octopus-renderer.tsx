@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect, useRef } from "react";
 import { isEqual } from "lodash";
-import * as SubtitlesOctopus from "../../libs/subtitle-octopus/subtitles-octopus";
+import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 
 interface OctopusRendererProps {

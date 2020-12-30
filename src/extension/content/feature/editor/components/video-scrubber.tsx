@@ -61,10 +61,9 @@ type VideoScrubberProps = {
 
 export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
   const [scrubber, scrubberRef] = useStateRef<HTMLDivElement>(null);
-  const [
-    scrubberProgressBar,
-    scrubberProgressBarRef,
-  ] = useStateRef<HTMLDivElement>(null);
+  const [scrubberProgressBar, scrubberProgressBarRef] = useStateRef<
+    HTMLDivElement
+  >(null);
   const [scrubberPlayhead, scrubberPlayheadRef] = useStateRef<HTMLDivElement>(
     null
   );

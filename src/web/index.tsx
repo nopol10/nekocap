@@ -5,7 +5,7 @@ import { initStore } from "@/common/store/store";
 import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import "../ant.less";
 import { Main } from "./feature/home/main";
-import { initFirebase } from "@/background/firebase";
+import { initFirebase } from "@/extension/background/firebase";
 import "@/web/styles/index.scss";
 import { rootWebSaga } from "./store/saga";
 

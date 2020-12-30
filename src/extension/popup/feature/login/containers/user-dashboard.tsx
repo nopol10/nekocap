@@ -6,7 +6,7 @@ import { captionerSelector } from "@/common/feature/captioner/selectors";
 import styled from "styled-components";
 import { Button } from "antd";
 import { NekoLogo } from "@/common/components/neko-logo";
-import { PopupPage } from "@/popup/common/components/popup-page";
+import { PopupPage } from "@/extension/popup/common/components/popup-page";
 import { SupportedSites } from "@/common/components/supported-sites";
 import { ExtensionPreferences } from "./extension-preferences";
 

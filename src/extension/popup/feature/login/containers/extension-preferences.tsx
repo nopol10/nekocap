@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
-import { userExtensionPreferenceSelector } from "@/background/feature/user-extension-preference/selectors";
+import { userExtensionPreferenceSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { Switch } from "antd";
-import { setHideToolbarIfNoCaptions } from "@/background/feature/user-extension-preference/actions";
+import { setHideToolbarIfNoCaptions } from "@/extension/background/feature/user-extension-preference/actions";
 import { colors } from "@/common/colors";
 import { useEffect, useState } from "react";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";

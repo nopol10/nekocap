@@ -3,7 +3,7 @@ import YoutubeFilled from "@ant-design/icons/YoutubeFilled";
 import { Typography } from "antd";
 import React, { ReactNode } from "react";
 import { css } from "styled-components";
-import { Processor } from "../content/processors/processor";
+import { Processor } from "../extension/content/processors/processor";
 import { EDITOR_PORTAL_ELEMENT_ID } from "./constants";
 import { VideoSource } from "./feature/video/types";
 import { videoSourceToProcessorMap } from "./feature/video/utils";
