@@ -11,6 +11,7 @@ import {
 
 import { CaptionContainer } from "@/common/feature/video/types";
 import {
+  useMount,
   useResize,
   useStateRef,
   useVideoDurationChange,
@@ -513,6 +514,12 @@ const CaptionEditorInternal = ({
       document.body.style.overflow = "unset";
     }
   }, [showEditor, captionContainerElement, editorVideoContainer, videoElement]);
+
+  useMount(() => {
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  });
 
   useEffect(() => {
     // Force a refresh of the caption text list on the next update

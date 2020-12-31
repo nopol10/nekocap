@@ -1,6 +1,7 @@
 import debounce from "lodash/debounce";
 import {
   DependencyList,
+  EffectCallback,
   MutableRefObject,
   useCallback,
   useEffect,
@@ -337,4 +338,8 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
       }
     };
   }, [...dependencies, setDummy]);
+};
+
+export const useMount = (callback: EffectCallback) => {
+  useEffect(callback, []);
 };

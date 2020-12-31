@@ -73,7 +73,6 @@ function* updateLoadedCaptionFromFileSaga({
   const format: keyof typeof CaptionFileFormat | undefined =
     CaptionFileFormat[type];
   let rawCaption: RawCaptionData;
-  let shouldShowEditor = true;
   let canAutoConvertToNekoCaption = true;
   let defaultRenderer: CaptionRendererType = CaptionRendererType.Default;
   if (format) {
@@ -81,15 +80,12 @@ function* updateLoadedCaptionFromFileSaga({
       data: content,
       type: format,
     };
-    const rawByteLength = getStringByteLength(content);
-    if (rawByteLength >= EDITOR_CUTOFF_BYTES) {
-      shouldShowEditor = false;
-    }
     if (isAss(type)) {
       // The user has to manually initiate the conversion as a large ass will freeze the page
       // Other file formats don't support fancy effects so we'll allow them to be auto converted
       canAutoConvertToNekoCaption = false;
       defaultRenderer = CaptionRendererType.AdvancedOctopus;
+      yield put(setShowEditor({ tabId, show: false }));
     }
   }
 
@@ -98,18 +94,13 @@ function* updateLoadedCaptionFromFileSaga({
     ? convertToCaptionContainer(parsedCaption, videoId, videoSource)
     : { data: { tracks: [] }, loadedByUser: true, videoId, videoSource };
 
-  yield put(
-    // @ts-ignore
-    [
-      clearHistory(tabId),
-      // Temporarily disable showing the editor directly
-      // setShowEditor({ show: shouldShowEditor, tabId }),
-      // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
-      setRenderer({ tabId, renderer: defaultRenderer }),
-      setEditorCaptionAfterEdit({ caption, tabId }),
-      setEditorRawCaption({ rawCaption, tabId }),
-    ]
-  );
+  yield put([
+    clearHistory(tabId),
+    // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
+    setRenderer({ tabId, renderer: defaultRenderer }),
+    setEditorCaptionAfterEdit({ caption, tabId }),
+    setEditorRawCaption({ rawCaption, tabId }),
+  ]);
 }
 
 function* updateShowCaptionSaga({ payload }: PayloadAction<SetShowCaption>) {
@@ -189,9 +180,9 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
     // The user has to manually initiate the conversion as a large ass will freeze the page
     // Other file formats don't support fancy effects so we'll allow them to be auto converted
     defaultRenderer = CaptionRendererType.AdvancedOctopus;
+    yield put(setShowEditor({ tabId, show: false }));
   }
 
-  // @ts-ignore
   yield put([
     clearHistory(tabId),
     setLoadedCaption({ tabId, caption, rawCaption }),
