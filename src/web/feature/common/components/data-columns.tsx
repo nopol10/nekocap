@@ -41,8 +41,9 @@ export const captionColumns = {
       const link = processor.generateVideoLink(record.videoId);
       return (
         <>
+          {record.translatedTitle && <div>{record.translatedTitle}</div>}
           <Link href={link} target="_blank" rel="noreferrer">
-            {text}
+            {record.videoName}
           </Link>
           {hasTag(record.tags, captionTags.audioDescribed) && (
             <AudioDescribedTag />
