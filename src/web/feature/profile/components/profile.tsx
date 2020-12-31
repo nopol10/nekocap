@@ -1,12 +1,13 @@
 import React from "react";
 import { colors } from "@/common/colors";
 import Layout from "antd/lib/layout";
-import { Space, Tooltip, Typography } from "antd";
+import { message, Space, Tooltip, Typography } from "antd";
 import {
   CaptionerFields,
   CaptionerPrivateFields,
 } from "@/common/feature/captioner/types";
 import EditOutlined from "@ant-design/icons/EditOutlined";
+import CopyOutlined from "@ant-design/icons/CopyOutlined";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBan,
@@ -69,6 +70,7 @@ type ProfileProps = {
   onDelete?: (caption: CaptionListFields) => void;
   onSetEditing?: (isEditing: boolean) => void;
   onSubmitEdit?: (form: EditProfileFields) => void;
+  onCancelEdit?: () => void;
   onAssignReviewerManager: () => void;
   onAssignReviewer: () => void;
   onVerifyCaptioner: () => void;
@@ -91,6 +93,9 @@ export const Profile = ({
     /*do nothing*/
   },
   onSubmitEdit = () => {
+    /*do nothing*/
+  },
+  onCancelEdit = () => {
     /*do nothing*/
   },
   onAssignReviewerManager = () => {
@@ -117,6 +122,17 @@ export const Profile = ({
     isReviewerManager: isProfileReviewerManager,
   } = captioner;
 
+  const isOwnProfile = !!privateData;
+
+  const handleCopyProfileLink = () => {
+    if (navigator && navigator.clipboard) {
+      navigator.clipboard.writeText(
+        `${process.env.WEBSITE_URL}capper/${loggedInUser.userId}`
+      );
+    }
+    message.info("Profile link copied to clipboard!");
+  };
+
   return (
     <div style={{ flex: "1", display: "flex", flexDirection: "column" }}>
       <Layout style={{ height: "100%" }}>
@@ -125,18 +141,18 @@ export const Profile = ({
             <Username>
               {name}
               <em style={{ marginRight: "10px" }}>#{nameTag}</em>
-              {!isEditing && canEdit && (
-                <Tooltip title={"Edit"}>
-                  <EditOutlined
-                    onClick={() => onSetEditing(true)}
-                    style={{
-                      fontSize: "0.5em",
-                      color: colors.good,
-                    }}
-                  />
-                </Tooltip>
-              )}
               <Space>
+                {!isEditing && canEdit && (
+                  <Tooltip title={"Edit"}>
+                    <EditOutlined
+                      onClick={() => onSetEditing(true)}
+                      style={{
+                        fontSize: "0.5em",
+                        color: colors.good,
+                      }}
+                    />
+                  </Tooltip>
+                )}
                 {banned && (
                   <Tooltip title="Banned">
                     <FontAwesomeIcon
@@ -173,6 +189,14 @@ export const Profile = ({
                     />
                   </Tooltip>
                 )}
+                {isOwnProfile && (
+                  <Tooltip title="Copy profile link">
+                    <CopyOutlined
+                      style={{ fontSize: "20px" }}
+                      onClick={handleCopyProfileLink}
+                    />
+                  </Tooltip>
+                )}
               </Space>
             </Username>
           </div>
@@ -190,6 +214,7 @@ export const Profile = ({
               onVerifyCaptioner={onVerifyCaptioner}
               onBanCaptioner={onBanCaptioner}
               onSubmit={onSubmitEdit}
+              onCancel={onCancelEdit}
             />
             <Content>
               <div style={{ padding: "40px 40px" }}>

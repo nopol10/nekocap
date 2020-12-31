@@ -48,6 +48,7 @@ export const ProfileSidebar = ({
   isEditing,
   isLoading,
   onSubmit,
+  onCancel,
   onAssignReviewerManager,
   onAssignReviewer,
   onVerifyCaptioner,
@@ -59,6 +60,7 @@ export const ProfileSidebar = ({
   isLoading: boolean;
   isEditing: boolean;
   onSubmit?: (form: EditProfileFields) => void;
+  onCancel?: () => void;
   onAssignReviewerManager: () => void;
   onAssignReviewer: () => void;
   onVerifyCaptioner: () => void;
@@ -238,13 +240,14 @@ export const ProfileSidebar = ({
           </ProfileField>
           {isEditing && (
             <div style={{ textAlign: "right" }}>
-              <WSButton
-                style={{ marginTop: "20px" }}
-                loading={isLoading}
-                htmlType="submit"
-              >
-                Save
-              </WSButton>
+              <Space style={{ marginTop: "20px" }}>
+                <WSButton onClick={onCancel} loading={isLoading}>
+                  Cancel
+                </WSButton>
+                <WSButton loading={isLoading} htmlType="submit" type="primary">
+                  Save
+                </WSButton>
+              </Space>
             </div>
           )}
         </Skeleton>

@@ -84,6 +84,10 @@ export const OwnProfile = () => {
       });
   };
 
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
   return (
     <Profile
       loggedInUser={captioner}
@@ -99,6 +103,7 @@ export const OwnProfile = () => {
       canEdit={true}
       onSetEditing={setIsEditing}
       onSubmitEdit={handleSubmitEdit}
+      onCancelEdit={handleCancelEdit}
       onAssignReviewerManager={handleAssignReviewerManager(
         captionerId,
         dispatch
