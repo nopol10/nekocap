@@ -1,5 +1,6 @@
 import { AnyAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
 import {
+  fetchAutoCaptions,
   setAutoCaptionList,
   setEditorCaption,
   setEditorCaptionAfterEdit,
@@ -122,6 +123,7 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
   },
   (builder) => {
     submitCaption.augmentReducer(builder);
+    fetchAutoCaptions.augmentReducer(builder);
     return builder
       .addCase(setEditorShortcuts, (state, action) => {
         const { shortcutType, shortcuts } = action.payload;

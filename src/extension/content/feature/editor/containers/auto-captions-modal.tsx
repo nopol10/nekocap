@@ -62,7 +62,8 @@ export const AutoCaptionsModal = ({
       title={"Select caption"}
     >
       {isLoading && <Skeleton />}
-      {!isLoading && (
+      {!isLoading && captions.length <= 0 && <div>No captions found</div>}
+      {!isLoading && captions.length > 0 && (
         <Radio.Group onChange={handleChangeCaption} value={selectedCaptionId}>
           {captions.map((caption) => {
             return (
