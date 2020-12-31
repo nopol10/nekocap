@@ -149,6 +149,7 @@
     "redux-saga-thunk": "^0.7.3",
     "redux-undo": "^1.0.1",
     "styled-components": "^5.2.0",
+    "subsrt": "^1.1.1",
     "subtitle": "^3.0.0",
     "webext-redux": "^2.1.7"
   }

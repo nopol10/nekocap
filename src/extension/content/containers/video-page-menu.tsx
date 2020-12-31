@@ -300,6 +300,7 @@ export const VideoPageMenu = ({
         </Menu.SubMenu>
         <Menu.SubMenu title="Export">
           <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
+          <Menu.Item onClick={() => handleExport("sbv")}>SBV</Menu.Item>
         </Menu.SubMenu>
         {renderAutoCaptionButton()}
         {renderShowEditorButton()}

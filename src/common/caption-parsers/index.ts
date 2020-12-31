@@ -1,4 +1,5 @@
 import { Captions, parse, stringify as stringifySrt } from "subtitle";
+import { build as stringifyAll } from "subsrt";
 import { parseSBV } from "./sbv-parser";
 import { NekoCaption, CaptionDataContainer, Track } from "./types";
 import { compile as compileAss, CompiledASS, Dialogue } from "ass-compiler";
@@ -132,6 +133,19 @@ const stringifyNekoToSrt = (captionContainer: CaptionDataContainer) => {
   );
 };
 
+const stringifyNekoToSbv = (captionContainer: CaptionDataContainer) => {
+  return stringifyAll(
+    flattenNekoCaption(captionContainer).tracks[0].cues.map((caption) => {
+      return {
+        start: Math.floor(caption.start),
+        end: Math.floor(caption.end),
+        text: caption.text,
+      };
+    }),
+    { format: "sbv" }
+  );
+};
+
 export const stringifyCaption = (
   format: keyof typeof CaptionFileFormat,
   caption: CaptionDataContainer
@@ -139,6 +153,8 @@ export const stringifyCaption = (
   switch (format) {
     case "srt":
       return stringifyNekoToSrt(caption);
+    case "sbv":
+      return stringifyNekoToSbv(caption);
     default:
       return "";
   }
