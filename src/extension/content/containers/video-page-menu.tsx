@@ -48,6 +48,7 @@ import {
 import {
   createNewCaption,
   exportCaption,
+  fetchAutoCaptions,
   generateCaptionAndShowEditor,
   loadLocallySavedCaption,
   saveLocalCaption,
@@ -60,6 +61,8 @@ import { css } from "styled-components";
 import { styledNoPass } from "@/common/style-utils";
 import { darkModeSelector } from "@/common/processor-utils";
 import { WSSelect } from "@/common/components/ws-select";
+import { CreateCaptionWarningModal } from "../feature/editor/containers/create-caption-warning-modal";
+import { AutoCaptionsModal } from "../feature/editor/containers/auto-captions-modal";
 
 const { OptGroup } = Select;
 
@@ -84,54 +87,6 @@ const DislikeText = styledNoPass<LikeTextProps, "span">("span")`
       activated ? colors.darkModeDislike : colors.white};
   `)}
 `;
-
-const CreateCaptionWarningModal = ({
-  visible,
-  onCancel,
-}: {
-  visible: boolean;
-  onCancel: (e?: React.MouseEvent<HTMLElement>) => void;
-}) => {
-  const dispatch = useDispatch();
-  const handleOpenEditor = () => {
-    dispatch(
-      generateCaptionAndShowEditor({
-        tabId: window.tabId,
-        videoId: window.videoId,
-        videoSource: window.videoSource,
-      })
-    );
-    onCancel();
-  };
-  return (
-    <Modal
-      visible={visible}
-      onCancel={onCancel}
-      okText={"Open Editor"}
-      onOk={handleOpenEditor}
-      title={"Warning"}
-    >
-      <div>
-        You are about to create editable captions using the loaded ASS/SSA file.
-      </div>
-      <br />
-      <div>
-        The NekoCap editor does not perform well with Substation Alpha files
-        that contain complex effects. They will cause the page to freeze.
-      </div>
-      <br />
-      <div>
-        Please only continue if you know your file is relatively simple!
-      </div>
-      <br />
-      <div>
-        <b>Important: </b>Captions edited with the NekoCap editor does not
-        currently work with the Advanced Renderer! If you select the advanced
-        renderer, you will see the content from the original file!
-      </div>
-    </Modal>
-  );
-};
 
 const captionOptionCreator = ({
   languageCode,
@@ -202,6 +157,7 @@ export const VideoPageMenu = ({
   const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] = useState(
     false
   );
+  const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
 
   const handleSave = useCallback(() => {
     dispatch(
@@ -296,6 +252,10 @@ export const VideoPageMenu = ({
     setIsCreateCaptionWarningOpen(false);
   };
 
+  const handleCancelAutoCaptionListModal = () => {
+    setIsAutoCaptionListOpen(false);
+  };
+
   const handleFileSelected = (file: RcFile, content: string) => {
     if (!file || !content) {
       return;
@@ -316,6 +276,17 @@ export const VideoPageMenu = ({
     setIsSelectFileOpen(false);
   };
 
+  const handleFetchAutoCaptions = () => {
+    setIsAutoCaptionListOpen(true);
+    dispatch(
+      fetchAutoCaptions.request({
+        tabId: window.tabId,
+        videoId: window.videoId,
+        videoSource: window.videoSource,
+      })
+    );
+  };
+
   const renderEditorMenu = () => {
     return (
       <Menu>
@@ -330,6 +301,7 @@ export const VideoPageMenu = ({
         <Menu.SubMenu title="Export">
           <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
         </Menu.SubMenu>
+        {renderAutoCaptionButton()}
         {renderShowEditorButton()}
         {renderUploadButton()}
       </Menu>
@@ -409,6 +381,19 @@ export const VideoPageMenu = ({
     const label = showEditorIfPossible ? "Close Editor" : "Open Editor";
 
     return <Menu.Item onClick={handleClickOpenCloseEditor}>{label}</Menu.Item>;
+  };
+
+  const renderAutoCaptionButton = () => {
+    if (
+      !inEditorScreen ||
+      !window.selectedProcessor.supportAutoCaptions(window.videoId)
+    ) {
+      return null;
+    }
+
+    return (
+      <Menu.Item onClick={handleFetchAutoCaptions}>Use auto-captions</Menu.Item>
+    );
   };
 
   const renderUploadButton = () => {
@@ -545,6 +530,10 @@ export const VideoPageMenu = ({
       <CreateCaptionWarningModal
         visible={isCreateCaptionWarningOpen}
         onCancel={handleCancelCreateCaptionWarningModal}
+      />
+      <AutoCaptionsModal
+        visible={isAutoCaptionListOpen}
+        onCancel={handleCancelAutoCaptionListModal}
       />
     </>
   );

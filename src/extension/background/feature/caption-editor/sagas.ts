@@ -24,7 +24,11 @@ import {
   createNewCaption,
   deleteCaption,
   exportCaption,
+  FetchAutoCaptions,
+  fetchAutoCaptions,
   generateCaptionAndShowEditor,
+  LoadAutoCaption,
+  loadAutoCaption,
   loadLocallySavedCaption,
   modifyCaption,
   modifyCaptionEndTime,
@@ -40,6 +44,7 @@ import {
   redoEditorTriggerAction,
   removeTrack,
   saveLocalCaption,
+  setAutoCaptionList,
   setEditorCaptionAfterEdit,
   setEditorRawCaption,
   setEditorShortcuts,
@@ -62,6 +67,7 @@ import {
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
 import {
+  AutoCaptionLanguage,
   CaptionEditorLocalSave,
   CaptionEditorStorage,
   CreateNewCaption,
@@ -85,7 +91,10 @@ import { EDITOR_CUTOFF_BYTES } from "@/common/feature/caption-editor/constants";
 import { chromeProm } from "@/common/chrome-utils";
 import { isInExtension } from "@/common/client-utils";
 import { parseCaption, stringifyCaption } from "@/common/caption-parsers";
-import { convertToCaptionContainer } from "@/common/feature/video/utils";
+import {
+  convertToCaptionContainer,
+  videoSourceToProcessorMap,
+} from "@/common/feature/video/utils";
 import { compressToBase64 as lzCompress } from "lz-string";
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { CaptionMutators } from "@/extension/content/feature/editor/utils";
@@ -501,6 +510,42 @@ function* updateShowEditorSaga({
   yield put(setShowEditor(payload));
 }
 
+function* fetchAutoCaptionsSaga({
+  payload,
+}: ThunkedPayloadAction<FetchAutoCaptions>) {
+  const { tabId, videoId, videoSource } = payload;
+  const processor = videoSourceToProcessorMap[videoSource];
+  if (!processor.supportAutoCaptions(videoId)) {
+    return;
+  }
+  const autoCaptions: AutoCaptionLanguage[] = yield call(
+    processor.getAutoCaptionList,
+    videoId
+  );
+  yield put(setAutoCaptionList({ tabId, captions: autoCaptions }));
+}
+
+function* loadAutoCaptionSaga({
+  payload,
+}: ThunkedPayloadAction<LoadAutoCaption>) {
+  const { tabId, videoId, videoSource, captionId } = payload;
+  const processor = videoSourceToProcessorMap[videoSource];
+  if (!processor.supportAutoCaptions(videoId)) {
+    return;
+  }
+  const autoCaption: CaptionDataContainer = yield call(
+    processor.getAutoCaption,
+    videoId,
+    captionId
+  );
+  const { caption }: TabEditorData = yield select(tabEditorDataSelector(tabId));
+  const newCaption: CaptionContainer = {
+    ...caption,
+    data: autoCaption,
+  };
+  yield put(setEditorCaptionAfterEdit({ tabId, caption: newCaption }));
+}
+
 function* generateCaptionAndShowEditorSaga({
   payload,
 }: PayloadAction<GenerateCaption>) {
@@ -568,6 +613,16 @@ function* captionEditorSaga() {
   yield takeLatest(
     generateCaptionAndShowEditor.type,
     safe(generateCaptionAndShowEditorSaga)
+  );
+
+  yield takeLatest(
+    fetchAutoCaptions.REQUEST,
+    fetchAutoCaptions.requestSaga(fetchAutoCaptionsSaga)
+  );
+
+  yield takeLatest(
+    loadAutoCaption.REQUEST,
+    loadAutoCaption.requestSaga(loadAutoCaptionSaga)
   );
 }
 

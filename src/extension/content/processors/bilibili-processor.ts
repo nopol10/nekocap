@@ -35,6 +35,7 @@ export const BilibiliProcessor: Processor = {
       position: static !important;
     }
   `,
+  supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
     return matches[3];
