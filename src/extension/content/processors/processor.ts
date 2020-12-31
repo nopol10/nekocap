@@ -1,3 +1,5 @@
+import { CaptionDataContainer } from "@/common/caption-parsers/types";
+import { AutoCaptionLanguage } from "@/common/feature/caption-editor/types";
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import { waitForElement } from "@/common/utils";
 
@@ -55,6 +57,12 @@ export interface Processor {
   editorVideoPlayerStyles: string;
   globalStyles?: string;
   darkModeSelector?: string;
+  supportAutoCaptions: (videoId: string) => boolean;
+  getAutoCaptionList?: (videoId: string) => Promise<AutoCaptionLanguage[]>;
+  getAutoCaption?: (
+    videoId: string,
+    autoCaptionId: string
+  ) => Promise<CaptionDataContainer>;
   getVideoId: () => string;
   generateVideoLink: (videoId: string) => string;
   /**

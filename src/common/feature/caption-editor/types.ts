@@ -7,9 +7,16 @@ import type {
   VideoSource,
 } from "../video/types";
 
+export type AutoCaptionLanguage = {
+  id: string;
+  language: string;
+  name: string;
+};
+
 export type TabEditorData = {
   caption?: CaptionContainer; // The caption loaded from the server
   showEditorIfPossible: boolean;
+  autoCaptions?: AutoCaptionLanguage[];
 };
 
 export type CreateNewCaption = TabbedType & {

@@ -1,5 +1,6 @@
 import { AnyAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
 import {
+  setAutoCaptionList,
   setEditorCaption,
   setEditorCaptionAfterEdit,
   setEditorRawCaption,
@@ -59,6 +60,14 @@ const captionEditorTabBuiltReducer = createReducer<TabEditorData>(
     return builder
       .addCase(setEditorCaption, setCaptionReducer)
       .addCase(setEditorCaptionAfterEdit, setCaptionReducer)
+      .addCase(setAutoCaptionList, (state, action) => {
+        const { payload } = action;
+        const { captions } = payload;
+        return {
+          ...state,
+          autoCaptions: captions,
+        };
+      })
       .addCase(setShowEditor, (state, action) => {
         const { payload } = action;
         const { show } = payload;

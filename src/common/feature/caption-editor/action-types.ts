@@ -5,6 +5,8 @@ export const captionEditorActionTypes = {
   loadLocallySavedCaption: `${reducerName}/loadLocallySavedCaption`,
   submitCaption: `${reducerName}/submitCaption`,
   updateShowEditor: `${reducerName}/updateShowEditor`,
+  fetchAutoCaptions: `${reducerName}/fetchAutoCaptions`,
+  loadAutoCaption: `${reducerName}/loadAutoCaption`,
   generateCaptionAndShowEditor: `${reducerName}/generateCaptionAndShowEditor`,
 
   saveLocalCaption: `${reducerName}/saveLocalCaption`,
@@ -21,6 +23,7 @@ export const captionEditorActionTypes = {
   setCaptionLanguage: `${reducerName}/setCaptionLanguage`,
   setShowEditor: `${reducerName}/setShowEditor`,
   setEditorShortcuts: `${reducerName}/setEditorShortcuts`,
+  setAutoCaptionList: `${reducerName}/setAutoCaptionList`,
   // #region Caption modification actions
   updateEditorCaption: `${reducerName}/updateEditorCaption`,
   modifyCaptionWithMultipleActions: `${reducerName}/modifyCaptionWithMultipleActions`,

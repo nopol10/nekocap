@@ -1,6 +1,8 @@
-import { EDITOR_OPEN_ATTRIBUTE } from "@/common/constants";
+import { CaptionDataContainer } from "@/common/caption-parsers/types";
+import { EDITOR_OPEN_ATTRIBUTE, TIME } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import { Processor } from "./processor";
+import unescape from "lodash/unescape";
 
 const disableYoutubeHotkeys = () => {
   const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
@@ -28,6 +30,12 @@ const enableYoutubeHotkeys = () => {
     return;
   }
   window.backupHotkeyParentElement.appendChild(window.backupHotkeyElement);
+};
+
+type YoutubeCaptionDetails = {
+  baseUrl: string;
+  languageCode: string;
+  name: { simpleText: string };
 };
 
 export const YoutubeProcessor: Processor = {
@@ -80,6 +88,63 @@ export const YoutubeProcessor: Processor = {
     }
   `,
   darkModeSelector: 'html[dark="true"]',
+  supportAutoCaptions: () => true,
+  getAutoCaptionList: async (videoId: string) => {
+    const response = await fetch(
+      `https://youtube.com/get_video_info?video_id=${videoId}`
+    );
+    const videoInfoText = decodeURIComponent(await response.text());
+    if (!videoInfoText.includes("captionTracks")) {
+      throw new Error(`No captions found for ${videoId}`);
+    }
+    /**
+     * The isTranslatable block at the end is used to recognize the end of the captionTracks property
+     */
+    const captionArrayRegex = /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
+    /**
+     * The capture group will contain a string of the form
+     * [{"baseUrl": "...", "languageCode": "...", "name": "..."}, ...]
+     */
+    const captionArray: YoutubeCaptionDetails[] = JSON.parse(
+      captionArrayRegex.exec(videoInfoText)[1]
+    );
+    return captionArray.map((youtubeCaption) => {
+      return {
+        id: youtubeCaption.baseUrl,
+        language: youtubeCaption.languageCode,
+        name: youtubeCaption.name.simpleText || "",
+      };
+    });
+  },
+  getAutoCaption: async (
+    videoId: string,
+    captionUrl: string
+  ): Promise<CaptionDataContainer> => {
+    const youtubeCaptionResponse = await fetch(captionUrl);
+    const captionString = await youtubeCaptionResponse.text();
+    const domParser = new DOMParser();
+    const captionXml = domParser.parseFromString(captionString, "text/xml");
+    const cues = Array.from(captionXml.getElementsByTagName("text"));
+
+    return {
+      tracks: [
+        {
+          cues: cues.map((cue) => {
+            const start =
+              parseFloat(cue.getAttribute("start")) * TIME.SECONDS_TO_MS;
+            const end =
+              start + parseFloat(cue.getAttribute("dur")) * TIME.SECONDS_TO_MS;
+            const text = unescape(cue.textContent);
+            return {
+              start,
+              end,
+              text,
+            };
+          }),
+        },
+      ],
+    };
+  },
   getVideoId: () => {
     const matches = window.location.href.match(
       /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/

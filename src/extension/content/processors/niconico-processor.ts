@@ -25,6 +25,7 @@ export const NicoNicoProcessor: Processor = {
       vertical-align: baseline;
     }
   `,
+  supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
     return matches[5];

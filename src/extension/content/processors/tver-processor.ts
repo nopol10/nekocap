@@ -30,6 +30,7 @@ export const TVerProcessor: Processor = {
     display: none !important;
   }
   `,
+  supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(
       /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/
