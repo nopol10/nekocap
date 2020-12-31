@@ -56,5 +56,5 @@
     "sub-assets/*.*",
     "js/subtitle-octopus/*.*"
   ],
-  "content_security_policy": "script-src 'self' https://*.google.com;",
+  "content_security_policy": "script-src 'self' https://*.google.com;"
 }
