@@ -139,8 +139,13 @@ export const Profile = ({
         <ProfileHeader style={{ textAlign: "left", paddingLeft: "20px" }}>
           <div>
             <Username>
-              {name}
-              <em style={{ marginRight: "10px" }}>#{nameTag}</em>
+              {isLoading && <span>Loading...</span>}
+              {!isLoading && (
+                <>
+                  {name}
+                  <em style={{ marginRight: "10px" }}>#{nameTag}</em>
+                </>
+              )}
               <Space>
                 {!isEditing && canEdit && (
                   <Tooltip title={"Edit"}>
