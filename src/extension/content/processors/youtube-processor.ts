@@ -2,7 +2,7 @@ import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { EDITOR_OPEN_ATTRIBUTE, TIME } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import { Processor } from "./processor";
-import unescape from "lodash/unescape";
+import { unescape } from "lodash";
 
 const disableYoutubeHotkeys = () => {
   const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
