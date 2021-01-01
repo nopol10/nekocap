@@ -59,6 +59,9 @@ export const AutoCaptionsModal = ({
       onCancel={onCancel}
       okText={"Load caption"}
       onOk={handleLoadAutoCaption}
+      okButtonProps={{
+        disabled: !selectedCaptionId,
+      }}
       title={"Select caption"}
     >
       {isLoading && <Skeleton />}
