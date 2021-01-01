@@ -34,7 +34,7 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
     test: /\.less$/,
     use: [
       {
-        loader: devMode ? "style-loader" : MiniCssExtractPlugin.loader,
+        loader: MiniCssExtractPlugin.loader,
       },
       {
         loader: "css-loader",
@@ -58,7 +58,7 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
       exclude: /\.less$/,
     },
     use: [
-      devMode ? "style-loader" : MiniCssExtractPlugin.loader,
+      MiniCssExtractPlugin.loader,
       // "@teamsupercell/typings-for-css-modules-loader",
       { loader: "css-loader", options: { modules: true } },
       "sass-loader",
@@ -73,7 +73,7 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
   },
   {
     test: /\.css$/,
-    use: [devMode ? "style-loader" : MiniCssExtractPlugin.loader, "css-loader"],
+    use: [MiniCssExtractPlugin.loader, "css-loader"],
   },
   {
     test: /\.(png|jpe?g|gif|svg)$/i,
