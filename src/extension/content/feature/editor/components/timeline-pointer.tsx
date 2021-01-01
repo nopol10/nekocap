@@ -1,5 +1,11 @@
 import * as React from "react";
-import { DependencyList, useEffect, useRef, useState } from "react";
+import {
+  DependencyList,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import styled from "styled-components";
 import { colors } from "@/common/colors";
@@ -23,7 +29,7 @@ export const TimelinePointer = ({
   onMouseUp,
   onDoubleClick,
   dependencies = [],
-}: TimelinePointerProps) => {
+}: TimelinePointerProps): ReactElement => {
   const pointerRef = useRef<HTMLDivElement>(null);
   const isActive = useRef<boolean>(false);
   const [, setRerender] = useState<number>(0);
@@ -85,7 +91,10 @@ export const TimelinePointer = ({
   // Effect to force a rerender after dependencies change as doing so at the moment of change will
   // yield the previous height instead of the latest height
   useEffect(() => {
-    setTimeout(() => setRerender((r) => r + 1));
+    const timeout = setTimeout(() => setRerender((r) => r + 1));
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [...dependencies]);
 
   const height = hoverElements.reduce((acc, element) => {

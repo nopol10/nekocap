@@ -4,7 +4,7 @@ import Menu from "antd/lib/menu";
 import Space from "antd/lib/space";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CSSProperties, useCallback, useMemo, useState } from "react";
+import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";
 import Modal from "antd/lib/modal";
 import { RcFile } from "antd/lib/upload";
 import {
@@ -31,6 +31,7 @@ import Tooltip from "antd/lib/tooltip";
 import {
   CaptionRendererType,
   LoadCaptionsResult,
+  UpdateLoadedCaptionFromFile,
 } from "@/common/feature/video/types";
 import DislikeTwoTone from "@ant-design/icons/DislikeTwoTone";
 import LikeTwoTone from "@ant-design/icons/LikeTwoTone";
@@ -63,6 +64,7 @@ import { darkModeSelector } from "@/common/processor-utils";
 import { WSSelect } from "@/common/components/ws-select";
 import { CreateCaptionWarningModal } from "../feature/editor/containers/create-caption-warning-modal";
 import { AutoCaptionsModal } from "../feature/editor/containers/auto-captions-modal";
+import { ThunkedPayloadAction } from "@/common/store/action";
 
 const { OptGroup } = Select;
 
@@ -158,6 +160,10 @@ export const VideoPageMenu = ({
     false
   );
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
+
+  const newLoadedFileAction = useRef<
+    ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
+  >(undefined);
 
   const handleSave = useCallback(() => {
     dispatch(
@@ -263,17 +269,34 @@ export const VideoPageMenu = ({
     const fileCopy = { ...file };
     const nameParts = file.name.split(".");
     const fileType = nameParts[nameParts.length - 1];
-    dispatch(
-      updateLoadedCaptionFromFile({
-        file: fileCopy,
-        type: fileType,
-        content,
-        tabId: window.tabId,
-        videoId: window.videoId,
-        videoSource: window.videoSource,
-      })
-    );
     setIsSelectFileOpen(false);
+    newLoadedFileAction.current = updateLoadedCaptionFromFile({
+      file: fileCopy,
+      type: fileType,
+      content,
+      tabId: window.tabId,
+      videoId: window.videoId,
+      videoSource: window.videoSource,
+    });
+    /**
+     * The action to load the file will be dispatched AFTER the modal has completely closed.
+     * This prevents closing the editor due to loading an ASS file from causing the body overflow
+     * to remain set as hidden.
+     * Sequence of events:
+     * 1. Editor is open (body overflow [bo] set to hidden)
+     * 2. File load modal is open (registers original overflow as hidden, bo set to hidden)
+     * 3. File load modal closes (restores bo to original, i.e. hidden)
+     * 4. ASS file loads, triggers closure of editor (bo set to unset)
+     *
+     * If 3 and 4 are reversed, the body overflow will remain set to hidden after the editor is closed. ❌
+     */
+  };
+
+  const handleAfterFileModalClose = () => {
+    if (newLoadedFileAction.current) {
+      dispatch(newLoadedFileAction.current);
+    }
+    newLoadedFileAction.current = undefined;
   };
 
   const handleFetchAutoCaptions = () => {
@@ -522,6 +545,7 @@ export const VideoPageMenu = ({
         visible={isSelectFileOpen}
         onCancel={handleCancelSelectFileModal}
         onDone={handleFileSelected}
+        afterClose={handleAfterFileModalClose}
       />
       <SubmitCaptionModal
         visible={isSubmitOpen}

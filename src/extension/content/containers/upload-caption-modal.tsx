@@ -16,6 +16,7 @@ interface SelectFileModalProps {
   visible: boolean;
   onCancel: () => void;
   onDone: (file: RcFile, contents: string) => void;
+  afterClose: () => void;
 }
 
 const validFileTypes = [
@@ -33,6 +34,7 @@ export const SelectFileModal = ({
   visible,
   onCancel,
   onDone,
+  afterClose,
 }: SelectFileModalProps) => {
   const isLoggedIn = useSelector(isLoggedInSelector);
   const [fileContent, setFileContent] = useState<string>("");
@@ -49,7 +51,7 @@ export const SelectFileModal = ({
     }
     const isSizeValid = file.size < MAX_CAPTION_FILE_BYTES;
     if (!isSizeValid) {
-      message.error("Image must smaller than 2MB!");
+      message.error("Caption must smaller than 2MB!");
       return;
     }
     setFile(file);
@@ -80,6 +82,7 @@ export const SelectFileModal = ({
       okText={"Load"}
       onOk={handleSubmit}
       title={"Select a caption file or drop it into the box below"}
+      afterClose={afterClose}
     >
       <Form>
         <div>Supported file types: {supportedFileTypesString}</div>

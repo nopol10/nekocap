@@ -79,13 +79,15 @@ export const useResize = (
     if (!element) {
       return;
     }
-    const updateSize = interval <= 0 ? callback : debounce(callback, interval);
+    const debouncedFunction = debounce(callback, interval);
+    const updateSize = interval <= 0 ? callback : debouncedFunction;
     const ro = new ResizeObserver((entries) => {
       const size = entries[0].contentRect;
       updateSize(size.width, size.height);
     });
     ro.observe(element);
     return () => {
+      debouncedFunction.cancel();
       ro.disconnect();
     };
   }, [element, ...dependencies]);
