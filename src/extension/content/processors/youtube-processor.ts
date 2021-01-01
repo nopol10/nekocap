@@ -112,7 +112,7 @@ export const YoutubeProcessor: Processor = {
       return {
         id: youtubeCaption.baseUrl,
         language: youtubeCaption.languageCode,
-        name: youtubeCaption.name.simpleText || "",
+        name: (youtubeCaption.name.simpleText || "").replace(/\+/g, " "),
       };
     });
   },
