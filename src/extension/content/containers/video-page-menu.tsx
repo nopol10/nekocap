@@ -50,7 +50,6 @@ import {
   createNewCaption,
   exportCaption,
   fetchAutoCaptions,
-  generateCaptionAndShowEditor,
   loadLocallySavedCaption,
   saveLocalCaption,
   updateShowEditor,
@@ -311,6 +310,12 @@ export const VideoPageMenu = ({
   };
 
   const renderEditorMenu = () => {
+    const canExport =
+      editorTabData.caption &&
+      editorTabData.caption.data &&
+      editorTabData.caption.data.tracks &&
+      editorTabData.caption.data.tracks.length > 0;
+
     return (
       <Menu>
         <Menu.Item onClick={handleClickCreate}>New</Menu.Item>
@@ -321,9 +326,11 @@ export const VideoPageMenu = ({
             Load from local save
           </Menu.Item>
         </Menu.SubMenu>
-        <Menu.SubMenu title="Export">
-          <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
-        </Menu.SubMenu>
+        {canExport && (
+          <Menu.SubMenu title="Export">
+            <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
+          </Menu.SubMenu>
+        )}
         {renderAutoCaptionButton()}
         {renderShowEditorButton()}
         {renderUploadButton()}
