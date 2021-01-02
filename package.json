@@ -76,6 +76,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "prettier": "^2.1.1",
     "react-svg-loader": "^3.0.3",
+    "release-it": "^14.2.2",
     "remote-redux-devtools": "^0.5.16",
     "sass-loader": "^10.0.2",
     "style-loader": "^1.2.1",
