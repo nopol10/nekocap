@@ -459,9 +459,9 @@ const CaptionRendererInternal = ({
 
   // Update display
   useEffect(() => {
-    captionWrapperElements.current.forEach((captionElement) => {
-      captionElement.style.visibility = showCaption ? "visible" : "hidden";
-    });
+    localCaptionContainer.current.style.visibility = showCaption
+      ? "visible"
+      : "hidden";
   }, [showCaption]);
 
   const resetCurrentCaption = () => {
