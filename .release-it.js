@@ -9,4 +9,10 @@ module.exports = {
   npm: {
     publish: false,
   },
+  plugins: {
+    "@release-it/bumper": {
+      in: "extension-statics/manifest.json",
+      out: "extension-statics/manifest.json",
+    },
+  },
 };

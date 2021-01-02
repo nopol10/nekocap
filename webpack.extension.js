@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -23,6 +24,20 @@ module.exports = (env, argv, customEnv = {}) => {
     prev[`process.env.${next}`] = JSON.stringify(envFile[next]);
     return prev;
   }, {});
+
+  let originalManifestString = "";
+  const manifestPath = path.join(
+    __dirname,
+    "extension-statics",
+    "manifest.json"
+  );
+  // Update manifest.json with key for build, remove it afterwards
+  if (!devMode) {
+    originalManifestString = fs.readFileSync(manifestPath);
+    const manifest = JSON.parse(originalManifestString);
+    manifest.key = process.env.EXTENSION_KEY || envFile.EXTENSION_KEY || "";
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2));
+  }
 
   return {
     mode: devMode ? "development" : "production",
@@ -97,6 +112,16 @@ module.exports = (env, argv, customEnv = {}) => {
       devMode && new ForkTsCheckerWebpackPlugin(),
       !devMode &&
         new WebpackShellPlugin({ onBuildEnd: ["node zip-extension.js"] }),
+      !devMode && {
+        apply: (compiler) => {
+          compiler.hooks.afterEmit.tap("AfterEmitPlugin", (compilation) => {
+            // Restore original manifest without the key property
+            if (originalManifestString) {
+              fs.writeFileSync(manifestPath, originalManifestString);
+            }
+          });
+        },
+      },
     ].filter(Boolean),
     resolve: {
       plugins: resolvePlugins,
