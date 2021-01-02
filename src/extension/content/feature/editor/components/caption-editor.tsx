@@ -338,6 +338,22 @@ const CaptionTextRow = styled.div<CaptionTextRowProps>`
     selected ? colors.lightHighlight : "unset"};
 `;
 
+const ScrollingTime = styled.div`
+  font-size: 30px;
+  font-weight: bold;
+`;
+
+const ScrollingText = styled.div`
+  font-size: 26px;
+`;
+
+const ScrollingEditorField = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
 const NoTextInTrack = styled.div`
   text-align: center;
   font-size: 20px;
@@ -1120,7 +1136,12 @@ const CaptionEditorInternal = ({
         ? data.tracks[selectedTrack].cues.length
         : 0;
 
-    const trackTextRowRenderer = ({ key, style, index }: ListRowProps) => {
+    const trackTextRowRenderer = ({
+      key,
+      style,
+      index,
+      isScrolling,
+    }: ListRowProps) => {
       const { tracks } = data;
       const currentTrack = tracks[selectedTrack];
       if (!currentTrack) {
@@ -1129,9 +1150,24 @@ const CaptionEditorInternal = ({
 
       const currentCaption = currentTrack.cues[index];
 
+      if (isScrolling) {
+        const formattedStartTime = dayjs
+          .duration(Math.floor(currentCaption.start), "milliseconds")
+          .format("HH:mm:ss.SSS");
+        return (
+          <ScrollingEditorField style={style} key={key}>
+            <ScrollingTime>{formattedStartTime}</ScrollingTime>
+            <ScrollingText>
+              {currentCaption.text.substring(0, 32)}
+            </ScrollingText>
+          </ScrollingEditorField>
+        );
+      }
+
       const start = dayjs
         .duration(currentCaption.start, "milliseconds")
         .format("HHmmssSSS");
+
       const end = dayjs
         .duration(currentCaption.end, "milliseconds")
         .format("HHmmssSSS");
