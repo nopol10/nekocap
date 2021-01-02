@@ -124,23 +124,29 @@ export const YoutubeProcessor: Processor = {
     const captionString = await youtubeCaptionResponse.text();
     const domParser = new DOMParser();
     const captionXml = domParser.parseFromString(captionString, "text/xml");
-    const cues = Array.from(captionXml.getElementsByTagName("text"));
+    const cues = Array.from(captionXml.getElementsByTagName("text"))
+      .map((cue) => {
+        const start =
+          parseFloat(cue.getAttribute("start")) * TIME.SECONDS_TO_MS;
+        // Sometimes the dur attribute will not be present. Use a default value in that case
+        const end =
+          start +
+          (parseFloat(cue.getAttribute("dur")) || 1000) * TIME.SECONDS_TO_MS;
+        const text = unescape(cue.textContent);
+        return {
+          start,
+          end,
+          text,
+        };
+      })
+      .sort((a, b) => {
+        return a.start - b.start;
+      });
 
     return {
       tracks: [
         {
-          cues: cues.map((cue) => {
-            const start =
-              parseFloat(cue.getAttribute("start")) * TIME.SECONDS_TO_MS;
-            const end =
-              start + parseFloat(cue.getAttribute("dur")) * TIME.SECONDS_TO_MS;
-            const text = unescape(cue.textContent);
-            return {
-              start,
-              end,
-              text,
-            };
-          }),
+          cues,
         },
       ],
     };
