@@ -5,6 +5,15 @@
 </p>
 
 <h1 align="center">NekoCap</h1>
+
+<div align="center">
+
+![Editor](docs/editor-screenshot.jpg)
+
+![ASS captions](docs/ass-captions.jpg)
+
+</div>
+
 <div align="center">A browser extension for creating, uploading and viewing community created captions on video sharing sites such as YouTube, Vimeo and niconico.
 <br/>
 Get the extension:
