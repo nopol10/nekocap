@@ -488,6 +488,22 @@ export const VideoPageMenu = ({
     );
   };
 
+  const renderCaptionerProfileLink = () => {
+    if (!caption || !caption.creator) {
+      return null;
+    }
+    return (
+      <a
+        target="_blank"
+        rel="noreferrer"
+        href={`${process.env.WEBSITE_URL}capper/${caption.creator}`}
+        style={{ fontWeight: "bold" }}
+      >
+        View captioner profile
+      </a>
+    );
+  };
+
   const renderCaptionList = () => {
     if (
       !tabData ||
@@ -549,6 +565,7 @@ export const VideoPageMenu = ({
         }
         {renderShowHideButton()}
         {!inEditorScreen && renderLikeButtons()}
+        {renderCaptionerProfileLink()}
       </Space>
       <SelectFileModal
         visible={isSelectFileOpen}
