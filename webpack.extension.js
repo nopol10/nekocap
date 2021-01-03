@@ -59,11 +59,7 @@ module.exports = (env, argv, customEnv = {}) => {
     },
     plugins: [
       ...getPlugins(devMode, envKeys, analyze),
-      new CleanWebpackPlugin({
-        cleanOnceBeforeBuildPatterns: [`*.hot-update.*`, "js/*.hot-update.*"],
-        dry: false,
-        dangerouslyAllowCleanPatternsOutsideProject: true,
-      }),
+      new CleanWebpackPlugin(),
       new MiniCssExtractPlugin(),
       new CopyPlugin({
         patterns: [
