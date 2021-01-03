@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import Modal from "antd/lib/modal";
 
 import {
-  fetchAutoCaptions,
+  fetchAutoCaptionList,
   generateCaptionAndShowEditor,
-  loadAutoCaption,
+  fetchAutoCaption,
 } from "@/common/feature/caption-editor/actions";
 import { tabEditorDataSelector } from "@/common/feature/caption-editor/selectors";
 import { Radio, Skeleton } from "antd";
@@ -27,7 +27,7 @@ export const AutoCaptionsModal = ({
   const { tabId, videoSource, videoId } = window;
   const dispatch = useDispatch();
   const editorData = useSelector(tabEditorDataSelector(tabId));
-  const isLoading = useSelector(fetchAutoCaptions.isLoading(tabId));
+  const isLoading = useSelector(fetchAutoCaptionList.isLoading(tabId));
 
   const [selectedCaptionId, setSelectedCaptionId] = useState<string>(
     editorData.autoCaptions && editorData.autoCaptions.length > 0
@@ -35,9 +35,9 @@ export const AutoCaptionsModal = ({
       : ""
   );
 
-  const handleLoadAutoCaption = () => {
+  const handleFetchAutoCaption = () => {
     dispatch(
-      loadAutoCaption.request({
+      fetchAutoCaption.request({
         tabId,
         captionId: selectedCaptionId,
         videoSource,
@@ -58,7 +58,7 @@ export const AutoCaptionsModal = ({
       visible={visible}
       onCancel={onCancel}
       okText={"Load caption"}
-      onOk={handleLoadAutoCaption}
+      onOk={handleFetchAutoCaption}
       okButtonProps={{
         disabled: !selectedCaptionId,
       }}

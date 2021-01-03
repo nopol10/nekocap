@@ -24,11 +24,11 @@ import {
   createNewCaption,
   deleteCaption,
   exportCaption,
-  FetchAutoCaptions,
-  fetchAutoCaptions,
+  FetchAutoCaptionList,
+  fetchAutoCaptionList,
   generateCaptionAndShowEditor,
-  LoadAutoCaption,
-  loadAutoCaption,
+  FetchAutoCaption,
+  fetchAutoCaption,
   loadLocallySavedCaption,
   modifyCaption,
   modifyCaptionEndTime,
@@ -510,9 +510,9 @@ function* updateShowEditorSaga({
   yield put(setShowEditor(payload));
 }
 
-function* fetchAutoCaptionsSaga({
+function* fetchAutoCaptionListSaga({
   payload,
-}: ThunkedPayloadAction<FetchAutoCaptions>) {
+}: ThunkedPayloadAction<FetchAutoCaptionList>) {
   const { tabId, videoId, videoSource } = payload;
   const processor = videoSourceToProcessorMap[videoSource];
   if (!processor.supportAutoCaptions(videoId)) {
@@ -525,9 +525,9 @@ function* fetchAutoCaptionsSaga({
   yield put(setAutoCaptionList({ tabId, captions: autoCaptions }));
 }
 
-function* loadAutoCaptionSaga({
+function* fetchAutoCaptionSaga({
   payload,
-}: ThunkedPayloadAction<LoadAutoCaption>) {
+}: ThunkedPayloadAction<FetchAutoCaption>) {
   const { tabId, videoId, videoSource, captionId } = payload;
   const processor = videoSourceToProcessorMap[videoSource];
   if (!processor.supportAutoCaptions(videoId)) {
@@ -616,13 +616,13 @@ function* captionEditorSaga() {
   );
 
   yield takeLatest(
-    fetchAutoCaptions.REQUEST,
-    fetchAutoCaptions.requestSaga(fetchAutoCaptionsSaga)
+    fetchAutoCaptionList.REQUEST,
+    fetchAutoCaptionList.requestSaga(fetchAutoCaptionListSaga)
   );
 
   yield takeLatest(
-    loadAutoCaption.REQUEST,
-    loadAutoCaption.requestSaga(loadAutoCaptionSaga)
+    fetchAutoCaption.REQUEST,
+    fetchAutoCaption.requestSaga(fetchAutoCaptionSaga)
   );
 }
 

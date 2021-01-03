@@ -122,12 +122,12 @@ export type RemoveTrack = CaptionAction & {
 
 export type ModifyCaptionEndTime = ModifyCaptionStartTime;
 
-export type FetchAutoCaptions = TabbedType & {
+export type FetchAutoCaptionList = TabbedType & {
   videoId: string;
   videoSource: VideoSource;
 };
 
-export type LoadAutoCaption = TabbedType & {
+export type FetchAutoCaption = TabbedType & {
   videoId: string;
   videoSource: VideoSource;
   captionId: string;
@@ -151,12 +151,12 @@ export const submitCaption = csa<SubmitCaption>(
   captionEditorActionTypes.submitCaption
 );
 
-export const fetchAutoCaptions = csa<FetchAutoCaptions>(
-  captionEditorActionTypes.fetchAutoCaptions
+export const fetchAutoCaptionList = csa<FetchAutoCaptionList>(
+  captionEditorActionTypes.fetchAutoCaptionList
 );
 
-export const loadAutoCaption = csa<LoadAutoCaption>(
-  captionEditorActionTypes.loadAutoCaption
+export const fetchAutoCaption = csa<FetchAutoCaption>(
+  captionEditorActionTypes.fetchAutoCaption
 );
 
 export const updateShowEditor = createAction<SetShowEditorIfPossible>(

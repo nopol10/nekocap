@@ -49,7 +49,7 @@ import {
 import {
   createNewCaption,
   exportCaption,
-  fetchAutoCaptions,
+  fetchAutoCaptionList,
   loadLocallySavedCaption,
   saveLocalCaption,
   updateShowEditor,
@@ -298,10 +298,10 @@ export const VideoPageMenu = ({
     newLoadedFileAction.current = undefined;
   };
 
-  const handleFetchAutoCaptions = () => {
+  const handleFetchAutoCaptionList = () => {
     setIsAutoCaptionListOpen(true);
     dispatch(
-      fetchAutoCaptions.request({
+      fetchAutoCaptionList.request({
         tabId: window.tabId,
         videoId: window.videoId,
         videoSource: window.videoSource,
@@ -422,7 +422,9 @@ export const VideoPageMenu = ({
     }
 
     return (
-      <Menu.Item onClick={handleFetchAutoCaptions}>Use auto-captions</Menu.Item>
+      <Menu.Item onClick={handleFetchAutoCaptionList}>
+        Use auto-captions
+      </Menu.Item>
     );
   };
 
