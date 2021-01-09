@@ -43,14 +43,6 @@ const TimelineRoot = styled.div`
 const Timebar = styled.div`
   display: flex;
   height: ${TIMEBAR_HEIGHT}px;
-
-  .ReactVirtualized__Collection {
-    overflow: hidden !important;
-    &::-webkit-scrollbar {
-      display: none;
-      width: 0;
-    }
-  }
 `;
 
 const TimebarCanvas = styledNoPass<{ actualWidth: string | number }, "canvas">(
@@ -68,9 +60,12 @@ const TrackContainer = styled.div`
   overflow-y: scroll;
   background-color: ${colors.white};
 
-  .ReactVirtualized__Collection::-webkit-scrollbar {
-    display: none;
-    width: 0;
+  .ReactVirtualized__Collection {
+    overflow: hidden !important;
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+    }
   }
 `;
 
