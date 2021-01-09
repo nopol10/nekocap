@@ -3,6 +3,7 @@
         <img src="https://user-images.githubusercontent.com/314281/102780389-cc03ed00-43d0-11eb-87c3-6d50a2ab5752.png" width="100" alt="NekoCap logo">
     </a>
 </p>
+<div align="center"><sub>Logo by <a href="https://twitter.com/Iceikory" target="_blank" rel="noopener">@Iceikory</a></sub></div>
 
 <h1 align="center">NekoCap</h1>
 
