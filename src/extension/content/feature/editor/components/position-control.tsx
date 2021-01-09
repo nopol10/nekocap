@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Coords } from "@/common/types";
 
 const CoordinateInput = styled(InputNumber)`
-  width: 76px;
+  width: 76px !important;
 `;
 
 export const PositionControl = ({

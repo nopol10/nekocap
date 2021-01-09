@@ -143,9 +143,9 @@ const VolumeSlider = styled(Slider)`
 const TextEditorColumn = styled(Col).withConfig<{ justify?: string }>({
   shouldForwardProp: (prop) => !["justify"].includes(prop),
 })`
-  display: flex;
-  flex-direction: column;
-  ${({ justify }) => (justify ? `justify-content: ${justify};` : "")}
+  display: flex !important;
+  flex-direction: column !important;
+  ${({ justify }) => (justify ? `justify-content: ${justify} !important;` : "")}
 
   & > div,button:not(:last-child) {
     margin-bottom: 5px;

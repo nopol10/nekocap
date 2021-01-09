@@ -121,7 +121,7 @@ export const DurationInput = ({
       onChange={onChange}
       {...numberFormatProps}
       {...rest}
-      style={{ letterSpacing: "2px" }}
+      style={{ letterSpacing: "2px", minWidth: "0" }}
     />
   );
 };
