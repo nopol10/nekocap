@@ -11,8 +11,14 @@ module.exports = {
   },
   plugins: {
     "@release-it/bumper": {
-      in: "extension-statics/manifest.json",
-      out: "extension-statics/manifest.json",
+      in: [
+        "extension-statics/manifest-chrome.json",
+        "extension-statics/manifest-firefox.json",
+      ],
+      out: [
+        "extension-statics/manifest-chrome.json",
+        "extension-statics/manifest-firefox.json",
+      ],
     },
   },
 };
