@@ -21,9 +21,7 @@
         "https://*.bilibili.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -34,9 +32,7 @@
         "https://*.bilibili.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -44,10 +40,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation"
-  ],
+  "permissions": ["storage", "webNavigation"],
   "web_accessible_resources": [
     "img/*.jpg",
     "img/*.png",
@@ -56,5 +49,5 @@
     "sub-assets/*.*",
     "js/subtitle-octopus/*.*"
   ],
-  "content_security_policy": "script-src 'self' https://*.google.com;"
+  "content_security_policy": "script-src 'self' https://*.google.com; object-src 'self'"
 }

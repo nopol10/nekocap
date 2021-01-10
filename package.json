@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "build": "concurrently \"npm:build:ext\" \"npm:build:web\"",
-    "build:ext": "webpack --config webpack.extension.js --mode=production",
+    "build:ext:chrome": "webpack --config webpack.extension.js --mode=production --targetBrowser=chrome",
+    "build:ext:firefox": "webpack --config webpack.extension.js --mode=production --targetBrowser=firefox",
+    "build:ext": "npm run build:ext:chrome && npm run build:ext:firefox",
     "build:web": "webpack --config webpack.web.js --mode=production",
     "dev": "concurrently \"npm:dev:ext\" \"npm:dev:web\"",
     "dev:ext": "webpack --config webpack.extension.js --mode=development",

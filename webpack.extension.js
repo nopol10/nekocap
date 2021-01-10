@@ -16,6 +16,9 @@ const {
 
 module.exports = (env, argv, customEnv = {}) => {
   const devMode = argv.mode !== "production";
+  const targetBrowser = argv.targetBrowser;
+  const isChrome = targetBrowser === "chrome";
+  const isFirefox = targetBrowser === "firefox";
   const analyze = argv.analyze === "true";
   const envFile = dotenv.config(devMode ? undefined : { path: "./.env.prod" })
     .parsed;
@@ -29,10 +32,10 @@ module.exports = (env, argv, customEnv = {}) => {
   const manifestPath = path.join(
     __dirname,
     "extension-statics",
-    "manifest.json"
+    `manifest-${targetBrowser}.json`
   );
   // Update manifest.json with key for build, remove it afterwards
-  if (!devMode) {
+  if (!devMode && isChrome) {
     originalManifestString = fs.readFileSync(manifestPath);
     const manifest = JSON.parse(originalManifestString);
     manifest.key = process.env.EXTENSION_KEY || envFile.EXTENSION_KEY || "";
@@ -66,6 +69,17 @@ module.exports = (env, argv, customEnv = {}) => {
           {
             from: path.resolve(__dirname, "extension-statics"),
             to: path.resolve(__dirname, "dist", "extension"),
+            globOptions: {
+              ignore: ["**/manifest-*.json"],
+            },
+          },
+          {
+            from: path.resolve(
+              __dirname,
+              "extension-statics",
+              `manifest-${targetBrowser}.json`
+            ),
+            to: path.resolve(__dirname, "dist", "extension", `manifest.json`),
           },
           {
             from: path.resolve(
@@ -107,7 +121,9 @@ module.exports = (env, argv, customEnv = {}) => {
       }),
       devMode && new ForkTsCheckerWebpackPlugin(),
       !devMode &&
-        new WebpackShellPlugin({ onBuildEnd: ["node zip-extension.js"] }),
+        new WebpackShellPlugin({
+          onBuildEnd: [`node zip-extension.js --target=${targetBrowser}`],
+        }),
       !devMode && {
         apply: (compiler) => {
           compiler.hooks.afterEmit.tap("AfterEmitPlugin", (compilation) => {

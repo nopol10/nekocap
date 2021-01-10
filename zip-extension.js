@@ -1,5 +1,8 @@
 const AdmZip = require("adm-zip");
 const fs = require("fs");
+const yargs = require("yargs/yargs");
+const { hideBin } = require("yargs/helpers");
+const argv = yargs(hideBin(process.argv)).argv;
 
 const date = new Date();
 
@@ -16,8 +19,8 @@ const pad = (inString, length, padCharacter) => {
 };
 
 zip.addLocalFolder("./dist/extension/");
-
-const filename = `./dist/nekocap-extension-${date.getFullYear()}-${pad(
+const target = argv.target;
+const filename = `./dist/nekocap-extension-${target}-${date.getFullYear()}-${pad(
   date.getMonth() + 1,
   2,
   "0"
