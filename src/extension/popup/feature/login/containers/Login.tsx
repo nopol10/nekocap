@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginWithGoogle } from "@/common/feature/login/actions";
 import { Redirect } from "react-router-dom";
@@ -13,6 +13,7 @@ import { AuthButton } from "@/common/components/auth-button";
 import { ExtensionPreferences } from "./extension-preferences";
 import { getImageLink } from "@/common/chrome-utils";
 import styled from "styled-components";
+import { Spin } from "antd";
 
 const Page = styled(PopupPage)`
   align-items: center;
@@ -26,6 +27,7 @@ export const Login = () => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(isLoggedInSelector);
   const captionerData = useSelector(captionerSelector);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     // Example of how to send a message to eventPage.ts.
@@ -33,6 +35,10 @@ export const Login = () => {
   }, []);
 
   const handleClickLoginGoogle = () => {
+    setIsLoggingIn(true);
+    setTimeout(() => {
+      setIsLoggingIn(false);
+    }, 5000);
     dispatch(loginWithGoogle.request({ background: false }));
   };
 
@@ -67,11 +73,13 @@ export const Login = () => {
         <br />
         If you just want to view captions, you do not need to create an account.
       </Intro>
-      <AuthButton
-        src={getImageLink(googleLoginImage)}
-        onClick={handleClickLoginGoogle}
-        href="#"
-      />
+      <Spin spinning={isLoggingIn}>
+        <AuthButton
+          src={getImageLink(googleLoginImage)}
+          onClick={handleClickLoginGoogle}
+          href="#"
+        />
+      </Spin>
       <ExtensionPreferences />
     </Page>
   );
