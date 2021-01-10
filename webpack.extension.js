@@ -14,6 +14,14 @@ const {
   resolvePlugins,
 } = require("./config/common");
 
+const addKeyToManifest = (manifestPath) => {
+  const originalManifestString = fs.readFileSync(manifestPath);
+  const manifest = JSON.parse(originalManifestString);
+  manifest.key = process.env.EXTENSION_KEY || envFile.EXTENSION_KEY || "";
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2));
+  return originalManifestString;
+};
+
 module.exports = (env, argv, customEnv = {}) => {
   const devMode = argv.mode !== "production";
   const targetBrowser = argv.targetBrowser;
@@ -36,10 +44,7 @@ module.exports = (env, argv, customEnv = {}) => {
   );
   // Update manifest.json with key for build, remove it afterwards
   if (!devMode && isChrome) {
-    originalManifestString = fs.readFileSync(manifestPath);
-    const manifest = JSON.parse(originalManifestString);
-    manifest.key = process.env.EXTENSION_KEY || envFile.EXTENSION_KEY || "";
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2));
+    originalManifestString = addKeyToManifest(manifestPath);
   }
 
   return {
