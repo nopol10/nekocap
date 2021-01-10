@@ -56,6 +56,7 @@ import type {
   VideoSearchResponse,
   PublicProfileResponse,
 } from "./types";
+import { isFirefoxExtension } from "@/common/client-utils";
 
 //#region
 const loginWithGoogle = async (
@@ -66,11 +67,25 @@ const loginWithGoogle = async (
   status: ResponseStatus;
   userData?: UserData;
 }> => {
-  const provider = new firebase.auth.GoogleAuthProvider();
   if (background) {
     return { status: "error" };
   }
-  await firebase.auth().signInWithPopup(provider);
+  if (isFirefoxExtension()) {
+    const nonce = Math.floor(Math.random() * 1000);
+    const responseUrl = await browser.identity.launchWebAuthFlow({
+      url: `https://accounts.google.com/o/oauth2/v2/auth?response_type=id_token&nonce=${nonce}&scope=openid%20profile&client_id=${
+        process.env.GOOGLE_OAUTH_CLIENT_ID
+      }&redirect_uri=${browser.identity.getRedirectURL()}`,
+      interactive: true,
+    });
+    // Parse the response url for the id token
+    const idToken = responseUrl.split("id_token=")[1].split("&")[0];
+    const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+    await firebase.auth().signInWithCredential(credential);
+  } else {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await firebase.auth().signInWithPopup(provider);
+  }
   const user = firebase.auth().currentUser;
   const idToken = await user.getIdToken();
   user.displayName;

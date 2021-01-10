@@ -106,6 +106,7 @@ const createVideoUIPortalElement = () => {
 };
 
 const initialize = async () => {
+  window.isInExtension = true;
   createEditorPortalElement();
   createVideoUIPortalElement();
   chrome.runtime.onMessage.addListener(
