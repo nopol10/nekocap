@@ -92,7 +92,6 @@ var SubtitlesOctopus = function (options) {
       return;
     }
     // Worker
-    console.log("wurl", self.workerUrl);
     if (!self.worker) {
       self.worker = new Worker(self.workerUrl);
       self.worker.onmessage = self.onWorkerMessage;
@@ -102,6 +101,10 @@ var SubtitlesOctopus = function (options) {
     self.createCanvas();
     self.setVideo(options.video);
     self.setSubUrl(options.subUrl);
+    self.worker.postMessage({
+      target: "pre-init",
+      browserExtensionPath: chrome.runtime.getURL(""),
+    });
     self.worker.postMessage({
       target: "worker-init",
       width: self.canvas.width,
