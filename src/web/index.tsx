@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const { store } = initStore(
     rootWebSaga,
     window.backendProvider.getReducers(),
-    window.backendProvider.getMiddlewares()
+    window.backendProvider.getMiddlewares(),
+    false
   );
 
   const Wrapper = window.backendProvider.wrapper;

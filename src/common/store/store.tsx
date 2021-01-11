@@ -13,7 +13,8 @@ import { persistStore } from "redux-persist";
 export const initStore = (
   rootSaga,
   reducers?: ReducersMapObject,
-  middleware?: Middleware[]
+  middleware?: Middleware[],
+  usePersist = true
 ) => {
   const sagaMiddleware = createSagaMiddleware();
   const store = configureStore({
@@ -31,5 +32,5 @@ export const initStore = (
   });
 
   sagaMiddleware.run(rootSaga);
-  return { store, persistor: persistStore(store) };
+  return { store, persistor: usePersist ? persistStore(store) : undefined };
 };
