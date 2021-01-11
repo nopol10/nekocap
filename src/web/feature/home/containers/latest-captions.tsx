@@ -32,6 +32,7 @@ export const LatestCaptions = () => {
         dataSource={latestCaptions}
         pagination={false}
         loading={isLoading}
+        rowKey={"id"}
         locale={{
           emptyText:
             "No captions! You can contribute captions with the extension!",
