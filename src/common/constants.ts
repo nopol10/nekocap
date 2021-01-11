@@ -39,4 +39,7 @@ export const DISCORD_INVITE_URL = "https://discord.gg/xZ9YEXY5pd";
 export const CHROME_DOWNLOAD_URL =
   "https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj";
 
+export const FIREFOX_DOWNLOAD_URL =
+  "https://addons.mozilla.org/en-US/firefox/addon/nekocap/";
+
 export const GITHUB_URL = "https://github.com/nopol10/nekocap";
