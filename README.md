@@ -20,6 +20,9 @@
 Get the extension:
 <a href="https://chrome.google.com/webstore/detail/nekocap/gmopgnhbhiniibbiilmbjilcmgaocokj" target="_blank" rel="noopener">
         Chrome / Edge
+</a> | 
+<a href="https://addons.mozilla.org/en-US/firefox/addon/nekocap/" target="_blank" rel="noopener">
+        Firefox
 </a>
 <br/>
 Website:
