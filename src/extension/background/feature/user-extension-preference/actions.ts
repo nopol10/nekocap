@@ -4,3 +4,7 @@ import { userExtensionPreferenceActionTypes } from "./action-types";
 export const setHideToolbarIfNoCaptions = createAction<boolean>(
   userExtensionPreferenceActionTypes.setHideToolbarIfNoCaptions
 );
+
+export const toggleAutosave = createAction(
+  userExtensionPreferenceActionTypes.toggleAutosave
+);

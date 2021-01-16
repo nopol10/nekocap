@@ -10,6 +10,42 @@ export const tabEditorDataSelector = (tabId: number) => (state: RootState) => {
   return state.captionEditor.tabData[tabId].present;
 };
 
+/**
+ * Returns whether there is any user entered caption data
+ * @param tabId
+ */
+export const hasEditorCaptionDataSelector = (tabId: number) => (
+  state: RootState
+) => {
+  const tabData = state.captionEditor.tabData;
+  if (!tabData || !tabData[tabId]) {
+    return undefined;
+  }
+  const editorData = state.captionEditor.tabData[tabId].present;
+  if (
+    !editorData ||
+    !editorData.caption ||
+    !editorData.caption.data ||
+    !editorData.caption.data.tracks ||
+    editorData.caption.data.tracks.length <= 0
+  ) {
+    return false;
+  }
+  for (
+    let trackId = 0;
+    trackId < editorData.caption.data.tracks.length;
+    trackId++
+  ) {
+    const { cues } = editorData.caption.data.tracks[trackId];
+    for (let cueId = 0; cueId < cues.length; cueId++) {
+      if (cues[cueId].text) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 export const tabEditorRawDataSelector = (tabId: number) => (
   state: RootState
 ) => {

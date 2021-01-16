@@ -5,7 +5,6 @@ import Space from "antd/lib/space";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";
-import Modal from "antd/lib/modal";
 import { RcFile } from "antd/lib/upload";
 import {
   loadCaptions,
@@ -57,15 +56,20 @@ import {
 import { CAPTION_RENDERER_DATA } from "@/common/feature/video/constants";
 import { CaptionFileFormat } from "@/common/types";
 import { WSButton } from "@/common/components/ws-button";
-import { css } from "styled-components";
+import styled, { css } from "styled-components";
 import { styledNoPass } from "@/common/style-utils";
 import { darkModeSelector } from "@/common/processor-utils";
 import { WSSelect } from "@/common/components/ws-select";
 import { CreateCaptionWarningModal } from "../feature/editor/containers/create-caption-warning-modal";
 import { AutoCaptionsModal } from "../feature/editor/containers/auto-captions-modal";
 import { ThunkedPayloadAction } from "@/common/store/action";
+import { Switch } from "antd";
+import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
+import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 
 const { OptGroup } = Select;
+
+const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
 
 type LikeTextProps = {
   activated?: boolean;
@@ -87,6 +91,12 @@ const DislikeText = styledNoPass<LikeTextProps, "span">("span")`
     color: ${({ activated }: LikeTextProps) =>
       activated ? colors.darkModeDislike : colors.white};
   `)}
+`;
+
+const ToggleItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const captionOptionCreator = ({
@@ -153,12 +163,14 @@ export const VideoPageMenu = ({
   const availableRenderers = useSelector(
     availableRenderersSelector(window.tabId)
   );
+  const shouldAutosave = useSelector(shouldAutosaveSelector);
   const [isSelectFileOpen, setIsSelectFileOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] = useState(
     false
   );
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
+  const [editorMenuVisible, setEditorMenuVisible] = useState(false);
 
   const newLoadedFileAction = useRef<
     ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
@@ -316,8 +328,17 @@ export const VideoPageMenu = ({
       editorTabData.caption.data.tracks &&
       editorTabData.caption.data.tracks.length > 0;
 
+    const handleClickEditorMenu = (e: {
+      key: string | number;
+      domEvent: React.MouseEvent<HTMLElement>;
+    }) => {
+      if (e.key !== AUTOSAVE_TOGGLE_KEY) {
+        setEditorMenuVisible(false);
+      }
+    };
+
     return (
-      <Menu>
+      <Menu onClick={handleClickEditorMenu}>
         <Menu.Item onClick={handleClickCreate}>New</Menu.Item>
         <Menu.Item onClick={handleSave}>Save (local)</Menu.Item>
         <Menu.SubMenu title="Load">
@@ -332,6 +353,7 @@ export const VideoPageMenu = ({
           </Menu.SubMenu>
         )}
         {renderAutoCaptionButton()}
+        {renderAutoSaveToggle()}
         {renderShowEditorButton()}
         {renderUploadButton()}
       </Menu>
@@ -395,6 +417,12 @@ export const VideoPageMenu = ({
     dispatch(loadServerCaption.request({ tabId: window.tabId, captionId }));
   };
 
+  const handleToggleAutosave = (info: {
+    domEvent: React.MouseEvent<HTMLElement>;
+  }) => {
+    dispatch(toggleAutosave());
+  };
+
   const renderShowHideButton = () => {
     if (!caption) {
       return null;
@@ -424,6 +452,21 @@ export const VideoPageMenu = ({
     return (
       <Menu.Item onClick={handleFetchAutoCaptionList}>
         Use auto-captions
+      </Menu.Item>
+    );
+  };
+
+  const renderAutoSaveToggle = () => {
+    if (!inEditorScreen) {
+      return null;
+    }
+
+    return (
+      <Menu.Item key={AUTOSAVE_TOGGLE_KEY} onClick={handleToggleAutosave}>
+        <ToggleItem>
+          <span>Autosave</span>
+          <Switch size="small" checked={shouldAutosave} />
+        </ToggleItem>
       </Menu.Item>
     );
   };
@@ -538,6 +581,10 @@ export const VideoPageMenu = ({
     dispatch(closeMenuBar({ tabId: window.tabId }));
   };
 
+  const handleEditorMenuVisibleChange = (visible: boolean) => {
+    setEditorMenuVisible(visible);
+  };
+
   return (
     <>
       <Space>
@@ -559,7 +606,12 @@ export const VideoPageMenu = ({
           </Dropdown>
         )}
         {
-          <Dropdown overlay={renderEditorMenu()} placement={"topCenter"}>
+          <Dropdown
+            overlay={renderEditorMenu()}
+            visible={editorMenuVisible}
+            onVisibleChange={handleEditorMenuVisibleChange}
+            placement={"topCenter"}
+          >
             <WSButton>Editor</WSButton>
           </Dropdown>
         }
