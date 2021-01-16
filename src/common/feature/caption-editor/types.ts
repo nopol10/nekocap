@@ -29,6 +29,7 @@ export type GenerateCaption = CreateNewCaption;
 export type SaveLocalCaption = TabbedType & {
   videoId: string;
   videoSource: VideoSource;
+  mustHaveData?: boolean;
 };
 
 export type ExportCaption = TabbedType & {

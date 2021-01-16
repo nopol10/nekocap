@@ -7,12 +7,7 @@ import {
   createSignalActionInState,
   createThunkedActionCreator,
 } from "@/common/store/action";
-import {
-  Action,
-  AnyAction,
-  createAction,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { createAction, PayloadAction } from "@reduxjs/toolkit";
 
 import { TabbedType } from "../../types";
 import {
@@ -29,7 +24,6 @@ import {
   AutoCaptionLanguage,
   CreateNewCaption,
   ExportCaption,
-  ExportCaptionResult,
   GenerateCaption,
   SaveLocalCaption,
   SHORTCUT_TYPES,

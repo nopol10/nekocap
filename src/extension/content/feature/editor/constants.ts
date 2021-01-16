@@ -26,3 +26,4 @@ export const DEFAULT_COORDS_SETTINGS: Coords = {
 };
 
 export const RECOMMENDED_CHAR_PER_SEC = 25;
+export const AUTOSAVE_INTERVAL = 60000;

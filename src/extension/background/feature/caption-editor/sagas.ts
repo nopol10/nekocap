@@ -63,6 +63,7 @@ import {
   canEditorRedoSelector,
   canEditorUndoSelector,
   currentShortcutTypeSelector,
+  hasEditorCaptionDataSelector,
   tabEditorDataSelector,
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
@@ -318,7 +319,15 @@ function* saveLocalCaptionSaga({
   if (!isInExtension()) {
     return;
   }
-  const { tabId, videoId, videoSource } = payload;
+  const { tabId, videoId, videoSource, mustHaveData = false } = payload;
+  if (mustHaveData) {
+    const hasEditorCaptionData: boolean = yield select(
+      hasEditorCaptionDataSelector(tabId)
+    );
+    if (!hasEditorCaptionData) {
+      throw new Error("No data to autosave.");
+    }
+  }
   const tabData: TabEditorData = yield select(tabEditorDataSelector(tabId));
   if (!tabData) {
     return;

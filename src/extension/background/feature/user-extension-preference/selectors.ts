@@ -8,6 +8,9 @@ import { UserExtensionPreferenceState } from "./types";
 export const userExtensionPreferenceSelector = (state: RootState) =>
   state.userExtensionPreference;
 
+export const shouldAutosaveSelector = (state: RootState) =>
+  state.userExtensionPreference.autosave;
+
 export const shouldHideVideoPageMenuSelector = (tabId: number) =>
   createSelector(
     userExtensionPreferenceSelector,
