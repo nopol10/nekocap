@@ -78,7 +78,9 @@ export class CaptionMutators {
     const previousCaption = updatedTrack.cues[captionId - 1];
     if (
       (nextCaption && newCaption.start > nextCaption.start) ||
-      (previousCaption && newCaption.end < previousCaption.end)
+      (previousCaption &&
+        (newCaption.end < previousCaption.end ||
+          newCaption.start < previousCaption.start))
     ) {
       // TODO: sorting is not required, just need to shift it forwards/backwards until the condition is satisfied.
       updatedTrack.cues.sort((a, b) => {
@@ -208,7 +210,9 @@ export class CaptionMutators {
     const previousCaption = targetTrack.cues[captionId - 1];
     if (
       (nextCaption && newCaption.start > nextCaption.start) ||
-      (previousCaption && newCaption.end < previousCaption.end)
+      (previousCaption &&
+        (newCaption.end < previousCaption.end ||
+          newCaption.start < previousCaption.start))
     ) {
       // TODO: sorting is not required, just need to shift it forwards/backwards until the condition is satisfied.
       targetTrack.cues.sort((a, b) => {
