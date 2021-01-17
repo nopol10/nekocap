@@ -9,6 +9,8 @@ import { initFirebase } from "@/extension/background/firebase";
 import "@/web/styles/index.scss";
 import { rootWebSaga } from "./store/saga";
 
+window.skipAutoLogin = false;
+
 // Firebase for auth
 initFirebase();
 

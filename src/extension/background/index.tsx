@@ -13,9 +13,9 @@ import "firebase/auth";
 import "./common/provider";
 import { store } from "./common/store";
 
+window.skipAutoLogin = false;
 // Firebase for auth
 initFirebase();
-
 wrapStore(store);
 
 const BackgroundPage = ({ children }: { children?: ReactNode }) => {
@@ -27,7 +27,7 @@ const BackgroundPage = ({ children }: { children?: ReactNode }) => {
     // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
     // even if the auth process completed before the addition of this callback
     firebase.auth().onAuthStateChanged((user) => {
-      if (user && user.uid && !autoLoggedIn.current) {
+      if (user && user.uid && !autoLoggedIn.current && !window.skipAutoLogin) {
         autoLoggedIn.current = true;
         dispatch(autoLogin.request());
       }

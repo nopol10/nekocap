@@ -8,6 +8,7 @@ declare global {
   interface Window {
     tabId: number;
     pageType: PageType;
+    skipAutoLogin: boolean;
     isInExtension: boolean;
     videoId: string;
     videoSource: VideoSource;

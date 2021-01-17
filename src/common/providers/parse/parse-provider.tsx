@@ -208,6 +208,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     let authData: Parse.AuthData = {};
     if (!userData) {
       if (method === LoginMethod.Google) {
+        window.skipAutoLogin = true;
         const loginResponse = await loginWithGoogle(background);
         responseStatus = loginResponse.status;
         userData = loginResponse.userData;
