@@ -42,5 +42,6 @@ export const captionEditorActionTypes = {
   addCaptionToTrackTime: `${reducerName}/addCaptionToTrackTime`,
   addTrack: `${reducerName}/addTrack`,
   removeTrack: `${reducerName}/removeTrack`,
+  fixOverlaps: `${reducerName}/fixOverlaps`,
   // #endregion
 };

@@ -428,6 +428,32 @@ export class CaptionMutators {
     });
     return { caption: updatedCaption };
   }
+
+  public static fixOverlaps(
+    caption: CaptionDataContainer
+  ): CaptionMutatorResult {
+    const updatedCaption = {
+      ...caption,
+    };
+    updatedCaption.tracks = updatedCaption.tracks.map((track, id) => {
+      const newCues = track.cues.map((cue, cueId) => {
+        if (cueId >= track.cues.length - 1) {
+          return cue;
+        }
+        const newCue = { ...cue };
+        const nextCue = track.cues[cueId + 1];
+        if (newCue.end > nextCue.start) {
+          newCue.end = nextCue.start;
+        }
+        return newCue;
+      });
+      return {
+        ...track,
+        cues: newCues,
+      };
+    });
+    return { caption: updatedCaption };
+  }
 }
 
 export const useCaptionDrag = (
