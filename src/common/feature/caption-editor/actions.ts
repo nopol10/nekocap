@@ -304,4 +304,8 @@ export const removeTrack = createAction<RemoveTrack>(
   captionEditorActionTypes.removeTrack
 );
 
+export const fixOverlaps = createAction<CaptionAction>(
+  captionEditorActionTypes.fixOverlaps
+);
+
 //#endregion

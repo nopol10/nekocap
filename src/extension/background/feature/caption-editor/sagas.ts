@@ -57,6 +57,7 @@ import {
   updateEditorCaption,
   updateKeyboardShortcutType,
   updateShowEditor,
+  fixOverlaps,
 } from "@/common/feature/caption-editor/actions";
 import { ThunkedPayloadAction } from "@/common/store/action";
 import {
@@ -249,6 +250,10 @@ const generateNewCaptionData = (
     newCaptionData = result.caption;
   } else if (isActionType(action, addTrack)) {
     const result = CaptionMutators.addTrack(caption.data);
+    error = result.error;
+    newCaptionData = result.caption;
+  } else if (isActionType(action, fixOverlaps)) {
+    const result = CaptionMutators.fixOverlaps(caption.data);
     error = result.error;
     newCaptionData = result.caption;
   }

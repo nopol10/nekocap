@@ -49,8 +49,10 @@ import {
   createNewCaption,
   exportCaption,
   fetchAutoCaptionList,
+  fixOverlaps,
   loadLocallySavedCaption,
   saveLocalCaption,
+  updateEditorCaption,
   updateShowEditor,
 } from "@/common/feature/caption-editor/actions";
 import { CAPTION_RENDERER_DATA } from "@/common/feature/video/constants";
@@ -352,6 +354,7 @@ export const VideoPageMenu = ({
             <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
           </Menu.SubMenu>
         )}
+        {renderTimingOptions()}
         {renderAutoCaptionButton()}
         {renderAutoSaveToggle()}
         {renderShowEditorButton()}
@@ -453,6 +456,27 @@ export const VideoPageMenu = ({
       <Menu.Item onClick={handleFetchAutoCaptionList}>
         Use auto-captions
       </Menu.Item>
+    );
+  };
+
+  const handleClickFixOverlaps = () => {
+    dispatch(
+      updateEditorCaption({
+        action: fixOverlaps({}),
+        tabId: window.tabId,
+      })
+    );
+  };
+
+  const renderTimingOptions = () => {
+    if (!inEditorScreen) {
+      return null;
+    }
+
+    return (
+      <Menu.SubMenu title="Timing">
+        <Menu.Item onClick={handleClickFixOverlaps}>Fix overlaps</Menu.Item>
+      </Menu.SubMenu>
     );
   };
 

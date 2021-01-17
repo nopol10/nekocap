@@ -78,7 +78,9 @@ export class CaptionMutators {
     const previousCaption = updatedTrack.cues[captionId - 1];
     if (
       (nextCaption && newCaption.start > nextCaption.start) ||
-      (previousCaption && newCaption.end < previousCaption.end)
+      (previousCaption &&
+        (newCaption.end < previousCaption.end ||
+          newCaption.start < previousCaption.start))
     ) {
       // TODO: sorting is not required, just need to shift it forwards/backwards until the condition is satisfied.
       updatedTrack.cues.sort((a, b) => {
@@ -208,7 +210,9 @@ export class CaptionMutators {
     const previousCaption = targetTrack.cues[captionId - 1];
     if (
       (nextCaption && newCaption.start > nextCaption.start) ||
-      (previousCaption && newCaption.end < previousCaption.end)
+      (previousCaption &&
+        (newCaption.end < previousCaption.end ||
+          newCaption.start < previousCaption.start))
     ) {
       // TODO: sorting is not required, just need to shift it forwards/backwards until the condition is satisfied.
       targetTrack.cues.sort((a, b) => {
@@ -421,6 +425,32 @@ export class CaptionMutators {
     };
     updatedCaption.tracks = updatedCaption.tracks.filter((track, id) => {
       return id !== trackId;
+    });
+    return { caption: updatedCaption };
+  }
+
+  public static fixOverlaps(
+    caption: CaptionDataContainer
+  ): CaptionMutatorResult {
+    const updatedCaption = {
+      ...caption,
+    };
+    updatedCaption.tracks = updatedCaption.tracks.map((track, id) => {
+      const newCues = track.cues.map((cue, cueId) => {
+        if (cueId >= track.cues.length - 1) {
+          return cue;
+        }
+        const newCue = { ...cue };
+        const nextCue = track.cues[cueId + 1];
+        if (newCue.end > nextCue.start) {
+          newCue.end = nextCue.start;
+        }
+        return newCue;
+      });
+      return {
+        ...track,
+        cues: newCues,
+      };
     });
     return { caption: updatedCaption };
   }
