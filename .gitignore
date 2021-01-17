@@ -15,3 +15,4 @@ docker/default.conf
 server-fonts/*
 Dockerfile
 .eslintcache
+*.zip
