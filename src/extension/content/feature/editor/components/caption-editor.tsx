@@ -79,9 +79,12 @@ import {
   addTrack,
   removeTrack,
   modifyCaptionWithMultipleActions,
+  fixOverlaps,
+  shiftTimings,
 } from "@/common/feature/caption-editor/actions";
 import { getImageLink } from "@/common/chrome-utils";
 import { findClosestCaption } from "@/common/feature/video/utils";
+import { ShiftTimingsModal } from "../containers/shift-timings-modal";
 
 dayjs.extend(duration);
 
@@ -476,6 +479,8 @@ const CaptionEditorInternal = ({
   const [timelineScale, setTimelineScale] = useState(1);
   const [selectedTrack, setSelectedTrack] = useState(0);
   const [selectedCaption, setSelectedCaption] = useState<number>(-1);
+  const [isShiftTimingsModalOpen, setIsShiftTimingsModalOpen] = useState(false);
+
   // Whether we are currently changing the global, track or caption's position
   const [currentMoveType, setCurrentMoveType] = useState<
     CaptionModificationState
@@ -1365,6 +1370,26 @@ const CaptionEditorInternal = ({
     onSave();
   };
 
+  const handleFixOverlaps = () => {
+    updateCaption(fixOverlaps({}));
+  };
+
+  const handleCancelShiftTimingsModal = () => {
+    setIsShiftTimingsModalOpen(false);
+  };
+
+  const handleOpenShiftTimings = () => {
+    setIsShiftTimingsModalOpen(true);
+  };
+
+  const handleShiftTimings = (
+    shiftMs: number,
+    startMs: number,
+    endMs: number
+  ) => {
+    updateCaption(shiftTimings({ duration: shiftMs, startMs, endMs }));
+  };
+
   const hotkeyHandlers: EditorShortcutHandlers = {
     [EDITOR_KEYS.PLAY_PAUSE]: handleClickPlay,
     [EDITOR_KEYS.SET_START_TO_CURRENT_TIME]: handleSetStartToCurrentTime,
@@ -1471,6 +1496,8 @@ const CaptionEditorInternal = ({
                       onUndo={handleUndo}
                       onRedo={handleRedo}
                       onSave={onSave}
+                      onFixOverlaps={handleFixOverlaps}
+                      onOpenShiftTimings={handleOpenShiftTimings}
                       canUndo={canUndo}
                       canRedo={canRedo}
                       onExport={onExport}
@@ -1498,6 +1525,12 @@ const CaptionEditorInternal = ({
           </RootSplitPane>
         </RootPane>
       </HotKeys>
+      <ShiftTimingsModal
+        visible={isShiftTimingsModalOpen}
+        onShift={handleShiftTimings}
+        onCancel={handleCancelShiftTimingsModal}
+        videoElement={videoElement}
+      />
     </>,
     document.getElementById(EDITOR_PORTAL_ELEMENT_ID)
   );

@@ -68,7 +68,6 @@ import { ThunkedPayloadAction } from "@/common/store/action";
 import { Switch } from "antd";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
-
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -354,7 +353,6 @@ export const VideoPageMenu = ({
             <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
           </Menu.SubMenu>
         )}
-        {renderTimingOptions()}
         {renderAutoCaptionButton()}
         {renderAutoSaveToggle()}
         {renderShowEditorButton()}
@@ -465,18 +463,6 @@ export const VideoPageMenu = ({
         action: fixOverlaps({}),
         tabId: window.tabId,
       })
-    );
-  };
-
-  const renderTimingOptions = () => {
-    if (!inEditorScreen) {
-      return null;
-    }
-
-    return (
-      <Menu.SubMenu title="Timing">
-        <Menu.Item onClick={handleClickFixOverlaps}>Fix overlaps</Menu.Item>
-      </Menu.SubMenu>
     );
   };
 

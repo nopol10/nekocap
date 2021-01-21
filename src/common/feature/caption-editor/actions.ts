@@ -114,6 +114,12 @@ export type RemoveTrack = CaptionAction & {
   trackId: number;
 };
 
+export type ShiftTimings = CaptionAction & {
+  duration: number;
+  startMs: number;
+  endMs: number;
+};
+
 export type ModifyCaptionEndTime = ModifyCaptionStartTime;
 
 export type FetchAutoCaptionList = TabbedType & {
@@ -306,6 +312,10 @@ export const removeTrack = createAction<RemoveTrack>(
 
 export const fixOverlaps = createAction<CaptionAction>(
   captionEditorActionTypes.fixOverlaps
+);
+
+export const shiftTimings = createAction<ShiftTimings>(
+  captionEditorActionTypes.shiftTimings
 );
 
 //#endregion
