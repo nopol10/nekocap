@@ -72,7 +72,7 @@ const TimeEntryInput = ({
   };
   return (
     <TimeEntryBlock>
-      <div>{title}</div>
+      <div>{title} (HH:mm:ss.ms)</div>
       <StyledDurationInput value={value} onChange={onChange} />
       <TimeShortcuts>
         <Button type="dashed" onClick={handleClickStart}>
