@@ -1,6 +1,6 @@
 import Space from "antd/lib/space";
 import * as React from "react";
-import { Button, Menu, message, Select, Slider, Table } from "antd";
+import { Button, Dropdown, Menu, message, Select, Slider, Table } from "antd";
 import styled from "styled-components";
 import ZoomInOutlined from "@ant-design/icons/ZoomInOutlined";
 import ZoomOutOutlined from "@ant-design/icons/ZoomOutOutlined";
@@ -24,6 +24,7 @@ import {
 import { SHORTCUT_NAME } from "@/common/feature/caption-editor/shortcut-constants";
 import { ColumnsType } from "antd/lib/table";
 import { startCase } from "lodash";
+import { WSButton } from "@/common/components/ws-button";
 
 const TimelineSlider = styled(Slider)`
   width: 200px;
@@ -32,6 +33,8 @@ const TimelineSlider = styled(Slider)`
 type EditorToolbarProps = UndoComponentProps & {
   timelineScale: number;
   onSave: () => void;
+  onFixOverlaps: () => void;
+  onOpenShiftTimings: () => void;
   onChangeZoom: (value: number) => void;
   onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
 };
@@ -130,6 +133,8 @@ export const EditorToolbar = ({
   canUndo,
   canRedo,
   onSave,
+  onFixOverlaps,
+  onOpenShiftTimings,
 }: EditorToolbarProps) => {
   const [showShortcutModal, setShowShortcutModal] = useState(false);
 
@@ -185,6 +190,17 @@ export const EditorToolbar = ({
     );
   };
 
+  const renderMenu = () => {
+    return (
+      <Menu>
+        <Menu.SubMenu title="Timing">
+          <Menu.Item onClick={onFixOverlaps}>Fix overlaps</Menu.Item>
+          <Menu.Item onClick={onOpenShiftTimings}>Shift timings</Menu.Item>
+        </Menu.SubMenu>
+      </Menu>
+    );
+  };
+
   return (
     <>
       <KeyboardShortcutModal
@@ -194,6 +210,9 @@ export const EditorToolbar = ({
         }}
       />
       <Space>
+        <Dropdown overlay={renderMenu()} placement={"topCenter"}>
+          <WSButton>Tools</WSButton>
+        </Dropdown>
         {onUndo && (
           <DisablebleIcon disabled={!canUndo}>
             <UndoOutlined onClick={throttledUndo} />
@@ -204,6 +223,7 @@ export const EditorToolbar = ({
             <RedoOutlined onClick={throttledRedo} />
           </DisablebleIcon>
         )}
+
         {renderZoomBar()}
         <Button onClick={handleClickShortcutsHelp}>
           <FontAwesomeIcon icon={faKeyboard} />

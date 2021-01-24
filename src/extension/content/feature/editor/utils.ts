@@ -454,6 +454,33 @@ export class CaptionMutators {
     });
     return { caption: updatedCaption };
   }
+
+  public static shiftTimings(
+    caption: CaptionDataContainer,
+    duration: number,
+    startMs: number,
+    endMs: number
+  ): CaptionMutatorResult {
+    const updatedCaption = {
+      ...caption,
+    };
+    updatedCaption.tracks = updatedCaption.tracks.map((track) => {
+      const newCues = track.cues.map((cue) => {
+        if (cue.start < startMs || cue.start > endMs) {
+          return cue;
+        }
+        const newCue = { ...cue };
+        newCue.start += duration;
+        newCue.end += duration;
+        return newCue;
+      });
+      return {
+        ...track,
+        cues: newCues,
+      };
+    });
+    return { caption: updatedCaption };
+  }
 }
 
 export const useCaptionDrag = (

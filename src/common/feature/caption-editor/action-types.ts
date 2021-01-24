@@ -43,5 +43,6 @@ export const captionEditorActionTypes = {
   addTrack: `${reducerName}/addTrack`,
   removeTrack: `${reducerName}/removeTrack`,
   fixOverlaps: `${reducerName}/fixOverlaps`,
+  shiftTimings: `${reducerName}/shiftTimings`,
   // #endregion
 };

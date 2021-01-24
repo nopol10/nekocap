@@ -58,6 +58,7 @@ import {
   updateKeyboardShortcutType,
   updateShowEditor,
   fixOverlaps,
+  shiftTimings,
 } from "@/common/feature/caption-editor/actions";
 import { ThunkedPayloadAction } from "@/common/store/action";
 import {
@@ -246,6 +247,16 @@ const generateNewCaptionData = (
   } else if (isActionType(action, removeTrack)) {
     const { trackId } = action.payload;
     const result = CaptionMutators.removeTrack(caption.data, trackId);
+    error = result.error;
+    newCaptionData = result.caption;
+  } else if (isActionType(action, shiftTimings)) {
+    const { duration, startMs, endMs } = action.payload;
+    const result = CaptionMutators.shiftTimings(
+      caption.data,
+      duration,
+      startMs,
+      endMs
+    );
     error = result.error;
     newCaptionData = result.caption;
   } else if (isActionType(action, addTrack)) {
