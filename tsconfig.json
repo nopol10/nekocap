@@ -4,7 +4,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "jsx": "react",
-    "lib": ["es2015", "dom"],
+    "lib": ["es2019", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist/js",
