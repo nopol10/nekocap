@@ -68,6 +68,7 @@ import { ThunkedPayloadAction } from "@/common/store/action";
 import { Switch } from "antd";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
+import groupBy from "lodash/groupBy";
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -212,6 +213,12 @@ export const VideoPageMenu = ({
     const unverifiedCaptions = [
       ...captions.filter((sub) => !sub.verified).map(captionOptionCreator),
     ];
+    const thirdPartyGroups = groupBy(
+      captions.filter((cap) => {
+        return !!cap.thirdPartyCategory;
+      }),
+      "thirdPartyCategory"
+    );
     return (
       <>
         {verifiedCaptions.length > 0 && (
@@ -220,6 +227,13 @@ export const VideoPageMenu = ({
         {unverifiedCaptions.length > 0 && (
           <OptGroup label="Unverified">{unverifiedCaptions}</OptGroup>
         )}
+        {Object.keys(thirdPartyGroups).map((groupCategory) => {
+          return (
+            <OptGroup label={groupCategory} key={groupCategory}>
+              {thirdPartyGroups[groupCategory].map(captionOptionCreator)}
+            </OptGroup>
+          );
+        })}
       </>
     );
   }, [tabData]);

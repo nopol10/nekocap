@@ -5,6 +5,8 @@ import {
   put,
   select,
   takeEvery,
+  spawn,
+  all,
 } from "redux-saga/effects";
 import {
   loadCaptions,
@@ -25,6 +27,7 @@ import {
   closeMenuBar,
   setMenuHidden,
   openMenuBar,
+  addServerCaptions,
 } from "@/common/feature/video/actions";
 import { videoActionTypes } from "@/common/feature/video/action-types";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -41,6 +44,7 @@ import {
   SetRenderer,
   CaptionRendererType,
   PageType,
+  VideoSource,
 } from "@/common/feature/video/types";
 import { convertToCaptionContainer } from "@/common/feature/video/utils";
 import {
@@ -53,7 +57,6 @@ import {
   loadedCaptionSelector,
   tabVideoDataSelector,
 } from "@/common/feature/video/selectors";
-import { getStringByteLength } from "@/common/utils";
 import { safe } from "@/common/redux-utils";
 import { parseCaption } from "@/common/caption-parsers";
 import {
@@ -62,9 +65,9 @@ import {
   setEditorRawCaption,
   setShowEditor,
 } from "@/common/feature/caption-editor/actions";
-import { EDITOR_CUTOFF_BYTES } from "@/common/feature/caption-editor/constants";
 import { decompressFromBase64 as lzDecompress } from "lz-string";
 import { isAss } from "@/common/caption-utils";
+import { ENABLED_THIRD_PARTY_DATABASES } from "../../third-party-db/enabled-databases";
 
 function* updateLoadedCaptionFromFileSaga({
   payload,
@@ -131,11 +134,28 @@ function* openMenuBarSaga({ payload }: PayloadAction<TabbedType>) {
   yield put(setMenuHidden({ tabId: payload.tabId, hidden: false }));
 }
 
+function* loadThirdPartyDatabaseCaptions(
+  videoId: string,
+  videoSource: VideoSource,
+  tabId: number
+) {
+  const thirdPartyCaptions: LoadCaptionsResult[] = (yield all(
+    ENABLED_THIRD_PARTY_DATABASES.map((database) => {
+      return call(async () => {
+        return database.loadCaptions(videoId, videoSource);
+      });
+    })
+  )).flat();
+  yield put(addServerCaptions({ captions: thirdPartyCaptions, tabId }));
+}
+
 /**
  * Load the list of captions available for a video
  */
 function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
   const { videoId, videoSource, tabId } = payload;
+  yield put(setServerCaptions({ captions: [], tabId }));
+
   const result: LoadCaptionsResult[] = yield call(
     window.backendProvider.loadCaptions,
     {
@@ -143,6 +163,7 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
       videoSource,
     }
   );
+  yield spawn(loadThirdPartyDatabaseCaptions, videoId, videoSource, tabId);
   yield put(setServerCaptions({ captions: result, tabId }));
 }
 

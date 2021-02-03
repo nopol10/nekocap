@@ -97,6 +97,7 @@ export type LoadCaptionsResult = {
   verified: boolean;
   likes: number;
   dislikes: number;
+  thirdPartyCategory?: string;
   tags: string[];
 };
 

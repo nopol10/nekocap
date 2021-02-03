@@ -39,9 +39,9 @@ export const dislikeCaption = csa<TabbedType, TabbedType>(
   videoActionTypes.dislikeCaption
 );
 
-export const updateLoadedCaptionFromFile = createThunkedActionCreator<UpdateLoadedCaptionFromFile>(
-  videoActionTypes.updateLoadedCaptionFromFile
-);
+export const updateLoadedCaptionFromFile = createThunkedActionCreator<
+  UpdateLoadedCaptionFromFile
+>(videoActionTypes.updateLoadedCaptionFromFile);
 
 export const updateShowCaption = createAction<SetShowCaption>(
   videoActionTypes.updateShowCaption
@@ -87,6 +87,10 @@ export const setShowCaption = createAction<SetShowCaption>(
 
 export const setServerCaptions = createAction<SetServerCaptions>(
   videoActionTypes.setServerCaptions
+);
+
+export const addServerCaptions = createAction<SetServerCaptions>(
+  videoActionTypes.addServerCaptions
 );
 
 export const setRenderer = createAction<SetRenderer>(

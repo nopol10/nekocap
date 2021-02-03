@@ -1,8 +1,8 @@
-import { Action } from "redux";
-import { PutEffect } from "redux-saga/effects";
+import type { Action } from "redux";
+import type { PutEffect } from "redux-saga/effects";
 import { PageType, VideoSource } from "./common/feature/video/types";
-import { BackendProvider } from "./common/providers/backend-provider";
-import { Processor } from "./extension/content/processors/processor";
+import type { BackendProvider } from "./common/providers/backend-provider";
+import type { Processor } from "./extension/content/processors/processor";
 
 declare global {
   interface Window {

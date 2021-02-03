@@ -1,5 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 import {
+  addServerCaptions,
   clearTabData,
   dislikeCaption,
   likeCaption,
@@ -79,6 +80,21 @@ export const videoReducer = createReducer<VideoState>(
             [tabId]: {
               ...currentTab,
               serverCaptionList: captions,
+            },
+          },
+        };
+      })
+      .addCase(addServerCaptions, (state, action) => {
+        const { payload } = action;
+        const { captions, tabId } = payload;
+        const currentTab: TabVideoData = { ...state.tabData[tabId] };
+        return {
+          ...state,
+          tabData: {
+            ...state.tabData,
+            [tabId]: {
+              ...currentTab,
+              serverCaptionList: [...currentTab.serverCaptionList, ...captions],
             },
           },
         };

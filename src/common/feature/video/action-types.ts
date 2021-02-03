@@ -18,6 +18,7 @@ export const videoActionTypes = {
   setCaption: `${reducerName}/setCaption`,
   setShowCaption: `${reducerName}/setShowCaption`,
   setServerCaptions: `${reducerName}/setServerCaptions`,
+  addServerCaptions: `${reducerName}/addServerCaptions`,
   setShowEditor: `${reducerName}/setShowEditor`,
   setRenderer: `${reducerName}/setRenderer`,
   setMenuHidden: `${reducerName}/setMenuHidden`,
