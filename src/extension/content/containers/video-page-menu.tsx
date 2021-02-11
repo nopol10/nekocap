@@ -109,12 +109,18 @@ const captionOptionCreator = ({
   dislikes,
   verified,
   tags,
+  thirdPartyCategory,
 }: LoadCaptionsResult) => {
   const language = languages[languageCode];
   const label = `${language} by ${captionerName || "Unknown"}`;
   const audioDescribed = tags.includes(captionTags.audioDescribed);
   return (
-    <Select.Option value={id} label={label} key={`cap-${id}`}>
+    <Select.Option
+      value={id}
+      label={label}
+      key={`cap-${id}`}
+      thirdPartyCategory={thirdPartyCategory}
+    >
       <Space>
         <span>{label}</span>
         <Space>
@@ -208,10 +214,14 @@ export const VideoPageMenu = ({
     }
     const captions = tabData.serverCaptionList;
     const verifiedCaptions = [
-      ...captions.filter((sub) => sub.verified).map(captionOptionCreator),
+      ...captions
+        .filter((sub) => sub.verified && !sub.thirdPartyCategory)
+        .map(captionOptionCreator),
     ];
     const unverifiedCaptions = [
-      ...captions.filter((sub) => !sub.verified).map(captionOptionCreator),
+      ...captions
+        .filter((sub) => !sub.verified && !sub.thirdPartyCategory)
+        .map(captionOptionCreator),
     ];
     const thirdPartyGroups = groupBy(
       captions.filter((cap) => {
@@ -428,8 +438,17 @@ export const VideoPageMenu = ({
     setIsSubmitOpen(true);
   };
 
-  const handleLoadServerCaption = (captionId) => {
-    dispatch(loadServerCaption.request({ tabId: window.tabId, captionId }));
+  const handleLoadServerCaption = (
+    captionId: string,
+    { thirdPartyCategory = undefined }: any
+  ) => {
+    dispatch(
+      loadServerCaption.request({
+        tabId: window.tabId,
+        captionId,
+        thirdPartyDatabase: thirdPartyCategory,
+      })
+    );
   };
 
   const handleToggleAutosave = (info: {

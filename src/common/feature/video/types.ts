@@ -1,8 +1,9 @@
 import type { RcFile } from "antd/lib/upload";
-import { CaptionFileFormat, ServerResponse, TabbedType } from "@/common/types";
+import { CaptionFileFormat, TabbedType } from "@/common/types";
 import type { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { SHORTCUT_TYPES } from "../caption-editor/types";
 import type { KeySequence } from "react-hotkeys-ce";
+import { ENABLED_THIRD_PARTY_DATABASES } from "@/extension/background/third-party-db/enabled-databases";
 
 export type RequestFreshTabData = TabbedType & {
   newVideoId?: string; // id of the video on the new page
@@ -161,6 +162,7 @@ export type SubmitCaption = TabbedType & {
 
 export type LoadServerCaption = TabbedType & {
   captionId: string;
+  thirdPartyDatabase?: keyof typeof ENABLED_THIRD_PARTY_DATABASES;
 };
 
 export type SubmitCaptionRequest = {

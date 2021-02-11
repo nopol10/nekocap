@@ -140,9 +140,13 @@ function* loadThirdPartyDatabaseCaptions(
   tabId: number
 ) {
   const thirdPartyCaptions: LoadCaptionsResult[] = (yield all(
-    ENABLED_THIRD_PARTY_DATABASES.map((database) => {
+    Object.values(ENABLED_THIRD_PARTY_DATABASES).map((database) => {
       return call(async () => {
-        return database.loadCaptions(videoId, videoSource);
+        try {
+          return database.loadCaptions(videoId, videoSource);
+        } catch (e) {
+          return [];
+        }
       });
     })
   )).flat();
@@ -164,20 +168,26 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
     }
   );
   yield spawn(loadThirdPartyDatabaseCaptions, videoId, videoSource, tabId);
-  yield put(setServerCaptions({ captions: result, tabId }));
+  yield put(addServerCaptions({ captions: result, tabId }));
 }
 
 /**
  * Load a single caption
  */
 function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
-  const { tabId, captionId } = payload;
-  const response: LoadSingleCaptionResult = yield call(
-    window.backendProvider.loadCaption,
-    {
-      captionId,
+  const { tabId, captionId, thirdPartyDatabase } = payload;
+  let response: LoadSingleCaptionResult;
+  if (thirdPartyDatabase) {
+    const targetDatabase = ENABLED_THIRD_PARTY_DATABASES[thirdPartyDatabase];
+    if (targetDatabase) {
+      response = yield call([targetDatabase, "loadCaption"], captionId);
     }
-  );
+  } else {
+    response = yield call(window.backendProvider.loadCaption, {
+      captionId,
+    });
+  }
+
   if (!response) {
     throw new Error("Could not load the caption.");
   }
