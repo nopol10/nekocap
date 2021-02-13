@@ -33,6 +33,10 @@ import {
 } from "../feature/video/types";
 import { RootState } from "../store/types";
 import { ProviderType, ServerResponse, UploadResponse } from "../types";
+import {
+  BrowseRequest,
+  BrowseResults,
+} from "../feature/public-dashboard/types";
 
 export enum LoginMethod {
   Google,
@@ -120,5 +124,6 @@ export interface BackendProvider<T extends RootState> {
   verifyCaptioner: (params: VerifyRequest) => Promise<ServerResponse>;
   banCaptioner: (params: BanRequest) => Promise<ServerResponse>;
   search: (params: SearchRequest) => Promise<VideoSearchResults>;
+  browse: (params: BrowseRequest) => Promise<BrowseResults>;
   getSelectors: () => AuthSelectors<T>;
 }

@@ -55,8 +55,13 @@ import type {
   LoadSingleCaptionResponse,
   VideoSearchResponse,
   PublicProfileResponse,
+  BrowseResponse,
 } from "./types";
 import { isFirefoxExtension } from "@/common/client-utils";
+import {
+  BrowseRequest,
+  BrowseResults,
+} from "@/common/feature/public-dashboard/types";
 
 //#region
 const loginWithGoogle = async (
@@ -561,6 +566,16 @@ export class ParseProvider implements BackendProvider<ParseState> {
         return (video.toJSON() as unknown) as VideoFields;
       });
     }
+    return results;
+  }
+  async browse(params: BrowseRequest): Promise<BrowseResults> {
+    const response: BrowseResponse = await Parse.Cloud.run("browse", params);
+    const results: BrowseResults = {
+      status: response.status,
+      hasMoreResults: response.hasMoreResults,
+      error: response.error,
+      captions: response.captions,
+    };
     return results;
   }
 }

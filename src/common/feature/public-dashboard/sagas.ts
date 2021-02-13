@@ -3,9 +3,11 @@ import { fork, takeLatest, call, put, select } from "redux-saga/effects";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { safe } from "@/common/redux-utils";
 import {
+  loadAllCaptions,
   loadLatestCaptions,
   loadLatestUserLanguageCaptions,
   loadPopularCaptions,
+  setBrowseResults,
   setLatestCaptions,
   setLatestUserLanguageCaptions,
   setPopularCaptions,
@@ -13,6 +15,9 @@ import {
 import { CaptionListFields } from "../video/types";
 import { CaptionsResponse } from "../captioner/types";
 import { videoSourceToProcessorMap } from "../video/utils";
+import { BrowseParams, BrowseResults, SetBrowseResults } from "./types";
+import { getLimitOffsetFromPagination } from "@/common/utils";
+import { publicDashboardSelector } from "./selectors";
 
 const populateCaptionDetails = async (
   captions: CaptionListFields[]
@@ -91,6 +96,58 @@ function* loadPopularCaptionsSuccessSaga({
   yield put(setPopularCaptions(captions));
 }
 
+function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
+  const { pageSize, pageNumber, append = false, ...rest } = action.payload;
+  const {
+    browseResults = [],
+    hasMoreResults: originalHasMoreResults,
+  } = yield select(publicDashboardSelector);
+  const displayedCaptionCount =
+    browseResults.length + (originalHasMoreResults ? 1 : 0);
+
+  if (
+    append &&
+    (pageNumber !== Math.ceil(displayedCaptionCount / pageSize) ||
+      !originalHasMoreResults)
+  ) {
+    // Only fetch more results when browsing to the last page. Otherwise just update the current page
+    yield put(
+      loadAllCaptions.success({
+        hasMoreResults: originalHasMoreResults,
+        currentResultPage: pageNumber,
+        captions: browseResults,
+        append: false,
+      })
+    );
+    return;
+  }
+  const { status, error, captions, hasMoreResults }: BrowseResults = yield call(
+    window.backendProvider.browse,
+    {
+      ...getLimitOffsetFromPagination(pageSize, pageNumber),
+      ...rest,
+    }
+  );
+  if (status === "error") {
+    throw new Error(error);
+  }
+
+  yield put(
+    loadAllCaptions.success({
+      hasMoreResults,
+      currentResultPage: pageNumber,
+      captions,
+      append,
+    })
+  );
+}
+
+function* loadAllCaptionsSuccessSaga({
+  payload: captions,
+}: PayloadAction<SetBrowseResults>) {
+  yield put(setBrowseResults(captions));
+}
+
 function* publicDashboardSaga() {
   yield takeLatest(
     loadLatestCaptions.REQUEST,
@@ -120,6 +177,12 @@ function* publicDashboardSaga() {
     loadPopularCaptions.SUCCESS,
     safe(loadPopularCaptionsSuccessSaga)
   );
+
+  yield takeLatest(
+    loadAllCaptions.REQUEST,
+    loadAllCaptions.requestSaga(loadAllCaptionsRequestSaga)
+  );
+  yield takeLatest(loadAllCaptions.SUCCESS, safe(loadAllCaptionsSuccessSaga));
 }
 
 export default [fork(publicDashboardSaga)];
