@@ -30,6 +30,12 @@ type CaptionListProps = {
   isLoadingCaptionPage?: boolean;
   onChangePage?: (page: number, pageSize?: number) => void;
   onDelete?: (caption: CaptionListFields) => void;
+  renderPagination?: (
+    page: number,
+    type: "page" | "prev" | "next" | "jump-prev" | "jump-next",
+    originalElement: React.ReactElement<HTMLElement>
+  ) => React.ReactNode;
+  renderTotal?: (total: number, range: number[]) => string;
 };
 
 export const CaptionList = ({
@@ -42,6 +48,8 @@ export const CaptionList = ({
   onChangePage,
   isLoadingCaptionPage,
   loggedInUser,
+  renderPagination,
+  renderTotal,
 }: CaptionListProps) => {
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
@@ -101,6 +109,7 @@ export const CaptionList = ({
   const handleChangePage = (page: number, pageSize?: number) => {
     onChangePage(page, pageSize);
   };
+  const defaultTotalRenderer = (total) => `${total} captions`;
 
   return (
     <CaptionTable
@@ -117,10 +126,11 @@ export const CaptionList = ({
       pagination={{
         pageSize: 20,
         total: totalCount,
-        showTotal: (total) => `${total} captions`,
+        showTotal: renderTotal || defaultTotalRenderer,
         onChange: handleChangePage,
         current: currentPage,
         showSizeChanger: false,
+        itemRender: renderPagination,
       }}
       locale={{
         emptyText:

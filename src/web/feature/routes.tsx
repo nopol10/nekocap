@@ -10,6 +10,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { NewProfile } from "./profile/containers/new-profile";
 import { webHistory } from "./web-history";
 import { CaptionerProfile } from "./profile/containers/captioner-profile";
+import { BrowseCaptionPage } from "./browse/containers/browse-caption-page";
 
 export const Routes = () => {
   return (
@@ -17,6 +18,9 @@ export const Routes = () => {
       <Router history={webHistory}>
         <Route path={routeNames.home} exact={true}>
           <Home />
+        </Route>
+        <Route path={routeNames.caption.browse} exact={true}>
+          <BrowseCaptionPage />
         </Route>
         <Route path={routeNames.profile.main} exact={true}>
           <CaptionerProfile />
