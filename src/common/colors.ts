@@ -14,6 +14,8 @@ export const colors = {
   socialIconHovered: "#212121",
   divider: "#d8d8d8",
   good: "#1090b7",
+  ctaBorder: "#81c359",
+  ctaText: "#8ad218",
   // Caption editor
   captionWarning: "#af1135",
   disabledField: "#f3f3f3",
