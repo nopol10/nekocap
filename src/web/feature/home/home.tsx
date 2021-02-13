@@ -1,11 +1,10 @@
-import Sider from "antd/lib/layout/Sider";
 import React from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
 import Layout from "antd/lib/layout";
 import { WSTitle } from "@/common/components/ws-title";
-import { Button, Card, Col, Input, Row, Space, Typography } from "antd";
+import { Button, Card, Col, Row, Space, Typography } from "antd";
 import "./home.scss";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
@@ -23,6 +22,8 @@ import {
   FIREFOX_DOWNLOAD_URL,
   GITHUB_URL,
 } from "@/common/constants";
+import { routeNames } from "../route-types";
+import { WSButton } from "@/common/components/ws-button";
 
 const { Content } = Layout;
 const { Link } = Typography;
@@ -108,6 +109,22 @@ const DataCard = styled(Card)`
   }
 `;
 
+const BrowseCaptionButton = styled(WSButton)`
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 0;
+  height: unset;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  border-color: ${colors.ctaBorder};
+  color: ${colors.ctaText};
+  &.ant-btn-lg {
+    line-height: unset;
+  }
+`;
+
 const CaptionDigestGrid = () => {
   return (
     <>
@@ -181,6 +198,9 @@ export const Home = () => {
           </Badges>
           <FeatureList />
           <Instructions />
+          <BrowseCaptionButton size={"large"} href={routeNames.caption.browse}>
+            Browse all captions
+          </BrowseCaptionButton>
           <CaptionDigestGrid />
         </Content>
       </WSLayout>

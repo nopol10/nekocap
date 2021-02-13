@@ -4,7 +4,11 @@ import type {
   CaptionLikesFields,
 } from "@/common/feature/captioner/types";
 import { PublicProfileData } from "@/common/feature/profile/types";
-import type { CaptionFields, VideoFields } from "@/common/feature/video/types";
+import type {
+  CaptionFields,
+  CaptionListFields,
+  VideoFields,
+} from "@/common/feature/video/types";
 import type { ServerResponse } from "@/common/types";
 
 export type CaptionSchema = Parse.Object & CaptionFields;
@@ -26,6 +30,11 @@ export type LoadSingleCaptionResponse = ServerResponse & ServerSingleCaption;
 
 export type VideoSearchResponse = ServerResponse & {
   videos: VideoSchema[];
+  hasMoreResults: boolean;
+};
+
+export type BrowseResponse = ServerResponse & {
+  captions: CaptionListFields[];
   hasMoreResults: boolean;
 };
 
