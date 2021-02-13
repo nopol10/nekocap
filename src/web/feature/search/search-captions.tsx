@@ -48,6 +48,15 @@ const ResultCard = styled(Card)`
   }
 `;
 
+const WRAPPER_TOP_DISTANCE = 20;
+
+const Wrapper = styled.div`
+  margin-top: ${WRAPPER_TOP_DISTANCE}px;
+  padding: 0px 40px;
+  overflow-x: hidden;
+  height: calc(100vh - 64px - ${WRAPPER_TOP_DISTANCE}px);
+`;
+
 type SearchForm = {
   title: string;
   videoLanguageCode: string;
@@ -55,7 +64,7 @@ type SearchForm = {
 };
 
 const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
-  const { control, handleSubmit, getValues } = useForm<SearchForm>();
+  const { control, handleSubmit, getValues, errors } = useForm<SearchForm>();
   const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const isSearching = useSelector(search.isLoading(null));
@@ -72,6 +81,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
       })
     );
   };
+  console.log("errors", errors);
 
   const handleClickAdvanced = () => {
     setShowAdvanced(!showAdvanced);
@@ -86,17 +96,22 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
         >
           <Row gutter={24}>
             <Col span={14}>
-              <Controller
-                as={Input}
-                control={control}
-                name="title"
-                defaultValue={""}
-                placeholder={"Search for a video"}
-                style={{ fontSize: "20px" }}
-                rules={{
-                  required: true,
-                }}
-              />
+              <Form.Item
+                validateStatus={errors.title ? "error" : undefined}
+                style={{ margin: 0 }}
+              >
+                <Controller
+                  as={Input}
+                  control={control}
+                  name="title"
+                  defaultValue={""}
+                  placeholder={"Search for a video"}
+                  style={{ fontSize: "20px" }}
+                  rules={{
+                    required: true,
+                  }}
+                />
+              </Form.Item>
             </Col>
             <Col span={6}>
               <Button
@@ -286,10 +301,7 @@ export const SearchCaptions = () => {
   }
 
   return (
-    <div
-      style={{ marginTop: "40px", padding: "0px 40px", overflowX: "hidden" }}
-      ref={resultContainer}
-    >
+    <Wrapper ref={resultContainer}>
       <SearchForm stickyTarget={() => resultContainer.current} />
       <ResultsList>
         <Spin spinning={false}>
@@ -323,6 +335,6 @@ export const SearchCaptions = () => {
           />
         </Spin>
       </ResultsList>
-    </div>
+    </Wrapper>
   );
 };

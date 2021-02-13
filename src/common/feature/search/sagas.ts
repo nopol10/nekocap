@@ -1,4 +1,11 @@
-import { fork, takeLatest, call, put } from "redux-saga/effects";
+import {
+  fork,
+  takeLatest,
+  call,
+  put,
+  throttle,
+  select,
+} from "redux-saga/effects";
 
 import { PayloadAction } from "@reduxjs/toolkit";
 import { getLimitOffsetFromPagination } from "@/common/utils";
@@ -13,6 +20,7 @@ import { routeNames } from "@/web/feature/route-types";
 import { VideoFields } from "../video/types";
 import { webHistory } from "@/web/feature/web-history";
 import { videoSourceToProcessorMap } from "../video/utils";
+import { searchSelector } from "./selectors";
 
 const populateVideoDetails = async (
   videos: VideoFields[]
@@ -37,6 +45,12 @@ const populateVideoDetails = async (
 
 function* searchRequestSaga(action: PayloadAction<SearchParams>) {
   const { pageSize, pageNumber, append = false, ...rest } = action.payload;
+  const { hasMoreResults: originalHasMoreResults } = yield select(
+    searchSelector
+  );
+  if (!originalHasMoreResults && append) {
+    return;
+  }
   const {
     status,
     error,
@@ -49,8 +63,14 @@ function* searchRequestSaga(action: PayloadAction<SearchParams>) {
   if (status === "error") {
     throw new Error(error);
   }
+  if (videos.length <= 0) {
+    return;
+  }
 
-  const videosWithDetails = yield call(populateVideoDetails, videos);
+  const videosWithDetails: VideoFields[] = yield call(
+    populateVideoDetails,
+    videos
+  );
 
   yield put(
     search.success({
@@ -74,7 +94,7 @@ function* searchFromBasicBarSaga({ payload: title }: PayloadAction<string>) {
 }
 
 function* searchSaga() {
-  yield takeLatest(search.REQUEST, search.requestSaga(searchRequestSaga));
+  yield throttle(1000, search.REQUEST, search.requestSaga(searchRequestSaga));
   yield takeLatest(search.SUCCESS, safe(searchSuccessSaga));
 
   yield takeLatest(searchFromBasicBar.type, safe(searchFromBasicBarSaga));
