@@ -125,7 +125,6 @@ const alignmentDataMap: {
 const alignContainer = (
   container: HTMLElement,
   alignment: CaptionAlignment,
-  videoElementHeight: number,
   coords?: Coords,
   coordType = "none"
 ) => {
@@ -300,7 +299,6 @@ const CaptionRendererInternal = ({
       alignContainer(
         captionContainerElement,
         activeLayout.alignment,
-        containerDimensions.current.height,
         activeLayout.position,
         coordType
       );
@@ -309,7 +307,6 @@ const CaptionRendererInternal = ({
       alignContainer(
         captionContainerElement,
         CaptionAlignment.BottomCenter,
-        containerDimensions.current.height,
         undefined,
         coordType
       );

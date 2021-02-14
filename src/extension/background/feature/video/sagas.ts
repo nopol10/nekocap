@@ -53,7 +53,6 @@ import {
   loadedCaptionSelector,
   tabVideoDataSelector,
 } from "@/common/feature/video/selectors";
-import { getStringByteLength } from "@/common/utils";
 import { safe } from "@/common/redux-utils";
 import { parseCaption } from "@/common/caption-parsers";
 import {
@@ -62,7 +61,6 @@ import {
   setEditorRawCaption,
   setShowEditor,
 } from "@/common/feature/caption-editor/actions";
-import { EDITOR_CUTOFF_BYTES } from "@/common/feature/caption-editor/constants";
 import { decompressFromBase64 as lzDecompress } from "lz-string";
 import { isAss } from "@/common/caption-utils";
 
