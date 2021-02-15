@@ -5,6 +5,7 @@ import {
   put,
   select,
   takeEvery,
+  race,
 } from "redux-saga/effects";
 import {
   loadCaptions,
@@ -25,6 +26,8 @@ import {
   closeMenuBar,
   setMenuHidden,
   openMenuBar,
+  loadWebsiteViewerCaption,
+  setVideoDimensions,
 } from "@/common/feature/video/actions";
 import { videoActionTypes } from "@/common/feature/video/action-types";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -41,11 +44,16 @@ import {
   SetRenderer,
   CaptionRendererType,
   PageType,
+  TabVideoData,
 } from "@/common/feature/video/types";
-import { convertToCaptionContainer } from "@/common/feature/video/utils";
+import {
+  convertToCaptionContainer,
+  videoSourceToProcessorMap,
+} from "@/common/feature/video/utils";
 import {
   CaptionFileFormat,
   ChromeMessageType,
+  Dimension,
   NotificationMessage,
   TabbedType,
 } from "@/common/types";
@@ -63,6 +71,8 @@ import {
 } from "@/common/feature/caption-editor/actions";
 import { decompressFromBase64 as lzDecompress } from "lz-string";
 import { isAss } from "@/common/caption-utils";
+import { take } from "lodash";
+import { withSuccess } from "antd/lib/modal/confirm";
 
 function* updateLoadedCaptionFromFileSaga({
   payload,
@@ -189,7 +199,25 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
     // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
     setEditorCaptionAfterEdit({ tabId, caption }),
     setEditorRawCaption({ tabId, rawCaption }),
+    loadServerCaption.success(),
   ]);
+}
+
+function* loadWebsiteViewerCaptionSaga(
+  action: PayloadAction<LoadServerCaption>
+) {
+  const { tabId } = action.payload;
+  yield call(loadServerCaptionSaga, action);
+  const data: TabVideoData = yield select(tabVideoDataSelector(tabId));
+  if (!data || !data.caption) {
+    return;
+  }
+  const processor = videoSourceToProcessorMap[data.caption.videoSource];
+  const dimensions: Dimension = yield call(
+    [processor, "retrieveVideoDimensions"],
+    data.caption.videoId
+  );
+  yield put(setVideoDimensions({ tabId, dimensions }));
 }
 
 function* likeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
@@ -263,6 +291,10 @@ function* videoSaga() {
   yield takeLatest(
     loadServerCaption.REQUEST,
     loadServerCaption.requestSaga(loadServerCaptionSaga)
+  );
+  yield takeLatest(
+    loadWebsiteViewerCaption.REQUEST,
+    loadWebsiteViewerCaption.requestSaga(loadWebsiteViewerCaptionSaga)
   );
   yield takeLatest(
     likeCaption.REQUEST,

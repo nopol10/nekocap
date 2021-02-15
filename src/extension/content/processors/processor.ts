@@ -1,6 +1,7 @@
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { AutoCaptionLanguage } from "@/common/feature/caption-editor/types";
 import { PageType, VideoSource } from "@/common/feature/video/types";
+import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 
 export const getUIElement = async (
@@ -37,6 +38,20 @@ export const getVideoTitle = async (processor: Processor): Promise<string> => {
   return processor.titleSelector();
 };
 
+export const retrieveVideoDimensions = async (
+  videoId: string,
+  processor: Processor
+): Promise<Dimension> => {
+  try {
+    const link: string = processor.generateVideoLink(videoId);
+    const response = await fetch(`https://www.noembed.com/embed?url=${link}`);
+    const data = await response.json();
+    return { width: data.width, height: data.height };
+  } catch (e) {
+    return { width: 16, height: 9 };
+  }
+};
+
 export interface Processor {
   type: VideoSource;
   name: string;
@@ -70,6 +85,7 @@ export interface Processor {
    * Do not call generateThumbnailLink in the UI as it might perform fetch requests
    */
   generateThumbnailLink: (videoId: string) => Promise<string>;
+  retrieveVideoDimensions: (videoId: string) => Promise<Dimension>;
   onEditorOpen: () => void;
   onEditorClose: () => void;
   getPageType: (url: string) => PageType;

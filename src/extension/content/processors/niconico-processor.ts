@@ -1,6 +1,7 @@
 import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
-import type { Processor } from "./processor";
+import type { Dimension } from "@/common/types";
+import { Processor, retrieveVideoDimensions } from "./processor";
 
 const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(nicovideo.jp)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/;
 /**
@@ -36,6 +37,11 @@ export const NicoNicoProcessor: Processor = {
   generateThumbnailLink: async (videoId: string) => {
     // TODO make it work
     return ``;
+  },
+  retrieveVideoDimensions: async function (
+    videoId: string
+  ): Promise<Dimension> {
+    return await retrieveVideoDimensions(videoId, this);
   },
   onEditorOpen: () => {
     /* no content */

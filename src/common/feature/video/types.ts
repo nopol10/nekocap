@@ -1,5 +1,10 @@
 import type { RcFile } from "antd/lib/upload";
-import { CaptionFileFormat, ServerResponse, TabbedType } from "@/common/types";
+import {
+  CaptionFileFormat,
+  Dimension,
+  ServerResponse,
+  TabbedType,
+} from "@/common/types";
 import type { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { SHORTCUT_TYPES } from "../caption-editor/types";
 import type { KeySequence } from "react-hotkeys-ce";
@@ -59,6 +64,7 @@ export type TabVideoData = {
   serverCaptionList?: LoadCaptionsResult[];
   renderer: CaptionRendererType;
   pageType: PageType;
+  videoDimensions?: Dimension;
   menuHidden: boolean;
 };
 
@@ -149,6 +155,10 @@ export type SetRenderer = TabbedType & {
 
 export type SetMenuHidden = TabbedType & {
   hidden: boolean;
+};
+
+export type SetVideoDimensions = TabbedType & {
+  dimensions: Dimension;
 };
 
 export type SubmitCaption = TabbedType & {

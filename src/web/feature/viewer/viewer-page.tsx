@@ -1,18 +1,28 @@
 import { Skeleton, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { loadServerCaption } from "@/common/feature/video/actions";
+import {
+  loadServerCaption,
+  loadWebsiteViewerCaption,
+} from "@/common/feature/video/actions";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { routeNames } from "@/web/feature/route-types";
 import { VideoSource } from "@/common/feature/video/types";
 import YouTube from "react-youtube";
-import { YouTubePlayer } from "youtube-player";
+import { YouTubePlayer } from "youtube-player/dist/types";
+import {
+  CaptionRenderer,
+  CaptionRendererHandle,
+} from "@/extension/content/containers/caption-renderer";
+import { useStateRef } from "@/hooks";
 
 const { Title, Text, Link } = Typography;
 
 const TAB_ID = 0;
+
+const MAX_HEIGHT = 600;
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -20,9 +30,9 @@ const Wrapper = styled.div`
 
 const VideoWrapper = styled.div`
   text-align: center;
-  max-height: 600px;
+  max-height: ${MAX_HEIGHT}px;
   iframe {
-    max-height: 600px;
+    max-height: ${MAX_HEIGHT}px;
   }
 `;
 
@@ -31,12 +41,19 @@ export const ViewerPage = () => {
   const { id: captionId } = useParams<{ id: string }>();
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
+  const [captionContainerElement, captionContainerElementRef] = useStateRef<
+    HTMLDivElement
+  >(null);
+  const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadServerCaption.isLoading(window.tabId));
+  const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
 
   useEffect(() => {
     // This is a website, no tabId is required
     window.tabId = TAB_ID;
-    dispatch(loadServerCaption.request({ tabId: window.tabId, captionId }))
+    dispatch(
+      loadWebsiteViewerCaption.request({ tabId: window.tabId, captionId })
+    )
       .then(() => {
         setLoadComplete(true);
       })
@@ -62,23 +79,36 @@ export const ViewerPage = () => {
     );
   };
 
-  const { caption, rawCaption } = tabData || {};
+  const { caption, rawCaption, videoDimensions } = tabData || {};
 
-  const handleYoutubeReady = (event: { target: YouTubePlayer }) => {
-    console.log("Ready", event);
+  const getCurrentTime = (): number => {
+    if (youtubePlayer) {
+      return youtubePlayer.getCurrentTime();
+    }
+    return 0;
   };
 
+  const handleYoutubeReady = ({ target }: { target: YouTubePlayer }) => {
+    setYouTubePlayer(target);
+  };
+
+  const handleYoutubePlay = ({ target }: { target: YouTubePlayer }) => {
+    defaultRendererRef.current.onVideoPlay();
+  };
+
+  const embedWidth = Math.min(window.innerWidth, 1600);
+  const embedHeight = Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
+
   const renderYoutubeVideo = () => {
-    const width = Math.min(window.innerWidth, 1600);
-    const height = (9 / 16) * width;
     return (
       <YouTube
         opts={{
-          width: width.toString(),
-          height: height.toString(),
+          width: embedWidth.toString(),
+          height: embedHeight.toString(),
         }}
         videoId={caption.videoId}
         onReady={handleYoutubeReady}
+        onPlay={handleYoutubePlay}
       ></YouTube>
     );
   };
@@ -93,11 +123,32 @@ export const ViewerPage = () => {
     return;
   };
 
+  const videoWidth = videoDimensions
+    ? (videoDimensions.width * embedHeight) / videoDimensions.height
+    : 0;
+  const videoHeight = embedHeight;
+  console.log(videoWidth, videoHeight);
+
   return (
     <Wrapper>
       <Skeleton loading={isLoading}>
         {renderNoDataMessage()}
-        <VideoWrapper>{renderVideo()}</VideoWrapper>
+        <VideoWrapper ref={captionContainerElementRef}>
+          {renderVideo()}
+        </VideoWrapper>
+        <CaptionRenderer
+          ref={defaultRendererRef}
+          caption={caption}
+          videoElement={window.videoElement}
+          captionContainerElement={captionContainerElement}
+          showCaption={true}
+          isIframe={true}
+          iframeProps={{
+            height: videoHeight,
+            width: videoWidth,
+            getCurrentTime,
+          }}
+        />
       </Skeleton>
     </Wrapper>
   );

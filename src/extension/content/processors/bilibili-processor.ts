@@ -1,6 +1,7 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
+import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
-import type { Processor } from "./processor";
+import { Processor, retrieveVideoDimensions } from "./processor";
 
 const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
 /**
@@ -45,6 +46,11 @@ export const BilibiliProcessor: Processor = {
   },
   generateThumbnailLink: async function (videoId: string) {
     return "";
+  },
+  retrieveVideoDimensions: async function (
+    videoId: string
+  ): Promise<Dimension> {
+    return await retrieveVideoDimensions(videoId, this);
   },
   onEditorOpen: () => {
     /* no content */

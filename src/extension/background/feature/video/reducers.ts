@@ -10,6 +10,7 @@ import {
   setRenderer,
   setServerCaptions,
   setShowCaption,
+  setVideoDimensions,
   unsetTabData,
 } from "@/common/feature/video/actions";
 import {
@@ -94,6 +95,21 @@ export const videoReducer = createReducer<VideoState>(
             [tabId]: {
               ...currentTab,
               renderer,
+            },
+          },
+        };
+      })
+      .addCase(setVideoDimensions, (state, action) => {
+        const { payload } = action;
+        const { dimensions, tabId } = payload;
+        const currentTab: TabVideoData = { ...state.tabData[tabId] };
+        return {
+          ...state,
+          tabData: {
+            ...state.tabData,
+            [tabId]: {
+              ...currentTab,
+              videoDimensions: dimensions,
             },
           },
         };
