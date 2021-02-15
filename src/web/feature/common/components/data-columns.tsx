@@ -10,7 +10,9 @@ import {
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { languages } from "@/common/languages";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
-import { Tooltip } from "antd";
+import EyeOutlined from "@ant-design/icons/EyeOutlined";
+import PlayCircleOutlined from "@ant-design/icons/PlayCircleOutlined";
+import { Space, Tooltip } from "antd";
 import { getVideoSourceIcon } from "@/common/processor-utils";
 import { Link as RouterLink } from "react-router-dom";
 import { hasTag } from "@/common/caption-utils";
@@ -34,7 +36,8 @@ export const captionColumns = {
     dataIndex: "videoName",
     key: "videoName",
     render: function render(text, record: CaptionListFields) {
-      const processor = videoSourceToProcessorMap[record.videoSource];
+      const processor: Processor =
+        videoSourceToProcessorMap[record.videoSource];
       if (!processor) {
         return text;
       }
@@ -42,12 +45,31 @@ export const captionColumns = {
       return (
         <>
           {record.translatedTitle && <div>{record.translatedTitle}</div>}
-          <Link href={link} target="_blank" rel="noreferrer">
-            {record.videoName}
-          </Link>
+          {record.videoName}
           {hasTag(record.tags, captionTags.audioDescribed) && (
             <AudioDescribedTag />
           )}
+          <div>
+            <Space>
+              {processor.canWatchInNekoCapSite && (
+                <Tooltip title="Watch here">
+                  <Link
+                    href={`${routeNames.caption.view.replace(
+                      ":id",
+                      record.id
+                    )}`}
+                  >
+                    <EyeOutlined />
+                  </Link>
+                </Tooltip>
+              )}
+              <Tooltip title={`Watch on ${processor.name}`}>
+                <Link href={link} target="_blank" rel="noreferrer">
+                  <PlayCircleOutlined />
+                </Link>
+              </Tooltip>
+            </Space>
+          </div>
         </>
       );
     },

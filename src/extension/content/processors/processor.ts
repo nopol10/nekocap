@@ -40,6 +40,7 @@ export const getVideoTitle = async (processor: Processor): Promise<string> => {
 export interface Processor {
   type: VideoSource;
   name: string;
+  canWatchInNekoCapSite?: boolean;
   urlRegex: RegExp;
   videoSelector: string | (() => Promise<HTMLVideoElement>);
   videoPageUISelector: string | (() => Promise<HTMLElement>);

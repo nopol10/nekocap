@@ -41,6 +41,7 @@ type YoutubeCaptionDetails = {
 export const YoutubeProcessor: Processor = {
   type: VideoSource.Youtube,
   name: "YouTube",
+  canWatchInNekoCapSite: true,
   urlRegex: /youtube.com/,
   videoSelector: "#ytd-player #container video",
   captionContainerSelector: "#ytd-player .html5-video-container",
