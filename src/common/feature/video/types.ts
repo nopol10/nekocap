@@ -226,3 +226,10 @@ export type VideoFields = {
   captionCount: number;
   thumbnailUrl?: string;
 };
+
+// Renderer types
+export type IFrameProps = {
+  width: number;
+  height: number;
+  getCurrentTime: () => number; // Get the current video's time in seconds
+};

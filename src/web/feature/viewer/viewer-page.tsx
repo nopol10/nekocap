@@ -9,14 +9,16 @@ import {
 } from "@/common/feature/video/actions";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { routeNames } from "@/web/feature/route-types";
-import { VideoSource } from "@/common/feature/video/types";
+import { CaptionRendererType, VideoSource } from "@/common/feature/video/types";
 import YouTube from "react-youtube";
 import { YouTubePlayer } from "youtube-player/dist/types";
 import {
   CaptionRenderer,
   CaptionRendererHandle,
 } from "@/extension/content/containers/caption-renderer";
+import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
 import { useStateRef } from "@/hooks";
+import { isAss } from "@/common/caption-utils";
 
 const { Title, Text, Link } = Typography;
 
@@ -41,9 +43,10 @@ export const ViewerPage = () => {
   const { id: captionId } = useParams<{ id: string }>();
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] = useStateRef<
-    HTMLDivElement
-  >(null);
+  const [
+    captionContainerElement,
+    captionContainerElementRef,
+  ] = useStateRef<HTMLDivElement>(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadServerCaption.isLoading(window.tabId));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
@@ -79,7 +82,7 @@ export const ViewerPage = () => {
     );
   };
 
-  const { caption, rawCaption, videoDimensions } = tabData || {};
+  const { caption, rawCaption, videoDimensions, renderer } = tabData || {};
 
   const getCurrentTime = (): number => {
     if (youtubePlayer) {
@@ -93,10 +96,13 @@ export const ViewerPage = () => {
   };
 
   const handleYoutubePlay = ({ target }: { target: YouTubePlayer }) => {
+    if (!defaultRendererRef.current) {
+      return;
+    }
     defaultRendererRef.current.onVideoPlay();
   };
 
-  const embedWidth = Math.min(window.innerWidth, 1600);
+  const embedWidth = Math.min(window.innerWidth - 60, 1600);
   const embedHeight = Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
 
   const renderYoutubeVideo = () => {
@@ -123,11 +129,22 @@ export const ViewerPage = () => {
     return;
   };
 
-  const videoWidth = videoDimensions
-    ? (videoDimensions.width * embedHeight) / videoDimensions.height
-    : 0;
+  const videoWidth = Math.ceil(
+    videoDimensions
+      ? (videoDimensions.width * embedHeight) / videoDimensions.height
+      : 0
+  );
   const videoHeight = embedHeight;
-  console.log(videoWidth, videoHeight);
+  const isUsingAdvancedRenderer =
+    renderer === CaptionRendererType.AdvancedOctopus &&
+    rawCaption &&
+    isAss(rawCaption.type);
+
+  const iframeProps = {
+    height: videoHeight,
+    width: videoWidth,
+    getCurrentTime,
+  };
 
   return (
     <Wrapper>
@@ -136,19 +153,27 @@ export const ViewerPage = () => {
         <VideoWrapper ref={captionContainerElementRef}>
           {renderVideo()}
         </VideoWrapper>
-        <CaptionRenderer
-          ref={defaultRendererRef}
-          caption={caption}
-          videoElement={window.videoElement}
-          captionContainerElement={captionContainerElement}
-          showCaption={true}
-          isIframe={true}
-          iframeProps={{
-            height: videoHeight,
-            width: videoWidth,
-            getCurrentTime,
-          }}
-        />
+        {renderer === CaptionRendererType.Default && (
+          <CaptionRenderer
+            ref={defaultRendererRef}
+            caption={caption}
+            videoElement={undefined}
+            captionContainerElement={captionContainerElement}
+            showCaption={true}
+            isIframe={true}
+            iframeProps={iframeProps}
+          />
+        )}
+        {isUsingAdvancedRenderer && (
+          <OctopusRenderer
+            rawCaption={rawCaption.data}
+            videoElement={undefined}
+            captionContainerElement={captionContainerElement}
+            showCaption={true}
+            isIframe={true}
+            iframeProps={iframeProps}
+          />
+        )}
       </Skeleton>
     </Wrapper>
   );

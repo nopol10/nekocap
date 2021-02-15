@@ -7,7 +7,10 @@ import {
   useRef,
 } from "react";
 import { findClosestCaption } from "@/common/feature/video/utils";
-import { CaptionContainer } from "@/common/feature/video/types";
+import type {
+  CaptionContainer,
+  IFrameProps,
+} from "@/common/feature/video/types";
 import {
   CaptionAlignment,
   NekoCaption,
@@ -21,12 +24,6 @@ import {
 import { isEqual } from "lodash";
 import { Coords, Dimension } from "@/common/types";
 import { useAnimationFrame, useResize } from "@/hooks";
-
-type IFrameProps = {
-  width: number;
-  height: number;
-  getCurrentTime: () => number; // Get the current video's time in seconds
-};
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   videoElement: HTMLVideoElement;
@@ -35,7 +32,6 @@ interface CaptionRendererProps {
   iframeProps?: IFrameProps;
   showCaption: boolean;
 }
-
 export interface CaptionRendererHandle {
   onVideoPlay: () => void;
   onVideoSeeked: () => void;
