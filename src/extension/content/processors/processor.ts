@@ -40,11 +40,12 @@ export const getVideoTitle = async (processor: Processor): Promise<string> => {
 
 export const retrieveVideoDimensions = async (
   videoId: string,
-  processor: Processor
+  processor: Processor,
+  oEmbedUrl = "https://www.noembed.com/embed?url="
 ): Promise<Dimension> => {
   try {
     const link: string = processor.generateVideoLink(videoId);
-    const response = await fetch(`https://www.noembed.com/embed?url=${link}`);
+    const response = await fetch(`${oEmbedUrl}${link}`);
     const data = await response.json();
     return { width: data.width, height: data.height };
   } catch (e) {

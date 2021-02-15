@@ -169,7 +169,11 @@ export const YoutubeProcessor: Processor = {
   retrieveVideoDimensions: async function (
     videoId: string
   ): Promise<Dimension> {
-    return await retrieveVideoDimensions(videoId, this);
+    return await retrieveVideoDimensions(
+      videoId,
+      this,
+      "https://www.youtube.com/oembed?url="
+    );
   },
   onEditorOpen: () => {
     disableYoutubeHotkeys();
