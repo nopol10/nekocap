@@ -1,4 +1,4 @@
-import { Skeleton, Typography } from "antd";
+import { Skeleton, Space, Typography } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -20,6 +20,12 @@ import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer
 import { useStateRef } from "@/hooks";
 import { isAss } from "@/common/caption-utils";
 import { styledNoPass } from "@/common/style-utils";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { Processor } from "@/extension/content/processors/processor";
+import { CHROME_DOWNLOAD_URL, FIREFOX_DOWNLOAD_URL } from "@/common/constants";
+import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
+import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
+import { Badges } from "@/common/components/badges";
 
 const { Title, Text, Link } = Typography;
 
@@ -56,6 +62,15 @@ const DetailsWrapper = styledNoPass<{ width: number }>("div")`
 
 const CaptionerMessage = styled(Text)`
   font-size: 1.2em;
+`;
+
+const ExtensionMessage = styled.div`
+  margin-top: 0.5em;
+  font-size: 1.3em;
+
+  ${Badges} {
+    margin-top: 0.3em;
+  }
 `;
 
 export const ViewerPage = () => {
@@ -165,6 +180,10 @@ export const ViewerPage = () => {
     getCurrentTime,
   };
 
+  const processor: Processor = caption
+    ? videoSourceToProcessorMap[caption.videoSource]
+    : undefined;
+
   return (
     <Wrapper>
       <Skeleton active={true} loading={isLoading}>
@@ -184,6 +203,31 @@ export const ViewerPage = () => {
                 {caption.creatorName}
               </Link>
             </CaptionerMessage>
+            <ExtensionMessage>
+              <Text>
+                For the best caption viewing &amp; creating experience, download
+                the NekoCap extension and view captions directly in{" "}
+                {processor ? processor.name : "YouTube"}.
+              </Text>
+              <Badges style={{ textAlign: "left" }}>
+                <Space>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={CHROME_DOWNLOAD_URL}
+                  >
+                    <img id="chrome-badge" src={chromeLogo} />
+                  </a>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={FIREFOX_DOWNLOAD_URL}
+                  >
+                    <img id="firefox-badge" src={firefoxLogo} />
+                  </a>
+                </Space>
+              </Badges>
+            </ExtensionMessage>
           </DetailsWrapper>
         )}
         {renderer === CaptionRendererType.Default && (

@@ -24,6 +24,7 @@ import {
 } from "@/common/constants";
 import { routeNames } from "../route-types";
 import { WSButton } from "@/common/components/ws-button";
+import { Badges } from "@/common/components/badges";
 
 const { Content } = Layout;
 const { Link } = Typography;
@@ -85,19 +86,6 @@ const WaveDivider = () => {
     </div>
   );
 };
-
-const Badges = styled.div`
-  text-align: center;
-  margin-bottom: 40px;
-
-  #chrome-badge {
-    width: 200px;
-  }
-
-  #discord-badge {
-    width: 188px;
-  }
-`;
 
 const DataCard = styled(Card)`
   .ant-card-head {
