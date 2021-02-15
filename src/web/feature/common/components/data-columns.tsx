@@ -58,6 +58,7 @@ export const captionColumns = {
                       ":id",
                       record.id
                     )}`}
+                    target="_blank"
                   >
                     <EyeOutlined />
                   </Link>
