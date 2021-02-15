@@ -28,7 +28,7 @@ const createCanvas = (
   captionContainerElement: HTMLElement
 ): [HTMLCanvasElement, HTMLDivElement] => {
   if (!captionContainerElement) {
-    return undefined;
+    return [undefined, undefined];
   }
   const canvas = document.createElement("canvas");
   canvas.className = "libassjs-canvas";

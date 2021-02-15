@@ -5,7 +5,6 @@ import {
   put,
   select,
   takeEvery,
-  race,
 } from "redux-saga/effects";
 import {
   loadCaptions,

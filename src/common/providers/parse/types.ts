@@ -24,6 +24,8 @@ export type ServerSingleCaption = {
   rawCaptionUrl?: string;
   userLike?: boolean;
   userDislike?: boolean;
+  originalTitle: string;
+  captionerName: string;
 };
 
 export type LoadSingleCaptionResponse = ServerResponse & ServerSingleCaption;

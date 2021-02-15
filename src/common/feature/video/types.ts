@@ -32,10 +32,12 @@ export type CaptionContainer = {
   videoId: string;
   videoSource: VideoSource;
   creator?: string; // Creator ID
+  creatorName?: string; // Creator Name
   loadedByUser: boolean; // Whether the caption is loaded by the current user of the extension
   data: CaptionDataContainer;
   languageCode?: string;
   translatedTitle?: string;
+  originalTitle?: string;
   likes?: number;
   dislikes?: number;
   userLike?: boolean;
@@ -195,6 +197,8 @@ export type CaptionFields = {
   language: string;
   videoId: string;
   videoSource: string;
+  translatedTitle?: string;
+  originalTitle?: string;
   data: string;
   creatorId: string;
   verified: boolean;
@@ -211,7 +215,6 @@ export type CaptionListFields = CaptionFields & {
   createdDate: number;
   updatedDate: number;
   verified: boolean;
-  translatedTitle?: string;
   rejected?: boolean;
   thumbnailUrl?: string;
 };

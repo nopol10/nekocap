@@ -19,6 +19,7 @@ import {
 import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
 import { useStateRef } from "@/hooks";
 import { isAss } from "@/common/caption-utils";
+import { styledNoPass } from "@/common/style-utils";
 
 const { Title, Text, Link } = Typography;
 
@@ -38,17 +39,35 @@ const VideoWrapper = styled.div`
   }
 `;
 
+const DetailsWrapper = styledNoPass<{ width: number }>("div")`
+    width: ${({ width }) => width}px;
+    margin-left: auto;
+    margin-right: auto;
+
+    h1.ant-typography {
+      margin-top: 0.3em;
+      margin-bottom: 0;
+    }
+
+    h2.ant-typography {
+      margin-top: 0.2em;
+    }
+`;
+
+const CaptionerMessage = styled(Text)`
+  font-size: 1.2em;
+`;
+
 export const ViewerPage = () => {
   const dispatch = useDispatch();
   const { id: captionId } = useParams<{ id: string }>();
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [
-    captionContainerElement,
-    captionContainerElementRef,
-  ] = useStateRef<HTMLDivElement>(null);
+  const [captionContainerElement, captionContainerElementRef] = useStateRef<
+    HTMLDivElement
+  >(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
-  const isLoading = useSelector(loadServerCaption.isLoading(window.tabId));
+  const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
 
   useEffect(() => {
@@ -148,11 +167,25 @@ export const ViewerPage = () => {
 
   return (
     <Wrapper>
-      <Skeleton loading={isLoading}>
+      <Skeleton active={true} loading={isLoading}>
         {renderNoDataMessage()}
         <VideoWrapper ref={captionContainerElementRef}>
           {renderVideo()}
         </VideoWrapper>
+        {caption && (
+          <DetailsWrapper width={embedWidth}>
+            <Title>{caption.originalTitle}</Title>
+            <Title level={2}>{caption.translatedTitle}</Title>
+            <CaptionerMessage>
+              Caption submitted by{" "}
+              <Link
+                href={routeNames.profile.main.replace(":id", caption.creator)}
+              >
+                {caption.creatorName}
+              </Link>
+            </CaptionerMessage>
+          </DetailsWrapper>
+        )}
         {renderer === CaptionRendererType.Default && (
           <CaptionRenderer
             ref={defaultRendererRef}

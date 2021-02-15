@@ -4,6 +4,7 @@ import {
   dislikeCaption,
   likeCaption,
   loadCaptions,
+  loadWebsiteViewerCaption,
   setContentPageType,
   setLoadedCaption,
   setMenuHidden,
@@ -32,6 +33,7 @@ export const videoReducer = createReducer<VideoState>(
   { tabData: {} },
   (builder) => {
     loadCaptions.augmentReducer(builder);
+    loadWebsiteViewerCaption.augmentReducer(builder);
     likeCaption.augmentReducer(builder);
     dislikeCaption.augmentReducer(builder);
     return builder
