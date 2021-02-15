@@ -145,6 +145,9 @@ export const ViewerPage = () => {
         opts={{
           width: embedWidth.toString(),
           height: embedHeight.toString(),
+          playerVars: {
+            fs: 0,
+          },
         }}
         videoId={caption.videoId}
         onReady={handleYoutubeReady}
