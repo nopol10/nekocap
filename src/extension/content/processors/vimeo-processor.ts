@@ -1,5 +1,6 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
-import type { Processor } from "./processor";
+import type { Dimension } from "@/common/types";
+import { Processor, retrieveVideoDimensions } from "./processor";
 
 const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(vimeo.com)\/([A-Za-z0-9._%-]*)(&\S+)?/;
 /**
@@ -44,6 +45,11 @@ export const VimeoProcessor: Processor = {
     } catch (e) {
       return "";
     }
+  },
+  retrieveVideoDimensions: async function (
+    videoId: string
+  ): Promise<Dimension> {
+    return await retrieveVideoDimensions(videoId, this);
   },
   onEditorOpen: () => {
     /* no content */

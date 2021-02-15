@@ -1,5 +1,10 @@
 import type { RcFile } from "antd/lib/upload";
-import { CaptionFileFormat, ServerResponse, TabbedType } from "@/common/types";
+import {
+  CaptionFileFormat,
+  Dimension,
+  ServerResponse,
+  TabbedType,
+} from "@/common/types";
 import type { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { SHORTCUT_TYPES } from "../caption-editor/types";
 import type { KeySequence } from "react-hotkeys-ce";
@@ -27,10 +32,12 @@ export type CaptionContainer = {
   videoId: string;
   videoSource: VideoSource;
   creator?: string; // Creator ID
+  creatorName?: string; // Creator Name
   loadedByUser: boolean; // Whether the caption is loaded by the current user of the extension
   data: CaptionDataContainer;
   languageCode?: string;
   translatedTitle?: string;
+  originalTitle?: string;
   likes?: number;
   dislikes?: number;
   userLike?: boolean;
@@ -59,6 +66,7 @@ export type TabVideoData = {
   serverCaptionList?: LoadCaptionsResult[];
   renderer: CaptionRendererType;
   pageType: PageType;
+  videoDimensions?: Dimension;
   menuHidden: boolean;
 };
 
@@ -151,6 +159,10 @@ export type SetMenuHidden = TabbedType & {
   hidden: boolean;
 };
 
+export type SetVideoDimensions = TabbedType & {
+  dimensions: Dimension;
+};
+
 export type SubmitCaption = TabbedType & {
   languageCode: string;
   translatedTitle: string;
@@ -185,6 +197,8 @@ export type CaptionFields = {
   language: string;
   videoId: string;
   videoSource: string;
+  translatedTitle?: string;
+  originalTitle?: string;
   data: string;
   creatorId: string;
   verified: boolean;
@@ -201,7 +215,6 @@ export type CaptionListFields = CaptionFields & {
   createdDate: number;
   updatedDate: number;
   verified: boolean;
-  translatedTitle?: string;
   rejected?: boolean;
   thumbnailUrl?: string;
 };
@@ -215,4 +228,11 @@ export type VideoFields = {
   captions: VideoCaptionData;
   captionCount: number;
   thumbnailUrl?: string;
+};
+
+// Renderer types
+export type IFrameProps = {
+  width: number;
+  height: number;
+  getCurrentTime: () => number; // Get the current video's time in seconds
 };

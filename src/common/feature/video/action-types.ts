@@ -8,6 +8,7 @@ export const videoActionTypes = {
   openMenuBar: `${reducerName}/openMenuBar`,
   loadCaptions: `${reducerName}/loadCaptions`,
   loadServerCaption: `${reducerName}/loadServerCaption`,
+  loadWebsiteViewerCaption: `${reducerName}/loadWebsiteViewerCaption`,
   likeCaption: `${reducerName}/likeCaption`,
   dislikeCaption: `${reducerName}/dislikeCaption`,
   requestFreshTabData: `${reducerName}/requestFreshTabData`,
@@ -20,5 +21,6 @@ export const videoActionTypes = {
   setServerCaptions: `${reducerName}/setServerCaptions`,
   setShowEditor: `${reducerName}/setShowEditor`,
   setRenderer: `${reducerName}/setRenderer`,
+  setVideoDimensions: `${reducerName}/setVideoDimensions`,
   setMenuHidden: `${reducerName}/setMenuHidden`,
 };

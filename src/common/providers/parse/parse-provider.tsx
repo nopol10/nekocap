@@ -381,15 +381,20 @@ export class ParseProvider implements BackendProvider<ParseState> {
       userDislike,
       rawCaption: serverRawCaption,
       rawCaptionUrl,
+      originalTitle,
+      captionerName,
     } = response;
     const captionResponse = serverCaption as Parse.Object;
     const caption: CaptionContainer = {
       id: captionResponse.id,
       loadedByUser: false,
       videoId: captionResponse.get("videoId"),
+      translatedTitle: captionResponse.get("translatedTitle") || "",
+      originalTitle: originalTitle,
       videoSource: parseInt(captionResponse.get("videoSource")),
       data: JSON.parse(captionResponse.get("content")),
       creator: captionResponse.get("creatorId"),
+      creatorName: captionerName,
       languageCode: captionResponse.get("language"),
       likes: captionResponse.get("likes") || 0,
       dislikes: captionResponse.get("dislikes") || 0,

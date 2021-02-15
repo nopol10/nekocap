@@ -55,6 +55,22 @@ module.exports = (env, argv, customEnv = {}) => {
             to: path.resolve(__dirname, "dist", "web", "fonts"),
             flatten: true,
           },
+          {
+            from: "src/libs/subtitle-octopus/*.{js,data,mem,wasm}",
+            to: path.resolve(
+              __dirname,
+              "dist",
+              "web",
+              "js",
+              "subtitle-octopus"
+            ),
+            flatten: true,
+          },
+          {
+            from: "src/libs/subtitle-octopus/assets/*.*",
+            to: path.resolve(__dirname, "dist", "web", "sub-assets"),
+            flatten: true,
+          },
         ],
       }),
       devMode && new ForkTsCheckerWebpackPlugin(),

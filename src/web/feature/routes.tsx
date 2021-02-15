@@ -11,6 +11,7 @@ import { NewProfile } from "./profile/containers/new-profile";
 import { webHistory } from "./web-history";
 import { CaptionerProfile } from "./profile/containers/captioner-profile";
 import { BrowseCaptionPage } from "./browse/containers/browse-caption-page";
+import { ViewerPage } from "./viewer/viewer-page";
 
 export const Routes = () => {
   return (
@@ -21,6 +22,9 @@ export const Routes = () => {
         </Route>
         <Route path={routeNames.caption.browse} exact={true}>
           <BrowseCaptionPage />
+        </Route>
+        <Route path={routeNames.caption.view} exact={true}>
+          <ViewerPage />
         </Route>
         <Route path={routeNames.profile.main} exact={true}>
           <CaptionerProfile />

@@ -74,3 +74,8 @@ export const CaptionFileFormat = {
   vtt: "vtt",
   sbv: "sbv",
 };
+
+export type Dimension = {
+  width: number;
+  height: number;
+};

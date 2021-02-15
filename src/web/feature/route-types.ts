@@ -10,6 +10,7 @@ export const routeNames = {
   },
   caption: {
     browse: "/browse",
+    view: "/view/:id",
     main: "/caption/:id",
   },
 };

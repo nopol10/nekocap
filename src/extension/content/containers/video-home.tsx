@@ -20,6 +20,7 @@ import { useCaptionContainerUpdate, useVideoElementUpdate } from "@/hooks";
 import { EditorContainer } from "./editor-container";
 import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { darkModeSelector } from "@/common/processor-utils";
+import { isAss } from "@/common/caption-utils";
 
 const InlineMenuWrapper = styled.div`
   display: flex;
@@ -109,7 +110,7 @@ export const VideoHome = () => {
   }, []);
 
   const isUsingAdvancedRenderer =
-    renderer === CaptionRendererType.AdvancedOctopus && rawType === "ass";
+    renderer === CaptionRendererType.AdvancedOctopus && isAss(rawType);
   const shouldRenderEditor =
     !isUsingAdvancedRenderer ||
     (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0);

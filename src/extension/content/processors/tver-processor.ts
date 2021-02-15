@@ -1,5 +1,6 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
-import type { Processor } from "./processor";
+import type { Dimension } from "@/common/types";
+import { Processor, retrieveVideoDimensions } from "./processor";
 
 /**
  * Processor for TVer.jp
@@ -42,6 +43,11 @@ export const TVerProcessor: Processor = {
   },
   generateThumbnailLink: async (videoId: string) => {
     return ``;
+  },
+  retrieveVideoDimensions: async function (
+    videoId: string
+  ): Promise<Dimension> {
+    return await retrieveVideoDimensions(videoId, this);
   },
   onEditorOpen: () => {
     /* no content */

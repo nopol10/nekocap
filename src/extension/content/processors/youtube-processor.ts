@@ -1,8 +1,9 @@
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { EDITOR_OPEN_ATTRIBUTE, TIME } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
-import { Processor } from "./processor";
+import { Processor, retrieveVideoDimensions } from "./processor";
 import { unescape } from "lodash";
+import type { Dimension } from "@/common/types";
 
 const disableYoutubeHotkeys = () => {
   const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
@@ -41,6 +42,7 @@ type YoutubeCaptionDetails = {
 export const YoutubeProcessor: Processor = {
   type: VideoSource.Youtube,
   name: "YouTube",
+  canWatchInNekoCapSite: true,
   urlRegex: /youtube.com/,
   videoSelector: "#ytd-player #container video",
   captionContainerSelector: "#ytd-player .html5-video-container",
@@ -163,6 +165,15 @@ export const YoutubeProcessor: Processor = {
   },
   generateThumbnailLink: async (videoId: string) => {
     return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  },
+  retrieveVideoDimensions: async function (
+    videoId: string
+  ): Promise<Dimension> {
+    return await retrieveVideoDimensions(
+      videoId,
+      this,
+      "https://www.youtube.com/oembed?url="
+    );
   },
   onEditorOpen: () => {
     disableYoutubeHotkeys();

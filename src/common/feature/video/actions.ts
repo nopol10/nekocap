@@ -16,6 +16,7 @@ import type {
   SetRenderer,
   SetContentPageType,
   SetMenuHidden,
+  SetVideoDimensions,
 } from "./types";
 
 const csa = createSignalActionInState("video", true);
@@ -24,6 +25,10 @@ export const loadCaptions = csa<LoadCaptions>(videoActionTypes.loadCaptions);
 
 export const loadServerCaption = csa<LoadServerCaption>(
   videoActionTypes.loadServerCaption
+);
+
+export const loadWebsiteViewerCaption = csa<LoadServerCaption>(
+  videoActionTypes.loadWebsiteViewerCaption
 );
 
 /**
@@ -39,9 +44,9 @@ export const dislikeCaption = csa<TabbedType, TabbedType>(
   videoActionTypes.dislikeCaption
 );
 
-export const updateLoadedCaptionFromFile = createThunkedActionCreator<UpdateLoadedCaptionFromFile>(
-  videoActionTypes.updateLoadedCaptionFromFile
-);
+export const updateLoadedCaptionFromFile = createThunkedActionCreator<
+  UpdateLoadedCaptionFromFile
+>(videoActionTypes.updateLoadedCaptionFromFile);
 
 export const updateShowCaption = createAction<SetShowCaption>(
   videoActionTypes.updateShowCaption
@@ -91,6 +96,10 @@ export const setServerCaptions = createAction<SetServerCaptions>(
 
 export const setRenderer = createAction<SetRenderer>(
   videoActionTypes.setRenderer
+);
+
+export const setVideoDimensions = createAction<SetVideoDimensions>(
+  videoActionTypes.setVideoDimensions
 );
 
 export const setMenuHidden = createAction<SetMenuHidden>(

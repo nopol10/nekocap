@@ -103,7 +103,10 @@ var SubtitlesOctopus = function (options) {
     self.setSubUrl(options.subUrl);
     self.worker.postMessage({
       target: "pre-init",
-      browserExtensionPath: chrome.runtime.getURL(""),
+      browserExtensionPath:
+        window.chrome && window.chrome.runtime && window.chrome.runtime.getURL
+          ? window.chrome.runtime.getURL("")
+          : "/",
     });
     self.worker.postMessage({
       target: "worker-init",
