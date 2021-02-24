@@ -1,6 +1,7 @@
 export const SUBSTATION_GROUPED_FONTS = {
   latin: {
     anton: "/fonts/Anton-Regular.woff2",
+    akazukipop: "/fonts/AkazukiPOP.woff2",
     "cabin condensed": "/fonts/Cabin-Condensed-Regular.woff2",
     "liberation sans": "/fonts/LiberationSans-Regular.woff2",
     "liberation sans bold": "/fonts/LiberationSans-Bold.woff2",
@@ -19,15 +20,18 @@ export const SUBSTATION_GROUPED_FONTS = {
     "source sans pro bold": "/fonts/Source-Sans-Pro-700.woff2",
     tinos: "/fonts/Tinos-Regular.woff2",
     "tinos bold": "/fonts/Tinos-700.woff2",
+    zerogothic: "/fonts/ZeroGothic.woff2",
     arial: "/fonts/LiberationSans-Regular.woff2", // Arial is not free
     "arial bold": "/fonts/LiberationSans-Bold.woff2",
     "times new roman": "/fonts/Tinos-Regular.woff2", // Using Tinos as a Times New Roman replacement as TNR is not free
     "times new roman bold": "/fonts/Tinos-700.woff2",
   },
   japanese: {
+    akazukipop: "/fonts/AkazukiPOP.woff2",
     "kosugi maru": "/fonts/Kosugi-Maru-Regular.woff2",
     "noto sans jp": "/fonts/Noto-Sans-JP-Regular.woff2",
     "noto sans jp bold": "/fonts/Noto-Sans-JP-700.woff2",
+    zerogothic: "/fonts/ZeroGothic.woff2",
   },
   simplifiedChinese: {
     "ma shan zheng": "/fonts/Ma-Shan-Zheng-Regular.woff2",
@@ -37,6 +41,13 @@ export const SUBSTATION_GROUPED_FONTS = {
   traditionalChinese: {
     "noto sans tc": "/fonts/Noto-Sans-TC-Regular.woff2",
     "noto sans tc bold": "/fonts/Noto-Sans-TC-700.woff2",
+    "noto serif tc": "/fonts/Noto-Serif-TC-Regular.woff2",
+    "noto serif tc bold": "/fonts/Noto-Serif-TC-700.woff2",
+    cwtexkai: "/fonts/cwTeXKai-zhonly-Regular.woff2",
+    cwtexyen: "/fonts/cwTeXYen-zhonly-Regular.woff2",
+    cwtexfangsong: "/fonts/cwTeXFangSong-zhonly-Regular.woff2",
+    cwtexming: "/fonts/cwTeXMing-zhonly-Regular.woff2",
+    "jf openhuninn": "/fonts/jf-openhuninn-1.1.woff2",
   },
   korean: {
     "noto sans kr": "/fonts/Noto-Sans-KR-Regular.woff2",
