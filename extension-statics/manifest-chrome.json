@@ -1,8 +1,9 @@
 {
   "manifest_version": 2,
   "name": "NekoCap",
-  "description": "Create and upload community captions for YouTube videos (and more) with this easy to use extension that supports SSA/ASS rendering.",
+  "description": "__MSG_extShortDescription__",
   "version": "0.5.7",
+  "default_locale": "en",
   "browser_action": {
     "default_icon": "icon16.png",
     "default_popup": "popup.html"
@@ -21,9 +22,7 @@
         "https://*.bilibili.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -34,9 +33,7 @@
         "https://*.bilibili.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -44,10 +41,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation"
-  ],
+  "permissions": ["storage", "webNavigation"],
   "web_accessible_resources": [
     "img/*.jpg",
     "img/*.png",
