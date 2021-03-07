@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { TIME } from "./common/constants";
-import { Coords } from "./common/types";
+import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { getVideoElement } from "./extension/content/processors/processor";
 
@@ -344,4 +344,87 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
 
 export const useMount = (callback: EffectCallback) => {
   useEffect(callback, []);
+};
+
+const getScrollPosition = ({
+  element,
+  useWindow,
+}: {
+  element?: HTMLElement | null;
+  useWindow: boolean;
+}): Coords => {
+  if (useWindow) {
+    return { x: window.scrollX, y: window.scrollY };
+  }
+  const target = element ? element : document.body;
+
+  if (!target) {
+    return { x: 0, y: 0 };
+  }
+  return { x: target.scrollLeft, y: target.scrollTop };
+};
+
+export const useScrollPosition = (
+  effectCallback: ({
+    prevPos,
+    currPos,
+  }: {
+    prevPos: Coords;
+    currPos: Coords;
+  }) => void,
+  dependencies?: DependencyList,
+  element?: HTMLElement | null | undefined,
+  useWindow = false,
+  wait?: number
+): void => {
+  const position = useRef(getScrollPosition({ useWindow }));
+
+  let throttleTimeout = -1;
+
+  const callback = () => {
+    const currPos = getScrollPosition({ element, useWindow });
+    effectCallback({ prevPos: position.current, currPos });
+    position.current = currPos;
+    throttleTimeout = -1;
+  };
+
+  useLayoutEffect(() => {
+    const handleScroll = () => {
+      if (wait) {
+        if (throttleTimeout < 0) {
+          throttleTimeout = window.setTimeout(callback, wait);
+        }
+      } else {
+        callback();
+      }
+    };
+
+    const listenerElement = element ? element : window;
+    listenerElement.addEventListener("scroll", handleScroll);
+
+    // Do initial check before any scrolling happens.
+    handleScroll();
+    return () => listenerElement.removeEventListener("scroll", handleScroll);
+  }, dependencies);
+};
+
+export const useScrolledPastY = (
+  element: HTMLElement | null | undefined,
+  yBreakpoint: number,
+  throttleDuration = 100
+) => {
+  const [hasScrolledPast, setHasScrolledPast] = useState(false);
+  useScrollPosition(
+    ({ prevPos, currPos }) => {
+      const isShowingNow = currPos.y >= yBreakpoint;
+      if (isShowingNow !== hasScrolledPast) {
+        setHasScrolledPast(isShowingNow);
+      }
+    },
+    [element, hasScrolledPast],
+    element,
+    !element,
+    throttleDuration
+  );
+  return hasScrolledPast;
 };

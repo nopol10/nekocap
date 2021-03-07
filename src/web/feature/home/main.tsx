@@ -10,6 +10,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 
 import { webAutoLogin } from "@/common/feature/login/actions";
+import { useScrolledPastY } from "@/hooks";
 
 const { Content } = Layout;
 
@@ -28,6 +29,7 @@ export const Main = () => {
       autoLoggedIn.current = true;
     });
   }, []);
+  const scrolled = useScrolledPastY(undefined, 174);
 
   return (
     <div
@@ -42,7 +44,7 @@ export const Main = () => {
         }}
       >
         <WSLayout>
-          <WSHeader>
+          <WSHeader scrolled={scrolled}>
             <WebHeader />
           </WSHeader>
           <Content

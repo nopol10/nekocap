@@ -32,12 +32,21 @@ type BasicSearchForm = {
   title: string;
 };
 
-export const BasicSearchBar = () => {
+export const BasicSearchBar = ({
+  forceOpen = false,
+  onSearch: onSearchExternal,
+}: {
+  forceOpen?: boolean;
+  onSearch?: () => void;
+}) => {
   const { control, handleSubmit } = useForm<BasicSearchForm>();
   const dispatch = useDispatch();
   const [opened, setOpened] = useState(false);
 
   const onSearch = (form: BasicSearchForm) => {
+    if (onSearchExternal) {
+      onSearchExternal();
+    }
     dispatch(searchFromBasicBar(form.title));
   };
 
@@ -45,12 +54,16 @@ export const BasicSearchBar = () => {
     setOpened(true);
   };
 
-  const handleClickSearch = opened ? handleSubmit(onSearch) : openSearch;
+  const actuallyOpened = forceOpen || opened;
+
+  const handleClickSearch = actuallyOpened
+    ? handleSubmit(onSearch)
+    : openSearch;
 
   return (
     <div>
       <Form onSubmitCapture={handleClickSearch}>
-        <SearchRow opened={opened}>
+        <SearchRow opened={actuallyOpened}>
           {
             <Controller
               as={Input}
