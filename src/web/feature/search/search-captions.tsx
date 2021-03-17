@@ -31,6 +31,8 @@ import { Controller, useForm } from "react-hook-form";
 import SearchOutlined from "@ant-design/icons/SearchOutlined";
 import Title from "antd/lib/typography/Title";
 import { languageOptions } from "@/common/language-utils";
+import { DEVICE } from "@/common/style-constants";
+import emptyVideoImage from "@/assets/images/empty-video.jpg";
 
 const PAGE_SIZE = 20;
 
@@ -52,9 +54,12 @@ const WRAPPER_TOP_DISTANCE = 20;
 
 const Wrapper = styled.div`
   margin-top: ${WRAPPER_TOP_DISTANCE}px;
-  padding: 0px 40px;
+  padding: 0px 20px;
   overflow-x: hidden;
   height: calc(100vh - 64px - ${WRAPPER_TOP_DISTANCE}px);
+  @media ${DEVICE.tablet} {
+    padding: 0px 40px;
+  }
 `;
 
 type SearchForm = {
@@ -266,7 +271,10 @@ export const SearchCaptions = () => {
                 rel="noreferrer"
                 style={{ width: "100%" }}
               >
-                <img style={{ width: "100%" }} src={thumbnailUrl} />
+                <img
+                  style={{ width: "100%" }}
+                  src={thumbnailUrl || emptyVideoImage}
+                />
               </a>
             </div>
             <div>
