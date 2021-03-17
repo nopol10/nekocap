@@ -1,9 +1,16 @@
 import Table from "antd/lib/table/Table";
-import React, { useEffect, useState } from "react";
+import { Typography } from "antd";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loadLatestCaptions } from "@/common/feature/public-dashboard/actions";
+import { useMediaQuery } from "react-responsive";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { captionColumns } from "../../common/components/data-columns";
+import { DEVICE } from "@/common/style-constants";
+import { DataCard } from "../components/data-card";
+import { MobileCaptionList } from "../components/mobile-caption-list";
+import { loadLatestCaptions } from "@/common/feature/public-dashboard/actions";
+
+const { Title } = Typography;
 
 export const LatestCaptions = () => {
   const dispatch = useDispatch();
@@ -15,6 +22,7 @@ export const LatestCaptions = () => {
     }
     dispatch(loadLatestCaptions.request());
   }, []);
+  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
 
   const tableColumns = [
     captionColumns.thumbnail,
@@ -27,17 +35,27 @@ export const LatestCaptions = () => {
 
   return (
     <>
-      <Table
-        columns={tableColumns}
-        dataSource={latestCaptions}
-        pagination={false}
-        loading={isLoading}
-        rowKey={"id"}
-        locale={{
-          emptyText:
-            "No captions! You can contribute captions with the extension!",
-        }}
-      />
+      {isDesktop && (
+        <DataCard title={"Latest captions"}>
+          <Table
+            columns={tableColumns}
+            dataSource={latestCaptions}
+            pagination={false}
+            loading={isLoading}
+            rowKey={"id"}
+            locale={{
+              emptyText:
+                "No captions! You can contribute captions with the extension!",
+            }}
+          />
+        </DataCard>
+      )}
+      {!isDesktop && (
+        <>
+          <Title level={3}>Latest captions</Title>
+          <MobileCaptionList captions={latestCaptions} />
+        </>
+      )}
     </>
   );
 };

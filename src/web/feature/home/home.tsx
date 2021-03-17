@@ -93,16 +93,6 @@ const WaveDivider = () => {
   );
 };
 
-const DataCard = styled(Card)`
-  .ant-card-head {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  .ant-card-body {
-    padding: 0;
-  }
-`;
-
 const BrowseCaptionButton = styled(WSButton)`
   display: flex;
   margin-top: 20px;
@@ -124,16 +114,10 @@ const CaptionDigestGrid = () => {
     <>
       <Row gutter={[24, 24]} justify={"center"}>
         <Col span={12} lg={12} md={24} sm={24} xs={24}>
-          <DataCard title={"Latest captions"}>
-            <LatestCaptions />
-          </DataCard>
+          <LatestCaptions />
         </Col>
         <Col span={12} lg={12} md={24} sm={24} xs={24}>
-          <DataCard
-            title={`Latest ${getBaseLanguageName(navigator.language)} captions`}
-          >
-            <LatestUserLanguageCaptions />
-          </DataCard>
+          <LatestUserLanguageCaptions />
         </Col>
       </Row>
     </>
