@@ -3,6 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useMediaQuery } from "react-responsive";
+import YouTube from "react-youtube";
+import { YouTubePlayer } from "youtube-player/dist/types";
 import {
   loadServerCaption,
   loadWebsiteViewerCaption,
@@ -10,8 +13,6 @@ import {
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { routeNames } from "@/web/feature/route-types";
 import { CaptionRendererType, VideoSource } from "@/common/feature/video/types";
-import YouTube from "react-youtube";
-import { YouTubePlayer } from "youtube-player/dist/types";
 import {
   CaptionRenderer,
   CaptionRendererHandle,
@@ -26,6 +27,7 @@ import { CHROME_DOWNLOAD_URL, FIREFOX_DOWNLOAD_URL } from "@/common/constants";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import { Badges } from "@/common/components/badges";
+import { DEVICE } from "@/common/style-constants";
 
 const { Title, Text, Link } = Typography;
 
@@ -38,15 +40,17 @@ const Wrapper = styled.div`
 `;
 
 const VideoWrapper = styled.div`
+  position: relative;
   text-align: center;
-  max-height: ${MAX_HEIGHT}px;
+
   iframe {
+    width: 100%;
     max-height: ${MAX_HEIGHT}px;
   }
 `;
 
-const DetailsWrapper = styledNoPass<{ width: number }>("div")`
-    width: ${({ width }) => width}px;
+const DetailsWrapper = styledNoPass<{ width?: number }>("div")`
+    ${({ width }) => (width !== undefined ? `width: ${width}px` : "")};
     margin-left: auto;
     margin-right: auto;
 
@@ -84,6 +88,7 @@ export const ViewerPage = () => {
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
+  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
 
   useEffect(() => {
     // This is a website, no tabId is required
@@ -195,7 +200,7 @@ export const ViewerPage = () => {
           {renderVideo()}
         </VideoWrapper>
         {caption && (
-          <DetailsWrapper width={embedWidth}>
+          <DetailsWrapper>
             <Title>{caption.originalTitle}</Title>
             <Title level={2}>{caption.translatedTitle}</Title>
             <CaptionerMessage>
@@ -212,8 +217,8 @@ export const ViewerPage = () => {
                 the NekoCap extension and view captions directly in{" "}
                 {processor ? processor.name : "YouTube"}.
               </Text>
-              <Badges style={{ textAlign: "left" }}>
-                <Space>
+              <Badges style={{ justifyContent: "left" }}>
+                <Space direction={isDesktop ? "horizontal" : "vertical"}>
                   <a
                     target="_blank"
                     rel="noreferrer"

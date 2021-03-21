@@ -16,7 +16,7 @@ export const WSHeader = styledNoPass<WSHeaderProps, typeof Layout.Header>(
     width: 100%;
     top: 0;
     background: unset;
-    background-color: "transparent";
+    background-color: transparent;
     ${({ scrolled }) => (scrolled ? `background-color: ${colors.white}` : "")};
     z-index: 10;
     padding: 0 16px;
