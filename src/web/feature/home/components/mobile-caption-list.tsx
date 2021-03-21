@@ -1,5 +1,6 @@
 import { message } from "antd";
 import React from "react";
+import { Link as RouterLink } from "react-router-dom";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import { CaptionListFields } from "@/common/feature/video/types";
 import styled from "styled-components";
@@ -21,6 +22,10 @@ const MobileCaptionThumbnail = styled.img``;
 const MobileTranslatedTitle = styled.div`
   font-size: 18px;
   font-weight: bold;
+  color: ${colors.white};
+`;
+
+const MobileCaptionCreator = styled.div`
   color: ${colors.white};
 `;
 
@@ -81,6 +86,21 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
               <div>
                 {fromLanguage} <CaretRightOutlined /> <b>{toLanguage}</b>
               </div>
+              <MobileCaptionCreator>
+                captioned by{" "}
+                <b>
+                  <RouterLink
+                    to={{
+                      pathname: `${routeNames.profile.main.replace(
+                        ":id",
+                        caption.creatorId
+                      )}`,
+                    }}
+                  >
+                    {caption.creatorName}
+                  </RouterLink>
+                </b>
+              </MobileCaptionCreator>
             </MobileCaptionOverlay>
             <MobileCaptionThumbnail
               src={caption.thumbnailUrl || emptyVideoImage}
