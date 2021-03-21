@@ -4,7 +4,7 @@ import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
 import Layout from "antd/lib/layout";
 import { WSTitle } from "@/common/components/ws-title";
-import { Button, Card, Col, Row, Space, Typography } from "antd";
+import { Card, Col, Row } from "antd";
 import "./home.scss";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
@@ -12,7 +12,6 @@ import discordLogo from "@/assets/images/discord.png";
 import { LatestCaptions } from "./containers/latest-captions";
 import { LatestUserLanguageCaptions } from "./containers/latest-user-language-caps";
 import { getBaseLanguageName } from "@/common/languages";
-import { PopularCaptions } from "./containers/popular-captions";
 import { NekoLogo } from "@/common/components/neko-logo";
 import { Instructions } from "./components/instructions";
 import { FeatureList } from "./components/feature-list";
@@ -25,9 +24,9 @@ import {
 import { routeNames } from "../route-types";
 import { WSButton } from "@/common/components/ws-button";
 import { Badges } from "@/common/components/badges";
+import { DEVICE } from "@/common/style-constants";
 
 const { Content } = Layout;
-const { Link } = Typography;
 
 const MainLogo = styled.div`
   @keyframes tilt {
@@ -44,10 +43,14 @@ const MainLogo = styled.div`
   padding-top: 64px;
   font-size: 64px;
   background-color: ${colors.white};
+
   svg {
-    height: 80px;
-    z-index: 100;
     position: relative;
+    height: 12vw;
+
+    @media ${DEVICE.tablet} {
+      height: 80px;
+    }
 
     .cat-wrapper {
       transform-origin: center;
@@ -61,18 +64,21 @@ const MainLogo = styled.div`
   }
 `;
 
+const DividerWrapper = styled.div`
+  height: 75px;
+  overflow: hidden;
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  transform: translateX(-50%);
+  @media ${DEVICE.tablet} {
+    height: 150px;
+  }
+`;
+
 const WaveDivider = () => {
   return (
-    <div
-      style={{
-        height: "150px",
-        overflow: "hidden",
-        position: "relative",
-        width: "100vw",
-        left: "50%",
-        transform: "translateX(-50%)",
-      }}
-    >
+    <DividerWrapper>
       <svg
         viewBox="0 0 500 150"
         preserveAspectRatio="none"
@@ -83,19 +89,9 @@ const WaveDivider = () => {
           style={{ stroke: "none", fill: colors.white }}
         ></path>
       </svg>
-    </div>
+    </DividerWrapper>
   );
 };
-
-const DataCard = styled(Card)`
-  .ant-card-head {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  .ant-card-body {
-    padding: 0;
-  }
-`;
 
 const BrowseCaptionButton = styled(WSButton)`
   display: flex;
@@ -117,23 +113,12 @@ const CaptionDigestGrid = () => {
   return (
     <>
       <Row gutter={[24, 24]} justify={"center"}>
-        <Col span={12} lg={12} md={12} sm={24} xs={24}>
-          <DataCard title={"Latest captions"}>
-            <LatestCaptions />
-          </DataCard>
+        <Col span={12} lg={12} md={24} sm={24} xs={24}>
+          <LatestCaptions />
         </Col>
-        <Col span={12} lg={12} md={12} sm={24} xs={24}>
-          <DataCard
-            title={`Latest ${getBaseLanguageName(navigator.language)} captions`}
-          >
-            <LatestUserLanguageCaptions />
-          </DataCard>
+        <Col span={12} lg={12} md={24} sm={24} xs={24}>
+          <LatestUserLanguageCaptions />
         </Col>
-        {/* <Col span={8} lg={8} md={12} sm={24} xs={24}>
-          <DataCard title={"Popular captions"}>
-            <PopularCaptions />
-          </DataCard>
-        </Col> */}
       </Row>
     </>
   );
@@ -170,14 +155,12 @@ export const Home = () => {
             browser extension
           </WSTitle>
           <Badges>
-            <Space>
-              <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
-                <img id="chrome-badge" src={chromeLogo} />
-              </a>
-              <a target="_blank" rel="noreferrer" href={FIREFOX_DOWNLOAD_URL}>
-                <img id="firefox-badge" src={firefoxLogo} />
-              </a>
-            </Space>
+            <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
+              <img id="chrome-badge" src={chromeLogo} />
+            </a>
+            <a target="_blank" rel="noreferrer" href={FIREFOX_DOWNLOAD_URL}>
+              <img id="firefox-badge" src={firefoxLogo} />
+            </a>
           </Badges>
           <Badges>
             <a target="_blank" rel="noreferrer" href={DISCORD_INVITE_URL}>

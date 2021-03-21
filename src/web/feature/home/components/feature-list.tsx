@@ -193,7 +193,7 @@ export const FeatureList = () => {
       <Row gutter={[16, 16]} justify="center">
         {features.map((feature, index) => {
           return (
-            <FeatureItem key={index} lg={8} md={16} xs={16}>
+            <FeatureItem key={index} lg={8} md={16} xs={24}>
               <div>
                 <header>{feature.title}</header>
                 <main>

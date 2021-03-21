@@ -31,6 +31,8 @@ import { Controller, useForm } from "react-hook-form";
 import SearchOutlined from "@ant-design/icons/SearchOutlined";
 import Title from "antd/lib/typography/Title";
 import { languageOptions } from "@/common/language-utils";
+import { DEVICE } from "@/common/style-constants";
+import emptyVideoImage from "@/assets/images/empty-video.jpg";
 
 const PAGE_SIZE = 20;
 
@@ -52,9 +54,12 @@ const WRAPPER_TOP_DISTANCE = 20;
 
 const Wrapper = styled.div`
   margin-top: ${WRAPPER_TOP_DISTANCE}px;
-  padding: 0px 40px;
+  padding: 0px 20px;
   overflow-x: hidden;
   height: calc(100vh - 64px - ${WRAPPER_TOP_DISTANCE}px);
+  @media ${DEVICE.tablet} {
+    padding: 0px 40px;
+  }
 `;
 
 type SearchForm = {
@@ -94,8 +99,8 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
           onSubmitCapture={handleSubmit(onSearch)}
           style={{ background: colors.white, padding: "10px" }}
         >
-          <Row gutter={24}>
-            <Col span={14}>
+          <Row gutter={[24, 6]}>
+            <Col span={24} md={14}>
               <Form.Item
                 validateStatus={errors.title ? "error" : undefined}
                 style={{ margin: 0 }}
@@ -113,7 +118,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                 />
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={24} md={6}>
               <Button
                 onClick={handleClickAdvanced}
                 style={{ width: "100%", height: "100%" }}
@@ -121,7 +126,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                 Advanced
               </Button>
             </Col>
-            <Col span={4}>
+            <Col span={24} md={4}>
               <Button
                 style={{ width: "100%", height: "100%" }}
                 htmlType={"submit"}
@@ -135,7 +140,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
             <>
               <Divider></Divider>
               <Row gutter={24}>
-                <Col span={8}>
+                <Col span={24} md={8}>
                   <Form.Item
                     label="Video language"
                     labelCol={{ xs: { span: 24, offset: 0 } }}
@@ -165,7 +170,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                     </Controller>
                   </Form.Item>
                 </Col>
-                <Col span={8}>
+                <Col span={24} md={8}>
                   <Form.Item
                     label="Caption language"
                     labelCol={{ xs: { span: 24, offset: 0 } }}
@@ -266,7 +271,10 @@ export const SearchCaptions = () => {
                 rel="noreferrer"
                 style={{ width: "100%" }}
               >
-                <img style={{ width: "100%" }} src={thumbnailUrl} />
+                <img
+                  style={{ width: "100%" }}
+                  src={thumbnailUrl || emptyVideoImage}
+                />
               </a>
             </div>
             <div>

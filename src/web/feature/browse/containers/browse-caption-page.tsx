@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { Typography } from "antd";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { useParams } from "react-router-dom";
@@ -10,6 +11,7 @@ import { publicDashboardSelector } from "@/common/feature/public-dashboard/selec
 import { loadAllCaptions } from "@/common/feature/public-dashboard/actions";
 import { CaptionList } from "../../common/components/caption-list";
 
+const { Title } = Typography;
 const PAGE_SIZE = 20;
 
 const ResultsList = styled.div`
@@ -80,6 +82,7 @@ export const BrowseCaptionPage = () => {
       style={{ marginTop: "40px", padding: "0px 40px", overflowX: "hidden" }}
       ref={resultContainer}
     >
+      <Title>Browse all captions</Title>
       <ResultsList>
         <CaptionList
           loggedInUser={loggedInUserPublicProfile}

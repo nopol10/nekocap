@@ -70,7 +70,9 @@ function* loadLatestUserLanguageCaptionsRequestSaga({
   if (status !== "success") {
     throw new Error(error);
   }
-  yield put(loadLatestUserLanguageCaptions.success(captions));
+  const captionsWithDetails = yield call(populateCaptionDetails, captions);
+
+  yield put(loadLatestUserLanguageCaptions.success(captionsWithDetails));
 }
 
 function* loadLatestUserLanguageCaptionsSuccessSaga({
