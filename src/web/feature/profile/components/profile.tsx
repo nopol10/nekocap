@@ -20,22 +20,49 @@ import { CaptionListFields } from "@/common/feature/video/types";
 import { EditProfileFields } from "@/common/feature/profile/types";
 import styled from "styled-components";
 import { ProfileSidebar } from "./profile-sidebar";
+import { DEVICE } from "@/common/style-constants";
 const { Title } = Typography;
 const { Content, Header } = Layout;
 
 const ProfileHeader = styled(Header)`
   &.ant-layout-header {
     background-color: ${colors.white};
+    height: unset;
+    line-height: unset;
+    .ant-space-horizontal,
+    .ant-space-item {
+      height: unset;
+    }
+    @media ${DEVICE.tablet} {
+      height: 64px;
+      line-height: 64px;
+    }
   }
 `;
 
 const Username = styled.div`
-  font-size: 3em;
+  font-size: 2em;
   font-weight: 600;
   background-color: ${colors.white};
+  padding-top: 20px;
+
+  @media ${DEVICE.tablet} {
+    padding-top: 0px;
+    font-size: 3em;
+  }
+
   em {
     font-weight: 400;
     font-size: 0.6em;
+  }
+`;
+
+const ProfileLayout = styled(Layout)`
+  &.ant-layout.ant-layout-has-sider {
+    flex-direction: column;
+    @media ${DEVICE.tablet} {
+      flex-direction: row;
+    }
   }
 `;
 
@@ -207,7 +234,7 @@ export const Profile = ({
           </div>
         </ProfileHeader>
         <Content style={{ display: "flex", flexDirection: "column" }}>
-          <Layout style={{ height: "100%" }}>
+          <ProfileLayout style={{ height: "100%" }}>
             <ProfileSidebar
               captioner={captioner}
               loggedInUser={loggedInUser}
@@ -233,10 +260,11 @@ export const Profile = ({
                   currentPage={currentCaptionPage}
                   onChangePage={onChangePage}
                   onDelete={onDelete}
+                  listContainsCurrentPageOnly={true}
                 />
               </div>
             </Content>
-          </Layout>
+          </ProfileLayout>
         </Content>
       </Layout>
     </div>

@@ -11,11 +11,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandHoldingUsd } from "@fortawesome/free-solid-svg-icons";
 import Form from "antd/lib/form/Form";
 import { Controller, useForm } from "react-hook-form";
+import { useMediaQuery } from "react-responsive";
 import { EditProfileFields } from "@/common/feature/profile/types";
 import { WSButton } from "@/common/components/ws-button";
 import { WSMarkdown } from "@/common/components/ws-markdown";
 import { languageOptions } from "@/common/language-utils";
 import { languages } from "@/common/languages";
+import { DEVICE } from "@/common/style-constants";
 
 const { Title, Text, Link } = Typography;
 const { Sider } = Layout;
@@ -79,6 +81,7 @@ export const ProfileSidebar = ({
     ? loggedInUser.isReviewerManager
     : false;
   const isAdmin = loggedInUser ? loggedInUser.isAdmin : false;
+  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
 
   const renderAdminBar = () => {
     if (!isReviewerManager && !isAdmin) {
@@ -135,7 +138,7 @@ export const ProfileSidebar = ({
 
   return (
     <Form onFinish={handleSubmit(onSubmit)} style={{ display: "flex" }}>
-      <ProfileSider width={"420px"}>
+      <ProfileSider width={isDesktop ? "420px" : "100%"}>
         <Skeleton loading={isLoading}>
           <ProfileField>
             <Title level={3}>
