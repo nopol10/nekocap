@@ -68,6 +68,9 @@ import { ThunkedPayloadAction } from "@/common/store/action";
 import { Switch } from "antd";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
+import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
+import Modal from "antd/lib/modal/Modal";
+import { ConfirmSaveModal } from "./confirm-save-modal";
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -165,6 +168,7 @@ export const VideoPageMenu = ({
     availableRenderersSelector(window.tabId)
   );
   const shouldAutosave = useSelector(shouldAutosaveSelector);
+  const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [isSelectFileOpen, setIsSelectFileOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] = useState(
@@ -177,7 +181,8 @@ export const VideoPageMenu = ({
     ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
   >(undefined);
 
-  const handleSave = useCallback(() => {
+  const handleForceSave = useCallback(() => {
+    setIsConfirmSaveOpen(false);
     dispatch(
       saveLocalCaption.request({
         tabId: window.tabId,
@@ -187,7 +192,16 @@ export const VideoPageMenu = ({
     ).then(() => {
       message.success("Saved!");
     });
-  }, []);
+  }, [setIsConfirmSaveOpen]);
+
+  const handleSave = useCallback(async () => {
+    const hasSave = await hasSaveData(window.videoId, window.videoSource);
+    if (hasSave) {
+      setIsConfirmSaveOpen(true);
+      return;
+    }
+    handleForceSave();
+  }, [handleForceSave, setIsConfirmSaveOpen]);
 
   const handleExport = useCallback(
     (fileFormat: keyof typeof CaptionFileFormat) => {
@@ -256,6 +270,10 @@ export const VideoPageMenu = ({
         tabId: window.tabId,
       })
     );
+  };
+
+  const handleCancelConfirmSaveModal = () => {
+    setIsConfirmSaveOpen(false);
   };
 
   const handleCancelSelectFileModal = () => {
@@ -629,6 +647,11 @@ export const VideoPageMenu = ({
         {!inEditorScreen && renderLikeButtons()}
         {renderCaptionerProfileLink()}
       </Space>
+      <ConfirmSaveModal
+        visible={isConfirmSaveOpen}
+        onCancel={handleCancelConfirmSaveModal}
+        onDone={handleForceSave}
+      />
       <SelectFileModal
         visible={isSelectFileOpen}
         onCancel={handleCancelSelectFileModal}

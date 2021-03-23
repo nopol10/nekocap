@@ -11,6 +11,7 @@ import {
   CaptionContainer,
   SetShowEditorIfPossible,
   CaptionRendererType,
+  VideoSource,
 } from "@/common/feature/video/types";
 
 import { getStringByteLength } from "@/common/utils";

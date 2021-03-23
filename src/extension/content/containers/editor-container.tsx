@@ -1,5 +1,5 @@
 import { message } from "antd";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CaptionFileFormat } from "@/common/types";
 import {
@@ -27,6 +27,8 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { EDITOR_OPEN_ATTRIBUTE } from "@/common/constants";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { AUTOSAVE_INTERVAL } from "../feature/editor/constants";
+import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
+import { ConfirmSaveModal } from "./confirm-save-modal";
 
 const editorMenuComponent = <VideoPageMenu inEditorScreen={true} />;
 
@@ -69,6 +71,8 @@ export const EditorContainer = () => {
     isUserCaptionLoadedSelector(window.tabId)
   );
   const isSubmitting = useSelector(submitCaption.isLoading(window.tabId));
+  const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
+  const [skipSaveConfirmation, setSkipSaveConfirmation] = useState(false);
 
   useAutosave();
 
@@ -94,17 +98,33 @@ export const EditorContainer = () => {
     dispatch(redoEditorTriggerAction({ tabId: window.tabId }));
   }, []);
 
-  const handleSave = useCallback(() => {
-    dispatch(
-      saveLocalCaption.request({
-        tabId: window.tabId,
-        videoId: window.videoId,
-        videoSource: window.videoSource,
-      })
-    ).then(() => {
-      message.success("Saved!");
-    });
-  }, []);
+  const handleForceSave = useCallback(
+    (skipConfirmation?: boolean) => {
+      if (skipConfirmation !== undefined) {
+        setSkipSaveConfirmation(skipConfirmation);
+      }
+      setIsConfirmSaveOpen(false);
+      dispatch(
+        saveLocalCaption.request({
+          tabId: window.tabId,
+          videoId: window.videoId,
+          videoSource: window.videoSource,
+        })
+      ).then(() => {
+        message.success("Saved!");
+      });
+    },
+    [setIsConfirmSaveOpen]
+  );
+
+  const handleSave = useCallback(async () => {
+    const hasSave = await hasSaveData(window.videoId, window.videoSource);
+    if (hasSave && !skipSaveConfirmation) {
+      setIsConfirmSaveOpen(true);
+      return;
+    }
+    handleForceSave();
+  }, [skipSaveConfirmation, handleForceSave, setIsConfirmSaveOpen]);
 
   const handleExport = useCallback(
     (fileFormat: keyof typeof CaptionFileFormat) => {
@@ -131,6 +151,10 @@ export const EditorContainer = () => {
     []
   );
 
+  const handleCancelConfirmSaveModal = useCallback(() => {
+    setIsConfirmSaveOpen(false);
+  }, [setIsConfirmSaveOpen]);
+
   const caption =
     isUserCaptionLoaded && editorData && editorData.caption
       ? editorData.caption
@@ -138,6 +162,12 @@ export const EditorContainer = () => {
 
   return (
     <>
+      <ConfirmSaveModal
+        visible={isConfirmSaveOpen}
+        onCancel={handleCancelConfirmSaveModal}
+        onDone={handleForceSave}
+        showSkipBox={true}
+      />
       <CaptionEditor
         captionContainer={caption}
         showEditor={showEditor}
