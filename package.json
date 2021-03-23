@@ -1,6 +1,6 @@
 {
   "name": "nekocap",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "An awesome caption viewing and editing browser extension",
   "private": true,
   "scripts": {
