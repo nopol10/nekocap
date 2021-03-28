@@ -14,7 +14,8 @@ import { languageOptions } from "@/common/language-utils";
 import { submitCaption } from "@/common/feature/caption-editor/actions";
 import { Input } from "antd";
 import { colors } from "@/common/colors";
-import { WEBEXT_ERROR_MESSAGE } from "@/common/constants";
+import { DISCORD_INVITE_URL, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 
 interface SubmitCaptionModalProps {
   visible: boolean;
@@ -36,6 +37,7 @@ export const SubmitCaptionModal = ({
   const isPendingSubmission = useSelector(
     submitCaption.isLoading(window.tabId)
   );
+  const captioner = useSelector(captionerSelector);
 
   const { handleSubmit, control, errors } = useForm<FormType>();
 
@@ -156,6 +158,16 @@ export const SubmitCaptionModal = ({
         {errors.translatedTitle && (
           <div style={{ color: colors.error }}>
             Translated title is required!
+          </div>
+        )}
+        {!captioner.captioner?.verified && (
+          <div>
+            Since you are unverified, you will need to wait 5 minutes between
+            submissions. Join the{" "}
+            <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer">
+              Discord server
+            </a>{" "}
+            to get verified.
           </div>
         )}
       </Form>
