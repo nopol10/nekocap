@@ -38,7 +38,9 @@ const NekoTitle = styledNoPass<NekoLogoProps>("div")`
 export const NekoLogo = ({ width, height }: NekoLogoProps) => {
   return (
     <NekoTitle width={width} height={height}>
-      <NekoLogoSvg />
+      <a href="https://nekocap.com/" target="_blank" rel="noreferrer">
+        <NekoLogoSvg />
+      </a>
     </NekoTitle>
   );
 };
