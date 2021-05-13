@@ -167,6 +167,9 @@ export const Home = () => {
               <img id="discord-badge" src={discordLogo} />
             </a>
           </Badges>
+          <WSButton href={routeNames.caption.create}>
+            Create a caption here!
+          </WSButton>
           <FeatureList />
           <Instructions />
           <BrowseCaptionButton size={"large"} href={routeNames.caption.browse}>
