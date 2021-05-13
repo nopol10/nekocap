@@ -11,6 +11,10 @@ import "firebase/auth";
 
 import { webAutoLogin } from "@/common/feature/login/actions";
 import { useScrolledPastY } from "@/hooks";
+import { useRouteMatch } from "react-router";
+import { routeNames } from "../route-types";
+import { Router } from "react-router-dom";
+import { webHistory } from "../web-history";
 
 const { Content } = Layout;
 
@@ -18,6 +22,10 @@ export const Main = () => {
   const dispatch = useDispatch();
   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
   const autoLoggedIn = useRef<boolean>(false);
+  // TODO: refactor to allow supplying a list of routes that cannot show header
+  const isCaptionEditorRoute = useRouteMatch(routeNames.caption.create);
+  const showHeader = !isCaptionEditorRoute;
+
   useEffect(() => {
     // Perform auto login if a user exists
     // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
@@ -44,9 +52,11 @@ export const Main = () => {
         }}
       >
         <WSLayout>
-          <WSHeader scrolled={scrolled}>
-            <WebHeader />
-          </WSHeader>
+          {showHeader && (
+            <WSHeader scrolled={scrolled}>
+              <WebHeader />
+            </WSHeader>
+          )}
           <Content
             style={{
               display: "flex",

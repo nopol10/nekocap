@@ -12,42 +12,46 @@ import { webHistory } from "./web-history";
 import { CaptionerProfile } from "./profile/containers/captioner-profile";
 import { BrowseCaptionPage } from "./browse/containers/browse-caption-page";
 import { ViewerPage } from "./viewer/viewer-page";
+import { CaptionEditorPage } from "./caption-editor/caption-editor-page";
 
 export const Routes = () => {
   return (
     <>
-      <Router history={webHistory}>
-        <Route path={routeNames.home} exact={true}>
-          <Home />
-        </Route>
-        <Route path={routeNames.caption.browse} exact={true}>
-          <BrowseCaptionPage />
-        </Route>
-        <Route path={routeNames.caption.view} exact={true}>
-          <ViewerPage />
-        </Route>
-        <Route path={routeNames.profile.main} exact={true}>
-          <CaptionerProfile />
-        </Route>
-        <Route path={routeNames.search} exact={true}>
-          <SearchCaptions />
-        </Route>
-        <ProtectedRoute path={routeNames.profile.new} exact={true}>
-          <NewProfile />
-        </ProtectedRoute>
-        <ProtectedRoute path={routeNames.captioner.dashboard} exact={true}>
-          <OwnProfile />
-        </ProtectedRoute>
-        <ProtectedRoute path={routeNames.caption.main} exact={true}>
-          <ErrorBoundary
-            FallbackComponent={() => (
-              <div>There was an error rendering this caption. Sorry!</div>
-            )}
-          >
-            <CaptionReview />
-          </ErrorBoundary>
-        </ProtectedRoute>
-      </Router>
+      {/* <Router history={webHistory}> */}
+      <Route path={routeNames.home} exact={true}>
+        <Home />
+      </Route>
+      <Route path={routeNames.caption.create} exact={true}>
+        <CaptionEditorPage />
+      </Route>
+      <Route path={routeNames.caption.browse} exact={true}>
+        <BrowseCaptionPage />
+      </Route>
+      <Route path={routeNames.caption.view} exact={true}>
+        <ViewerPage />
+      </Route>
+      <Route path={routeNames.profile.main} exact={true}>
+        <CaptionerProfile />
+      </Route>
+      <Route path={routeNames.search} exact={true}>
+        <SearchCaptions />
+      </Route>
+      <ProtectedRoute path={routeNames.profile.new} exact={true}>
+        <NewProfile />
+      </ProtectedRoute>
+      <ProtectedRoute path={routeNames.captioner.dashboard} exact={true}>
+        <OwnProfile />
+      </ProtectedRoute>
+      <ProtectedRoute path={routeNames.caption.main} exact={true}>
+        <ErrorBoundary
+          FallbackComponent={() => (
+            <div>There was an error rendering this caption. Sorry!</div>
+          )}
+        >
+          <CaptionReview />
+        </ErrorBoundary>
+      </ProtectedRoute>
+      {/* </Router> */}
     </>
   );
 };
