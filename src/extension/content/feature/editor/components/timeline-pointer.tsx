@@ -86,7 +86,7 @@ export const TimelinePointer = ({
         element.removeEventListener("dblclick", handleDoubleClick);
       });
     };
-  }, [...hoverElements, ...dependencies]);
+  }, [...hoverElements, onMouseUp, onDoubleClick, ...dependencies]);
 
   // Effect to force a rerender after dependencies change as doing so at the moment of change will
   // yield the previous height instead of the latest height

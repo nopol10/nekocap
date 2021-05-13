@@ -2,7 +2,13 @@ import * as React from "react";
 import styled from "styled-components";
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { colors } from "@/common/colors";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Range } from "react-range";
 import { Collection, CollectionCellRendererParams } from "react-virtualized";
 import * as dayjs from "dayjs";
@@ -419,6 +425,61 @@ export const EditorTimeline = ({
     };
   }, [videoElement]);
 
+  const getVideoTimeAtMouse = useCallback(
+    (mouseX: number) => {
+      const timelineOffset = timebarCanvas ? timebarCanvas.offsetLeft : 0;
+      const timelineRelativeMouseX = mouseX - timelineOffset;
+      const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
+      console.log(
+        "Getvideo",
+        videoElement,
+        videoDurationMs,
+        scrollLeft,
+        totalWidth,
+        timelineRelativeMouseX
+      );
+      const durationMs =
+        ((scrollLeft + timelineRelativeMouseX) / totalWidth) * videoDurationMs;
+      return durationMs;
+    },
+    [videoElement, videoDurationMs]
+  );
+
+  const handleClickTimeline = useCallback(
+    (mouseX: number, mouseY: number) => {
+      if (isDragging.current) {
+        return;
+      }
+      // Set the video to the calculated time
+      const newTimeMs = getVideoTimeAtMouse(mouseX);
+      const { trackId, captionId } = getSelectedTrackAndCaption(mouseX, mouseY);
+      if (onClickTimeline) {
+        onClickTimeline(trackId, 0, newTimeMs);
+      }
+    },
+    [
+      videoElement,
+      videoDurationMs,
+      timebarCanvas ? timebarCanvas.scrollLeft : -1,
+    ]
+  );
+
+  const handleDoubleClickTimeline = useCallback(
+    (mouseX: number, mouseY: number) => {
+      clearSelection();
+      // Set the video to the calculated time
+      const newTimeMs = getVideoTimeAtMouse(mouseX);
+      const { trackId, captionId } = getSelectedTrackAndCaption(mouseX, mouseY);
+      if (trackId < 0) {
+        return;
+      }
+      if (onNewCaption) {
+        onNewCaption(trackId, newTimeMs);
+      }
+    },
+    [videoElement, videoDurationMs]
+  );
+
   if (!caption || !videoElement) {
     return null;
   }
@@ -773,15 +834,6 @@ export const EditorTimeline = ({
     );
   };
 
-  const getVideoTimeAtMouse = (mouseX: number) => {
-    const timelineOffset = timebarCanvas ? timebarCanvas.offsetLeft : 0;
-    const timelineRelativeMouseX = mouseX - timelineOffset;
-    const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
-    const durationMs =
-      ((scrollLeft + timelineRelativeMouseX) / totalWidth) * videoDurationMs;
-    return durationMs;
-  };
-
   const getSelectedTrackAndCaption = (mouseX: number, mouseY: number) => {
     let clickedTrack = -1;
     // Get the selected track
@@ -795,31 +847,6 @@ export const EditorTimeline = ({
     }
 
     return { trackId: clickedTrack, captionId: 0 };
-  };
-
-  const handleClickTimeline = (mouseX: number, mouseY: number) => {
-    if (isDragging.current) {
-      return;
-    }
-    // Set the video to the calculated time
-    const newTimeMs = getVideoTimeAtMouse(mouseX);
-    const { trackId, captionId } = getSelectedTrackAndCaption(mouseX, mouseY);
-    if (onClickTimeline) {
-      onClickTimeline(trackId, 0, newTimeMs);
-    }
-  };
-
-  const handleDoubleClickTimeline = (mouseX: number, mouseY: number) => {
-    clearSelection();
-    // Set the video to the calculated time
-    const newTimeMs = getVideoTimeAtMouse(mouseX);
-    const { trackId, captionId } = getSelectedTrackAndCaption(mouseX, mouseY);
-    if (trackId < 0) {
-      return;
-    }
-    if (onNewCaption) {
-      onNewCaption(trackId, newTimeMs);
-    }
   };
 
   return (

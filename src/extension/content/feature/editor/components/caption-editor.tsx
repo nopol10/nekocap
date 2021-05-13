@@ -85,6 +85,7 @@ import {
 import { getImageLink } from "@/common/chrome-utils";
 import { findClosestCaption } from "@/common/feature/video/utils";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
+import { isInExtension } from "@/common/client-utils";
 
 dayjs.extend(duration);
 
@@ -432,6 +433,11 @@ const DisabledNumberFormat = styled(NumberFormat)`
 const GRID_GUTTER: [Gutter, Gutter] = [20, 20];
 
 const focusCaptionTextArea = (captionId: number, delay = 0) => {
+  if (!isInExtension()) {
+    const textArea = document.getElementById(`nc-ta-${captionId}`);
+    textArea.focus();
+    return;
+  }
   setTimeout(() => {
     const textArea = document.getElementById(`nc-ta-${captionId}`);
     if (!textArea) {
@@ -500,8 +506,8 @@ const CaptionEditorInternal = ({
     volume: [volume, setVolume, volumeRef],
     mute: [isMute],
   } = useVideoVolumeChange(videoElement);
-
   const [videoDurationMs] = useVideoDurationChange(videoElement);
+  console.log("CaptioNEditor videoElement", videoElement, videoDurationMs);
 
   const { data } = captionContainer || {};
 
@@ -672,7 +678,7 @@ const CaptionEditorInternal = ({
         const startTime =
           data.tracks[selectedTrack].cues[focusNewCaptionIndex.current].start;
         setVideoTime(startTime / 1000, true);
-        focusCaptionTextArea(focusNewCaptionIndex.current);
+        focusCaptionTextArea(focusNewCaptionIndex.current, 0);
       }
       focusNewCaptionIndex.current = -1;
     }
@@ -820,7 +826,7 @@ const CaptionEditorInternal = ({
       selectAndScrollToCaptionId(newId);
       const startTime = data.tracks[selectedTrack].cues[newId].start;
       setVideoTime(startTime / 1000, true);
-      focusCaptionTextArea(newId);
+      focusCaptionTextArea(newId, 0);
     },
     [selectedCaption, selectedTrack, data]
   );
@@ -838,7 +844,7 @@ const CaptionEditorInternal = ({
       selectAndScrollToCaptionId(newId);
       const startTime = data.tracks[selectedTrack].cues[newId].start;
       setVideoTime(startTime / 1000, true);
-      focusCaptionTextArea(newId);
+      focusCaptionTextArea(newId, 0);
     },
     [selectedCaption, selectedTrack, data]
   );
@@ -878,7 +884,7 @@ const CaptionEditorInternal = ({
         debouncedUpdateCaption.flush();
       }
 
-      const temporaryKeyupListener = () => {
+      const addCaption = () => {
         if (batchUpdates) {
           captionListKeySuffix.current++;
           updateCaption(
@@ -897,9 +903,29 @@ const CaptionEditorInternal = ({
           handleNewCaption(selectedTrack, newTime);
         }
         focusNewCaptionIndex.current = newCaptionId;
-        inputElement.removeEventListener("keyup", temporaryKeyupListener);
+        inputElement.removeEventListener("keyup", addCaption);
       };
-      inputElement.addEventListener("keyup", temporaryKeyupListener);
+
+      // TODO: only run this in the extension
+      if (isInExtension()) {
+        inputElement.addEventListener("keyup", addCaption);
+      } else {
+        focusNewCaptionIndex.current = newCaptionId;
+        addCaption();
+        // focusNewCaptionIndex.current = newCaptionId;
+        // updateCaption(
+        //   modifyCaptionWithMultipleActions({
+        //     actions: [
+        //       lastDebouncedAction.current,
+        //       addCaptionToTrackTime({
+        //         trackId: selectedTrack,
+        //         timeMs: newTime,
+        //         skipValidityChecks: false,
+        //       }),
+        //     ],
+        //   })
+        // );
+      }
     } else {
       debouncedUpdateCaption.flush();
       handleNewCaption(selectedTrack, newTime);
