@@ -29,6 +29,14 @@ module.exports = (env, argv, customEnv = {}) => {
     mode: devMode ? "development" : "production",
     entry: {
       index: path.join(__dirname, "src", "web", "index.tsx"),
+      editor: path.join(
+        __dirname,
+        "src",
+        "extension",
+        "content",
+        "containers",
+        "editor-container"
+      ),
     },
     output: {
       path: path.join(__dirname, "dist", "web"),
@@ -47,6 +55,7 @@ module.exports = (env, argv, customEnv = {}) => {
       new HtmlWebpackPlugin({
         inject: true,
         template: path.join(__dirname, "src", "web", "index.html"),
+        excludeChunks: ["editor"],
       }),
       new CopyPlugin({
         patterns: [
