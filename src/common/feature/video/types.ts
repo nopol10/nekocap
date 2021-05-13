@@ -37,7 +37,15 @@ export enum VideoSource {
   TBSFree = 17,
   Instagram = 18,
   UNEXT = 19,
+  // In-website editor sources
+  NekoCapYoutube = 9999,
 }
+
+export const WebSourceToVideoSourceMap: Partial<
+  Record<VideoSource, VideoSource>
+> = {
+  [VideoSource.NekoCapYoutube]: VideoSource.Youtube,
+};
 
 export type CaptionContainer = {
   id?: string; // Server id

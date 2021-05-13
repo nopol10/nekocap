@@ -7,6 +7,7 @@ import { BilibiliTVProcessor } from "@/extension/content/processors/bilibilitv-p
 import { DailymotionProcessor } from "@/extension/content/processors/dailymotion-processor";
 import { InstagramProcessor } from "@/extension/content/processors/instagram-processor";
 import { iQiyiProcessor } from "@/extension/content/processors/iqiyi-processor";
+import { NekoCapVideoProcessor as NekoCapYoutubeVideoProcessor } from "@/extension/content/processors/nekocap-video-processor";
 import { NetflixProcessor } from "@/extension/content/processors/netflix-processor";
 import { NicoNicoProcessor } from "@/extension/content/processors/niconico-processor";
 import { NogiDogaProcessor } from "@/extension/content/processors/nogidoga-processor";
@@ -156,6 +157,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.ArchiveOrg]: ArchiveOrgProcessor,
   [VideoSource.Instagram]: InstagramProcessor,
   [VideoSource.UNEXT]: UNEXTProcessor,
+  [VideoSource.NekoCapYoutube]: NekoCapYoutubeVideoProcessor,
 };
 
 /**
