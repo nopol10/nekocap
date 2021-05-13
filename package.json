@@ -119,6 +119,7 @@
     "@fortawesome/react-fontawesome": "^0.1.11",
     "@manaflair/redux-batch": "^1.0.0",
     "@reduxjs/toolkit": "^1.5.0",
+    "@thelevicole/youtube-to-html5-loader": "^4.0.0",
     "antd": "^4.6.1",
     "ass-compiler": "^0.1.1",
     "connected-react-router": "^6.8.0",
