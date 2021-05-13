@@ -193,3 +193,5 @@ export const EditorContainer = () => {
     </>
   );
 };
+
+export default EditorContainer;

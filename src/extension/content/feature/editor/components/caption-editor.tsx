@@ -1,5 +1,6 @@
 import NekoLogoSvg from "@/assets/images/nekocap.svg";
 import { getImageLink } from "@/common/chrome-utils";
+import { isInExtension } from "@/common/client-utils";
 import { colors } from "@/common/colors";
 import { DurationInput } from "@/common/components/duration-input";
 import { SplitPane } from "@/common/components/multi-split-pane/split-pane";
@@ -535,6 +536,11 @@ const DisabledNumberFormat = styled(NumberFormat<unknown>)`
 `;
 
 const focusCaptionTextArea = (captionId: number, delay = 0) => {
+  if (!isInExtension()) {
+    const textArea = document.getElementById(`nc-ta-${captionId}`);
+    textArea.focus();
+    return;
+  }
   setTimeout(() => {
     const textArea = document.getElementById(`nc-ta-${captionId}`);
     if (!textArea) {
@@ -602,7 +608,6 @@ const CaptionEditorInternal = ({
     volume: [volume, setVolume, volumeRef],
     mute: [isMute],
   } = useVideoVolumeChange(videoElement);
-
   const [videoDurationMs] = useVideoDurationChange(videoElement);
   const videoFps = useGetVideoFrameRate(videoElement);
 
@@ -805,7 +810,7 @@ const CaptionEditorInternal = ({
         const startTime =
           data.tracks[selectedTrack].cues[focusNewCaptionIndex.current].start;
         setVideoTime(startTime / 1000, true);
-        focusCaptionTextArea(focusNewCaptionIndex.current);
+        focusCaptionTextArea(focusNewCaptionIndex.current, 0);
       }
       focusNewCaptionIndex.current = -1;
     }
@@ -962,7 +967,7 @@ const CaptionEditorInternal = ({
       selectAndScrollToCaptionId(newId);
       const startTime = data.tracks[selectedTrack].cues[newId].start;
       setVideoTime(startTime / 1000, true);
-      focusCaptionTextArea(newId);
+      focusCaptionTextArea(newId, 0);
     },
     [
       data,
@@ -986,7 +991,7 @@ const CaptionEditorInternal = ({
       selectAndScrollToCaptionId(newId);
       const startTime = data.tracks[selectedTrack].cues[newId].start;
       setVideoTime(startTime / 1000, true);
-      focusCaptionTextArea(newId);
+      focusCaptionTextArea(newId, 0);
     },
     [
       data,
@@ -1071,6 +1076,49 @@ const CaptionEditorInternal = ({
         // that leads to hotkeys not working until a refocus.
         triggerEnterKeyupEvent(inputElement);
         dispatchUpdates();
+
+        const addCaption = () => {
+          if (batchUpdates && lastDebouncedAction.current) {
+            captionListKeySuffix.current++;
+            updateCaption(
+              modifyCaptionWithMultipleActions({
+                actions: [
+                  lastDebouncedAction.current,
+                  addCaptionToTrackTime({
+                    trackId: selectedTrack,
+                    timeMs: newTime,
+                    skipValidityChecks: false,
+                  }),
+                ],
+              }),
+            );
+          } else {
+            handleNewCaption(selectedTrack, newTime);
+          }
+          focusNewCaptionIndex.current = newCaptionId;
+          inputElement?.removeEventListener("keyup", addCaption);
+        };
+
+        // TODO: only run this in the extension
+        if (isInExtension()) {
+          inputElement?.addEventListener("keyup", addCaption);
+        } else {
+          focusNewCaptionIndex.current = newCaptionId;
+          addCaption();
+          // focusNewCaptionIndex.current = newCaptionId;
+          // updateCaption(
+          //   modifyCaptionWithMultipleActions({
+          //     actions: [
+          //       lastDebouncedAction.current,
+          //       addCaptionToTrackTime({
+          //         trackId: selectedTrack,
+          //         timeMs: newTime,
+          //         skipValidityChecks: false,
+          //       }),
+          //     ],
+          //   })
+          // );
+        }
       } else {
         debouncedUpdateCaption.flush();
         handleNewCaption(selectedTrack, newTime);
