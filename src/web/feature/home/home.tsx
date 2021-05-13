@@ -5,7 +5,7 @@ import { WSLayout } from "@/common/components/ws-layout";
 import Layout from "antd/lib/layout";
 import { WSTitle } from "@/common/components/ws-title";
 import { Card, Col, Row } from "antd";
-import "./home.scss";
+// import "./home.scss";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import discordLogo from "@/assets/images/discord.png";

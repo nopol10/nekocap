@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 import { WSHeader } from "@/common/components/ws-header";
 import { WSLayout } from "@/common/components/ws-layout";
 import { Routes } from "../routes";
-import "./home.scss";
 import { WebHeader } from "./web-header";
 import * as firebase from "firebase/app";
 import "firebase/auth";
@@ -29,6 +28,7 @@ export const Main = () => {
       autoLoggedIn.current = true;
     });
   }, []);
+
   const scrolled = useScrolledPastY(undefined, 174);
 
   return (
