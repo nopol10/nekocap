@@ -8,12 +8,13 @@ import { captionColumns } from "./data-columns";
 import { CaptionerFields } from "@/common/feature/captioner/types";
 import { ColumnsType } from "antd/lib/table/Table";
 import { routeNames } from "../../route-types";
-import { webHistory } from "../../web-history";
+// import { webHistory } from "../../web-history";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { DEVICE } from "@/common/style-constants";
 import { MobileCaptionList } from "../../home/components/mobile-caption-list";
 import { PaginationProps } from "antd/lib/pagination";
+import { useRouter } from "next/router";
 
 const PAGE_SIZE = 20;
 
@@ -60,6 +61,7 @@ export const CaptionList = ({
   listContainsCurrentPageOnly = false,
 }: CaptionListProps) => {
   const isDesktop = useMediaQuery({ query: DEVICE.desktop });
+  const router = useRouter();
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
   const isOwner = loggedInUser ? loggedInUser.userId === captionerId : false;
@@ -73,7 +75,7 @@ export const CaptionList = ({
   };
 
   const handleClickEditCaption = (caption: CaptionListFields) => {
-    webHistory.push(routeNames.caption.main.replace(":id", caption.id));
+    router.push(routeNames.caption.main.replace(":id", caption.id));
   };
 
   const tableColumns: ColumnsType<CaptionListFields> = [

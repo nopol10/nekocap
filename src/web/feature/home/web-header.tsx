@@ -11,7 +11,7 @@ import { WSButton } from "@/common/components/ws-button";
 import { webLogout } from "@/common/feature/login/actions";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { routeNames } from "../route-types";
-import { webHistory } from "../web-history";
+// import { webHistory } from "../web-history";
 import { LoginModal } from "./login-modal";
 import { BasicSearchBar } from "./containers/basic-search-bar";
 import styled from "styled-components";
@@ -21,6 +21,7 @@ import { useMediaQuery } from "react-responsive";
 import { DEVICE } from "@/common/style-constants";
 import { styledNoPass } from "@/common/style-utils";
 import { Divider, Typography } from "antd";
+import { useRouter } from "next/router";
 
 const { Link } = Typography;
 
@@ -64,6 +65,7 @@ const Buttons = styled.div``;
 
 export const WebHeader = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const isLoggedIn = useSelector(isLoggedInSelector);
   const isLoggingOut = useSelector(webLogout.isLoading(undefined));
   const [showLogin, setShowLogin] = useState(false);
@@ -80,7 +82,7 @@ export const WebHeader = () => {
 
   const handleClickDashboard = () => {
     setShowMobileMenu(false);
-    webHistory.push(routeNames.captioner.dashboard);
+    router.push(routeNames.captioner.dashboard);
   };
 
   const handleClickLogout = (event: React.MouseEvent) => {
@@ -91,7 +93,7 @@ export const WebHeader = () => {
 
   const handleClickHome = (event: React.MouseEvent) => {
     setShowMobileMenu(false);
-    webHistory.push(routeNames.home);
+    router.push(routeNames.home);
   };
 
   const renderButtons = () => {
