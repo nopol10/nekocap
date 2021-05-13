@@ -16,3 +16,4 @@ server-fonts/*
 Dockerfile
 .eslintcache
 *.zip
+.next/
