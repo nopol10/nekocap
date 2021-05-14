@@ -40,7 +40,7 @@ const useAutosave = () => {
   useEffect(() => {
     let intervalId = 0;
     if (shouldAutosave && showEditor) {
-      intervalId = setInterval(() => {
+      intervalId = window.setInterval(() => {
         dispatch(
           saveLocalCaption.request({
             tabId: window.tabId,
