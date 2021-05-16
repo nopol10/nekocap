@@ -8,6 +8,7 @@ import { Main } from "./feature/home/main";
 import { initFirebase } from "@/extension/background/firebase";
 import "@/web/styles/index.scss";
 import { rootWebSaga } from "./store/saga";
+import * as Parse from "parse";
 
 window.skipAutoLogin = false;
 
@@ -16,7 +17,7 @@ initFirebase();
 
 document.addEventListener("DOMContentLoaded", function () {
   const initializeProviders = () => {
-    window.backendProvider = new ParseProvider();
+    window.backendProvider = new ParseProvider(Parse);
   };
 
   initializeProviders();

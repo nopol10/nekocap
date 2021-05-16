@@ -31,6 +31,7 @@ import "../../libs/patch-worker/patch-worker";
 import { PageType } from "@/common/feature/video/types";
 import { requestFreshTabData } from "@/common/feature/video/actions";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import * as Parse from "parse";
 
 const siteProcessors: Processor[] = Object.values(videoSourceToProcessorMap);
 
@@ -178,7 +179,11 @@ const initialize = async () => {
     chrome.runtime.sendMessage(
       { type: ChromeMessageType.GetProviderType },
       (providerType: ProviderType) => {
-        resolve(new providerMap[providerType]());
+        switch (providerType) {
+          case ProviderType.Parse:
+          default:
+            resolve(new providerMap[providerType](Parse));
+        }
       }
     );
   });
