@@ -148,16 +148,11 @@ export const captionColumns = {
     key: "creatorName",
     render: function render(text, record, index) {
       return (
-        <RouterLink
-          to={{
-            pathname: `${routeNames.profile.main.replace(
-              ":id",
-              record.creatorId
-            )}`,
-          }}
+        <Link
+          href={`${routeNames.profile.main.replace(":id", record.creatorId)}`}
         >
           {text}
-        </RouterLink>
+        </Link>
       );
     },
   },
