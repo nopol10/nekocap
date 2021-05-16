@@ -7,18 +7,20 @@ const getCSP = (props) => {
   let csp = "";
   csp += `base-uri 'self';`;
   csp += `form-action 'self';`;
-  csp += `default-src 'self' https://vitals.vercel-insights.com;`;
+  csp += `default-src 'self';`;
   csp += `img-src * data:;`;
   csp += `font-src 'self' data: https://fonts.gstatic.com;`;
+
   if (process.env.NODE_ENV !== "production") {
     csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' ${cspHashOf(
       NextScript.getInlineScriptSource(props)
-    )}`;
+    )};`;
+    csp += `connect-src 'self' http://localhost:*;`;
   } else {
-    csp += `default-src 'self';`;
     csp += `script-src 'self' ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
+    csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:*;`;
     // TODO: remove unsafe inline and find a better way
     csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:;`;
   }

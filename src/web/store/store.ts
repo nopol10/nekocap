@@ -1,19 +1,35 @@
 import { createWrapper, HYDRATE } from "next-redux-wrapper";
 import { configureStore, createAction } from "@reduxjs/toolkit";
-import { AppState } from "./type";
 import { createRootReducer } from "@/extension/background/common/reducer";
 import { reduxBatch } from "@manaflair/redux-batch";
+import logger from "redux-logger";
+import createSagaMiddleware from "redux-saga";
+import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
+import { isClient } from "@/common/client-utils";
+import { rootWebSaga } from "./saga";
 
-const makeStore = () =>
-  configureStore({
+const makeStore = () => {
+  const sagaMiddleware = isClient() ? createSagaMiddleware() : undefined;
+  const store = configureStore({
     reducer: createRootReducer(),
     devTools: {
       trace: true,
     },
+    middleware: [
+      isClient() ? sagaThunkMiddleware : undefined,
+      sagaMiddleware,
+      process.env.PRODUCTION ? undefined : logger,
+    ].filter(Boolean),
     enhancers: [reduxBatch],
   });
+
+  if (sagaMiddleware) {
+    sagaMiddleware.run(rootWebSaga);
+  }
+  return store;
+};
 
 export type AppStore = ReturnType<typeof makeStore>;
 
 // export an assembled wrapper
-export const wrapper = createWrapper<AppStore>(makeStore, { debug: true });
+export const wrapper = createWrapper<AppStore>(makeStore, { debug: false });

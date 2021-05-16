@@ -165,7 +165,9 @@ function* webLoginSuccessSaga({ payload: userData }: PayloadAction<UserData>) {
   yield take(setCaptionerPrivateData.type);
   const captioner: CaptionerState = yield select(captionerSelector);
   if (userData.isNewUser || !captioner.captioner?.name) {
-    yield call([webHistory, "push"], routeNames.profile.new);
+    if (webHistory) {
+      yield call([webHistory, "push"], routeNames.profile.new);
+    }
   }
 }
 // #endregion

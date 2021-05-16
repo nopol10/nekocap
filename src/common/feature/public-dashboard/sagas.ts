@@ -18,6 +18,7 @@ import { videoSourceToProcessorMap } from "../video/utils";
 import { BrowseParams, BrowseResults, SetBrowseResults } from "./types";
 import { getLimitOffsetFromPagination } from "@/common/utils";
 import { publicDashboardSelector } from "./selectors";
+import { Locator } from "@/common/locator/locator";
 
 const populateCaptionDetails = async (
   captions: CaptionListFields[]
@@ -64,7 +65,7 @@ function* loadLatestUserLanguageCaptionsRequestSaga({
   payload: languageCode,
 }: PayloadAction<string>) {
   const { captions: captions, status, error }: CaptionsResponse = yield call(
-    window.backendProvider.loadLatestUserLanguageCaptions,
+    [Locator.provider(), "loadLatestUserLanguageCaptions"],
     languageCode
   );
   if (status !== "success") {

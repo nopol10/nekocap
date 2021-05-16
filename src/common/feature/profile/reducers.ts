@@ -12,7 +12,7 @@ import { ProfileState } from "./types";
 
 const initialState: ProfileState = {
   currentCaptionPage: 1,
-  captioner: undefined,
+  captioner: null,
   captions: [],
 };
 

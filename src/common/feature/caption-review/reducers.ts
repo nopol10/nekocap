@@ -10,7 +10,7 @@ import {
 import { CaptionReviewState } from "./types";
 
 const initialState: CaptionReviewState = {
-  caption: undefined,
+  caption: null,
   reviewHistory: [],
 };
 

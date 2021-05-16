@@ -46,7 +46,7 @@ const FontList = () => {
     <div>
       {Object.keys(SUBSTATION_GROUPED_FONTS).map((group) => {
         return (
-          <>
+          <div key={group}>
             <Title level={4}>{startCase(group)}</Title>
             <List
               dataSource={Object.keys(SUBSTATION_GROUPED_FONTS[group])
@@ -68,7 +68,7 @@ const FontList = () => {
                 </List.Item>
               )}
             />
-          </>
+          </div>
         );
       })}
     </div>
