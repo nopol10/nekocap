@@ -567,7 +567,7 @@ export const VideoPageMenu = ({
       <a
         target="_blank"
         rel="noreferrer"
-        href={`${process.env.WEBSITE_URL}capper/${caption.creator}`}
+        href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}capper/${caption.creator}`}
         style={{ fontWeight: "bold" }}
       >
         View captioner profile

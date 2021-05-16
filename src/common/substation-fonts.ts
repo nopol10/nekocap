@@ -139,10 +139,10 @@ const flattenAndProcessFontList = (
       flattenAndProcessFontList(fontObject, output);
     } else if (typeof fontObject === "string") {
       output[key] =
-        (isInExtension() ? process.env.WEBSITE_URL : websiteUrl).replace(
-          /\/+$/,
-          ""
-        ) + fontObject;
+        (isInExtension()
+          ? process.env.NEXT_PUBLIC_WEBSITE_URL
+          : websiteUrl
+        ).replace(/\/+$/, "") + fontObject;
     }
   }
   return output;

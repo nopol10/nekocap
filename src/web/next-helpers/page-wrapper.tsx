@@ -7,7 +7,12 @@ export const NextWrapper = {
     callback: GetStaticProps<P>
   ): GetStaticProps<P> => {
     return async (context) => {
-      global.backendProvider = new ParseProvider(Parse);
+      global.backendProvider = new ParseProvider(
+        Parse,
+        process.env.NEXT_PUBLIC_PARSE_APP_ID,
+        process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+        process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
+      );
       return callback(context);
     };
   },
@@ -15,7 +20,12 @@ export const NextWrapper = {
     callback: GetServerSideProps<P>
   ): GetServerSideProps<P> => {
     return async (context) => {
-      global.backendProvider = new ParseProvider(Parse);
+      global.backendProvider = new ParseProvider(
+        Parse,
+        process.env.NEXT_PUBLIC_PARSE_APP_ID,
+        process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+        process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
+      );
       return callback(context);
     };
   },

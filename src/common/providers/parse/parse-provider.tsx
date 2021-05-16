@@ -65,7 +65,8 @@ import {
 
 //#region
 const loginWithGoogle = async (
-  background: boolean
+  background: boolean,
+  oauthClientId = ""
 ): Promise<{
   accessToken?: string;
   idToken?: string;
@@ -78,9 +79,7 @@ const loginWithGoogle = async (
   if (isFirefoxExtension()) {
     const nonce = Math.floor(Math.random() * 1000);
     const responseUrl = await browser.identity.launchWebAuthFlow({
-      url: `https://accounts.google.com/o/oauth2/v2/auth?response_type=id_token&nonce=${nonce}&scope=openid%20profile&client_id=${
-        process.env.GOOGLE_OAUTH_CLIENT_ID
-      }&redirect_uri=${browser.identity.getRedirectURL()}`,
+      url: `https://accounts.google.com/o/oauth2/v2/auth?response_type=id_token&nonce=${nonce}&scope=openid%20profile&client_id=${oauthClientId}&redirect_uri=${browser.identity.getRedirectURL()}`,
       interactive: true,
     });
     // Parse the response url for the id token
@@ -154,6 +153,7 @@ type ParseType = typeof ParseTypeImport;
 
 export class ParseProvider implements BackendProvider<ParseState> {
   private Parse: ParseType = null;
+  private googleOauthClientId = "";
 
   type() {
     return ProviderType.Parse;
@@ -161,13 +161,15 @@ export class ParseProvider implements BackendProvider<ParseState> {
 
   constructor(
     newParse: ParseType,
-    parseAppId: string = process.env.PARSE_APP_ID
+    parseAppId: string = process.env.NEXT_PUBLIC_PARSE_APP_ID,
+    parseUrl: string = process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+    googleOauthClientId: string = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
   ) {
     this.Parse = newParse;
+    this.googleOauthClientId = googleOauthClientId;
     this.Parse.initialize(parseAppId);
     // @ts-ignore
-    this.Parse.serverURL =
-      process.env.PARSE_SERVER_URL || "http://localhost:4041/parse";
+    this.Parse.serverURL = parseUrl || "http://localhost:4041/parse";
     if (isClient()) {
       window.Parse = this.Parse;
     }
@@ -226,7 +228,10 @@ export class ParseProvider implements BackendProvider<ParseState> {
         if (isClient()) {
           window.skipAutoLogin = true;
         }
-        const loginResponse = await loginWithGoogle(background);
+        const loginResponse = await loginWithGoogle(
+          background,
+          this.googleOauthClientId
+        );
         responseStatus = loginResponse.status;
         userData = loginResponse.userData;
         authData = {
@@ -469,8 +474,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     const rejected: boolean = captionResponse.get("rejected");
     const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] =
-      captionResponse.get("reviewHistory");
+    const reviewHistory: ReviewActionDetails[] = captionResponse.get(
+      "reviewHistory"
+    );
     return {
       caption,
       captioner,
@@ -580,7 +586,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     if (response.videos) {
       results.videos = response.videos.map((video) => {
-        return video.toJSON() as unknown as VideoFields;
+        return (video.toJSON() as unknown) as VideoFields;
       });
     }
     return results;
