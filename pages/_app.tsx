@@ -2,7 +2,10 @@ import React from "react";
 import { appWithTranslation } from "next-i18next";
 import { AppProps } from "next/app";
 import { wrapper } from "@/web/store/store";
-import "../src/ant.less";
+
+import "antd/dist/antd.less";
+import "antd/lib/table/style";
+
 import "../src/web/feature/home/home.scss";
 import "../src/web/styles/index.scss";
 
