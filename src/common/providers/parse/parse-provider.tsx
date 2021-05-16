@@ -413,12 +413,12 @@ export class ParseProvider implements BackendProvider<ParseState> {
       likes: captionResponse.get("likes") || 0,
       dislikes: captionResponse.get("dislikes") || 0,
       tags: captionResponse.get("tags") || [],
-      userLike,
-      userDislike,
+      userLike: userLike !== undefined ? userLike : null,
+      userDislike: userDislike !== undefined ? userDislike : null,
     };
     // Load the raw caption if a url is supplied. The server cannot send the file directly
     // (refer to server code for reason)
-    let rawCaption: string | undefined = undefined;
+    let rawCaption: string | null = null;
     if (rawCaptionUrl) {
       const rawCaptionResponse = await fetch(rawCaptionUrl);
       let rawCaptionString = await convertBlobToBase64(
@@ -431,7 +431,6 @@ export class ParseProvider implements BackendProvider<ParseState> {
         data: rawCaptionString,
       });
     }
-
     return { caption, userLike, userDislike, rawCaption };
   }
 
@@ -470,9 +469,8 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     const rejected: boolean = captionResponse.get("rejected");
     const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] = captionResponse.get(
-      "reviewHistory"
-    );
+    const reviewHistory: ReviewActionDetails[] =
+      captionResponse.get("reviewHistory");
     return {
       caption,
       captioner,
@@ -582,7 +580,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     if (response.videos) {
       results.videos = response.videos.map((video) => {
-        return (video.toJSON() as unknown) as VideoFields;
+        return video.toJSON() as unknown as VideoFields;
       });
     }
     return results;

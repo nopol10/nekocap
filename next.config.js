@@ -12,14 +12,17 @@ module.exports = withAntdLess(
     },
     modifyVars: { "@primary-color": "#ffa62b" },
     webpack: (config, { dev }) => {
-      const envFile = dotenv.config(
+      const envFileConfig = dotenv.config(
         dev ? undefined : { path: "./.env.prod" }
-      ).parsed;
-      const envKeys = Object.keys(envFile).reduce((prev, next) => {
-        prev[`process.env.${next}`] = JSON.stringify(envFile[next]);
-        return prev;
-      }, {});
-      config.plugins = [...config.plugins, new webpack.DefinePlugin(envKeys)];
+      );
+      if (envFileConfig) {
+        const envFile = envFileConfig.parsed;
+        const envKeys = Object.keys(envFile).reduce((prev, next) => {
+          prev[`process.env.${next}`] = JSON.stringify(envFile[next]);
+          return prev;
+        }, {});
+        config.plugins = [...config.plugins, new webpack.DefinePlugin(envKeys)];
+      }
       return config;
     },
   })

@@ -20,6 +20,7 @@ import {
   TabVideoData,
   VideoState,
 } from "@/common/feature/video/types";
+import { hydrate } from "@/web/store/action";
 
 const defaultTabVideoData: TabVideoData = {
   showEditorIfPossible: true,
@@ -175,6 +176,15 @@ export const videoReducer = createReducer<VideoState>(
           ...state,
           tabData: newTabData,
           tabMeta: newTabMeta,
+        };
+      })
+      .addCase(hydrate, (state, action) => {
+        return {
+          ...state,
+          tabData: {
+            ...state.tabData,
+            ...action.payload.video.tabData,
+          },
         };
       });
   }

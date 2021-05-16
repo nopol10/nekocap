@@ -5,7 +5,7 @@ import { reduxBatch } from "@manaflair/redux-batch";
 import logger from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
-import { isClient } from "@/common/client-utils";
+import { isClient, isServer } from "@/common/client-utils";
 import { rootWebSaga } from "./saga";
 
 const makeStore = () => {
@@ -18,7 +18,7 @@ const makeStore = () => {
     middleware: [
       isClient() ? sagaThunkMiddleware : undefined,
       sagaMiddleware,
-      process.env.PRODUCTION ? undefined : logger,
+      isServer() || process.env.PRODUCTION ? undefined : logger,
     ].filter(Boolean),
     enhancers: [reduxBatch],
   });

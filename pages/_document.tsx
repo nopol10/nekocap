@@ -12,15 +12,17 @@ const getCSP = (props) => {
   csp += `font-src 'self' data: https://fonts.gstatic.com;`;
 
   if (process.env.NODE_ENV !== "production") {
-    csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' ${cspHashOf(
+    csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
-    csp += `connect-src 'self' http://localhost:*;`;
+    csp += `connect-src 'self' http://localhost:* ;`;
+    csp += `frame-src 'self' http://www.youtube.com/ ;`;
   } else {
-    csp += `script-src 'self' ${cspHashOf(
+    csp += `script-src 'self' https://www.youtube.com/ ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
     csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:*;`;
+    csp += `frame-src 'self' https://www.youtube.com/ ;`;
     // TODO: remove unsafe inline and find a better way
     csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:;`;
   }

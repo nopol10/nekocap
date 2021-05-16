@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { WSHeader } from "@/common/components/ws-header";
 import { WSLayout } from "@/common/components/ws-layout";
-import { Routes } from "../routes";
+// import { Routes } from "../routes";
 import { WebHeader } from "./web-header";
 import * as firebase from "firebase/app";
 import "firebase/auth";
@@ -54,7 +54,7 @@ export const Main = () => {
               marginTop: "64px",
             }}
           >
-            <Routes />
+            {/* <Routes /> */}
           </Content>
         </WSLayout>
       </WSLayout>

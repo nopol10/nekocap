@@ -23,9 +23,9 @@ export const Routes = () => {
         <Route path={routeNames.caption.browse} exact={true}>
           <BrowseCaptionPage />
         </Route>
-        <Route path={routeNames.caption.view} exact={true}>
+        {/* <Route path={routeNames.caption.view} exact={true}>
           <ViewerPage />
-        </Route>
+        </Route> */}
         <Route path={routeNames.profile.main} exact={true}>
           <CaptionerProfile />
         </Route>

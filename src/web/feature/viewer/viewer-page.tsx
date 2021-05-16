@@ -28,6 +28,8 @@ import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
+import { isClient, isServer } from "@/common/client-utils";
+import { Dimension } from "@/common/types";
 
 const { Title, Text, Link } = Typography;
 
@@ -77,14 +79,17 @@ const ExtensionMessage = styled.div`
   }
 `;
 
-export const ViewerPage = () => {
-  const dispatch = useDispatch();
-  const { id: captionId } = useParams<{ id: string }>();
+export type ViewerPageProps = {
+  captionId: string;
+};
+
+export const ViewerPage = ({
+  captionId = "",
+}: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] = useStateRef<
-    HTMLDivElement
-  >(null);
+  const [captionContainerElement, captionContainerElementRef] =
+    useStateRef<HTMLDivElement>(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
@@ -93,16 +98,8 @@ export const ViewerPage = () => {
   useEffect(() => {
     // This is a website, no tabId is required
     window.tabId = TAB_ID;
-    dispatch(
-      loadWebsiteViewerCaption.request({ tabId: window.tabId, captionId })
-    )
-      .then(() => {
-        setLoadComplete(true);
-      })
-      .catch(() => {
-        setLoadComplete(true);
-      });
-  }, [captionId]);
+    setLoadComplete(true);
+  }, []);
 
   const noData =
     loadComplete && (!tabData || (!tabData.caption && !tabData.rawCaption));
@@ -141,10 +138,14 @@ export const ViewerPage = () => {
     defaultRendererRef.current.onVideoPlay();
   };
 
-  const embedWidth = Math.min(window.innerWidth - 60, 1600);
+  const embedWidth = Math.min((isClient() ? window.innerWidth : 0) - 60, 1600);
   const embedHeight = Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
 
   const renderYoutubeVideo = () => {
+    if (isServer()) {
+      return null;
+    }
+
     return (
       <YouTube
         opts={{
@@ -238,7 +239,7 @@ export const ViewerPage = () => {
             </ExtensionMessage>
           </DetailsWrapper>
         )}
-        {renderer === CaptionRendererType.Default && (
+        {loadComplete && renderer === CaptionRendererType.Default && (
           <CaptionRenderer
             ref={defaultRendererRef}
             caption={caption}
@@ -249,7 +250,7 @@ export const ViewerPage = () => {
             iframeProps={iframeProps}
           />
         )}
-        {isUsingAdvancedRenderer && (
+        {loadComplete && isUsingAdvancedRenderer && (
           <OctopusRenderer
             rawCaption={rawCaption.data}
             videoElement={undefined}
