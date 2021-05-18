@@ -9,6 +9,12 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  MediaQueryAllQueryable,
+  MediaQueryMatchers,
+  useMediaQuery,
+} from "react-responsive";
+import { isClient, isServer } from "./common/client-utils";
 import { TIME } from "./common/constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
@@ -212,9 +218,8 @@ export const useVideoPlayPause = (
 export const useVideoDurationChange = (
   videoElement: HTMLVideoElement
 ): [number, MutableRefObject<number>] => {
-  const [videoDuration, setVideoDuration, videoDurationRef] = useStateAutoRef(
-    0
-  );
+  const [videoDuration, setVideoDuration, videoDurationRef] =
+    useStateAutoRef(0);
   useEffect(() => {
     const handleDurationChange = () => {
       setVideoDuration(videoElement.duration * TIME.SECONDS_TO_MS);
@@ -427,4 +432,23 @@ export const useScrolledPastY = (
     throttleDuration
   );
   return hasScrolledPast;
+};
+
+export const useSSRMediaQuery = (
+  settings: Partial<MediaQueryAllQueryable & { query?: string }>,
+  device?: MediaQueryMatchers,
+  callback?: (matches: boolean) => void
+) => {
+  if (isServer()) {
+    return false;
+  }
+  const [isInClient, setIsInClient] = useState(false);
+
+  const isMatch = useMediaQuery(settings, device, callback);
+
+  useLayoutEffect(() => {
+    if (isClient()) setIsInClient(true);
+  }, []);
+
+  return isInClient ? isMatch : false;
 };
