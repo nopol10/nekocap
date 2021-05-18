@@ -33,7 +33,7 @@ function* loadUserCaptionsRequestSaga(
   const { pageNumber, pageSize, captionerId } = action.payload;
 
   const captions: CaptionListFields[] = yield call(
-    window.backendProvider.loadUserCaptions,
+    [window.backendProvider, "loadUserCaptions"],
     {
       ...getLimitOffsetFromPagination(pageSize, pageNumber),
       captionerId,
@@ -61,7 +61,7 @@ function* loadPrivateCaptionerDataRequestSaga(
     return;
   }
   const privateData: PrivateCaptionerData = yield call(
-    window.backendProvider.loadPrivateCaptionerData,
+    [window.backendProvider, "loadPrivateCaptionerData"],
     params
   );
   const { captioner, privateProfile, captions } = privateData;
@@ -87,7 +87,7 @@ function* updateCaptionerProfileRequestSaga(
     return;
   }
   const privateData: PrivateCaptionerData = yield call(
-    window.backendProvider.updateCaptionerProfile,
+    [window.backendProvider, "updateCaptionerProfile"],
     params
   );
   const { captioner, privateProfile, captions } = privateData;
@@ -106,7 +106,7 @@ function* updateCaptionerProfileSuccessSaga({
 function* deleteServerCaptionSaga(action: PayloadAction<string>) {
   const captionId = action.payload;
   const result: ServerResponse = yield call(
-    window.backendProvider.deleteCaption,
+    [window.backendProvider, "deleteCaption"],
     captionId
   );
   if (result.status === "error") {

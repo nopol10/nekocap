@@ -64,7 +64,11 @@ function* loadLatestCaptionsSuccessSaga({
 function* loadLatestUserLanguageCaptionsRequestSaga({
   payload: languageCode,
 }: PayloadAction<string>) {
-  const { captions: captions, status, error }: CaptionsResponse = yield call(
+  const {
+    captions: captions,
+    status,
+    error,
+  }: CaptionsResponse = yield call(
     [Locator.provider(), "loadLatestUserLanguageCaptions"],
     languageCode
   );
@@ -101,10 +105,8 @@ function* loadPopularCaptionsSuccessSaga({
 
 function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
   const { pageSize, pageNumber, append = false, ...rest } = action.payload;
-  const {
-    browseResults = [],
-    hasMoreResults: originalHasMoreResults,
-  } = yield select(publicDashboardSelector);
+  const { browseResults = [], hasMoreResults: originalHasMoreResults } =
+    yield select(publicDashboardSelector);
   const displayedCaptionCount =
     browseResults.length + (originalHasMoreResults ? 1 : 0);
 
@@ -125,7 +127,7 @@ function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
     return;
   }
   const { status, error, captions, hasMoreResults }: BrowseResults = yield call(
-    window.backendProvider.browse,
+    [Locator.provider(), "browse"],
     {
       ...getLimitOffsetFromPagination(pageSize, pageNumber),
       ...rest,

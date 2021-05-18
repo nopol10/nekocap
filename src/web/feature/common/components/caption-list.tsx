@@ -15,6 +15,7 @@ import { DEVICE } from "@/common/style-constants";
 import { MobileCaptionList } from "../../home/components/mobile-caption-list";
 import { PaginationProps } from "antd/lib/pagination";
 import { useRouter } from "next/router";
+import { useSSRMediaQuery } from "@/hooks";
 
 const PAGE_SIZE = 20;
 
@@ -60,7 +61,7 @@ export const CaptionList = ({
   renderTotal,
   listContainsCurrentPageOnly = false,
 }: CaptionListProps) => {
-  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
+  const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const router = useRouter();
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
@@ -158,6 +159,7 @@ export const CaptionList = ({
       columns={tableColumns}
       dataSource={captions}
       loading={isLoadingCaptionPage}
+      rowKey={"id"}
       rowClassName={(
         record: CaptionListFields,
         index: number,
