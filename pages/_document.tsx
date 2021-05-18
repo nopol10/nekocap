@@ -11,18 +11,22 @@ const getCSP = (props) => {
   csp += `img-src * data:;`;
   csp += `font-src 'self' data: https://fonts.gstatic.com;`;
 
+  const commonConnectSrc = "https://www.googleapis.com https://*.google.com/";
+  const commonScriptSrc = "https://*.google.com/";
+  const commonFrameSrc = "https://nekocap-42.firebaseapp.com";
+
   if (process.env.NODE_ENV !== "production") {
-    csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${cspHashOf(
+    csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
-    csp += `connect-src 'self' http://localhost:* ;`;
-    csp += `frame-src 'self' http://www.youtube.com/ ;`;
+    csp += `connect-src 'self' http://localhost:* ${commonConnectSrc};`;
+    csp += `frame-src 'self' http://www.youtube.com/ ${commonFrameSrc};`;
   } else {
-    csp += `script-src 'self' https://www.youtube.com/ ${cspHashOf(
+    csp += `script-src 'self' https://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
-    csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:*;`;
-    csp += `frame-src 'self' https://www.youtube.com/ ;`;
+    csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
+    csp += `frame-src 'self' https://www.youtube.com/ ${commonFrameSrc};`;
     // TODO: remove unsafe inline and find a better way
     csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:;`;
   }
