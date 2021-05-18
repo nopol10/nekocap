@@ -7,6 +7,7 @@ import { loadLatestCaptionsApi } from "@/common/feature/public-dashboard/api";
 import { setLatestCaptions } from "@/common/feature/public-dashboard/actions";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
 import { GetStaticProps } from "next";
+import { Main } from "@/web/feature/home/main";
 
 const TRANSLATION_NAMESPACES = ["common", "landing"];
 
@@ -18,7 +19,9 @@ export default function HomePage() {
           NekoCap - open source web video community captioning extension
         </title>
       </Head>
-      <Home />
+      <Main>
+        <Home />
+      </Main>
     </>
   );
 }
