@@ -382,6 +382,9 @@ export const useScrollPosition = (
   useWindow = false,
   wait?: number
 ): void => {
+  if (isServer()) {
+    return;
+  }
   const position = useRef(getScrollPosition({ useWindow }));
 
   let throttleTimeout = -1;
@@ -418,6 +421,9 @@ export const useScrolledPastY = (
   yBreakpoint: number,
   throttleDuration = 100
 ) => {
+  if (isServer()) {
+    return false;
+  }
   const [hasScrolledPast, setHasScrolledPast] = useState(false);
   useScrollPosition(
     ({ prevPos, currPos }) => {
