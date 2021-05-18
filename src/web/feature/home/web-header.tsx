@@ -22,6 +22,7 @@ import { DEVICE } from "@/common/style-constants";
 import { styledNoPass } from "@/common/style-utils";
 import { Divider, Typography } from "antd";
 import { useRouter } from "next/router";
+import { isClient } from "@/common/client-utils";
 
 const { Link } = Typography;
 
@@ -154,32 +155,33 @@ export const WebHeader = () => {
           <WSButton style={{ marginTop: 16 }} onClick={handleClickMobileMenu}>
             <MenuOutlined />
           </WSButton>
-          {ReactDOM.createPortal(
-            <MobileMenu open={showMobileMenu}>
-              <div style={{ textAlign: "right" }}>
-                <CloseButton onClick={handleClickCloseMobileMenu}>
-                  <CloseOutlined />
-                </CloseButton>
-              </div>
-              <Link onClick={handleClickHome} href="#">
-                Home
-              </Link>
-              <Divider />
-              <Link
-                onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
-                href="#"
-              >
-                Dashboard
-              </Link>
-              <Divider />
-              <BasicSearchBar forceOpen={true} onSearch={handleOnSearch} />
-              <Divider />
-              {isLoggedIn && (
-                <WSButton onClick={handleClickLogout}>Logout</WSButton>
-              )}
-            </MobileMenu>,
-            document.body
-          )}
+          {isClient() &&
+            ReactDOM.createPortal(
+              <MobileMenu open={showMobileMenu}>
+                <div style={{ textAlign: "right" }}>
+                  <CloseButton onClick={handleClickCloseMobileMenu}>
+                    <CloseOutlined />
+                  </CloseButton>
+                </div>
+                <Link onClick={handleClickHome} href="#">
+                  Home
+                </Link>
+                <Divider />
+                <Link
+                  onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
+                  href="#"
+                >
+                  Dashboard
+                </Link>
+                <Divider />
+                <BasicSearchBar forceOpen={true} onSearch={handleOnSearch} />
+                <Divider />
+                {isLoggedIn && (
+                  <WSButton onClick={handleClickLogout}>Logout</WSButton>
+                )}
+              </MobileMenu>,
+              document.body
+            )}
         </>
       )}
     </>
