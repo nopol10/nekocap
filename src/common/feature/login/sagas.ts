@@ -47,7 +47,7 @@ function* autoLoginRequestSaga() {
   }
   const idToken = yield call([user, "getIdToken"]);
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Firebase,
     {
       background: true,
@@ -63,7 +63,7 @@ function* autoLoginRequestSaga() {
 
 function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Google,
     { background: payload.background }
   );
@@ -97,7 +97,7 @@ function* extensionLoginSuccessSaga({
 function* logoutRequestSaga() {
   try {
     const userData: UserData = yield select(userDataSelector);
-    yield call([window.backendProvider, "logout"]);
+    yield call([Locator.provider(), "logout"]);
     yield put(logout.success());
   } catch (e) {
     yield put(logout.failure(e));
@@ -117,7 +117,7 @@ function* webAutoLoginRequestSaga() {
   }
   const idToken = yield call([user, "getIdToken"]);
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Firebase,
     {
       background: true,

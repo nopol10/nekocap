@@ -22,6 +22,7 @@ import {
 } from "./types";
 import { ServerResponse } from "@/common/types";
 import { CaptionListFields } from "../video/types";
+import { Locator } from "@/common/locator/locator";
 
 function* loadUserCaptionsRequestSaga(
   action: PayloadAction<CaptionsPagedRequest>
@@ -33,7 +34,7 @@ function* loadUserCaptionsRequestSaga(
   const { pageNumber, pageSize, captionerId } = action.payload;
 
   const captions: CaptionListFields[] = yield call(
-    [window.backendProvider, "loadUserCaptions"],
+    [Locator.provider(), "loadUserCaptions"],
     {
       ...getLimitOffsetFromPagination(pageSize, pageNumber),
       captionerId,
@@ -61,7 +62,7 @@ function* loadPrivateCaptionerDataRequestSaga(
     return;
   }
   const privateData: PrivateCaptionerData = yield call(
-    [window.backendProvider, "loadPrivateCaptionerData"],
+    [Locator.provider(), "loadPrivateCaptionerData"],
     params
   );
   const { captioner, privateProfile, captions } = privateData;
@@ -87,7 +88,7 @@ function* updateCaptionerProfileRequestSaga(
     return;
   }
   const privateData: PrivateCaptionerData = yield call(
-    [window.backendProvider, "updateCaptionerProfile"],
+    [Locator.provider(), "updateCaptionerProfile"],
     params
   );
   const { captioner, privateProfile, captions } = privateData;
@@ -106,7 +107,7 @@ function* updateCaptionerProfileSuccessSaga({
 function* deleteServerCaptionSaga(action: PayloadAction<string>) {
   const captionId = action.payload;
   const result: ServerResponse = yield call(
-    [window.backendProvider, "deleteCaption"],
+    [Locator.provider(), "deleteCaption"],
     captionId
   );
   if (result.status === "error") {
