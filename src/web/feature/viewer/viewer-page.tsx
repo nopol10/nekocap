@@ -1,15 +1,10 @@
 import { Skeleton, Space, Typography } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { useMediaQuery } from "react-responsive";
 import YouTube from "react-youtube";
 import { YouTubePlayer } from "youtube-player/dist/types";
-import {
-  loadServerCaption,
-  loadWebsiteViewerCaption,
-} from "@/common/feature/video/actions";
+import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { routeNames } from "@/web/feature/route-types";
 import { CaptionRendererType, VideoSource } from "@/common/feature/video/types";
@@ -18,7 +13,7 @@ import {
   CaptionRendererHandle,
 } from "@/extension/content/containers/caption-renderer";
 import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
-import { useStateRef } from "@/hooks";
+import { useSSRMediaQuery, useStateRef } from "@/hooks";
 import { isAss } from "@/common/caption-utils";
 import { styledNoPass } from "@/common/style-utils";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
@@ -29,7 +24,6 @@ import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { isClient, isServer } from "@/common/client-utils";
-import { Dimension } from "@/common/types";
 
 const { Title, Text, Link } = Typography;
 
@@ -93,7 +87,7 @@ export const ViewerPage = ({
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
-  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
+  const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
 
   useEffect(() => {
     // This is a website, no tabId is required

@@ -1,7 +1,6 @@
 import Table from "antd/lib/table/Table";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useMediaQuery } from "react-responsive";
 import { loadLatestUserLanguageCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { captionColumns } from "../../common/components/data-columns";
@@ -10,14 +9,14 @@ import { getBaseLanguageName } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
 import { MobileCaptionList } from "../components/mobile-caption-list";
 import { Typography } from "antd";
+import { useSSRMediaQuery } from "@/hooks";
 
 const { Title } = Typography;
 
 export const LatestUserLanguageCaptions = () => {
   const dispatch = useDispatch();
-  const {
-    latestUserLanguageCaptions: latestUserLanguageCaptions,
-  } = useSelector(publicDashboardSelector);
+  const { latestUserLanguageCaptions: latestUserLanguageCaptions } =
+    useSelector(publicDashboardSelector);
   const isLoading = useSelector(loadLatestUserLanguageCaptions.isLoading(null));
   useEffect(() => {
     if (latestUserLanguageCaptions.length > 0) {
@@ -25,7 +24,7 @@ export const LatestUserLanguageCaptions = () => {
     }
     dispatch(loadLatestUserLanguageCaptions.request(navigator.language));
   }, []);
-  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
+  const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
 
   const tableColumns = [
     captionColumns.thumbnail,

@@ -17,12 +17,12 @@ import { BasicSearchBar } from "./containers/basic-search-bar";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { GITHUB_URL } from "@/common/constants";
-import { useMediaQuery } from "react-responsive";
 import { DEVICE } from "@/common/style-constants";
 import { styledNoPass } from "@/common/style-utils";
 import { Divider, Typography } from "antd";
 import { useRouter } from "next/router";
 import { isClient } from "@/common/client-utils";
+import { useSSRMediaQuery } from "@/hooks";
 
 const { Link } = Typography;
 
@@ -71,7 +71,7 @@ export const WebHeader = () => {
   const isLoggingOut = useSelector(webLogout.isLoading(undefined));
   const [showLogin, setShowLogin] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const isTablet = useMediaQuery({ query: DEVICE.tablet });
+  const isTablet = useSSRMediaQuery({ query: DEVICE.tablet });
 
   const handleClickLogin = () => {
     setShowLogin(true);

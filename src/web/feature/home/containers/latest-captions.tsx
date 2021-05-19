@@ -2,13 +2,13 @@ import Table from "antd/lib/table/Table";
 import { Typography } from "antd";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useMediaQuery } from "react-responsive";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { captionColumns } from "../../common/components/data-columns";
 import { DEVICE } from "@/common/style-constants";
 import { DataCard } from "../components/data-card";
 import { MobileCaptionList } from "../components/mobile-caption-list";
 import { loadLatestCaptions } from "@/common/feature/public-dashboard/actions";
+import { useSSRMediaQuery } from "@/hooks";
 
 const { Title } = Typography;
 
@@ -22,7 +22,7 @@ export const LatestCaptions = () => {
     }
     dispatch(loadLatestCaptions.request());
   }, []);
-  const isDesktop = useMediaQuery({ query: DEVICE.desktop });
+  const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
 
   const tableColumns = [
     captionColumns.thumbnail,

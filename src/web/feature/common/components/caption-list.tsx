@@ -3,7 +3,6 @@ import React from "react";
 import { CaptionListFields } from "@/common/feature/video/types";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
-import { useMediaQuery } from "react-responsive";
 import { captionColumns } from "./data-columns";
 import { CaptionerFields } from "@/common/feature/captioner/types";
 import { ColumnsType } from "antd/lib/table/Table";
