@@ -1,3 +1,4 @@
+import { hydrate } from "@/web/store/action";
 import { createReducer } from "@reduxjs/toolkit";
 import { removeStoreCaption } from "../captioner/actions";
 import {
@@ -47,6 +48,12 @@ export const profileReducer = createReducer<ProfileState>(
           captions: state.captions
             ? state.captions.filter((sub) => sub.id !== captionId)
             : [],
+        };
+      })
+      .addCase(hydrate, (state, action) => {
+        return {
+          ...state,
+          ...action.payload.profile,
         };
       });
   }

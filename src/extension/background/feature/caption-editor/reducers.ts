@@ -21,6 +21,7 @@ import undoable, { includeAction } from "redux-undo";
 import { captionEditorActionTypes } from "@/common/feature/caption-editor/action-types";
 import { SetCaption, SetRawCaption } from "@/common/feature/video/types";
 import { TabbedType } from "@/common/types";
+import { hydrate } from "@/web/store/action";
 
 const defaultTabEditorData: TabEditorData = {
   showEditorIfPossible: false,
@@ -169,6 +170,15 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
           tabData: newTabData,
           tabRawData: newTabRawData,
           tabMeta: newTabMeta,
+        };
+      })
+      .addCase(hydrate, (state, action) => {
+        return {
+          ...state,
+          tabData: {
+            ...state.tabData,
+            ...action.payload.captionEditor.tabData,
+          },
         };
       })
       .addMatcher(isTabbedAction, (state, action) => {
