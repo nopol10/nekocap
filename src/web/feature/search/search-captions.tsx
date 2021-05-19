@@ -86,7 +86,6 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
       })
     );
   };
-  console.log("errors", errors);
 
   const handleClickAdvanced = () => {
     setShowAdvanced(!showAdvanced);
@@ -212,9 +211,11 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
 export const SearchCaptions = () => {
   const dispatch = useDispatch();
   const { title } = useParams<{ title?: string }>();
-  const { currentResultPage, videos = [], hasMoreResults } = useSelector(
-    searchSelector
-  );
+  const {
+    currentResultPage,
+    videos = [],
+    hasMoreResults,
+  } = useSelector(searchSelector);
   const captionerState = useSelector(captionerSelector);
   const isSearching = useSelector(search.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
@@ -248,14 +249,8 @@ export const SearchCaptions = () => {
         </List.Item>
       );
     }
-    const {
-      name,
-      captionCount,
-      captions,
-      sourceId,
-      source,
-      thumbnailUrl,
-    } = video;
+    const { name, captionCount, captions, sourceId, source, thumbnailUrl } =
+      video;
     const processor = videoSourceToProcessorMap[parseInt(source)];
     const languageList = Object.keys(captions).filter(
       (language) => captions[language] > 0

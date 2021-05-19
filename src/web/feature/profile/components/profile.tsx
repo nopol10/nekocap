@@ -250,7 +250,7 @@ export const Profile = ({
               onSubmit={onSubmitEdit}
               onCancel={onCancelEdit}
             />
-            <Content>
+            <Content style={{ width: "auto" }}>
               <div style={{ padding: "40px 40px" }}>
                 <Title level={3}>Contributed captions</Title>
                 <CaptionList
