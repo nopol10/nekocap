@@ -4,7 +4,13 @@ import { AppProps } from "next/app";
 import { wrapper } from "@/web/store/store";
 
 import "antd/dist/antd.less";
+import "antd/lib/layout/style";
 import "antd/lib/table/style";
+import "antd/lib/modal/style";
+import "antd/lib/message/style";
+import "antd/lib/dropdown/style";
+import "antd/lib/popover/style";
+import "antd/lib/popconfirm/style";
 
 import "../src/web/feature/home/home.scss";
 import "../src/web/styles/index.scss";
