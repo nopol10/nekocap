@@ -4,10 +4,8 @@ import InfiniteScroll from "react-infinite-scroller";
 import { ListProps } from "antd/lib/list";
 
 type InfiniteTableProps<T> = {
-  isLoading: boolean;
   data: T[];
   columns: ColumnsType<T>;
-  captionerId?: string; // Which user this list of subs belong to
   currentPage: number;
   pageSize: number;
   hasMore: boolean;
@@ -21,10 +19,7 @@ type InfiniteTableProps<T> = {
 };
 
 export const InfiniteList = <T,>({
-  isLoading,
   data,
-  columns,
-  captionerId,
   pageSize,
   hasMore,
   onChangePage,

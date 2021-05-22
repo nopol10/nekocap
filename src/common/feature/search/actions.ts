@@ -16,3 +16,7 @@ export const searchFromBasicBar = createAction<string>(
 export const setSearchResults = createAction<SetVideoSearchResults>(
   searchActionTypes.setSearchResults
 );
+
+export const setSearchNoMoreResults = createAction(
+  searchActionTypes.setSearchNoMoreResults
+);

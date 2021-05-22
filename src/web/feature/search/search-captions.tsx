@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import {
@@ -16,11 +16,9 @@ import {
   Select,
   Divider,
 } from "antd";
-import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { searchSelector } from "@/common/feature/search/selectors";
 import { search } from "@/common/feature/search/actions";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { InfiniteList } from "../common/components/infinite-table";
 import { videoColumns } from "../common/components/data-columns";
 import { VideoFields } from "@/common/feature/video/types";
@@ -69,7 +67,7 @@ type SearchForm = {
 };
 
 const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
-  const { control, handleSubmit, getValues, errors } = useForm<SearchForm>();
+  const { control, handleSubmit, errors } = useForm<SearchForm>();
   const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const isSearching = useSelector(search.isLoading(null));
@@ -208,21 +206,21 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
   );
 };
 
-export const SearchCaptions = () => {
+type SearchCaptionsProps = {
+  title?: string;
+};
+
+export const SearchCaptions = ({
+  title = "",
+}: SearchCaptionsProps): JSX.Element => {
   const dispatch = useDispatch();
-  const { title } = useParams<{ title?: string }>();
   const {
     currentResultPage,
     videos = [],
     hasMoreResults,
   } = useSelector(searchSelector);
-  const captionerState = useSelector(captionerSelector);
   const isSearching = useSelector(search.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    dispatch(search.request({ title, pageNumber: 1, pageSize: PAGE_SIZE }));
-  }, [title]);
 
   const handleChangeResultPage = (page: number, pageSize?: number) => {
     dispatch(
@@ -307,36 +305,33 @@ export const SearchCaptions = () => {
     <Wrapper ref={resultContainer}>
       <SearchForm stickyTarget={() => resultContainer.current} />
       <ResultsList>
-        <Spin spinning={false}>
-          <InfiniteList
-            hasMore={hasMoreResults}
-            isLoading={true}
-            pageSize={PAGE_SIZE}
-            data={videosInList}
-            currentPage={currentResultPage}
-            onChangePage={handleChangeResultPage}
-            columns={columns}
-            renderItem={renderVideo}
-            listNode={List}
-            pageStart={1}
-            initialLoad={false}
-            getScrollParent={() => resultContainer.current}
-            listProps={{
-              grid: {
-                gutter: 20,
-                xs: 1,
-                sm: 2,
-                md: 3,
-                lg: 4,
-                xl: 4,
-                xxl: 4,
-              },
-              locale: {
-                emptyText: "No videos found :(",
-              },
-            }}
-          />
-        </Spin>
+        <InfiniteList
+          hasMore={hasMoreResults}
+          pageSize={PAGE_SIZE}
+          data={videosInList}
+          currentPage={currentResultPage}
+          onChangePage={handleChangeResultPage}
+          columns={columns}
+          renderItem={renderVideo}
+          listNode={List}
+          pageStart={1}
+          initialLoad={true}
+          getScrollParent={() => resultContainer.current}
+          listProps={{
+            grid: {
+              gutter: 20,
+              xs: 1,
+              sm: 2,
+              md: 3,
+              lg: 4,
+              xl: 4,
+              xxl: 4,
+            },
+            locale: {
+              emptyText: "No videos found :(",
+            },
+          }}
+        />
       </ResultsList>
     </Wrapper>
   );
