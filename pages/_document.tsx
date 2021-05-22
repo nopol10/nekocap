@@ -11,7 +11,8 @@ const getCSP = (props) => {
   csp += `img-src * data:;`;
   csp += `font-src 'self' data: https://fonts.gstatic.com;`;
 
-  const commonConnectSrc = "https://www.googleapis.com https://*.google.com/";
+  const commonConnectSrc =
+    "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/";
   const commonScriptSrc = "https://*.google.com/";
   const commonFrameSrc = "https://nekocap-42.firebaseapp.com";
 
