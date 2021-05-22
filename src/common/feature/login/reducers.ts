@@ -1,6 +1,6 @@
+import { hydrate } from "@/web/store/action";
 import { createReducer } from "@reduxjs/toolkit";
-import { loginActionTypes } from "./action-types";
-import { setLoggedIn, setUserData, webLogout } from "./actions";
+import { setLoggedIn, setUserData, webAutoLogin, webLogout } from "./actions";
 import { LoginState } from "./types";
 
 const initialState: LoginState = {
@@ -10,6 +10,7 @@ export const loginReducer = createReducer<LoginState>(
   initialState,
   (builder) => {
     webLogout.augmentReducer(builder);
+    webAutoLogin.augmentReducer(builder);
     return builder
       .addCase(setLoggedIn, (state, action) => {
         const loggedIn = action.payload;
@@ -23,6 +24,12 @@ export const loginReducer = createReducer<LoginState>(
         return {
           ...state,
           userData: action.payload,
+        };
+      })
+      .addCase(hydrate, (state, action) => {
+        return {
+          ...state,
+          ...action.payload.login,
         };
       });
   }

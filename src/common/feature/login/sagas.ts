@@ -159,8 +159,7 @@ function* webLogoutSuccessSaga() {
 }
 
 function* webLoginSuccessSaga({ payload: userData }: PayloadAction<UserData>) {
-  yield put(setUserData(userData));
-  yield put(setLoggedIn(true));
+  yield put([setUserData(userData), setLoggedIn(true)]);
   // Load private data
   yield put(loadPrivateCaptionerData.request({ withCaptions: true }));
   yield take(setCaptionerPrivateData.type);
@@ -182,7 +181,10 @@ export function* loginSaga() {
   yield takeLatest(loginWithGoogle.SUCCESS, safe(extensionLoginSuccessSaga));
   yield takeLatest(loginSuccess, safe(extensionLoginSuccessSaga));
 
-  yield takeLatest(webAutoLogin.REQUEST, safe(webAutoLoginRequestSaga));
+  yield takeLatest(
+    webAutoLogin.REQUEST,
+    safe(webAutoLogin.requestSaga(webAutoLoginRequestSaga))
+  );
   yield takeLatest(
     webLoginWithGoogle.REQUEST,
     safe(webLoginWithGoogleRequestSaga)

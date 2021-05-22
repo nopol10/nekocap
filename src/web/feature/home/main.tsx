@@ -1,5 +1,12 @@
 import Layout from "antd/lib/layout";
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch } from "react-redux";
 import { WSHeader } from "@/common/components/ws-header";
 import { WSLayout } from "@/common/components/ws-layout";
@@ -10,6 +17,7 @@ import "firebase/auth";
 import { webAutoLogin } from "@/common/feature/login/actions";
 import { useScrolledPastY } from "@/hooks";
 import { initFirebase } from "@/extension/background/firebase";
+import { AutoLoginContext } from "../common/contexts/auto-login-context";
 
 const { Content } = Layout;
 
@@ -21,6 +29,9 @@ export const Main = ({ children }: MainProps): JSX.Element => {
   const dispatch = useDispatch();
   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
   const autoLoggedIn = useRef<boolean>(false);
+  const [hasAttemptedAutoLogin, setHasAttemptedAutoLogin] = useState<boolean>(
+    false
+  );
   useEffect(() => {
     // Perform auto login if a user exists
     // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
@@ -31,6 +42,7 @@ export const Main = ({ children }: MainProps): JSX.Element => {
         dispatch(webAutoLogin.request());
       }
       autoLoggedIn.current = true;
+      setHasAttemptedAutoLogin(true);
     });
   }, []);
 
@@ -59,7 +71,9 @@ export const Main = ({ children }: MainProps): JSX.Element => {
               marginTop: "64px",
             }}
           >
-            {children}
+            <AutoLoginContext.Provider value={hasAttemptedAutoLogin}>
+              {children}
+            </AutoLoginContext.Provider>
           </Content>
         </WSLayout>
       </WSLayout>
