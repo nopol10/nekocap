@@ -400,7 +400,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       userLike,
       userDislike,
       rawCaption: serverRawCaption,
-      rawCaptionUrl,
+      rawCaptionUrl: originalRawCaptionUrl,
       originalTitle,
       captionerName,
     } = response;
@@ -425,9 +425,14 @@ export class ParseProvider implements BackendProvider<ParseState> {
     // Load the raw caption if a url is supplied. The server cannot send the file directly
     // (refer to server code for reason)
     let rawCaption: string | null = null;
-    if (rawCaptionUrl) {
+    if (originalRawCaptionUrl) {
+      let rawCaptionUrl = originalRawCaptionUrl;
       let rawCaptionString = "";
       if (isServer()) {
+        rawCaptionUrl = rawCaptionUrl.replace(
+          process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+          process.env.PARSE_INTERNAL_SERVER_URL
+        );
         rawCaptionString = await nodefetch(rawCaptionUrl)
           .then((response) => response.buffer())
           .then((buffer) => {

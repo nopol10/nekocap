@@ -76,6 +76,10 @@ export default class MyDocument extends Document {
             httpEquiv="Content-Security-Policy"
             content={getCSP(this.props)}
           />
+          <meta
+            name="keywords"
+            content="free,open source,community captions,chrome extension,firefox extension,browser extension,extension,youtube,niconico,vimeo,bilibili,tver,video,subtitle,subtitles,caption,captions,caption uploader,subtitles uploader,upload,editor,import,export,srt,sbv,vtt,ass,substation alpha,ssa,advanced substation alpha,advanced subtitles,aegisub,subtitleedit,amara"
+          />
         </Head>
         <body>
           <Main />

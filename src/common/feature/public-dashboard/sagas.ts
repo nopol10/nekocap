@@ -43,9 +43,10 @@ const populateCaptionDetails = async (
 };
 
 function* loadLatestCaptionsRequestSaga() {
-  const { captions, status, error }: CaptionsResponse = yield call(
-    window.backendProvider.loadLatestCaptions
-  );
+  const { captions, status, error }: CaptionsResponse = yield call([
+    Locator.provider(),
+    "loadLatestCaptions",
+  ]);
   if (status !== "success") {
     throw new Error(error);
   }
@@ -87,9 +88,10 @@ function* loadLatestUserLanguageCaptionsSuccessSaga({
 }
 
 function* loadPopularCaptionsRequestSaga() {
-  const { captions, status, error }: CaptionsResponse = yield call(
-    window.backendProvider.loadPopularCaptions
-  );
+  const { captions, status, error }: CaptionsResponse = yield call([
+    Locator.provider(),
+    "loadPopularCaptions",
+  ]);
 
   if (status !== "success") {
     throw new Error(error);

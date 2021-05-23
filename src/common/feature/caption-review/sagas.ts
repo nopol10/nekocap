@@ -16,12 +16,13 @@ import {
 } from "./types";
 import { ServerResponse } from "@/common/types";
 import { captionReviewSelector } from "./selectors";
+import { Locator } from "@/common/locator/locator";
 
 function* loadCaptionForReviewRequestSaga({
   payload: captionId,
 }: PayloadAction<string>) {
   const response: LoadCaptionForReviewResult = yield call(
-    window.backendProvider.loadCaptionForReview,
+    [Locator.provider(), "loadCaptionForReview"],
     { captionId }
   );
   if (!response) {
@@ -41,7 +42,7 @@ function* rejectCaptionRequestSaga({
   payload,
 }: PayloadAction<ReasonedCaptionAction>) {
   const { status, error }: ServerResponse = yield call(
-    window.backendProvider.rejectCaption,
+    [Locator.provider(), "rejectCaption"],
     payload
   );
   if (status !== "success") {
@@ -58,7 +59,7 @@ function* verifyCaptionRequestSaga({
   payload,
 }: PayloadAction<ReasonedCaptionAction>) {
   const { status, error }: ServerResponse = yield call(
-    window.backendProvider.verifyCaption,
+    [Locator.provider(), "verifyCaption"],
     payload
   );
   if (status !== "success") {

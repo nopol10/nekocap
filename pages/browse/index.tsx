@@ -40,15 +40,11 @@ export default function BrowseAllCaptionsPage(): JSX.Element {
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps((store) => async ({ locale }) => {
     try {
-      const {
-        status,
-        error,
-        captions,
-        hasMoreResults,
-      }: BrowseResults = await Locator.provider().browse({
-        limit: 20,
-        offset: 0,
-      });
+      const { status, error, captions, hasMoreResults }: BrowseResults =
+        await Locator.provider().browse({
+          limit: 20,
+          offset: 0,
+        });
       if (status === "error") {
         throw new Error(error);
       }
@@ -74,6 +70,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
       props: {
         ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
       },
+      revalidate: 60,
     };
   })
 );

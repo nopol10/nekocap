@@ -18,7 +18,7 @@ const makeStore = () => {
     middleware: [
       isClient() ? sagaThunkMiddleware : undefined,
       sagaMiddleware,
-      isServer() || process.env.PRODUCTION ? undefined : logger,
+      isServer() || process.env.NODE_ENV == "production" ? undefined : logger,
     ].filter(Boolean),
     enhancers: [reduxBatch],
   });
