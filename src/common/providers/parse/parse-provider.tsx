@@ -47,6 +47,7 @@ import {
 } from "../../feature/caption-review/types";
 import { SearchRequest, VideoSearchResults } from "../../feature/search/types";
 import * as firebase from "firebase/app";
+import nodefetch from "node-fetch";
 import "firebase/auth";
 
 import { convertBlobToBase64 } from "../../utils";
@@ -57,7 +58,7 @@ import type {
   PublicProfileResponse,
   BrowseResponse,
 } from "./types";
-import { isClient, isFirefoxExtension } from "@/common/client-utils";
+import { isClient, isFirefoxExtension, isServer } from "@/common/client-utils";
 import {
   BrowseRequest,
   BrowseResults,
@@ -425,11 +426,21 @@ export class ParseProvider implements BackendProvider<ParseState> {
     // (refer to server code for reason)
     let rawCaption: string | null = null;
     if (rawCaptionUrl) {
-      const rawCaptionResponse = await fetch(rawCaptionUrl);
-      let rawCaptionString = await convertBlobToBase64(
-        await rawCaptionResponse.blob()
-      );
-      rawCaptionString = rawCaptionString.split(",")[1];
+      let rawCaptionString = "";
+      if (isServer()) {
+        rawCaptionString = await nodefetch(rawCaptionUrl)
+          .then((response) => response.buffer())
+          .then((buffer) => {
+            return buffer.toString("base64");
+          });
+      } else {
+        const rawCaptionResponse = await fetch(rawCaptionUrl);
+        rawCaptionString = await convertBlobToBase64(
+          await rawCaptionResponse.blob()
+        );
+        rawCaptionString = rawCaptionString.split(",")[1];
+      }
+
       const rawType = (JSON.parse(serverRawCaption) as RawCaptionData).type;
       rawCaption = JSON.stringify({
         type: rawType,
@@ -474,9 +485,8 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     const rejected: boolean = captionResponse.get("rejected");
     const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] = captionResponse.get(
-      "reviewHistory"
-    );
+    const reviewHistory: ReviewActionDetails[] =
+      captionResponse.get("reviewHistory");
     return {
       caption,
       captioner,
@@ -586,7 +596,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     if (response.videos) {
       results.videos = response.videos.map((video) => {
-        return (video.toJSON() as unknown) as VideoFields;
+        return video.toJSON() as unknown as VideoFields;
       });
     }
     return results;
