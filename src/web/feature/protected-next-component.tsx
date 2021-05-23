@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
@@ -12,7 +12,9 @@ type ProtectedNextComponentProps = {
   children: JSX.Element;
 };
 
-const ProtectedNextComponent = ({ children }: ProtectedNextComponentProps) => {
+const ProtectedNextComponent = ({
+  children,
+}: ProtectedNextComponentProps): JSX.Element => {
   const isLoggedIn = useSelector(isLoggedInSelector);
   const captioner = useSelector(captionerSelector);
   const isLoggingIn = useSelector(webAutoLogin.isLoading(undefined));
@@ -24,7 +26,7 @@ const ProtectedNextComponent = ({ children }: ProtectedNextComponentProps) => {
     setIsClientLoaded(true);
   }, []);
   useEffect(() => {
-    if (!isClientLoaded || !hasAttemptedAutoLogin || isLoggingIn) {
+    if (!hasAttemptedAutoLogin || isLoggingIn) {
       return;
     }
     if (hasAttemptedAutoLogin && !isLoggingIn && !isLoggedIn) {
@@ -36,7 +38,6 @@ const ProtectedNextComponent = ({ children }: ProtectedNextComponentProps) => {
       return;
     }
     if (
-      isClientLoaded &&
       !captioner.captioner.name &&
       router.pathname !== routeNames.profile.new
     ) {
@@ -44,15 +45,13 @@ const ProtectedNextComponent = ({ children }: ProtectedNextComponentProps) => {
     }
   });
 
-  if (isClientLoaded && isLoggedIn && captioner.captioner?.name) {
+  if (isClientLoaded && hasAttemptedAutoLogin && isLoggedIn) {
     return children;
   }
 
   return (
     <>
-      {/* {!isClientLoaded || (isLoggedIn && !captioner.captioner) &&  */}
       <Skeleton active={true} />
-      {/* } */}
     </>
   );
 };
