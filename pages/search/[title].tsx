@@ -17,10 +17,6 @@ import { SearchCaptions } from "@/web/feature/search/search-captions";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
-type SearchCaptionsPageProps = {
-  title: string;
-};
-
 export default function SearchCaptionsPage(): JSX.Element {
   const router = useRouter();
   const title = router.query.title as string;
@@ -57,42 +53,41 @@ type PageParams = {
   title: string;
 };
 
-export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
-  wrapper.getServerSideProps(
-    (store) => async ({
-      locale,
-      params,
-    }: GetServerSidePropsContext<PageParams>) => {
-      const { title } = params;
-      try {
-        const PAGE_NUMBER = 1;
-        const { videos, hasMoreResults } = await searchCaptionsApi(
-          title,
-          20,
-          PAGE_NUMBER
-        );
+export const getServerSideProps: GetServerSideProps =
+  NextWrapper.getServerSideProps(
+    wrapper.getServerSideProps(
+      (store) =>
+        async ({ locale, params }: GetServerSidePropsContext<PageParams>) => {
+          const { title } = params;
+          try {
+            const PAGE_NUMBER = 1;
+            const { videos, hasMoreResults } = await searchCaptionsApi(
+              title,
+              20,
+              PAGE_NUMBER
+            );
 
-        const videosWithDetails: VideoFields[] = await populateVideoDetails(
-          videos
-        );
+            const videosWithDetails: VideoFields[] = await populateVideoDetails(
+              videos
+            );
 
-        store.dispatch(
-          setSearchResults({
-            hasMoreResults,
-            currentResultPage: PAGE_NUMBER,
-            videos: videosWithDetails,
-            append: false,
-          })
-        );
-      } catch (e) {
-        console.error("Error during search page generation", e);
-      }
+            store.dispatch(
+              setSearchResults({
+                hasMoreResults,
+                currentResultPage: PAGE_NUMBER,
+                videos: videosWithDetails,
+                append: false,
+              })
+            );
+          } catch (e) {
+            console.error("Error during search page generation", e);
+          }
 
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-      };
-    }
-  )
-);
+          return {
+            props: {
+              ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+            },
+          };
+        }
+    )
+  );

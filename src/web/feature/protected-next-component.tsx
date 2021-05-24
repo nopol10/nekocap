@@ -30,7 +30,7 @@ const ProtectedNextComponent = ({
       return;
     }
     if (hasAttemptedAutoLogin && !isLoggingIn && !isLoggedIn) {
-      router.replace("/");
+      window.location.href = "/";
       return;
     }
     if (isLoggedIn && !captioner.captioner) {
@@ -41,7 +41,7 @@ const ProtectedNextComponent = ({
       !captioner.captioner.name &&
       router.pathname !== routeNames.profile.new
     ) {
-      router.replace(routeNames.profile.new);
+      window.location.href = routeNames.profile.new;
     }
   });
 

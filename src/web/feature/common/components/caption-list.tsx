@@ -61,7 +61,6 @@ export const CaptionList = ({
   listContainsCurrentPageOnly = false,
 }: CaptionListProps) => {
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
-  const router = useRouter();
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
   const isOwner = loggedInUser ? loggedInUser.userId === captionerId : false;
@@ -75,7 +74,7 @@ export const CaptionList = ({
   };
 
   const handleClickEditCaption = (caption: CaptionListFields) => {
-    router.push(routeNames.caption.main.replace(":id", caption.id));
+    window.location.href = routeNames.caption.main.replace(":id", caption.id);
   };
 
   const tableColumns: ColumnsType<CaptionListFields> = [
