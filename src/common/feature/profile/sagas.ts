@@ -34,12 +34,13 @@ import {
 import { captionerSelector } from "../captioner/selectors";
 import { profileSelector } from "./selectors";
 import { ServerResponse } from "@/common/types";
+import { Locator } from "@/common/locator/locator";
 
 function* loadProfileRequestSaga({
   payload,
 }: PayloadAction<LoadProfileParams>) {
   const profile: PublicProfileData = yield call(
-    window.backendProvider.loadProfile,
+    [Locator.provider(), "loadProfile"],
     payload
   );
 
@@ -58,7 +59,7 @@ function* loadUserCaptionsRequestSaga(
   const { pageNumber, pageSize, captionerId: captionerId } = action.payload;
 
   const captions: CaptionListFields[] = yield call(
-    window.backendProvider.loadUserCaptions,
+    [Locator.provider(), "loadUserCaptions"],
     { ...getLimitOffsetFromPagination(pageSize, pageNumber), captionerId }
   );
 
@@ -75,7 +76,7 @@ function* updateProfileRequestSaga({
   payload,
 }: PayloadAction<EditProfileFields>) {
   const privateData: PrivateCaptionerData = yield call(
-    window.backendProvider.updateCaptionerProfile,
+    [Locator.provider(), "updateCaptionerProfile"],
     { ...payload, name: "" }
   );
 
@@ -119,7 +120,7 @@ function* assignReviewerManagerRequestSaga({
   payload: targetUserId,
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
-    window.backendProvider.assignReviewerManager,
+    [Locator.provider(), "assignReviewerManager"],
     { targetUserId }
   );
   if (response.status === "error") {
@@ -135,7 +136,7 @@ function* assignReviewerRequestSaga({
   payload: targetUserId,
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
-    window.backendProvider.assignReviewer,
+    [Locator.provider(), "assignReviewer"],
     { targetUserId }
   );
   if (response.status === "error") {
@@ -151,7 +152,7 @@ function* verifyCaptionerRequestSaga({
   payload: targetUserId,
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
-    window.backendProvider.verifyCaptioner,
+    [Locator.provider(), "verifyCaptioner"],
     { targetUserId }
   );
   if (response.status === "error") {
@@ -166,7 +167,7 @@ function* banCaptionerRequestSaga({
   payload: targetUserId,
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
-    window.backendProvider.banCaptioner,
+    [Locator.provider(), "banCaptioner"],
     { targetUserId }
   );
   if (response.status === "error") {

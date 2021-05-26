@@ -35,7 +35,6 @@ import {
   ReviewStatus,
 } from "@/common/feature/caption-review/types";
 import { routeNames } from "../route-types";
-import { Link as RouterLink } from "react-router-dom";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { NekoCaption } from "@/common/caption-parsers/types";
 import { getCaptionCues } from "@/common/caption-utils";
@@ -124,16 +123,11 @@ const rejectionColumns = [
     key: "reviewerName",
     render: function render(text, record: ReviewActionDetails, index) {
       return (
-        <RouterLink
-          to={{
-            pathname: `${routeNames.profile.main.replace(
-              ":id",
-              record.reviewerId
-            )}`,
-          }}
+        <Link
+          href={`${routeNames.profile.main.replace(":id", record.reviewerId)}`}
         >
           {text}
-        </RouterLink>
+        </Link>
       );
     },
   },

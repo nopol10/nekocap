@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { Typography } from "antd";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
-import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { search } from "@/common/feature/search/actions";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
@@ -25,19 +24,16 @@ const ResultsList = styled.div`
 
 export const BrowseCaptionPage = () => {
   const dispatch = useDispatch();
-  const { title } = useParams<{ title?: string }>();
-  const { currentResultPage, browseResults = [], hasMoreResults } = useSelector(
-    publicDashboardSelector
-  );
+  const {
+    currentResultPage,
+    browseResults = [],
+    hasMoreResults,
+  } = useSelector(publicDashboardSelector);
   const captionerState = useSelector(captionerSelector);
 
   const isSearching = useSelector(search.isLoading(null));
   const isLoading = useSelector(loadAllCaptions.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    dispatch(loadAllCaptions.request({ pageNumber: 1, pageSize: PAGE_SIZE }));
-  }, [title]);
 
   const { captioner: loggedInUserPublicProfile } = captionerState;
   // Add one to the caption count if more results are available

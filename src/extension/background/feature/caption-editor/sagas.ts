@@ -103,6 +103,7 @@ import { compressToBase64 as lzCompress } from "lz-string";
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { CaptionMutators } from "@/extension/content/feature/editor/utils";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
+import { Locator } from "@/common/locator/locator";
 
 const isActionType = <T>(
   action: AnyAction,
@@ -350,9 +351,10 @@ function* saveLocalCaptionSaga({
     return;
   }
   const { caption } = tabData;
-  let result:
-    | { editor: CaptionEditorStorage }
-    | undefined = yield call(chromeProm.storage.local.get, ["editor"]);
+  let result: { editor: CaptionEditorStorage } | undefined = yield call(
+    chromeProm.storage.local.get,
+    ["editor"]
+  );
 
   if (!result || !result.editor) {
     const shortcutType = yield select(currentShortcutTypeSelector);
@@ -390,9 +392,10 @@ function* saveLocalCaptionSaga({
 function* loadLocallySavedCaptionSaga({
   payload,
 }: ThunkedPayloadAction<CreateNewCaption>) {
-  const result:
-    | { editor: CaptionEditorStorage }
-    | undefined = yield call(chromeProm.storage.local.get, ["editor"]);
+  const result: { editor: CaptionEditorStorage } | undefined = yield call(
+    chromeProm.storage.local.get,
+    ["editor"]
+  );
   if (!result || !result.editor) {
     throw new Error("No save found");
   }
@@ -444,13 +447,8 @@ function* exportCaptionSaga({ payload }: ThunkedPayloadAction<ExportCaption>) {
 }
 
 function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
-  const {
-    tabId,
-    languageCode,
-    video,
-    hasAudioDescription,
-    translatedTitle,
-  } = payload;
+  const { tabId, languageCode, video, hasAudioDescription, translatedTitle } =
+    payload;
   const { caption }: TabEditorData = yield select(tabEditorDataSelector(tabId));
   if (!caption) {
     yield put(submitCaption.failure());
@@ -472,7 +470,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
     processedRawCaption.data = lzCompress(rawCaption.data);
   }
   const response: UploadResponse = yield call(
-    window.backendProvider.submitCaption,
+    [Locator.provider(), "submitCaption"],
     {
       caption: updatedCaption,
       rawCaption: processedRawCaption,

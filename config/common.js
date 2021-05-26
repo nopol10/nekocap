@@ -1,10 +1,10 @@
 const path = require("path");
 const webpack = require("webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const LicenseWebpackPlugin = require("license-webpack-plugin")
-  .LicenseWebpackPlugin;
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-  .BundleAnalyzerPlugin;
+const LicenseWebpackPlugin =
+  require("license-webpack-plugin").LicenseWebpackPlugin;
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
@@ -28,7 +28,12 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
   {
     exclude: /node_modules/,
     test: /\.tsx?$/,
-    use: "babel-loader",
+    use: {
+      loader: "babel-loader",
+      options: {
+        configFile: path.resolve(root, "babel.extension.config.json"),
+      },
+    },
   },
   {
     test: /\.less$/,
@@ -46,7 +51,9 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
       {
         loader: "less-loader",
         options: {
-          javascriptEnabled: true,
+          lessOptions: {
+            javascriptEnabled: true,
+          },
         },
       },
     ],

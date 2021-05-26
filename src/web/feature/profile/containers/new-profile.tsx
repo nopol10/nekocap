@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { userDataSelector } from "@/common/feature/login/selectors";
 import styled from "styled-components";
 import { NewProfileForm } from "@/common/feature/login/containers/new-profile-form";
-import { webHistory } from "../../web-history";
 import { routeNames } from "../../route-types";
 
 const Page = styled.div`
@@ -20,7 +19,7 @@ export const NewProfile = () => {
   }
 
   const handleSubmitSuccess = () => {
-    webHistory.replace(routeNames.captioner.dashboard);
+    window.location.href = routeNames.captioner.dashboard;
   };
 
   return (

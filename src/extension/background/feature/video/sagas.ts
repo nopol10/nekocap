@@ -72,6 +72,7 @@ import { decompressFromBase64 as lzDecompress } from "lz-string";
 import { isAss } from "@/common/caption-utils";
 import { take } from "lodash";
 import { withSuccess } from "antd/lib/modal/confirm";
+import { Locator } from "@/common/locator/locator";
 
 function* updateLoadedCaptionFromFileSaga({
   payload,
@@ -144,7 +145,7 @@ function* openMenuBarSaga({ payload }: PayloadAction<TabbedType>) {
 function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
   const { videoId, videoSource, tabId } = payload;
   const result: LoadCaptionsResult[] = yield call(
-    window.backendProvider.loadCaptions,
+    [Locator.provider(), "loadCaptions"],
     {
       videoId,
       videoSource,
@@ -159,7 +160,7 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
 function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
   const { tabId, captionId } = payload;
   const response: LoadSingleCaptionResult = yield call(
-    window.backendProvider.loadCaption,
+    [Locator.provider(), "loadCaption"],
     {
       captionId,
     }
@@ -224,7 +225,7 @@ function* likeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
   const { id: captionId, userLike }: CaptionContainer = yield select(
     loadedCaptionSelector(tabId)
   );
-  yield call(window.backendProvider.likeCaption, { captionId: captionId });
+  yield call([Locator.provider(), "likeCaption"], { captionId: captionId });
 
   yield put(loadServerCaption.request({ captionId, tabId }));
 
@@ -237,7 +238,7 @@ function* dislikeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
     loadedCaptionSelector(tabId)
   );
 
-  yield call(window.backendProvider.dislikeCaption, {
+  yield call([Locator.provider(), "dislikeCaption"], {
     captionId,
   });
 

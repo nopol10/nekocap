@@ -90,7 +90,7 @@ export interface BackendProvider<T extends RootState> {
   ) => Promise<LoginResponse>;
   logout: (options?: LogoutOptions) => Promise<void>;
   // Load the list of captions for a video without the contents
-  loadCaptions?: (props: {
+  loadCaptions: (props: {
     videoId: string;
     videoSource: VideoSource;
   }) => Promise<void>;

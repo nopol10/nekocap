@@ -1,3 +1,4 @@
+import { hydrate } from "@/web/store/action";
 import { createReducer } from "@reduxjs/toolkit";
 import {
   loadCaptionForReview,
@@ -10,7 +11,7 @@ import {
 import { CaptionReviewState } from "./types";
 
 const initialState: CaptionReviewState = {
-  caption: undefined,
+  caption: null,
   reviewHistory: [],
 };
 
@@ -50,6 +51,12 @@ export const captionReviewReducer = createReducer<CaptionReviewState>(
           rejected,
           verified,
           reviewHistory,
+        };
+      })
+      .addCase(hydrate, (state, action) => {
+        return {
+          ...state,
+          ...action.payload.captionReview,
         };
       });
   }

@@ -117,6 +117,7 @@ const OctopusRendererInternal = ({
       debug: true,
       onReady,
     };
+    // @ts-ignore
     octopusInstance.current = new SubtitlesOctopus(options);
     octopusInstance.current.setCurrentTime(
       isIframe && iframeProps && iframeProps.getCurrentTime

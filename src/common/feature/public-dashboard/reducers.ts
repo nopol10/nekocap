@@ -1,3 +1,4 @@
+import { hydrate } from "@/web/store/action";
 import { createReducer } from "@reduxjs/toolkit";
 import {
   loadAllCaptions,
@@ -66,6 +67,12 @@ export const publicDashboardReducer = createReducer<PublicDashboardState>(
             : captions,
           hasMoreResults,
           currentResultPage,
+        };
+      })
+      .addCase(hydrate, (state, action) => {
+        return {
+          ...state,
+          ...action.payload.publicDashboard,
         };
       });
   }

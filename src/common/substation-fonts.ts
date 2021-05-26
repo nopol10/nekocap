@@ -1,3 +1,5 @@
+import { isInExtension } from "./client-utils";
+
 export const SUBSTATION_GROUPED_FONTS = {
   latin: {
     anton: "/fonts/Anton-Regular.woff2",
@@ -128,14 +130,19 @@ export const EXCLUDED_FONTS = [
 
 const flattenAndProcessFontList = (
   fontsObject: Record<string, Record<string, string> | string>,
-  output: Record<string, string> = {}
+  output: Record<string, string> = {},
+  websiteUrl = ""
 ) => {
   for (const key in fontsObject) {
     const fontObject = fontsObject[key];
     if (typeof fontObject === "object") {
       flattenAndProcessFontList(fontObject, output);
     } else if (typeof fontObject === "string") {
-      output[key] = process.env.WEBSITE_URL.replace(/\/+$/, "") + fontObject;
+      output[key] =
+        (isInExtension()
+          ? process.env.NEXT_PUBLIC_WEBSITE_URL
+          : websiteUrl
+        ).replace(/\/+$/, "") + fontObject;
     }
   }
   return output;

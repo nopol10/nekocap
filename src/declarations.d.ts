@@ -20,6 +20,12 @@ declare global {
     backupHotkeyParentElement: Node | null;
     backupHotkeyElement: Node | null;
   }
+
+  namespace NodeJS {
+    interface Global {
+      backendProvider: BackendProvider<any>;
+    }
+  }
 }
 
 declare module "redux-saga/effects" {

@@ -1,37 +1,12 @@
 {
+  "presets": [["next/babel"]],
   "plugins": [
     [
       "import",
       {
         "libraryName": "antd",
-        "libraryDirectory": "lib"
-      },
-      "import-antd"
-    ],
-    [
-      "import",
-      {
-        "libraryName": "lodash",
-        "libraryDirectory": "",
-        "camel2DashComponentName": false
-      },
-      "import-lodash"
-    ],
-    [
-      "import",
-      {
-        "libraryName": "@fortawesome/free-solid-svg-icons",
-        "libraryDirectory": "",
-        "camel2DashComponentName": false,
-        "transformToDefaultImport": false
-      },
-      "import-fontawesome"
-    ],
-    "@babel/plugin-transform-runtime"
-  ],
-  "presets": [
-    "@babel/preset-env",
-    "@babel/preset-react",
-    ["@babel/preset-typescript", { "allowNamespaces": true }]
+        "style": true
+      }
+    ]
   ]
 }

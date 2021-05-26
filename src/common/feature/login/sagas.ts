@@ -34,6 +34,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import { routeNames } from "@/web/feature/route-types";
 import { webHistory } from "@/web/feature/web-history";
+import { Locator } from "@/common/locator/locator";
 
 function* autoLoginRequestSaga() {
   if (!isInExtension()) {
@@ -46,7 +47,7 @@ function* autoLoginRequestSaga() {
   }
   const idToken = yield call([user, "getIdToken"]);
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Firebase,
     {
       background: true,
@@ -62,7 +63,7 @@ function* autoLoginRequestSaga() {
 
 function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Google,
     { background: payload.background }
   );
@@ -96,7 +97,7 @@ function* extensionLoginSuccessSaga({
 function* logoutRequestSaga() {
   try {
     const userData: UserData = yield select(userDataSelector);
-    yield call([window.backendProvider, "logout"]);
+    yield call([Locator.provider(), "logout"]);
     yield put(logout.success());
   } catch (e) {
     yield put(logout.failure(e));
@@ -116,7 +117,7 @@ function* webAutoLoginRequestSaga() {
   }
   const idToken = yield call([user, "getIdToken"]);
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Firebase,
     {
       background: true,
@@ -135,7 +136,7 @@ function* webLoginWithGoogleRequestSaga({
 }: PayloadAction<LoginRequest>) {
   const { background } = payload;
   const { status, userData }: LoginResponse = yield call(
-    [window.backendProvider, "login"],
+    [Locator.provider(), "login"],
     LoginMethod.Google,
     { background }
   );
@@ -145,7 +146,7 @@ function* webLoginWithGoogleRequestSaga({
 
 function* webLogoutRequestSaga() {
   const userData: UserData = yield select(userDataSelector);
-  yield call([window.backendProvider, "logout"]);
+  yield call([Locator.provider(), "logout"]);
   // Logout from the auth provider
   if (userData && userData.loginMethod === LoginMethod.Google) {
     yield call(webGoogleLogout);
@@ -158,14 +159,15 @@ function* webLogoutSuccessSaga() {
 }
 
 function* webLoginSuccessSaga({ payload: userData }: PayloadAction<UserData>) {
-  yield put(setUserData(userData));
-  yield put(setLoggedIn(true));
+  yield put([setUserData(userData), setLoggedIn(true)]);
   // Load private data
   yield put(loadPrivateCaptionerData.request({ withCaptions: true }));
   yield take(setCaptionerPrivateData.type);
   const captioner: CaptionerState = yield select(captionerSelector);
   if (userData.isNewUser || !captioner.captioner?.name) {
-    yield call([webHistory, "push"], routeNames.profile.new);
+    if (webHistory) {
+      yield call([webHistory, "push"], routeNames.profile.new);
+    }
   }
 }
 // #endregion
@@ -179,7 +181,10 @@ export function* loginSaga() {
   yield takeLatest(loginWithGoogle.SUCCESS, safe(extensionLoginSuccessSaga));
   yield takeLatest(loginSuccess, safe(extensionLoginSuccessSaga));
 
-  yield takeLatest(webAutoLogin.REQUEST, safe(webAutoLoginRequestSaga));
+  yield takeLatest(
+    webAutoLogin.REQUEST,
+    safe(webAutoLogin.requestSaga(webAutoLoginRequestSaga))
+  );
   yield takeLatest(
     webLoginWithGoogle.REQUEST,
     safe(webLoginWithGoogleRequestSaga)

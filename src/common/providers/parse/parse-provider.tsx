@@ -18,7 +18,7 @@ import {
 } from "../backend-provider";
 import { RootState } from "../../store/types";
 import { LoginStorage } from "../../feature/login/types";
-import * as Parse from "parse";
+import type * as ParseTypeImport from "parse";
 import {
   ProviderType,
   ResponseStatus,
@@ -47,6 +47,7 @@ import {
 } from "../../feature/caption-review/types";
 import { SearchRequest, VideoSearchResults } from "../../feature/search/types";
 import * as firebase from "firebase/app";
+import nodefetch from "node-fetch";
 import "firebase/auth";
 
 import { convertBlobToBase64 } from "../../utils";
@@ -57,7 +58,7 @@ import type {
   PublicProfileResponse,
   BrowseResponse,
 } from "./types";
-import { isFirefoxExtension } from "@/common/client-utils";
+import { isClient, isFirefoxExtension, isServer } from "@/common/client-utils";
 import {
   BrowseRequest,
   BrowseResults,
@@ -65,7 +66,8 @@ import {
 
 //#region
 const loginWithGoogle = async (
-  background: boolean
+  background: boolean,
+  oauthClientId = ""
 ): Promise<{
   accessToken?: string;
   idToken?: string;
@@ -78,9 +80,7 @@ const loginWithGoogle = async (
   if (isFirefoxExtension()) {
     const nonce = Math.floor(Math.random() * 1000);
     const responseUrl = await browser.identity.launchWebAuthFlow({
-      url: `https://accounts.google.com/o/oauth2/v2/auth?response_type=id_token&nonce=${nonce}&scope=openid%20profile&client_id=${
-        process.env.GOOGLE_OAUTH_CLIENT_ID
-      }&redirect_uri=${browser.identity.getRedirectURL()}`,
+      url: `https://accounts.google.com/o/oauth2/v2/auth?response_type=id_token&nonce=${nonce}&scope=openid%20profile&client_id=${oauthClientId}&redirect_uri=${browser.identity.getRedirectURL()}`,
       interactive: true,
     });
     // Parse the response url for the id token
@@ -110,7 +110,7 @@ const loginWithGoogle = async (
 //#endregion
 
 //#region Auth Providers
-const googleProvider: Parse.AuthProvider = {
+const googleProvider: ParseTypeImport.AuthProvider = {
   authenticate() {
     /* no-content */
   },
@@ -150,17 +150,30 @@ const firebaseProvider: Parse.AuthProvider = {
 
 type ParseState = RootState;
 
+type ParseType = typeof ParseTypeImport;
+
 export class ParseProvider implements BackendProvider<ParseState> {
+  private Parse: ParseType = null;
+  private googleOauthClientId = "";
+
   type() {
     return ProviderType.Parse;
   }
 
-  constructor() {
-    Parse.initialize(process.env.PARSE_APP_ID);
+  constructor(
+    newParse: ParseType,
+    parseAppId: string = process.env.NEXT_PUBLIC_PARSE_APP_ID,
+    parseUrl: string = process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+    googleOauthClientId: string = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
+  ) {
+    this.Parse = newParse;
+    this.googleOauthClientId = googleOauthClientId;
+    this.Parse.initialize(parseAppId);
     // @ts-ignore
-    Parse.serverURL =
-      process.env.PARSE_SERVER_URL || "http://localhost:4041/parse";
-    window.Parse = Parse;
+    this.Parse.serverURL = parseUrl || "http://localhost:4041/parse";
+    if (isClient()) {
+      window.Parse = this.Parse;
+    }
   }
 
   getSelectors() {
@@ -210,11 +223,16 @@ export class ParseProvider implements BackendProvider<ParseState> {
     const { background = false, userData: presetUserData } = options || {};
     let responseStatus: ResponseStatus;
     let userData: UserData = presetUserData;
-    let authData: Parse.AuthData = {};
+    let authData: ParseTypeImport.AuthData = {};
     if (!userData) {
       if (method === LoginMethod.Google) {
-        window.skipAutoLogin = true;
-        const loginResponse = await loginWithGoogle(background);
+        if (isClient()) {
+          window.skipAutoLogin = true;
+        }
+        const loginResponse = await loginWithGoogle(
+          background,
+          this.googleOauthClientId
+        );
         responseStatus = loginResponse.status;
         userData = loginResponse.userData;
         authData = {
@@ -235,7 +253,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
 
     const storedData: { login: LoginStorage } | undefined = undefined;
 
-    let loginOpts: Parse.FullOptions = undefined;
+    let loginOpts: ParseTypeImport.FullOptions = undefined;
     if (storedData && storedData.login && storedData.login.sessionToken) {
       loginOpts = {
         sessionToken: storedData.login.sessionToken,
@@ -248,7 +266,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       default:
         authProvider = firebaseProvider;
     }
-    let parseUser = await Parse.User.logInWith(
+    let parseUser = await this.Parse.User.logInWith(
       authProvider,
       {
         authData,
@@ -265,7 +283,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async logout(options?: LogoutOptions) {
-    await Parse.User.logOut();
+    await this.Parse.User.logOut();
     if (!options || options.logoutFromAuthServer !== false) {
       await firebase.auth().signOut();
     }
@@ -278,13 +296,13 @@ export class ParseProvider implements BackendProvider<ParseState> {
     videoId: string;
     videoSource: VideoSource;
   }) {
-    return Parse.Cloud.run("findCaptions", { videoId, videoSource });
+    return this.Parse.Cloud.run("findCaptions", { videoId, videoSource });
   }
 
   async loadUserCaptions(
     request: CaptionsRequest
   ): Promise<CaptionListFields[]> {
-    const response = await Parse.Cloud.run<
+    const response = await this.Parse.Cloud.run<
       (params: CaptionsRequest) => CaptionsResponse
     >("loadUserCaptions", request);
     if (response.status !== "success") {
@@ -297,7 +315,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async loadPrivateCaptionerData({
     withCaptions = true,
   }: LoadPrivateCaptionerDataRequestParams): Promise<PrivateCaptionerData> {
-    const response = await Parse.Cloud.run<
+    const response = await this.Parse.Cloud.run<
       (
         params: LoadPrivateCaptionerDataRequestParams
       ) => LoadPrivateCaptionerDataResponse
@@ -314,7 +332,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async loadProfile(options?: LoadProfileParams): Promise<PublicProfileData> {
-    const response = await Parse.Cloud.run<
+    const response = await this.Parse.Cloud.run<
       (params: LoadProfileParams) => PublicProfileResponse
     >("loadProfile", options);
     if (response.status !== "success") {
@@ -330,7 +348,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async updateCaptionerProfile(
     params: UpdateCaptionerProfileParams
   ): Promise<PrivateCaptionerData> {
-    const response = await Parse.Cloud.run<
+    const response = await this.Parse.Cloud.run<
       (params: UpdateCaptionerProfileParams) => LoadPrivateCaptionerDataResponse
     >("updateCaptionerProfile", params);
 
@@ -346,7 +364,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async loadLatestCaptions(): Promise<CaptionsResponse> {
-    const response = await Parse.Cloud.run<() => CaptionsResponse>(
+    const response = await this.Parse.Cloud.run<() => CaptionsResponse>(
       "loadLatestCaptions"
     );
     return response;
@@ -355,13 +373,15 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async loadLatestUserLanguageCaptions(
     languageCode: string
   ): Promise<CaptionsResponse> {
-    return await Parse.Cloud.run<
+    return await this.Parse.Cloud.run<
       ({ languageCode: string }) => CaptionsResponse
     >("loadLatestLanguageCaptions", { languageCode });
   }
 
   async loadPopularCaptions(): Promise<CaptionsResponse> {
-    return await Parse.Cloud.run<() => CaptionsResponse>("loadPopularCaptions");
+    return await this.Parse.Cloud.run<() => CaptionsResponse>(
+      "loadPopularCaptions"
+    );
   }
 
   async loadCaption({
@@ -369,7 +389,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }: {
     captionId: string;
   }): Promise<LoadSingleCaptionResult> {
-    const response = await Parse.Cloud.run<
+    const response = await this.Parse.Cloud.run<
       ({ captionId: string }) => LoadSingleCaptionResponse
     >("loadCaption", { captionId });
     if (response.status === "error") {
@@ -380,11 +400,11 @@ export class ParseProvider implements BackendProvider<ParseState> {
       userLike,
       userDislike,
       rawCaption: serverRawCaption,
-      rawCaptionUrl,
+      rawCaptionUrl: originalRawCaptionUrl,
       originalTitle,
       captionerName,
     } = response;
-    const captionResponse = serverCaption as Parse.Object;
+    const captionResponse = serverCaption as ParseTypeImport.Object;
     const caption: CaptionContainer = {
       id: captionResponse.id,
       loadedByUser: false,
@@ -399,25 +419,39 @@ export class ParseProvider implements BackendProvider<ParseState> {
       likes: captionResponse.get("likes") || 0,
       dislikes: captionResponse.get("dislikes") || 0,
       tags: captionResponse.get("tags") || [],
-      userLike,
-      userDislike,
+      userLike: userLike !== undefined ? userLike : null,
+      userDislike: userDislike !== undefined ? userDislike : null,
     };
     // Load the raw caption if a url is supplied. The server cannot send the file directly
     // (refer to server code for reason)
-    let rawCaption: string | undefined = undefined;
-    if (rawCaptionUrl) {
-      const rawCaptionResponse = await fetch(rawCaptionUrl);
-      let rawCaptionString = await convertBlobToBase64(
-        await rawCaptionResponse.blob()
-      );
-      rawCaptionString = rawCaptionString.split(",")[1];
+    let rawCaption: string | null = null;
+    if (originalRawCaptionUrl) {
+      let rawCaptionUrl = originalRawCaptionUrl;
+      let rawCaptionString = "";
+      if (isServer()) {
+        rawCaptionUrl = rawCaptionUrl.replace(
+          process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+          process.env.PARSE_INTERNAL_SERVER_URL
+        );
+        rawCaptionString = await nodefetch(rawCaptionUrl)
+          .then((response) => response.buffer())
+          .then((buffer) => {
+            return buffer.toString("base64");
+          });
+      } else {
+        const rawCaptionResponse = await fetch(rawCaptionUrl);
+        rawCaptionString = await convertBlobToBase64(
+          await rawCaptionResponse.blob()
+        );
+        rawCaptionString = rawCaptionString.split(",")[1];
+      }
+
       const rawType = (JSON.parse(serverRawCaption) as RawCaptionData).type;
       rawCaption = JSON.stringify({
         type: rawType,
         data: rawCaptionString,
       });
     }
-
     return { caption, userLike, userDislike, rawCaption };
   }
 
@@ -426,7 +460,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }: {
     captionId: string;
   }): Promise<LoadCaptionForReviewResult> {
-    const response = await Parse.Cloud.run<
+    const response = await this.Parse.Cloud.run<
       ({ captionId: string }) => LoadCaptionForReviewResponse
     >("loadCaptionForReview", { captionId });
     const {
@@ -439,7 +473,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     if (status !== "success") {
       throw new Error(`Failed to load caption: ${error}`);
     }
-    const captionResponse = serverCaption as Parse.Object;
+    const captionResponse = serverCaption as ParseTypeImport.Object;
     const caption: CaptionContainer = {
       id: captionResponse.id,
       loadedByUser: false,
@@ -456,9 +490,8 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     const rejected: boolean = captionResponse.get("rejected");
     const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] = captionResponse.get(
-      "reviewHistory"
-    );
+    const reviewHistory: ReviewActionDetails[] =
+      captionResponse.get("reviewHistory");
     return {
       caption,
       captioner,
@@ -470,10 +503,10 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async likeCaption({ captionId }: { captionId: string }) {
-    return Parse.Cloud.run("likeCaption", { captionId });
+    return this.Parse.Cloud.run("likeCaption", { captionId });
   }
   async dislikeCaption({ captionId }: { captionId: string }) {
-    return Parse.Cloud.run("dislikeCaption", { captionId });
+    return this.Parse.Cloud.run("dislikeCaption", { captionId });
   }
 
   async submitCaption({
@@ -482,7 +515,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     video,
     hasAudioDescription,
   }: SubmitCaptionRequest): Promise<UploadResponse> {
-    const submitResult: ServerResponse = await Parse.Cloud.run<
+    const submitResult: ServerResponse = await this.Parse.Cloud.run<
       (p: SubmitCaptionRequest) => ServerResponse
     >("submitCaption", {
       caption,
@@ -500,7 +533,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async deleteCaption(captionId: string): Promise<ServerResponse> {
-    const deleteResult: ServerResponse = await Parse.Cloud.run(
+    const deleteResult: ServerResponse = await this.Parse.Cloud.run(
       "deleteCaption",
       { captionId }
     );
@@ -508,7 +541,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async rejectCaption(params: ReasonedCaptionAction): Promise<ServerResponse> {
-    const result: ServerResponse = await Parse.Cloud.run(
+    const result: ServerResponse = await this.Parse.Cloud.run(
       "rejectCaption",
       params
     );
@@ -516,7 +549,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async verifyCaption(params: ReasonedCaptionAction): Promise<ServerResponse> {
-    const result: ServerResponse = await Parse.Cloud.run(
+    const result: ServerResponse = await this.Parse.Cloud.run(
       "verifyCaption",
       params
     );
@@ -524,7 +557,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async assignReviewerManager(params: RoleRequest): Promise<ServerResponse> {
-    const result: ServerResponse = await Parse.Cloud.run(
+    const result: ServerResponse = await this.Parse.Cloud.run(
       "assignReviewerManagerRole",
       params
     );
@@ -532,7 +565,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async assignReviewer(params: RoleRequest): Promise<ServerResponse> {
-    const result: ServerResponse = await Parse.Cloud.run(
+    const result: ServerResponse = await this.Parse.Cloud.run(
       "assignReviewerRole",
       params
     );
@@ -540,7 +573,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async verifyCaptioner(params: VerifyRequest): Promise<ServerResponse> {
-    const result: ServerResponse = await Parse.Cloud.run(
+    const result: ServerResponse = await this.Parse.Cloud.run(
       "verifyCaptioner",
       params
     );
@@ -548,7 +581,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async banCaptioner(params: BanRequest): Promise<ServerResponse> {
-    const result: ServerResponse = await Parse.Cloud.run(
+    const result: ServerResponse = await this.Parse.Cloud.run(
       "banCaptioner",
       params
     );
@@ -556,7 +589,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async search(params: SearchRequest): Promise<VideoSearchResults> {
-    const response: VideoSearchResponse = await Parse.Cloud.run(
+    const response: VideoSearchResponse = await this.Parse.Cloud.run(
       "search",
       params
     );
@@ -568,13 +601,16 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     if (response.videos) {
       results.videos = response.videos.map((video) => {
-        return (video.toJSON() as unknown) as VideoFields;
+        return video.toJSON() as unknown as VideoFields;
       });
     }
     return results;
   }
   async browse(params: BrowseRequest): Promise<BrowseResults> {
-    const response: BrowseResponse = await Parse.Cloud.run("browse", params);
+    const response: BrowseResponse = await this.Parse.Cloud.run(
+      "browse",
+      params
+    );
     const results: BrowseResults = {
       status: response.status,
       hasMoreResults: response.hasMoreResults,

@@ -1,10 +1,9 @@
 import Form from "antd/lib/form";
 import message from "antd/lib/message";
 import Modal from "antd/lib/modal/Modal";
-import Select from "antd/lib/select";
-import { RcFile } from "antd/lib/upload";
+import type { RcFile } from "antd/lib/upload";
 import Dragger from "antd/lib/upload/Dragger";
-import { RcCustomRequestOptions } from "antd/lib/upload/interface";
+import type { UploadRequestOption } from "rc-upload/lib/interface";
 import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -40,7 +39,7 @@ export const SelectFileModal = ({
   const [fileContent, setFileContent] = useState<string>("");
   const [file, setFile] = useState<RcFile>();
 
-  const beforeUpload = (file: RcFile): boolean | PromiseLike<void> => {
+  const beforeUpload = (file: RcFile): boolean => {
     const extension = file.name
       .substring(file.name.lastIndexOf(".") + 1)
       .toLowerCase();
@@ -58,12 +57,12 @@ export const SelectFileModal = ({
     return isValidFileType && isSizeValid;
   };
 
-  const dummyRequest = (options: RcCustomRequestOptions) => {
+  const dummyRequest = (options: UploadRequestOption) => {
     const { onSuccess } = options;
     if (!file) {
       return;
     }
-    onSuccess({}, file);
+    onSuccess(file, new XMLHttpRequest());
     const reader = new FileReader();
     reader.onload = (event: Event) => {
       setFileContent((reader.result as string) || "");

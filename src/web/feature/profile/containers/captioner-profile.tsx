@@ -22,7 +22,6 @@ import {
 
 export const CaptionerProfile = () => {
   const dispatch = useDispatch();
-  const { id: profileId } = useParams<{ id: string }>();
   const profileData = useSelector(profileSelector);
   const isLoadingProfile = useSelector(loadProfile.isLoading(null));
   const isLoadingCaptionPage = useSelector(loadUserCaptions.isLoading(null));
@@ -31,10 +30,6 @@ export const CaptionerProfile = () => {
   const isAssigningReviewerManager = useSelector(
     assignReviewerManager.isLoading(null)
   );
-
-  useEffect(() => {
-    dispatch(loadProfile.request({ profileId, withCaptions: true }));
-  }, [profileId]);
 
   const {
     currentCaptionPage,

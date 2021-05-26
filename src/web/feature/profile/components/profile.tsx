@@ -154,7 +154,9 @@ export const Profile = ({
   const handleCopyProfileLink = () => {
     if (navigator && navigator.clipboard) {
       navigator.clipboard.writeText(
-        `${process.env.WEBSITE_URL}capper/${loggedInUser.userId}`
+        `${window.location.protocol + "//" + window.location.hostname}/capper/${
+          loggedInUser.userId
+        }`
       );
     }
     message.info("Profile link copied to clipboard!");
@@ -248,7 +250,7 @@ export const Profile = ({
               onSubmit={onSubmitEdit}
               onCancel={onCancelEdit}
             />
-            <Content>
+            <Content style={{ width: "auto" }}>
               <div style={{ padding: "40px 40px" }}>
                 <Title level={3}>Contributed captions</Title>
                 <CaptionList

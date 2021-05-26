@@ -21,6 +21,7 @@ import {
   handleBanCaptioner,
   handleVerifyCaptioner,
 } from "../admin-utils";
+import { isLoggedInSelector } from "@/common/feature/login/selectors";
 
 export const OwnProfile = () => {
   const captionerState = useSelector(captionerSelector);
@@ -36,6 +37,7 @@ export const OwnProfile = () => {
   const isAssigningReviewerManager = useSelector(
     assignReviewerManager.isLoading(null)
   );
+
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
 
