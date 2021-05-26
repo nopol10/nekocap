@@ -93,7 +93,7 @@ export const YoutubeProcessor: Processor = {
   supportAutoCaptions: () => true,
   getAutoCaptionList: async (videoId: string) => {
     const response = await fetch(
-      `https://youtube.com/get_video_info?video_id=${videoId}`
+      `https://youtube.com/get_video_info?html5=1&video_id=${videoId}`
     );
     const videoInfoText = decodeURIComponent(await response.text());
     if (!videoInfoText.includes("captionTracks")) {
@@ -102,7 +102,8 @@ export const YoutubeProcessor: Processor = {
     /**
      * The isTranslatable block at the end is used to recognize the end of the captionTracks property
      */
-    const captionArrayRegex = /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
+    const captionArrayRegex =
+      /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
     /**
      * The capture group will contain a string of the form
      * [{"baseUrl": "...", "languageCode": "...", "name": "..."}, ...]
