@@ -18,6 +18,7 @@ const pad = (inString, length, padCharacter) => {
 zip.addLocalFolder("../nekocap", "", (filename) => {
   const excludedFiles = [
     ".env",
+    ".env.prod",
     "dist/",
     "docker/",
     ".git",
@@ -30,6 +31,15 @@ zip.addLocalFolder("../nekocap", "", (filename) => {
     ".zip",
     "package-backup.json",
     "zip-source.js",
+    ".next",
+    "pages/",
+    "public/",
+    "next-env.d.ts",
+    "next-i18next.config.js",
+    "next.config.js",
+    ".release-it.js",
+    "webserver.js",
+    "server.js",
   ];
   for (let i = 0; i < excludedFiles.length; i++) {
     if (filename.indexOf(excludedFiles[i]) >= 0) {
