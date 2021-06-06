@@ -13,7 +13,7 @@ const getCSP = (props) => {
 
   const dailymotionDomains =
     "https://*.dailymotion.com https://*.dmcdn.net https://*.dm-event.net";
-  const commonConnectSrc = `cloudflareinsights.com https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.noembed.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
+  const commonConnectSrc = `cloudflareinsights.com https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.googleusercontent.com https://*.noembed.com/ https://noembed.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
   const commonScriptSrc = `ajax.cloudflare.com static.cloudflareinsights.com https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com ${dailymotionDomains}`;
   const commonStyleSrc = "https://*.ko-fi.com";
   const commonFrameSrc = `https://nekocap.com https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/ ${dailymotionDomains}`;
@@ -25,7 +25,7 @@ const getCSP = (props) => {
       NextScript.getInlineScriptSource(props),
     )};`;
     csp += `connect-src 'self' http://localhost:* https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
-    csp += `frame-src 'self' http://www.youtube.com/ https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN} ${commonFrameSrc};`;
+    csp += `frame-src 'self' http://www.youtube.com/ http://www.youtube-nocookie.com https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN} ${commonFrameSrc};`;
   } else {
     csp += `script-src 'self'${
       isViewer ? " 'wasm-unsafe-eval'" : ""
@@ -33,7 +33,7 @@ const getCSP = (props) => {
       NextScript.getInlineScriptSource(props),
     )};`;
     csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
-    csp += `frame-src 'self' https://www.youtube.com/ ${commonFrameSrc};`;
+    csp += `frame-src 'self' https://www.youtube.com/ https://www.youtube-nocookie.com ${commonFrameSrc};`;
     // TODO: remove unsafe inline and find a better way
     csp += `style-src 'self' https://fonts.googleapis.com ${commonStyleSrc} 'unsafe-inline' data:;`;
   }

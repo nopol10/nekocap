@@ -1,3 +1,5 @@
+import { colors } from "@/common/colors";
+import { clearSelection } from "@/common/utils";
 import React, {
   CSSProperties,
   HTMLProps,
@@ -6,12 +8,10 @@ import React, {
   useRef,
 } from "react";
 import styled from "styled-components";
-import { colors } from "@/common/colors";
-import { clearSelection } from "@/common/utils";
 import { CUE_HEIGHT, TRACK_BASE_HEIGHT } from "../constants";
 
 type DragHandleProps = {
-  left?: boolean;
+  $left?: boolean;
 };
 
 const DragHandle = styled.span<DragHandleProps>`
@@ -23,8 +23,8 @@ const DragHandle = styled.span<DragHandleProps>`
   height: 100%;
   opacity: 0;
   transition: opacity 200ms;
-  ${({ left }: DragHandleProps) => {
-    return left ? "left: 0" : "right: 0";
+  ${({ $left }: DragHandleProps) => {
+    return $left ? "left: 0" : "right: 0";
   }};
 
   &:hover {
@@ -80,7 +80,7 @@ export const DraggableCue = ({
   const dragStartX = useRef<number>(0);
   const clickStartTime = useRef<number>(0);
   const propertiesBeforeDragging = useRef<DraggableProps>(
-    DEFAULT_DRAGGABLE_PROPS
+    DEFAULT_DRAGGABLE_PROPS,
   );
   const containerElementRef = useRef<HTMLDivElement>(null);
 
@@ -195,7 +195,7 @@ export const DraggableCue = ({
     }
     const dragDistance = Math.min(
       event.clientX - dragStartX.current,
-      propertiesBeforeDragging.current.width
+      propertiesBeforeDragging.current.width,
     );
     const finalLeft = propertiesBeforeDragging.current.left + dragDistance;
 
@@ -214,7 +214,7 @@ export const DraggableCue = ({
     }
     const dragDistance = Math.min(
       event.clientX - dragStartX.current,
-      propertiesBeforeDragging.current.width
+      propertiesBeforeDragging.current.width,
     );
     const newLeft = propertiesBeforeDragging.current.left + dragDistance;
     const newWidth = propertiesBeforeDragging.current.width - dragDistance;
@@ -250,7 +250,7 @@ export const DraggableCue = ({
     }
     const dragDistance = Math.max(
       event.clientX - dragStartX.current,
-      -propertiesBeforeDragging.current.width
+      -propertiesBeforeDragging.current.width,
     );
     const newWidth = propertiesBeforeDragging.current.width + dragDistance;
     containerElementRef.current.style.width = `${newWidth}px`;
@@ -265,7 +265,7 @@ export const DraggableCue = ({
     }
     const dragDistance = Math.max(
       event.clientX - dragStartX.current,
-      -propertiesBeforeDragging.current.width
+      -propertiesBeforeDragging.current.width,
     );
     const finalRight = propertiesBeforeDragging.current.right + dragDistance;
 
@@ -282,7 +282,7 @@ export const DraggableCue = ({
       onMouseDown={handleDragCueStart}
       ref={containerElementRef}
     >
-      <DragHandle left={true} onMouseDown={handleDragLeftStart} />
+      <DragHandle $left={true} onMouseDown={handleDragLeftStart} />
       {children}
       <DragHandle onMouseDown={handleDragRightStart} />
     </div>

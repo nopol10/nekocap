@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { useDrag, useResize, useStateRef } from "@/hooks";
-import styled from "styled-components";
-import { Coords } from "@/common/types";
-import * as dayjs from "dayjs";
 import { colors } from "@/common/colors";
+import { Coords } from "@/common/types";
+import { useDrag, useResize, useStateRef } from "@/hooks";
+import * as dayjs from "dayjs";
+import React, { useCallback, useEffect, useRef } from "react";
+import styled from "styled-components";
+import { VideoPlayer } from "../video-player/video-player";
 
 const VideoScrubberHoverArea = styled.div`
   padding: 10px 0;
@@ -55,12 +56,15 @@ const TimeIndicator = styled.div`
 
 const INDICATOR_WIDTH = 100;
 
+const TAG = "scrubber";
+
 type VideoScrubberProps = {
-  videoElement: HTMLVideoElement;
+  // videoElement: HTMLVideoElement;
+  videoPlayer: VideoPlayer;
   onSeek?: (timeSeconds: number) => void;
 };
 
-export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
+export const VideoScrubber = ({ videoPlayer, onSeek }: VideoScrubberProps) => {
   const [scrubber, scrubberRef] = useStateRef<HTMLDivElement>();
   const [scrubberProgressBar, scrubberProgressBarRef] =
     useStateRef<HTMLDivElement>();
@@ -72,12 +76,15 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
   const duration = useRef<number>(0);
   const wasPaused = useRef<boolean>(false);
 
-  const handleTimeUpdate = () => {
+  const handleTimeUpdate = useCallback(() => {
+    if (!videoPlayer) {
+      return;
+    }
     const playheadX =
-      (videoElement.currentTime / duration.current) * scrubberWidth.current;
+      (videoPlayer.currentTime() / duration.current) * scrubberWidth.current;
     if (scrubberPlayhead) scrubberPlayhead.style.left = `${playheadX}px`;
     if (scrubberProgressBar) scrubberProgressBar.style.width = `${playheadX}px`;
-  };
+  }, [scrubberPlayhead, scrubberProgressBar, videoPlayer]);
 
   useResize(
     scrubber,
@@ -90,69 +97,72 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
       scrubberWidth,
       scrubberPlayhead,
       scrubberProgressBar,
-      videoElement,
+      videoPlayer,
       duration,
-    ]
+    ],
   );
 
   const handlePlayheadDragStart = useCallback(
     (x: number, y: number) => {
       const actualX = parseInt(scrubberPlayhead?.style.left || "0");
-      wasPaused.current = videoElement.paused;
-      videoElement.pause();
+      wasPaused.current = videoPlayer.paused();
+      videoPlayer.pause();
       return { x: actualX, y };
     },
-    [scrubberPlayhead, videoElement, wasPaused]
+    [scrubberPlayhead, videoPlayer, wasPaused],
   );
 
-  const setTimeIndicator = (x: number, time: number) => {
-    if (!timeIndicator) {
-      return;
-    }
-    const indicatorX = Math.min(
-      Math.max(INDICATOR_WIDTH / 2, x),
-      scrubberWidth.current - INDICATOR_WIDTH / 2
-    );
-    timeIndicator.style.opacity = "1";
-    timeIndicator.style.left = `${indicatorX}px`;
-    timeIndicator.innerText = dayjs
-      .duration(time, "seconds")
-      .format("HH:mm:ss:SSS")
-      .split(".")[0];
-  };
+  const setTimeIndicator = useCallback(
+    (x: number, time: number) => {
+      if (!timeIndicator) {
+        return;
+      }
+      const indicatorX = Math.min(
+        Math.max(INDICATOR_WIDTH / 2, x),
+        scrubberWidth.current - INDICATOR_WIDTH / 2,
+      );
+      timeIndicator.style.opacity = "1";
+      timeIndicator.style.left = `${indicatorX}px`;
+      timeIndicator.innerText = dayjs
+        .duration(time, "seconds")
+        .format("HH:mm:ss:SSS")
+        .split(".")[0];
+    },
+    [timeIndicator],
+  );
 
-  const hideTimeIndicator = () => {
+  const hideTimeIndicator = useCallback(() => {
     if (timeIndicator) timeIndicator.style.opacity = "0";
-  };
+  }, [timeIndicator]);
 
   const handlePlayheadDragMove = useCallback(
     (start: Coords, corrected: Coords, delta: Coords) => {
       const x = Math.min(
         Math.max(0, corrected.x + delta.x),
-        scrubberWidth.current
+        scrubberWidth.current,
       );
       if (scrubberPlayhead) scrubberPlayhead.style.left = `${x}px`;
-      if (!videoElement) {
+      if (!videoPlayer) {
         return;
       }
-      videoElement.currentTime =
-        (x / scrubberWidth.current) * videoElement.duration || 0;
+      const newTime = (x / scrubberWidth.current) * videoPlayer.duration() || 0;
+      videoPlayer.currentTime(newTime);
 
-      onSeek?.(videoElement.currentTime);
+      onSeek?.(newTime);
 
-      setTimeIndicator(x, videoElement.currentTime);
+      setTimeIndicator(x, newTime);
     },
-    [scrubberWidth, scrubberPlayhead, timeIndicator, videoElement]
+    [scrubberPlayhead, videoPlayer, onSeek, setTimeIndicator],
   );
 
   const handlePlayheadDragStop = useCallback(
     (start: Coords, corrected: Coords, delta: Coords) => {
       hideTimeIndicator();
       if (!wasPaused.current) {
-        videoElement.play();
+        videoPlayer.play();
       }
     },
-    [timeIndicator, wasPaused, videoElement]
+    [hideTimeIndicator, videoPlayer],
   );
 
   useDrag(
@@ -161,7 +171,7 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
     handlePlayheadDragMove,
     handlePlayheadDragStop,
     true,
-    [scrubberWidth, scrubberPlayhead, timeIndicator, videoElement]
+    [scrubberWidth, scrubberPlayhead, timeIndicator, videoPlayer],
   );
 
   useEffect(() => {
@@ -170,53 +180,52 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
     }
 
     const handleDurationChange = () => {
-      duration.current = videoElement.duration;
+      duration.current = videoPlayer.duration();
     };
 
-    if (videoElement) {
-      if (videoElement.duration) {
+    if (videoPlayer) {
+      if (videoPlayer.duration()) {
         // For cases where the video's duration is loaded before this hook runs
         handleDurationChange();
       }
-      videoElement.addEventListener("durationchange", handleDurationChange);
-      videoElement.addEventListener("loadedmetadata", handleDurationChange);
-      videoElement.addEventListener("timeupdate", handleTimeUpdate);
+      videoPlayer.addDurationChangeListener(TAG, handleDurationChange);
+      videoPlayer.addTimeUpdateListener(TAG, handleTimeUpdate);
     }
     return () => {
-      if (videoElement) {
-        videoElement.removeEventListener(
-          "durationchange",
-          handleDurationChange
-        );
-        videoElement.removeEventListener(
-          "loadedmetadata",
-          handleDurationChange
-        );
-        videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+      if (videoPlayer) {
+        videoPlayer.removeDurationChangeListener(TAG);
+        videoPlayer.removeTimeUpdateListener(TAG);
       }
     };
-  }, [videoElement, scrubber, scrubberProgressBar, scrubberPlayhead, duration]);
+  }, [
+    videoPlayer,
+    scrubber,
+    scrubberProgressBar,
+    scrubberPlayhead,
+    duration,
+    handleTimeUpdate,
+  ]);
 
   const handleClickScrubber = (event: React.MouseEvent) => {
-    if (!scrubber || !videoElement) {
+    if (!scrubber || !videoPlayer) {
       return;
     }
     const { x, width } = scrubber.getBoundingClientRect();
-    videoElement.currentTime =
-      ((event.clientX - x) / width) * videoElement.duration;
-    onSeek?.(videoElement.currentTime);
+    const newTime = ((event.clientX - x) / width) * videoPlayer.duration();
+    videoPlayer.currentTime(newTime);
+    onSeek?.(newTime);
   };
 
   const handleMouseOverScrubber = (event: React.MouseEvent) => {
-    if (!scrubber || !videoElement) {
+    if (!scrubber || !videoPlayer) {
       return;
     }
     const { x: scrubberLeft } = scrubber.getBoundingClientRect();
     const x = Math.min(
       Math.max(0, event.clientX - scrubberLeft),
-      scrubberWidth.current
+      scrubberWidth.current,
     );
-    setTimeIndicator(x, (x / scrubberWidth.current) * videoElement.duration);
+    setTimeIndicator(x, (x / scrubberWidth.current) * videoPlayer.duration());
   };
 
   return (

@@ -35,6 +35,7 @@ import { ContentHome } from "./containers/content-home";
 import { Processor } from "./processors/processor";
 import "./provider";
 import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
+
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey],
 );

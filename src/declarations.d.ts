@@ -10,6 +10,7 @@ import {
   VideoSource,
 } from "./common/feature/video/types";
 import { BackendProvider } from "./common/providers/backend-provider";
+import { VideoPlayer } from "./extension/content/feature/editor/video-player/video-player";
 import { Processor } from "./extension/content/processors/processor";
 
 declare global {
@@ -43,6 +44,7 @@ declare global {
     createPlayer: (videoId: string, options: { video: string }) => any;
   };
   var videoElement: HTMLVideoElement;
+  var videoPlayer: VideoPlayer;
   var videoId: string;
   var videoSource: VideoSource;
   var videoName: string;

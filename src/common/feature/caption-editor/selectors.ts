@@ -90,6 +90,10 @@ export const currentShortcutTypeSelector = (state: RootState) => {
   return state.captionEditor.shortcutType;
 };
 
+export const inWebEditorSelector = (state: RootState) => {
+  return state.captionEditor.inWebEditor;
+};
+
 /**
  * Is the loaded caption created by the current user?
  * @param tabId
@@ -110,7 +114,7 @@ export const isUserCaptionLoadedSelector = (tabId: number) =>
           captioner.captioner &&
           caption.creator === captioner.captioner.userId)
       );
-    }
+    },
   );
 
 export const showEditorSelector = (tabId: number) =>
@@ -119,7 +123,7 @@ export const showEditorSelector = (tabId: number) =>
     showEditorIfPossibleSelector(tabId),
     (isUserCaptionLoaded, showEditorIfPossible) => {
       return !!(isUserCaptionLoaded && showEditorIfPossible);
-    }
+    },
   );
 
 export const canEditorUndoSelector = (tabId: number) => (state: RootState) => {

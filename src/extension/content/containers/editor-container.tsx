@@ -11,6 +11,7 @@ import {
 import {
   canEditorRedoSelector,
   canEditorUndoSelector,
+  inWebEditorSelector,
   isUserCaptionLoadedSelector,
   keyboardShortcutsSelector,
   showEditorSelector,
@@ -20,16 +21,23 @@ import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { CaptionFileFormat } from "@/common/types";
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
+import { CaptionEditor } from "@/extension/content/feature/editor/components/caption-editor";
+import { useToggle } from "@/hooks";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { message } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import {
+  FunctionComponent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CaptionEditor } from "../feature/editor/components/caption-editor";
 import { AUTOSAVE_INTERVAL } from "../feature/editor/constants";
+import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { ConfirmSaveModal } from "./confirm-save-modal";
 import { VideoPageMenu } from "./video-page-menu";
-
-const editorMenuComponent = <VideoPageMenu inEditorScreen={true} />;
+import { WebEditorToolbarActions } from "./web-editor-toolbar-actions";
 
 const useAutosave = () => {
   const dispatch = useDispatch();
@@ -62,7 +70,15 @@ const useAutosave = () => {
   }, [shouldAutosave, dispatch, showEditor]);
 };
 
-export const EditorContainer = () => {
+export type EditorContainerProps = {
+  playerOverride?: VideoPlayer;
+  children?: ReactNode;
+};
+
+export const EditorContainer: FunctionComponent<EditorContainerProps> = ({
+  playerOverride,
+  children,
+}: EditorContainerProps) => {
   const dispatch = useDispatch();
   const videoData = useSelector(tabVideoDataSelector(globalThis.tabId));
   const editorData = useSelector(tabEditorDataSelector(globalThis.tabId));
@@ -76,6 +92,8 @@ export const EditorContainer = () => {
   const isSubmitting = useSelector(submitCaption.isLoading(globalThis.tabId));
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [skipSaveConfirmation, setSkipSaveConfirmation] = useState(false);
+  const inWebEditor = useSelector(inWebEditorSelector);
+  const [showLogin, toggleShowLogin] = useToggle(false);
 
   useAutosave();
 
@@ -166,6 +184,10 @@ export const EditorContainer = () => {
       ? editorData.caption
       : videoData?.caption;
 
+  const editorMenuComponent = (
+    <VideoPageMenu inEditorScreen={true} onLoginRequired={toggleShowLogin} />
+  );
+
   return (
     <>
       <ConfirmSaveModal
@@ -177,8 +199,20 @@ export const EditorContainer = () => {
       <CaptionEditor
         captionContainer={caption}
         showEditor={showEditor}
-        captionContainerElement={globalThis.captionContainerElement}
-        videoElement={globalThis.videoElement}
+        toolbarChildren={
+          inWebEditor && (
+            <WebEditorToolbarActions
+              showLogin={showLogin}
+              toggleLogin={toggleShowLogin}
+            />
+          )
+        }
+        captionContainerElement={
+          playerOverride
+            ? playerOverride.element()?.parentElement || null
+            : globalThis.captionContainerElement
+        }
+        videoPlayer={playerOverride ?? globalThis.videoPlayer}
         videoMenuComponent={editorMenuComponent}
         updateCaption={handleUpdateCaption}
         onUndo={handleUndo}
@@ -189,7 +223,9 @@ export const EditorContainer = () => {
         onExport={handleExport}
         keyboardShortcuts={keyboardShortcuts}
         isSubmitting={isSubmitting}
-      />
+      >
+        {children}
+      </CaptionEditor>
     </>
   );
 };

@@ -39,14 +39,15 @@ const TimelineSlider = styled(Slider)`
   width: 200px;
 `;
 
-type EditorToolbarProps = UndoComponentProps & {
-  timelineScale: number;
-  onSave: () => void;
-  onFixOverlaps: () => void;
-  onOpenShiftTimings: () => void;
-  onChangeZoom: (value: number) => void;
-  onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
-};
+type EditorToolbarProps = UndoComponentProps &
+  React.PropsWithChildren<{
+    timelineScale: number;
+    onSave: () => void;
+    onFixOverlaps: () => void;
+    onOpenShiftTimings: () => void;
+    onChangeZoom: (value: number) => void;
+    onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
+  }>;
 
 type KeyboardShortcutModalProps = {
   modalProps: ModalProps;
@@ -150,6 +151,7 @@ export const EditorToolbar = ({
   canRedo,
   onFixOverlaps,
   onOpenShiftTimings,
+  children,
 }: EditorToolbarProps) => {
   const [showShortcutModal, setShowShortcutModal] = useState(false);
 
@@ -238,6 +240,7 @@ export const EditorToolbar = ({
         <Button onClick={handleClickShortcutsHelp}>
           <FontAwesomeIcon icon={faKeyboard} />
         </Button>
+        {children}
       </Space>
     </>
   );

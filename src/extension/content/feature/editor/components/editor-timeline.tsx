@@ -30,6 +30,7 @@ import {
   TRACK_BASE_HEIGHT,
   TRACK_INFO_WIDTH,
 } from "../constants";
+import { VideoPlayer } from "../video-player/video-player";
 import { DraggableCue } from "./draggable-cue";
 import { TimelinePointer } from "./timeline-pointer";
 dayjs.extend(duration);
@@ -233,7 +234,7 @@ type EditorTimelineProps = {
   selectedTrack: number;
   selectedCaption: number;
   videoDurationMs: number;
-  videoElement: HTMLVideoElement;
+  videoPlayer: VideoPlayer;
   onAddTrack?: () => void;
   onRemoveTrack?: (trackId: number) => void;
   onClickTimeline?: (
@@ -253,9 +254,11 @@ type EditorTimelineProps = {
   ) => void;
 };
 
+const TAG = "timeline";
+
 export const EditorTimeline = ({
   caption,
-  videoElement,
+  videoPlayer,
   scale = 1, // Scale changes the width between every 100 ms
   selectedTrack,
   selectedCaption,
@@ -307,7 +310,7 @@ export const EditorTimeline = ({
     setTimelinePosition.current = (timeMs: number) => {
       setViewRangeStart(timeMs / videoDurationMs);
     };
-  }, [scale, videoDurationMs]);
+  }, [scale, setTimelinePosition, setViewRangeStart, videoDurationMs]);
 
   useLayoutEffect(() => {
     if (trackScrollRef.current) {
@@ -320,7 +323,8 @@ export const EditorTimeline = ({
 
   const scrollLeft = (() => {
     const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
-    return viewRangeStart * (totalWidth - timelineVisibleWidth);
+    const result = viewRangeStart * (totalWidth - timelineVisibleWidth);
+    return isNaN(result) ? 0 : result;
   })();
 
   const getTrackVerticalScrollOffset = () => {
@@ -376,8 +380,8 @@ export const EditorTimeline = ({
     }
 
     // Draw current time marker
-    if (videoElement) {
-      const normalizedTime = videoElement.currentTime / videoElement.duration;
+    if (videoPlayer) {
+      const normalizedTime = videoPlayer.currentTime() / videoPlayer.duration();
       const currentTimeX = Math.floor(
         normalizedTime * totalWidth - visibleStartX,
       );
@@ -411,7 +415,7 @@ export const EditorTimeline = ({
   useAnimationFrame(60, updateTimebarCanvas, [
     scale,
     timebarCanvas,
-    videoElement,
+    videoPlayer,
     isPlayingRef,
     videoDurationMs,
   ]);
@@ -423,36 +427,46 @@ export const EditorTimeline = ({
     const handleVideoPause = () => {
       isPlayingRef.current = false;
     };
-    if (videoElement) {
-      videoElement.addEventListener("play", handleVideoPlay);
-      videoElement.addEventListener("pause", handleVideoPause);
+    if (videoPlayer) {
+      videoPlayer.addPlayListener(TAG, handleVideoPlay);
+      videoPlayer.addPauseListener(TAG, handleVideoPause);
     }
     return () => {
-      if (videoElement) {
-        videoElement.removeEventListener("play", handleVideoPlay);
-        videoElement.removeEventListener("pause", handleVideoPause);
+      if (videoPlayer) {
+        videoPlayer.removePlayListener(TAG);
+        videoPlayer.removePauseListener(TAG);
       }
     };
-  }, [videoElement]);
+  }, [videoPlayer]);
 
   const getVideoTimeAtMouse = useCallback(
     (mouseX: number) => {
       const timelineOffset = timebarCanvas ? timebarCanvas.offsetLeft : 0;
       const timelineRelativeMouseX = mouseX - timelineOffset;
       const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
-      console.log(
-        "Getvideo",
-        videoElement,
-        videoDurationMs,
-        scrollLeft,
-        totalWidth,
-        timelineRelativeMouseX,
-      );
       const durationMs =
         ((scrollLeft + timelineRelativeMouseX) / totalWidth) * videoDurationMs;
       return durationMs;
     },
-    [videoElement, videoDurationMs],
+    [videoDurationMs, timebarCanvas, scale, scrollLeft],
+  );
+
+  const getSelectedTrackAndCaption = useCallback(
+    (mouseX: number, mouseY: number) => {
+      let clickedTrack = -1;
+      // Get the selected track
+      if (track) {
+        const scrollOffset = trackContainerRef.current
+          ? trackContainerRef.current.scrollTop
+          : 0;
+        const trackY = timebarCanvas?.getBoundingClientRect().bottom || 0;
+        const relativeY = mouseY - trackY + scrollOffset;
+        clickedTrack = Math.floor(relativeY / TRACK_BASE_HEIGHT);
+      }
+
+      return { trackId: clickedTrack, captionId: 0 };
+    },
+    [timebarCanvas, track],
   );
 
   const handleClickTimeline = useCallback(
@@ -467,11 +481,7 @@ export const EditorTimeline = ({
         onClickTimeline(trackId, 0, newTimeMs);
       }
     },
-    [
-      videoElement,
-      videoDurationMs,
-      timebarCanvas ? timebarCanvas.scrollLeft : -1,
-    ],
+    [getVideoTimeAtMouse, getSelectedTrackAndCaption, onClickTimeline],
   );
 
   const handleDoubleClickTimeline = useCallback(
@@ -479,6 +489,7 @@ export const EditorTimeline = ({
       clearSelection();
       // Set the video to the calculated time
       const newTimeMs = getVideoTimeAtMouse(mouseX);
+      console.log("GSTC", newTimeMs);
       const { trackId, captionId } = getSelectedTrackAndCaption(mouseX, mouseY);
       if (trackId < 0) {
         return;
@@ -487,10 +498,10 @@ export const EditorTimeline = ({
         onNewCaption(trackId, newTimeMs);
       }
     },
-    [videoElement, videoDurationMs],
+    [getVideoTimeAtMouse, getSelectedTrackAndCaption, onNewCaption],
   );
 
-  if (!caption || !videoElement) {
+  if (!caption || !videoPlayer) {
     return null;
   }
 
@@ -834,27 +845,12 @@ export const EditorTimeline = ({
               </RangeTrack>
             );
           }}
-          renderThumb={({ props }) => {
+          renderThumb={({ props: { key: _, ...props } }) => {
             return <RangeThumb {...props}></RangeThumb>;
           }}
         />
       </div>
     );
-  };
-
-  const getSelectedTrackAndCaption = (mouseX: number, mouseY: number) => {
-    let clickedTrack = -1;
-    // Get the selected track
-    if (track) {
-      const scrollOffset = trackContainerRef.current
-        ? trackContainerRef.current.scrollTop
-        : 0;
-      const trackY = timebarCanvas?.getBoundingClientRect().bottom || 0;
-      const relativeY = mouseY - trackY + scrollOffset;
-      clickedTrack = Math.floor(relativeY / TRACK_BASE_HEIGHT);
-    }
-
-    return { trackId: clickedTrack, captionId: 0 };
   };
 
   return (

@@ -41,14 +41,14 @@ import {
   UndoComponentProps,
 } from "@/common/types";
 import { BooleanFilter, clamp, isInputElementSelected } from "@/common/utils";
-import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
+import { useGetVideoPlayerFrameRate } from "@/extension/content/hooks/use-get-video-player-frame-rate";
 import {
   useMount,
   useResize,
   useStateRef,
-  useVideoDurationChange,
-  useVideoPlayPause,
-  useVideoVolumeChange,
+  useVideoPlayerDurationChange,
+  useVideoPlayerPlayPause,
+  useVideoPlayerVolumeChange,
 } from "@/hooks";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import ClockCircleOutlined from "@ant-design/icons/ClockCircleOutlined";
@@ -85,6 +85,7 @@ import { DEFAULT_LAYOUT_SETTINGS, MAX_VOLUME } from "../constants";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
 import { CaptionMutators, useCaptionDrag } from "../utils";
 import { triggerEnterKeyupEvent } from "../utils/trigger-enter-keyup-event";
+import { VideoPlayer } from "../video-player/video-player";
 import { EditorTimeline, SetTimelineScroll } from "./editor-timeline";
 import { EditorToolbar } from "./editor-toolbar";
 import { SettingsPanel } from "./settings-panel";
@@ -247,8 +248,7 @@ const RootPane = styled.div<RootPaneType>`
   `)}
 
   .nekocap-cap-container {
-    // Override the caption container to allow dragging of captions in the editor
-    pointer-events: all !important;
+    /* pointer-events: all !important; */
     user-select: none;
 
     top: 50% !important;
@@ -257,6 +257,9 @@ const RootPane = styled.div<RootPaneType>`
   }
 
   .nekocap-caption {
+    // Override the caption container to allow dragging of captions in the editor
+    pointer-events: all !important;
+
     ${({ $captionMoveType }: RootPaneType) => {
       if ($captionMoveType === CaptionModificationState.Global) {
         return `
@@ -426,10 +429,19 @@ const ScrollingText = styled.div`
 `;
 
 const ScrollingEditorField = styled.div`
+  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  background-color: ${colors.white}33;
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  transition: opacity 200ms;
+  pointer-events: none;
 `;
 
 const NoTextInTrack = styled.div`
@@ -538,7 +550,7 @@ const DisabledNumberFormat = styled(NumberFormat<unknown>)`
 const focusCaptionTextArea = (captionId: number, delay = 0) => {
   if (!isInExtension()) {
     const textArea = document.getElementById(`nc-ta-${captionId}`);
-    textArea.focus();
+    textArea?.focus();
     return;
   }
   setTimeout(() => {
@@ -554,18 +566,20 @@ type CaptionEditorProps = UndoComponentProps & {
   showEditor: boolean;
   isSubmitting: boolean;
   captionContainer?: CaptionContainer;
-  videoElement: HTMLVideoElement;
+  videoPlayer: VideoPlayer;
   captionContainerElement: HTMLElement | null;
   videoMenuComponent: ReactNode;
   updateCaption: (action: AnyAction, callback?: () => void) => void;
   keyboardShortcuts: { [id: string]: KeySequence };
   onSave: () => void;
   onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
+  children?: ReactNode; // Insert the video player directly as a child of this node
+  toolbarChildren?: ReactNode; // Additional components for the toolbar
 };
 
 const CaptionEditorInternal = ({
   captionContainer,
-  videoElement,
+  videoPlayer,
   captionContainerElement,
   videoMenuComponent,
   showEditor,
@@ -577,6 +591,8 @@ const CaptionEditorInternal = ({
   onSave,
   onExport,
   keyboardShortcuts,
+  children,
+  toolbarChildren,
 }: CaptionEditorProps) => {
   const [editorVideoContainer, editorVideoContainerRef] =
     useStateRef<HTMLDivElement>();
@@ -602,14 +618,13 @@ const CaptionEditorInternal = ({
   const lastDebouncedAction = useRef<PayloadAction<any>>();
   const hotKeysRef = useRef<HTMLDivElement>(null);
   const videoDimensions = useRef<Coords>({ x: 0, y: 0 });
-  const [isPlaying, setIsPlaying, isPlayingRef] =
-    useVideoPlayPause(videoElement);
+  const [isPlaying, _, isPlayingRef] = useVideoPlayerPlayPause(videoPlayer);
   const {
-    volume: [volume, setVolume, volumeRef],
+    volume: [volume, setVolume],
     mute: [isMute],
-  } = useVideoVolumeChange(videoElement);
-  const [videoDurationMs] = useVideoDurationChange(videoElement);
-  const videoFps = useGetVideoFrameRate(videoElement);
+  } = useVideoPlayerVolumeChange(videoPlayer);
+  const [videoDurationMs] = useVideoPlayerDurationChange(videoPlayer);
+  const videoFps = useGetVideoPlayerFrameRate(videoPlayer);
 
   const { data } = captionContainer || {};
 
@@ -617,7 +632,10 @@ const CaptionEditorInternal = ({
    * Effect for moving the video element to the editor and back
    */
   useEffect(() => {
-    if (!videoElement || !editorVideoContainer || !captionContainerElement) {
+    if (!videoPlayer || !editorVideoContainer || !captionContainerElement) {
+      return;
+    }
+    if (children) {
       return;
     }
 
@@ -642,7 +660,13 @@ const CaptionEditorInternal = ({
       }
       document.body.style.overflow = "unset";
     }
-  }, [showEditor, captionContainerElement, editorVideoContainer, videoElement]);
+  }, [
+    showEditor,
+    captionContainerElement,
+    editorVideoContainer,
+    videoPlayer,
+    children,
+  ]);
 
   useMount(() => {
     return () => {
@@ -771,12 +795,14 @@ const CaptionEditorInternal = ({
     };
   };
 
-  useResize(videoElement, updateVideoDimensions, 0, [videoElement]);
+  useResize(videoPlayer?.element(), updateVideoDimensions, 0, [
+    videoPlayer?.element(),
+  ]);
 
   const setVideoTime = useCallback(
     (timeInSeconds: number, scrollTimeline = true) => {
-      if (videoElement) {
-        videoElement.currentTime = timeInSeconds;
+      if (videoPlayer) {
+        videoPlayer.currentTime(timeInSeconds);
       }
       // Set timeline to scroll to the correct position
       if (!scrollTimeline || !setTimelineScroll.current) {
@@ -784,7 +810,7 @@ const CaptionEditorInternal = ({
       }
       setTimelineScroll.current(timeInSeconds * 1000);
     },
-    [videoElement],
+    [videoPlayer],
   );
 
   const selectAndScrollToCaptionId = useCallback(
@@ -855,17 +881,17 @@ const CaptionEditorInternal = ({
   // too lazy to change back
   const handleClickPlay = useCallback(
     (event) => {
-      if (!videoElement) {
+      if (!videoPlayer) {
         return;
       }
       event.preventDefault();
       if (isPlayingRef.current) {
-        videoElement.pause();
+        videoPlayer.pause();
       } else {
-        videoElement.play();
+        videoPlayer.play();
       }
     },
-    [videoElement, isPlayingRef],
+    [videoPlayer, isPlayingRef],
   );
 
   const handleSetStartToCurrentTime = useCallback(
@@ -885,7 +911,7 @@ const CaptionEditorInternal = ({
         return;
       }
       event.preventDefault();
-      const newStartTime = videoElement.currentTime * 1000;
+      const newStartTime = videoPlayer.currentTime() * 1000;
       let newEndTime = caption.end;
       if (caption.end < newStartTime) {
         // If the start time is after the end time, we'll shift the end time so that the same duration remains
@@ -900,13 +926,7 @@ const CaptionEditorInternal = ({
         }),
       );
     },
-    [
-      data,
-      selectedTrack,
-      selectedCaption,
-      videoElement?.currentTime,
-      updateCaption,
-    ],
+    [data, selectedTrack, selectedCaption, videoPlayer, updateCaption],
   );
 
   const handleSetEndToCurrentTime = useCallback(
@@ -926,7 +946,7 @@ const CaptionEditorInternal = ({
         return;
       }
       event.preventDefault();
-      const newEndTime = videoElement.currentTime * 1000;
+      const newEndTime = videoPlayer.currentTime() * 1000;
       let newStartTime = caption.start;
       if (caption.start > newEndTime) {
         // If the end time is before the start time, we'll shift the start time so that the same duration remains
@@ -941,13 +961,7 @@ const CaptionEditorInternal = ({
         }),
       );
     },
-    [
-      data,
-      selectedTrack,
-      selectedCaption,
-      videoElement.currentTime,
-      updateCaption,
-    ],
+    [data, selectedTrack, selectedCaption, videoPlayer, updateCaption],
   );
 
   const handleGotoNextCaption = useCallback(
@@ -1026,7 +1040,13 @@ const CaptionEditorInternal = ({
         return;
       }
       event.preventDefault();
-      let newTime = videoElement.currentTime * 1000;
+      console.log(
+        "Adding new caption at current time",
+        videoPlayer.currentTime(),
+        "last debounced action",
+        lastDebouncedAction.current,
+      );
+      let newTime = videoPlayer.currentTime() * 1000;
       if (selectedCaption >= 0) {
         newTime = Math.max(
           newTime,
@@ -1077,47 +1097,8 @@ const CaptionEditorInternal = ({
         triggerEnterKeyupEvent(inputElement);
         dispatchUpdates();
 
-        const addCaption = () => {
-          if (batchUpdates && lastDebouncedAction.current) {
-            captionListKeySuffix.current++;
-            updateCaption(
-              modifyCaptionWithMultipleActions({
-                actions: [
-                  lastDebouncedAction.current,
-                  addCaptionToTrackTime({
-                    trackId: selectedTrack,
-                    timeMs: newTime,
-                    skipValidityChecks: false,
-                  }),
-                ],
-              }),
-            );
-          } else {
-            handleNewCaption(selectedTrack, newTime);
-          }
+        if (!isInExtension()) {
           focusNewCaptionIndex.current = newCaptionId;
-          inputElement?.removeEventListener("keyup", addCaption);
-        };
-
-        // TODO: only run this in the extension
-        if (isInExtension()) {
-          inputElement?.addEventListener("keyup", addCaption);
-        } else {
-          focusNewCaptionIndex.current = newCaptionId;
-          addCaption();
-          // focusNewCaptionIndex.current = newCaptionId;
-          // updateCaption(
-          //   modifyCaptionWithMultipleActions({
-          //     actions: [
-          //       lastDebouncedAction.current,
-          //       addCaptionToTrackTime({
-          //         trackId: selectedTrack,
-          //         timeMs: newTime,
-          //         skipValidityChecks: false,
-          //       }),
-          //     ],
-          //   })
-          // );
         }
       } else {
         debouncedUpdateCaption.flush();
@@ -1131,7 +1112,7 @@ const CaptionEditorInternal = ({
       selectedCaption,
       selectedTrack,
       updateCaption,
-      videoElement.currentTime,
+      videoPlayer,
     ],
   );
 
@@ -1327,7 +1308,7 @@ const CaptionEditorInternal = ({
   };
 
   const handleClickAddCaptionBetweenCaptions =
-    (trackId: number, captionId: number) => () => {
+    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
       captionListKeySuffix.current++;
       updateCaption(addCaptionToTrackRelative({ trackId, captionId }));
     };
@@ -1368,19 +1349,9 @@ const CaptionEditorInternal = ({
 
       const currentCaption = currentTrack.cues[index];
 
-      if (isScrolling) {
-        const formattedStartTime = dayjs
-          .duration(Math.floor(currentCaption.start), "milliseconds")
-          .format("HH:mm:ss.SSS");
-        return (
-          <ScrollingEditorField style={style} key={key}>
-            <ScrollingTime>{formattedStartTime}</ScrollingTime>
-            <ScrollingText>
-              {currentCaption.text.substring(0, 32)}
-            </ScrollingText>
-          </ScrollingEditorField>
-        );
-      }
+      const formattedStartTime = dayjs
+        .duration(Math.floor(currentCaption.start), "milliseconds")
+        .format("HH:mm:ss.SSS");
 
       const start = dayjs
         .duration(currentCaption.start, "milliseconds")
@@ -1505,6 +1476,19 @@ const CaptionEditorInternal = ({
               <PlusCircleFilled />
             </AddBetween>
           )}
+          <ScrollingEditorField
+            style={{
+              height: style.height,
+              width: style.width,
+              opacity: isScrolling ? 1 : 0,
+            }}
+            key={key}
+          >
+            <ScrollingTime>{formattedStartTime}</ScrollingTime>
+            <ScrollingText>
+              {currentCaption.text.substring(0, 32)}
+            </ScrollingText>
+          </ScrollingEditorField>
         </CaptionTextRow>
       );
     };
@@ -1529,20 +1513,20 @@ const CaptionEditorInternal = ({
     );
   };
 
-  const handleClickMute = () => {
-    if (!videoElement) {
+  const handleClickMute = async () => {
+    if (!videoPlayer) {
       return;
     }
-    videoElement.muted = !videoElement.muted;
+    videoPlayer.muted(!(await videoPlayer.muted()));
   };
 
-  const handleChangeVolume = (newVolume: number) => {
-    if (!videoElement) {
+  const handleChangeVolume = async (newVolume: number) => {
+    if (!videoPlayer) {
       return;
     }
     newVolume = newVolume / MAX_VOLUME;
-    videoElement.volume = newVolume;
-    videoElement.muted = newVolume === 0;
+    setVolume(newVolume);
+    await videoPlayer.muted(newVolume === 0);
   };
 
   const handleUpdateCaption = (action: AnyAction) => {
@@ -1561,9 +1545,11 @@ const CaptionEditorInternal = ({
     event.preventDefault();
     setVideoTime(
       clamp(
-        videoElement.currentTime + duration * TIME.MS_TO_SECONDS,
+        videoPlayer.currentTime(
+          videoPlayer.currentTime() + duration * TIME.MS_TO_SECONDS,
+        ),
         0,
-        videoElement.duration,
+        videoPlayer.duration(),
       ),
       true,
     );
@@ -1574,14 +1560,14 @@ const CaptionEditorInternal = ({
       event.preventDefault();
       setVideoTime(
         clamp(
-          videoElement.currentTime + 1 / videoFps,
+          videoPlayer.currentTime() + 1 / videoFps,
           0,
-          videoElement.duration,
+          videoPlayer.duration(),
         ),
         true,
       );
     },
-    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps],
+    [setVideoTime, videoFps, videoPlayer],
   );
 
   const handleSeekPreviousFrame = useCallback(
@@ -1589,14 +1575,14 @@ const CaptionEditorInternal = ({
       event.preventDefault();
       setVideoTime(
         clamp(
-          videoElement.currentTime - 1 / videoFps,
+          videoPlayer.currentTime() - 1 / videoFps,
           0,
-          videoElement.duration,
+          videoPlayer.duration(),
         ),
         true,
       );
     },
-    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps],
+    [setVideoTime, videoFps, videoPlayer],
   );
 
   const renderInfoMessage = () => {
@@ -1680,10 +1666,12 @@ const CaptionEditorInternal = ({
                     globalThis.selectedProcessor?.editorVideoPlayerStyles || ""
                   }
                   innerRef={editorVideoContainerRef}
-                ></EditorVideoContainer>
+                >
+                  {children}
+                </EditorVideoContainer>
                 <VideoControls>
                   <VideoScrubber
-                    videoElement={videoElement}
+                    videoPlayer={videoPlayer}
                     onSeek={handleSeek}
                   />
                   <Space style={{ justifyContent: "center" }}>
@@ -1693,10 +1681,10 @@ const CaptionEditorInternal = ({
                         <div>
                           <VolumeSlider
                             range={false}
-                            defaultValue={10}
                             step={0.1}
                             min={0}
                             max={MAX_VOLUME}
+                            value={volume * MAX_VOLUME}
                             onChange={handleChangeVolume}
                           />
                         </div>
@@ -1722,7 +1710,7 @@ const CaptionEditorInternal = ({
               <SettingsPane>
                 <SettingsPanel
                   caption={data}
-                  videoElement={videoElement}
+                  videoPlayer={videoPlayer}
                   videoDurationMs={videoDurationMs}
                   selectedTrack={selectedTrack}
                   selectedCaption={selectedCaption}
@@ -1753,7 +1741,9 @@ const CaptionEditorInternal = ({
                       canUndo={canUndo}
                       canRedo={canRedo}
                       onExport={onExport}
-                    />
+                    >
+                      {toolbarChildren}
+                    </EditorToolbar>
                   </Space>
                 </div>
                 <EditorTimeline
@@ -1761,7 +1751,7 @@ const CaptionEditorInternal = ({
                   caption={data}
                   scale={timelineScale}
                   videoDurationMs={videoDurationMs}
-                  videoElement={videoElement}
+                  videoPlayer={videoPlayer}
                   selectedTrack={selectedTrack}
                   selectedCaption={selectedCaption}
                   onAddTrack={handleAddTrack}
@@ -1771,7 +1761,7 @@ const CaptionEditorInternal = ({
                   onNewCaption={handleNewCaption}
                   setTimelineScroll={setTimelineScroll}
                   onUpdateCaptionTime={handleUpdateCaptionTime}
-                ></EditorTimeline>
+                />
               </TimelineContainer>
             </div>
           </RootSplitPane>
@@ -1781,7 +1771,7 @@ const CaptionEditorInternal = ({
         visible={isShiftTimingsModalOpen}
         onShift={handleShiftTimings}
         onCancel={handleCancelShiftTimingsModal}
-        videoElement={videoElement}
+        videoPlayer={videoPlayer}
       />
     </>,
     editorPortalElement,
@@ -1806,12 +1796,14 @@ export const CaptionEditor = React.memo(
       prevProps.canUndo === nextProps.canUndo &&
       prevProps.showEditor === nextProps.showEditor &&
       prevProps.captionContainerElement === nextProps.captionContainerElement &&
-      prevProps.videoElement === nextProps.videoElement &&
+      prevProps.videoPlayer === nextProps.videoPlayer &&
       prevProps.videoMenuComponent === nextProps.videoMenuComponent &&
       prevProps.updateCaption === nextProps.updateCaption &&
       prevProps.onRedo === nextProps.onRedo &&
       prevProps.onUndo === nextProps.onUndo &&
       prevProps.onSave === nextProps.onSave &&
+      prevProps.children === nextProps.children &&
+      prevProps.toolbarChildren === nextProps.toolbarChildren &&
       isShortcutEqual &&
       isSubEqual
     );

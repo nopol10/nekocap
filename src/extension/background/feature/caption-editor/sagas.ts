@@ -15,7 +15,6 @@ import { call, fork, put, select, takeLatest } from "redux-saga/effects";
 
 import { parseCaption, stringifyCaption } from "@/common/caption-parsers";
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
-import { chromeProm } from "@/common/chrome-utils";
 import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
 import {
   addCaptionToTrackRelative,
@@ -76,8 +75,8 @@ import {
 import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
 import {
   CaptionEditorLocalSave,
-  CaptionEditorStorage,
   CreateNewCaption,
+  EditorStorage,
   ExportCaption,
   ExportCaptionResult,
   GenerateCaption,
@@ -106,7 +105,11 @@ import { getStringByteLength } from "@/common/utils";
 import { CaptionMutators } from "@/extension/content/feature/editor/utils";
 import { compressToBase64 as lzCompress } from "lz-string";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
-import { getCaptionContainersFromFile } from "./utils";
+import {
+  getCaptionContainersFromFile,
+  getLocalCaptionDataFromStorage,
+  saveLocalCaptionDataToStorage,
+} from "./utils";
 
 const isActionType = <T>(
   action: AnyAction,
@@ -340,9 +343,6 @@ function* updateKeyboardShortcutTypeSaga({
 function* saveLocalCaptionSaga({
   payload,
 }: ThunkedPayloadAction<SaveLocalCaption>) {
-  if (!isInExtension()) {
-    return;
-  }
   const { tabId, videoId, videoSource, mustHaveData = false } = payload;
   if (mustHaveData) {
     const hasEditorCaptionData: boolean = yield select(
@@ -362,9 +362,8 @@ function* saveLocalCaptionSaga({
     console.warn("No caption data to save.");
     return;
   }
-  let result: { editor: CaptionEditorStorage } | undefined = yield call(
-    chromeProm.storage.local.get,
-    ["editor"],
+  let result: EditorStorage | undefined = yield call(
+    getLocalCaptionDataFromStorage,
   );
 
   if (!result || !result.editor) {
@@ -396,16 +395,15 @@ function* saveLocalCaptionSaga({
   }
   result.editor.saves = newSaves;
 
-  yield call(chromeProm.storage.local.setByAppending, ["editor"], result);
+  yield call(saveLocalCaptionDataToStorage, result);
   yield put(saveLocalCaption.success());
 }
 
 function* loadLocallySavedCaptionSaga({
   payload,
 }: ThunkedPayloadAction<CreateNewCaption>) {
-  const result: { editor: CaptionEditorStorage } | undefined = yield call(
-    chromeProm.storage.local.get,
-    ["editor"],
+  const result: EditorStorage | undefined = yield call(
+    getLocalCaptionDataFromStorage,
   );
   if (!result || !result.editor) {
     throw new Error("No save found");

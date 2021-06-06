@@ -11,14 +11,14 @@ import { createAction, PayloadAction } from "@reduxjs/toolkit";
 
 import { TabbedType } from "../../types";
 import {
-  SetEditorShortcuts,
-  SetShowEditorIfPossible,
   SetCaption,
   SetCaptionLanguage,
-  SubmitCaption,
+  SetEditorShortcuts,
   SetRawCaption,
-  VideoSource,
+  SetShowEditorIfPossible,
+  SubmitCaption,
   UpdateUploadedCaption,
+  VideoSource,
 } from "../video/types";
 import { captionEditorActionTypes } from "./action-types";
 import {
@@ -27,6 +27,7 @@ import {
   ExportCaption,
   GenerateCaption,
   SaveLocalCaption,
+  SetShowSubmitModalOpen,
   SHORTCUT_TYPES,
 } from "./types";
 
@@ -34,11 +35,10 @@ export type CaptionAction = {
   error?: string;
 };
 
-export type UpdateCaption<
-  T extends CaptionAction = CaptionAction
-> = TabbedType & {
-  action: PayloadAction<T>;
-};
+export type UpdateCaption<T extends CaptionAction = CaptionAction> =
+  TabbedType & {
+    action: PayloadAction<T>;
+  };
 
 export type ModifyCaptionWithMultipleActions = CaptionAction & {
   actions: PayloadAction<any>[];
@@ -141,31 +141,31 @@ export type SetAutoCaptionList = TabbedType & {
 const csa = createSignalActionInState("captionEditor", true);
 
 export const createNewCaption = csa<CreateNewCaption>(
-  captionEditorActionTypes.createNewCaption
+  captionEditorActionTypes.createNewCaption,
 );
 
 export const loadLocallySavedCaption = csa<CreateNewCaption>(
-  captionEditorActionTypes.loadLocallySavedCaption
+  captionEditorActionTypes.loadLocallySavedCaption,
 );
 
 export const submitCaption = csa<SubmitCaption>(
-  captionEditorActionTypes.submitCaption
+  captionEditorActionTypes.submitCaption,
 );
 
 export const updateUploadedCaption = csa<UpdateUploadedCaption>(
-  captionEditorActionTypes.updateUploadedCaption
+  captionEditorActionTypes.updateUploadedCaption,
 );
 
 export const fetchAutoCaptionList = csa<FetchAutoCaptionList>(
-  captionEditorActionTypes.fetchAutoCaptionList
+  captionEditorActionTypes.fetchAutoCaptionList,
 );
 
 export const fetchAutoCaption = csa<FetchAutoCaption>(
-  captionEditorActionTypes.fetchAutoCaption
+  captionEditorActionTypes.fetchAutoCaption,
 );
 
 export const updateShowEditor = createAction<SetShowEditorIfPossible>(
-  captionEditorActionTypes.updateShowEditor
+  captionEditorActionTypes.updateShowEditor,
 );
 
 /**
@@ -173,26 +173,26 @@ export const updateShowEditor = createAction<SetShowEditorIfPossible>(
  * the editor after that
  */
 export const generateCaptionAndShowEditor = createAction<GenerateCaption>(
-  captionEditorActionTypes.generateCaptionAndShowEditor
+  captionEditorActionTypes.generateCaptionAndShowEditor,
 );
 
 export const saveLocalCaption = csa<SaveLocalCaption>(
-  captionEditorActionTypes.saveLocalCaption
+  captionEditorActionTypes.saveLocalCaption,
 );
 
 export const exportCaption = csa<ExportCaption>(
-  captionEditorActionTypes.exportCaption
+  captionEditorActionTypes.exportCaption,
 );
 
 /**
  * These are actions to help check for validity of an undo before the redux undo actions are fired
  */
 export const undoEditorTriggerAction = createAction<TabbedType>(
-  captionEditorActionTypes.undoTrigger
+  captionEditorActionTypes.undoTrigger,
 );
 
 export const redoEditorTriggerAction = createAction<TabbedType>(
-  captionEditorActionTypes.redoTrigger
+  captionEditorActionTypes.redoTrigger,
 );
 
 export const updateKeyboardShortcutType = createThunkedActionCreator<
@@ -213,114 +213,126 @@ export const redoEditorAction = (tabId: number) =>
   });
 
 export const clearHistory = (tabId: number) =>
-  createAction<TabbedType>(
-    `${captionEditorActionTypes.clearHistory}_${tabId}`
-  )({ tabId });
+  createAction<TabbedType>(`${captionEditorActionTypes.clearHistory}_${tabId}`)(
+    { tabId },
+  );
 
 export const setEditorCaption = createAction<SetCaption>(
-  captionEditorActionTypes.setEditorCaption
+  captionEditorActionTypes.setEditorCaption,
 );
 
 export const setEditorRawCaption = createAction<SetRawCaption>(
-  captionEditorActionTypes.setEditorRawCaption
+  captionEditorActionTypes.setEditorRawCaption,
 );
 
 export const setEditorCaptionAfterEdit = createAction<SetCaption>(
-  captionEditorActionTypes.setEditorCaptionAfterEdit
+  captionEditorActionTypes.setEditorCaptionAfterEdit,
+);
+
+export const setShowSubmitModalOpen = createAction<SetShowSubmitModalOpen>(
+  captionEditorActionTypes.setShowSubmitModalOpen,
 );
 
 export const setLoadedCaptionLanguage = createAction<SetCaptionLanguage>(
-  captionEditorActionTypes.setCaptionLanguage
+  captionEditorActionTypes.setCaptionLanguage,
 );
 
 export const setShowEditor = createAction<SetShowEditorIfPossible>(
-  captionEditorActionTypes.setShowEditor
+  captionEditorActionTypes.setShowEditor,
 );
 
 export const setEditorShortcuts = createAction<SetEditorShortcuts>(
-  captionEditorActionTypes.setEditorShortcuts
+  captionEditorActionTypes.setEditorShortcuts,
 );
 
 export const setAutoCaptionList = createAction<SetAutoCaptionList>(
-  captionEditorActionTypes.setAutoCaptionList
+  captionEditorActionTypes.setAutoCaptionList,
+);
+
+export const setInWebEditor = createAction<boolean>(
+  captionEditorActionTypes.setInWebEditor,
 );
 
 //#region Caption modification actions
 
 export const updateEditorCaption = createThunkedActionCreator<UpdateCaption>(
-  captionEditorActionTypes.updateEditorCaption
+  captionEditorActionTypes.updateEditorCaption,
 );
 
-export const modifyCaptionWithMultipleActions = createAction<
-  ModifyCaptionWithMultipleActions
->(captionEditorActionTypes.modifyCaptionWithMultipleActions);
+export const modifyCaptionWithMultipleActions =
+  createAction<ModifyCaptionWithMultipleActions>(
+    captionEditorActionTypes.modifyCaptionWithMultipleActions,
+  );
 
 export const modifyCaption = createAction<ModifyCaption>(
-  captionEditorActionTypes.modifyCaption
+  captionEditorActionTypes.modifyCaption,
 );
 
-export const modifyCaptionTrackSettings = createAction<
-  ModifyCaptionTrackSettings
->(captionEditorActionTypes.modifyCaptionTrackSettings);
+export const modifyCaptionTrackSettings =
+  createAction<ModifyCaptionTrackSettings>(
+    captionEditorActionTypes.modifyCaptionTrackSettings,
+  );
 
-export const modifyCaptionGlobalSettings = createAction<
-  ModifyCaptionGlobalSettings
->(captionEditorActionTypes.modifyCaptionGlobalSettings);
+export const modifyCaptionGlobalSettings =
+  createAction<ModifyCaptionGlobalSettings>(
+    captionEditorActionTypes.modifyCaptionGlobalSettings,
+  );
 
 export const modifyCaptionStartTimeMs = createAction<ModifyCaptionStartTimeMs>(
-  captionEditorActionTypes.modifyCaptionStartTimeMs
+  captionEditorActionTypes.modifyCaptionStartTimeMs,
 );
 
 export const modifyCaptionEndTimeMs = createAction<ModifyCaptionEndTimeMs>(
-  captionEditorActionTypes.modifyCaptionEndTimeMs
+  captionEditorActionTypes.modifyCaptionEndTimeMs,
 );
 
 export const modifyCaptionStartTime = createAction<ModifyCaptionStartTime>(
-  captionEditorActionTypes.modifyCaptionStartTime
+  captionEditorActionTypes.modifyCaptionStartTime,
 );
 
 export const modifyCaptionEndTime = createAction<ModifyCaptionEndTime>(
-  captionEditorActionTypes.modifyCaptionEndTime
+  captionEditorActionTypes.modifyCaptionEndTime,
 );
 
 export const modifyCaptionText = createAction<ModifyCaptionText>(
-  captionEditorActionTypes.modifyCaptionText
+  captionEditorActionTypes.modifyCaptionText,
 );
 
 export const modifyCaptionTime = createAction<ModifyCaptionTime>(
-  captionEditorActionTypes.modifyCaptionTime
+  captionEditorActionTypes.modifyCaptionTime,
 );
 
 export const changeCaptionTrackId = createAction<ChangeCaptionTrackId>(
-  captionEditorActionTypes.changeCaptionTrackId
+  captionEditorActionTypes.changeCaptionTrackId,
 );
 
 export const deleteCaption = createAction<DeleteCaption>(
-  captionEditorActionTypes.deleteCaption
+  captionEditorActionTypes.deleteCaption,
 );
 
-export const addCaptionToTrackRelative = createAction<
-  AddCaptionToTrackRelative
->(captionEditorActionTypes.addCaptionToTrackRelative);
+export const addCaptionToTrackRelative =
+  createAction<AddCaptionToTrackRelative>(
+    captionEditorActionTypes.addCaptionToTrackRelative,
+  );
 
 export const addCaptionToTrackTime = createAction<AddCaptionToTrackTime>(
-  captionEditorActionTypes.addCaptionToTrackTime
+  captionEditorActionTypes.addCaptionToTrackTime,
 );
 
 export const addTrack = createAction<CaptionAction>(
-  captionEditorActionTypes.addTrack
+  captionEditorActionTypes.addTrack,
 );
 
 export const removeTrack = createAction<RemoveTrack>(
-  captionEditorActionTypes.removeTrack
+  captionEditorActionTypes.removeTrack,
 );
 
 export const fixOverlaps = createAction<CaptionAction>(
-  captionEditorActionTypes.fixOverlaps
+  captionEditorActionTypes.fixOverlaps,
 );
 
 export const shiftTimings = createAction<ShiftTimings>(
-  captionEditorActionTypes.shiftTimings
+  captionEditorActionTypes.shiftTimings,
 );
 
 //#endregion

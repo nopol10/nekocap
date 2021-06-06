@@ -1,6 +1,8 @@
 export const reducerName = "captionEditor";
 
 export const captionEditorActionTypes = {
+  setInWebEditor: `${reducerName}/inWebEditor`,
+  setShowSubmitModalOpen: `${reducerName}/setShowSubmitModalOpen`,
   createNewCaption: `${reducerName}/createNewCaption`,
   loadLocallySavedCaption: `${reducerName}/loadLocallySavedCaption`,
   submitCaption: `${reducerName}/submitCaption`,

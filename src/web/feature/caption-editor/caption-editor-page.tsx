@@ -1,71 +1,92 @@
-import React, { useEffect, Suspense, useState, useRef } from "react";
-import { Typography } from "antd";
-import styled from "styled-components";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import YouTubeToHtml5 from "@thelevicole/youtube-to-html5-loader";
-import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { CaptionRendererType, VideoSource } from "@/common/feature/video/types";
 import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
 import { createNewCaption } from "@/common/feature/caption-editor/actions";
-import { CaptionRenderer } from "@/extension/content/containers/caption-renderer";
-import { isAss } from "@/common/caption-utils";
 import {
   isUserCaptionLoadedSelector,
   tabEditorDataSelector,
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
-import { tabVideoDataSelector } from "@/common/feature/video/selectors";
-import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
+import {
+  fontListSelector,
+  tabVideoDataSelector,
+} from "@/common/feature/video/selectors";
+import { VideoSource } from "@/common/feature/video/types";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { delay } from "@/common/utils";
+import EditorContainer from "@/extension/content/containers/editor-container";
+import { VideoPlayer } from "@/extension/content/feature/editor/video-player/video-player";
+import { useForceUpdate } from "@/hooks";
+import React, { Suspense, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { Viewer } from "../viewer/viewer";
+
 const InPageVideoContainer = styled.div`
   display: flex;
   justify-content: center;
+  width: 100%;
+  height: 100%;
+
+  & > div {
+    width: 100%;
+
+    & > div {
+      height: 100%;
+    }
+
+    & iframe {
+      height: 100%;
+    }
+  }
+  .nekocap-cap-container {
+    width: 100%;
+  }
 `;
 
-const InPageVideo = styled.video`
-  max-width: 800px;
-`;
-
-const EditorContainerLazy = React.lazy(
-  () => import("@/extension/content/containers/editor-container")
+const EditorContainerLazy = React.lazy<typeof EditorContainer>(
+  () => import("@/extension/content/containers/editor-container"),
 );
 
-export const CaptionEditorPage = () => {
+const TAB_ID = 0;
+
+type CaptionEditorPageProps = {
+  videoSource?: VideoSource;
+  videoId: string;
+};
+
+export const CaptionEditorPage = ({
+  videoId,
+  videoSource,
+}: CaptionEditorPageProps) => {
   const dispatch = useDispatch();
-  const videoData = useSelector(tabVideoDataSelector(window.tabId));
-  const editorData = useSelector(tabEditorDataSelector(window.tabId));
-  const rawEditorData = useSelector(tabEditorRawDataSelector(window.tabId));
-  const isUserCaptionLoaded = useSelector(
-    isUserCaptionLoadedSelector(window.tabId)
-  );
+  const videoData = useSelector(tabVideoDataSelector(TAB_ID));
+  const editorData = useSelector(tabEditorDataSelector(TAB_ID));
+  const rawEditorData = useSelector(tabEditorRawDataSelector(TAB_ID));
+  const isUserCaptionLoaded = useSelector(isUserCaptionLoadedSelector(TAB_ID));
+
   const [isLoading, setIsLoading] = useState(true);
-  const videoElementRef = useRef<HTMLVideoElement>(null);
-  const { renderer, showCaption = true } = videoData || {};
+  const [player, setPlayer] = useState<VideoPlayer>();
+  const triggerForceUpdate = useForceUpdate();
+  const { renderer, videoDimensions } = videoData || {};
+  const fontList = useSelector(fontListSelector());
 
   useEffect(() => {
     // TODO get the video details
     setIsLoading(true);
-    const player = new YouTubeToHtml5({
-      selector: ".editor-video",
-      autoload: false,
-      withAudio: true,
-    });
-    player.load();
-    window.tabId = 0;
-    window.videoElement = videoElementRef.current; //await getVideoElement(window.selectedProcessor);
-    window.captionContainerElement = window.videoElement.parentElement;
-    window.videoSource = VideoSource.NekoCap;
-    window.selectedProcessor = videoSourceToProcessorMap[VideoSource.NekoCap];
+    globalThis.tabId = 0;
+    globalThis.videoSource = videoSource ?? VideoSource.NekoCapYoutube;
+    globalThis.videoId = videoId;
+    globalThis.selectedProcessor =
+      videoSourceToProcessorMap[VideoSource.NekoCapYoutube];
     dispatch(
       createNewCaption.request({
-        videoId: window.videoId,
-        videoSource: window.videoSource,
-        tabId: window.tabId,
-      })
+        videoId: globalThis.videoId,
+        videoSource: globalThis.videoSource,
+        tabId: TAB_ID,
+      }),
     ).then(() => {
       setIsLoading(false);
     });
-  }, [videoElementRef.current]);
+  }, [dispatch, videoId, videoSource]);
 
   const renderLoading = () => {
     return <div>Loading...</div>;
@@ -74,52 +95,40 @@ export const CaptionEditorPage = () => {
     isUserCaptionLoaded && editorData && editorData.caption
       ? editorData.caption
       : videoData?.caption;
-  const rawCaption =
-    isUserCaptionLoaded && rawEditorData && rawEditorData.rawCaption?.data
-      ? rawEditorData.rawCaption.data
-      : videoData?.rawCaption?.data;
-  const rawType =
-    isUserCaptionLoaded && rawEditorData && rawEditorData.rawCaption?.type
-      ? rawEditorData.rawCaption.type
-      : videoData?.rawCaption?.type;
 
-  const isUsingAdvancedRenderer =
-    renderer === CaptionRendererType.AdvancedOctopus && isAss(rawType);
+  const handleSetPlayer = async (newPlayer?: VideoPlayer) => {
+    if (!player) {
+      setPlayer(newPlayer);
+      while (!newPlayer?.element()) {
+        await delay(100);
+      }
+      triggerForceUpdate();
+    }
+  };
 
   return (
     <div>
-      <InPageVideoContainer className="editor-video-container">
-        <InPageVideo
-          ref={videoElementRef}
-          className="editor-video"
-          data-yt2html5="https://www.youtube.com/watch?v=w_RhwmbH9Lw"
-        ></InPageVideo>
-      </InPageVideoContainer>
       <div id={EDITOR_PORTAL_ELEMENT_ID} />
       {!isLoading && (
         <Suspense fallback={renderLoading()}>
-          <EditorContainerLazy />
-          {renderer === CaptionRendererType.Default && (
-            <CaptionRenderer
-              caption={caption}
-              videoElement={videoElementRef.current}
-              captionContainerElement={window.captionContainerElement}
-              showCaption={showCaption}
-            />
-          )}
-          {isUsingAdvancedRenderer && (
-            <OctopusRenderer
-              rawCaption={rawCaption}
-              videoElement={videoElementRef.current}
-              captionContainerElement={window.captionContainerElement}
-              showCaption={showCaption}
-            />
-          )}
+          <EditorContainerLazy playerOverride={player}>
+            <InPageVideoContainer className="editor-video-container">
+              <Viewer
+                caption={caption}
+                fontList={fontList}
+                rawCaption={rawEditorData}
+                renderer={renderer}
+                videoDimensions={videoDimensions}
+                onSetVideoPlayer={handleSetPlayer}
+                videoPlayerPreferences={{ fontSizeMultiplier: 1 }}
+                retrieveVideoData={true}
+                autoplay={true}
+              />
+            </InPageVideoContainer>
+          </EditorContainerLazy>
         </Suspense>
       )}
       {isLoading && renderLoading()}
-
-      {/* <EditorContainer /> */}
     </div>
   );
 };

@@ -157,12 +157,6 @@ export const isRTLString = (str: string): boolean => {
   return rtlDirCheck.test(str);
 };
 
-export const delay = (milliseconds: number): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
-};
-
 export const waitUntil = async (predicate: () => boolean): Promise<void> => {
   while (!predicate()) {
     await delay(500);
@@ -191,4 +185,16 @@ export const getURL = (url: string) => {
     return globalThis.browser.runtime.getURL(url);
   }
   return "/" + url;
+};
+
+export const isElementOfType = <T extends HTMLElement>(
+  element: HTMLElement,
+): element is T => {
+  return (element as T) !== undefined;
+};
+
+export const delay = async (milliseconds: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
 };

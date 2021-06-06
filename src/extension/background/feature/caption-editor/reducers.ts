@@ -7,8 +7,10 @@ import {
   setEditorCaptionAfterEdit,
   setEditorRawCaption,
   setEditorShortcuts,
+  setInWebEditor,
   setLoadedCaptionLanguage,
   setShowEditor,
+  setShowSubmitModalOpen,
   submitCaption,
   updateUploadedCaption,
 } from "@/common/feature/caption-editor/actions";
@@ -27,6 +29,7 @@ import undoable, { includeAction } from "redux-undo";
 
 const defaultTabEditorData: TabEditorData = {
   showEditorIfPossible: false,
+  showSubmitModalOpen: false,
 };
 
 const setCaptionReducer = (
@@ -58,6 +61,12 @@ const captionEditorTabBuiltReducer = createReducer<TabEditorData>(
     return builder
       .addCase(setEditorCaption, setCaptionReducer)
       .addCase(setEditorCaptionAfterEdit, setCaptionReducer)
+      .addCase(setShowSubmitModalOpen, (state, action) => {
+        return {
+          ...state,
+          showSubmitModalOpen: action.payload.show,
+        };
+      })
       .addCase(setAutoCaptionList, (state, action) => {
         const { payload } = action;
         const { captions } = payload;
@@ -113,6 +122,7 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
   {
     tabData: {},
     shortcutType: "NekoCap",
+    inWebEditor: false,
     keyboardShortcuts: {
       ...BUILT_IN_SHORTCUTS[SHORTCUT_TYPES.NekoCap],
     },
@@ -154,6 +164,12 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
         };
       })
       .addCase(setEditorRawCaption, setRawCaptionReducer)
+      .addCase(setInWebEditor, (state, action) => {
+        return {
+          ...state,
+          inWebEditor: action.payload,
+        };
+      })
       .addCase(unsetTabData, (state, action) => {
         const { payload } = action;
         const { tabId } = payload;
@@ -180,6 +196,7 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
       .addCase(hydrate, (state, action) => {
         return {
           ...state,
+          ...action.payload.captionEditor,
           tabData: {
             ...state.tabData,
             ...action.payload.captionEditor.tabData,
