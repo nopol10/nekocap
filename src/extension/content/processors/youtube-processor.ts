@@ -102,8 +102,7 @@ export const YoutubeProcessor: Processor = {
     /**
      * The isTranslatable block at the end is used to recognize the end of the captionTracks property
      */
-    const captionArrayRegex =
-      /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
+    const captionArrayRegex = /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
     /**
      * The capture group will contain a string of the form
      * [{"baseUrl": "...", "languageCode": "...", "name": "..."}, ...]
@@ -116,6 +115,7 @@ export const YoutubeProcessor: Processor = {
         id: youtubeCaption.baseUrl,
         language: youtubeCaption.languageCode,
         name: (youtubeCaption.name.simpleText || "").replace(/\+/g, " "),
+        isAutomaticCaption: false,
       };
     });
   },

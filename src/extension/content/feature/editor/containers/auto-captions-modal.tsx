@@ -4,15 +4,15 @@ import Modal from "antd/lib/modal";
 
 import {
   fetchAutoCaptionList,
-  generateCaptionAndShowEditor,
   fetchAutoCaption,
 } from "@/common/feature/caption-editor/actions";
 import { tabEditorDataSelector } from "@/common/feature/caption-editor/selectors";
-import { Radio, Skeleton } from "antd";
+import { Collapse, Radio, Skeleton } from "antd";
 import { useState } from "react";
 import { RadioChangeEvent } from "antd/lib/radio";
 import styled from "styled-components";
 
+const { Panel } = Collapse;
 const StyledRadio = styled(Radio)`
   display: block;
 `;
@@ -53,6 +53,13 @@ export const AutoCaptionsModal = ({
     setSelectedCaptionId(e.target.value);
   };
 
+  const autoCaptions = captions.filter((caption) => caption.isAutomaticCaption);
+  const userCaptions = captions.filter(
+    (caption) => !caption.isAutomaticCaption
+  );
+  const hasAutoCaptions = autoCaptions.length > 0;
+  const hasUserCaptions = userCaptions.length > 0;
+
   return (
     <Modal
       visible={visible}
@@ -66,16 +73,41 @@ export const AutoCaptionsModal = ({
     >
       {isLoading && <Skeleton />}
       {!isLoading && captions.length <= 0 && <div>No captions found</div>}
-      {!isLoading && captions.length > 0 && (
-        <Radio.Group onChange={handleChangeCaption} value={selectedCaptionId}>
-          {captions.map((caption) => {
-            return (
-              <StyledRadio value={caption.id} key={caption.id}>
-                {caption.name}
-              </StyledRadio>
-            );
-          })}
-        </Radio.Group>
+      {!isLoading && (
+        <Collapse defaultActiveKey={[hasUserCaptions ? "user" : "auto"]} ghost>
+          {hasAutoCaptions && (
+            <Panel header="Auto captions" key="auto">
+              <Radio.Group
+                onChange={handleChangeCaption}
+                value={selectedCaptionId}
+              >
+                {autoCaptions.map((caption) => {
+                  return (
+                    <StyledRadio value={caption.id} key={caption.id}>
+                      {caption.name}
+                    </StyledRadio>
+                  );
+                })}
+              </Radio.Group>
+            </Panel>
+          )}
+          {hasUserCaptions && (
+            <Panel header="User captions" key="user">
+              <Radio.Group
+                onChange={handleChangeCaption}
+                value={selectedCaptionId}
+              >
+                {userCaptions.map((caption) => {
+                  return (
+                    <StyledRadio value={caption.id} key={caption.id}>
+                      {caption.name}
+                    </StyledRadio>
+                  );
+                })}
+              </Radio.Group>
+            </Panel>
+          )}
+        </Collapse>
       )}
     </Modal>
   );

@@ -63,6 +63,11 @@ import {
   BrowseRequest,
   BrowseResults,
 } from "@/common/feature/public-dashboard/types";
+import {
+  GetAutoCaptionListParams,
+  GetAutoCaptionListResponse,
+  GetAutoCaptionListResult,
+} from "@/common/feature/caption-editor/types";
 
 //#region
 const loginWithGoogle = async (
@@ -490,8 +495,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     const rejected: boolean = captionResponse.get("rejected");
     const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] =
-      captionResponse.get("reviewHistory");
+    const reviewHistory: ReviewActionDetails[] = captionResponse.get(
+      "reviewHistory"
+    );
     return {
       caption,
       captioner,
@@ -601,7 +607,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     if (response.videos) {
       results.videos = response.videos.map((video) => {
-        return video.toJSON() as unknown as VideoFields;
+        return (video.toJSON() as unknown) as VideoFields;
       });
     }
     return results;
@@ -618,5 +624,17 @@ export class ParseProvider implements BackendProvider<ParseState> {
       captions: response.captions,
     };
     return results;
+  }
+  async getAutoCaptionList(
+    params: GetAutoCaptionListParams
+  ): Promise<GetAutoCaptionListResult> {
+    const response: GetAutoCaptionListResponse = await this.Parse.Cloud.run(
+      "getAutoCaptionList",
+      params
+    );
+    if (response.status !== "success") {
+      throw new Error(response.error);
+    }
+    return response;
   }
 }

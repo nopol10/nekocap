@@ -71,13 +71,13 @@ import {
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
 import {
-  AutoCaptionLanguage,
   CaptionEditorLocalSave,
   CaptionEditorStorage,
   CreateNewCaption,
   ExportCaption,
   ExportCaptionResult,
   GenerateCaption,
+  GetAutoCaptionListResult,
   SaveLocalCaption,
   SHORTCUT_TYPES,
   TabEditorData,
@@ -351,10 +351,9 @@ function* saveLocalCaptionSaga({
     return;
   }
   const { caption } = tabData;
-  let result: { editor: CaptionEditorStorage } | undefined = yield call(
-    chromeProm.storage.local.get,
-    ["editor"]
-  );
+  let result:
+    | { editor: CaptionEditorStorage }
+    | undefined = yield call(chromeProm.storage.local.get, ["editor"]);
 
   if (!result || !result.editor) {
     const shortcutType = yield select(currentShortcutTypeSelector);
@@ -392,10 +391,9 @@ function* saveLocalCaptionSaga({
 function* loadLocallySavedCaptionSaga({
   payload,
 }: ThunkedPayloadAction<CreateNewCaption>) {
-  const result: { editor: CaptionEditorStorage } | undefined = yield call(
-    chromeProm.storage.local.get,
-    ["editor"]
-  );
+  const result:
+    | { editor: CaptionEditorStorage }
+    | undefined = yield call(chromeProm.storage.local.get, ["editor"]);
   if (!result || !result.editor) {
     throw new Error("No save found");
   }
@@ -447,8 +445,13 @@ function* exportCaptionSaga({ payload }: ThunkedPayloadAction<ExportCaption>) {
 }
 
 function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
-  const { tabId, languageCode, video, hasAudioDescription, translatedTitle } =
-    payload;
+  const {
+    tabId,
+    languageCode,
+    video,
+    hasAudioDescription,
+    translatedTitle,
+  } = payload;
   const { caption }: TabEditorData = yield select(tabEditorDataSelector(tabId));
   if (!caption) {
     yield put(submitCaption.failure());
@@ -542,11 +545,14 @@ function* fetchAutoCaptionListSaga({
   if (!processor.supportAutoCaptions(videoId)) {
     return;
   }
-  const autoCaptions: AutoCaptionLanguage[] = yield call(
-    processor.getAutoCaptionList,
-    videoId
+  const autoCaptions: GetAutoCaptionListResult = yield call(
+    [Locator.provider(), "getAutoCaptionList"],
+    {
+      videoId,
+      videoSource,
+    }
   );
-  yield put(setAutoCaptionList({ tabId, captions: autoCaptions }));
+  yield put(setAutoCaptionList({ tabId, captions: autoCaptions.captions }));
 }
 
 function* fetchAutoCaptionSaga({

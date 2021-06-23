@@ -37,6 +37,10 @@ import {
   BrowseRequest,
   BrowseResults,
 } from "../feature/public-dashboard/types";
+import {
+  GetAutoCaptionListParams,
+  GetAutoCaptionListResult,
+} from "../feature/caption-editor/types";
 
 export enum LoginMethod {
   Google,
@@ -126,4 +130,7 @@ export interface BackendProvider<T extends RootState> {
   search: (params: SearchRequest) => Promise<VideoSearchResults>;
   browse: (params: BrowseRequest) => Promise<BrowseResults>;
   getSelectors: () => AuthSelectors<T>;
+  getAutoCaptionList: (
+    params: GetAutoCaptionListParams
+  ) => Promise<GetAutoCaptionListResult>;
 }

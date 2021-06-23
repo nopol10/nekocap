@@ -1,6 +1,10 @@
 import type { KeySequence } from "react-hotkeys-ce";
 import type { StateWithHistory } from "redux-undo";
-import type { CaptionFileFormat, TabbedType } from "../../types";
+import type {
+  CaptionFileFormat,
+  ServerResponse,
+  TabbedType,
+} from "../../types";
 import type {
   CaptionContainer,
   RawCaptionData,
@@ -11,7 +15,20 @@ export type AutoCaptionLanguage = {
   id: string;
   language: string;
   name: string;
+  isAutomaticCaption: boolean;
 };
+
+export type GetAutoCaptionListResult = {
+  captions: AutoCaptionLanguage[];
+};
+
+export type GetAutoCaptionListParams = {
+  videoSource: VideoSource;
+  videoId: string;
+};
+
+export type GetAutoCaptionListResponse = ServerResponse &
+  GetAutoCaptionListResult;
 
 export type TabEditorData = {
   caption?: CaptionContainer; // The caption loaded from the server
