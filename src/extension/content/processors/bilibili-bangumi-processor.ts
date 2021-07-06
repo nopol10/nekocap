@@ -11,10 +11,10 @@ export const BilibiliBangumiProcessor: Processor = {
   type: VideoSource.BilibiliBangumi,
   name: "bilibili (bangumi)",
   urlRegex: /bilibili\.com\/bangumi/,
-  videoSelector: ".bpx-player-video-wrap video",
-  captionContainerSelector: ".bpx-player-video-wrap",
+  videoSelector: ".bpx-player-video-wrap video, .bilibili-player-video video",
+  captionContainerSelector: ".bpx-player-video-wrap, .bilibili-player-video",
   videoPageUISelector: ".player-module",
-  titleSelector: ".bpx-player-top-title div",
+  titleSelector: ".bpx-player-top-title div, .bilibili-player-video-top-title",
   editorVideoPlayerStyles: `
   .bilibili-player-video, .bpx-player-video-wrap {
     position: relative;
@@ -32,6 +32,9 @@ export const BilibiliBangumiProcessor: Processor = {
   }
   `,
   globalStyles: `
+    .bilibili-player-video .libassjs-canvas-parent {
+      position: static !important;
+    }
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
@@ -65,7 +68,9 @@ export const BilibiliBangumiProcessor: Processor = {
     // Bilibili refreshes the page content shortly after the initial load so any
     // ui elements added to the body will be removed. We have to wait for the load
     // to finish before adding stuff in
-    await waitForElement(".bpx-player-dm-wrap");
+    await waitForElement(
+      ".bpx-player-dm-wrap, .bilibili-player-video-inputbar-wrap"
+    );
     return;
   },
 };

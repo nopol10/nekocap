@@ -47,6 +47,13 @@ const createCanvas = (
 const getURL = (url: string) => {
   if (window.chrome && window.chrome.runtime && window.chrome.runtime.getURL) {
     return window.chrome.runtime.getURL(url);
+  } else if (
+    globalThis &&
+    globalThis.browser &&
+    globalThis.browser.runtime &&
+    globalThis.browser.runtime.getURL
+  ) {
+    return globalThis.browser.runtime.getURL(url);
   }
   return "/" + url;
 };
