@@ -9,6 +9,7 @@ import { TVerProcessor } from "@/extension/content/processors/tver-processor";
 import { NicoNicoProcessor } from "@/extension/content/processors/niconico-processor";
 import { VimeoProcessor } from "@/extension/content/processors/vimeo-processor";
 import { BilibiliProcessor } from "@/extension/content/processors/bilibili-processor";
+import { BilibiliBangumiProcessor } from "@/extension/content/processors/bilibili-bangumi-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -77,4 +78,14 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.Vimeo]: VimeoProcessor,
   [VideoSource.NicoNico]: NicoNicoProcessor,
   [VideoSource.Bilibili]: BilibiliProcessor,
+  [VideoSource.BilibiliBangumi]: BilibiliBangumiProcessor,
 };
+
+export const processorOrder = [
+  VideoSource.Youtube,
+  VideoSource.TVer,
+  VideoSource.Vimeo,
+  VideoSource.NicoNico,
+  VideoSource.BilibiliBangumi,
+  VideoSource.Bilibili,
+];

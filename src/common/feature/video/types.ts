@@ -25,6 +25,7 @@ export enum VideoSource {
   Vimeo = 2,
   NicoNico = 3,
   Bilibili = 4,
+  BilibiliBangumi = 5,
 }
 
 export type CaptionContainer = {

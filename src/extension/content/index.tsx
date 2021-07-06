@@ -30,10 +30,15 @@ import { saveAs } from "file-saver";
 import "../../libs/patch-worker/patch-worker";
 import { PageType } from "@/common/feature/video/types";
 import { requestFreshTabData } from "@/common/feature/video/actions";
-import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import {
+  processorOrder,
+  videoSourceToProcessorMap,
+} from "@/common/feature/video/utils";
 import * as Parse from "parse";
 
-const siteProcessors: Processor[] = Object.values(videoSourceToProcessorMap);
+const siteProcessors: Processor[] = processorOrder.map(
+  (processorKey) => videoSourceToProcessorMap[processorKey]
+); // Object.values(videoSourceToProcessorMap);
 
 const providerMap = {
   [ProviderType.Parse]: ParseProvider,
