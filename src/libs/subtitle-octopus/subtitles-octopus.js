@@ -101,12 +101,18 @@ var SubtitlesOctopus = function (options) {
     self.createCanvas();
     self.setVideo(options.video);
     self.setSubUrl(options.subUrl);
+    var path =
+      window.chrome && window.chrome.runtime && window.chrome.runtime.getURL
+        ? window.chrome.runtime.getURL("")
+        : globalThis &&
+          globalThis.browser &&
+          globalThis.browser.runtime &&
+          globalThis.browser.runtime.getURL
+        ? globalThis.browser.runtime.getURL("")
+        : "/";
     self.worker.postMessage({
       target: "pre-init",
-      browserExtensionPath:
-        window.chrome && window.chrome.runtime && window.chrome.runtime.getURL
-          ? window.chrome.runtime.getURL("")
-          : "/",
+      browserExtensionPath: path,
     });
     self.worker.postMessage({
       target: "worker-init",

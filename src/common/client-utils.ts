@@ -4,7 +4,11 @@ export const isInExtension = () => {
   }
   return !!(
     (window.chrome && window.chrome.runtime && window.chrome.runtime.id) ||
-    window.isInExtension
+    window.isInExtension ||
+    (globalThis.chrome &&
+      globalThis.chrome.runtime &&
+      globalThis.chrome.runtime.id) ||
+    globalThis.isInExtension
   );
 };
 
