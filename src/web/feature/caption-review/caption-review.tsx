@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
 import Layout from "antd/lib/layout";
 import {
-  Button,
   Input,
   message,
   Skeleton,
@@ -15,7 +14,6 @@ import {
   Space,
   Popconfirm,
 } from "antd";
-import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -71,8 +69,6 @@ const getReviewStatusLabel = (status: ReviewStatus) => {
 const getRejectActionLabel = (rejected) => (rejected ? "Unreject" : "Reject");
 
 const getVerifyActionLabel = (verified) => (verified ? "Unverify" : "Verify");
-const getVerifyStatusLabel = (verified) =>
-  verified ? "Verified" : "Unverified";
 
 const ReviewModal = ({
   onSubmit,
@@ -121,7 +117,7 @@ const rejectionColumns = [
     ),
     dataIndex: "reviewerName",
     key: "reviewerName",
-    render: function render(text, record: ReviewActionDetails, index) {
+    render: function render(text, record: ReviewActionDetails) {
       return (
         <Link
           href={`${routeNames.profile.main.replace(":id", record.reviewerId)}`}
@@ -135,7 +131,7 @@ const rejectionColumns = [
     title: "Date",
     dataIndex: "date",
     key: "date",
-    render: (text, record, index) => {
+    render: (text) => {
       return getTooltippedDate(text);
     },
   },
@@ -157,7 +153,6 @@ const rejectionColumns = [
 ];
 
 export const CaptionReview = () => {
-  const { id: captionId } = useParams<{ id: string }>();
   const dispatch = useDispatch();
   const isLoadingCaption = useSelector(loadCaptionForReview.isLoading(null));
   const isRejecting = useSelector(rejectCaption.isLoading(null));
@@ -165,10 +160,6 @@ export const CaptionReview = () => {
   const review = useSelector(captionReviewSelector);
   const [showReject, setShowReject] = useState(false);
   const [showUnverify, setShowUnverify] = useState(false);
-
-  useEffect(() => {
-    dispatch(loadCaptionForReview.request(captionId));
-  }, [captionId]);
 
   const {
     caption,
@@ -206,7 +197,7 @@ export const CaptionReview = () => {
   const handleSubmitVerify = () => {
     dispatch(
       verifyCaption.request({
-        captionId: captionId,
+        captionId: review.caption.id,
       })
     ).then(() => {
       message.success(verified ? "Caption unverified!" : "Caption verified!");
@@ -229,7 +220,7 @@ export const CaptionReview = () => {
     dispatch(
       rejectCaption.request({
         reason: rejectForm.reason,
-        captionId,
+        captionId: review.caption.id,
       })
     ).then(() => {
       message.success(rejected ? "Caption unrejected!" : "Caption rejected!");
@@ -241,7 +232,7 @@ export const CaptionReview = () => {
     dispatch(
       verifyCaption.request({
         reason: form.reason,
-        captionId,
+        captionId: review.caption.id,
       })
     ).then(() => {
       message.success(verified ? "Caption unverified!" : "Caption verified!");
