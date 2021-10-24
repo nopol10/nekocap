@@ -15,7 +15,7 @@ import {
   useMediaQuery,
 } from "react-responsive";
 import { isClient, isServer } from "./common/client-utils";
-import { TIME } from "./common/constants";
+import { TIME, VIDEO_ELEMENT_CONTAINER_ID } from "./common/constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { getVideoElement } from "./extension/content/processors/processor";
@@ -218,8 +218,9 @@ export const useVideoPlayPause = (
 export const useVideoDurationChange = (
   videoElement: HTMLVideoElement
 ): [number, MutableRefObject<number>] => {
-  const [videoDuration, setVideoDuration, videoDurationRef] =
-    useStateAutoRef(0);
+  const [videoDuration, setVideoDuration, videoDurationRef] = useStateAutoRef(
+    0
+  );
   useEffect(() => {
     const handleDurationChange = () => {
       setVideoDuration(videoElement.duration * TIME.SECONDS_TO_MS);
@@ -345,6 +346,81 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
       }
     };
   }, [...dependencies, setDummy]);
+};
+
+/**
+ * Hook that allows the menu element to work on pages where the element that the menu is
+ * added to gets added and removed from the DOM frequently (for e.g. based on the user's interactions).
+ * @param dependencies
+ * @returns
+ */
+export const useMenuUIElementUpdate = (
+  dependencies: DependencyList = []
+): number => {
+  const [dummy, setDummy] = useState(0);
+  const mutationObserver = useRef<MutationObserver>();
+  useEffect(() => {
+    if (!window.selectedProcessor.observeChanges) {
+      return;
+    }
+
+    const detectElementUpdate = () => {
+      mutationObserver.current = new MutationObserver(function (mutations, me) {
+        if (mutations.length <= 0) {
+          return;
+        }
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((addedNode) => {
+            if (!addedNode["tagName"]) return;
+            const element = addedNode as HTMLElement;
+            if (
+              element.querySelector(
+                window.selectedProcessor.observedMenuElementSelector
+              )
+            ) {
+              setDummy(Math.random());
+            }
+          });
+          mutation.removedNodes.forEach((removedNode) => {
+            if (!removedNode["tagName"]) return;
+            const element = removedNode as HTMLElement;
+            if (
+              element.querySelector(
+                window.selectedProcessor.observedMenuElementSelector
+              )
+            ) {
+              // Our menu element is about to be removed, move the element back to a safe place
+              const videoUIElement = element.querySelector(
+                `#${VIDEO_ELEMENT_CONTAINER_ID}`
+              );
+              const videoUIHTMLElement = videoUIElement
+                ? (videoUIElement as HTMLElement)
+                : null;
+              if (videoUIHTMLElement) {
+                videoUIHTMLElement.style.display = "none";
+                document.body.appendChild(videoUIHTMLElement);
+              }
+              setDummy(Math.random());
+            }
+          });
+        });
+      });
+
+      mutationObserver.current.observe(window.document, {
+        childList: true,
+        subtree: true,
+      });
+    };
+
+    detectElementUpdate();
+
+    return () => {
+      if (mutationObserver.current) {
+        mutationObserver.current.disconnect();
+      }
+    };
+  }, [...dependencies, setDummy]);
+  return dummy;
 };
 
 export const useMount = (callback: EffectCallback) => {

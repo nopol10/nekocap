@@ -51,7 +51,6 @@ const refreshVideoMeta = async () => {
 
   if (pageType === PageType.Video) {
     window.videoElement = await getVideoElement(window.selectedProcessor);
-
     /**
      * The captionContainerElement might not be correct when using the video's parent
      * as some sites shift the elements around before the video ends up in its final position.

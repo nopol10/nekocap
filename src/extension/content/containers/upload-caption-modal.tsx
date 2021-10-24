@@ -9,7 +9,11 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { CaptionFileFormat } from "@/common/types";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
-import { MAX_CAPTION_FILE_BYTES } from "@/common/feature/caption-editor/constants";
+import {
+  MAX_CAPTION_FILE_BYTES,
+  MAX_VERIFIED_CAPTION_FILE_BYTES,
+} from "@/common/feature/caption-editor/constants";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 
 interface SelectFileModalProps {
   visible: boolean;
@@ -36,6 +40,7 @@ export const SelectFileModal = ({
   afterClose,
 }: SelectFileModalProps) => {
   const isLoggedIn = useSelector(isLoggedInSelector);
+  const captioner = useSelector(captionerSelector);
   const [fileContent, setFileContent] = useState<string>("");
   const [file, setFile] = useState<RcFile>();
 
@@ -48,9 +53,12 @@ export const SelectFileModal = ({
       message.error(`You can only load ${supportedFileTypesString} files!`);
       return;
     }
-    const isSizeValid = file.size < MAX_CAPTION_FILE_BYTES;
+    const maxSize: number = captioner?.captioner?.verified
+      ? MAX_VERIFIED_CAPTION_FILE_BYTES
+      : MAX_CAPTION_FILE_BYTES;
+    const isSizeValid = file.size < maxSize;
     if (!isSizeValid) {
-      message.error("Caption must smaller than 2MB!");
+      message.error(`Caption must smaller than ${maxSize / 1000000}MB!`);
       return;
     }
     setFile(file);

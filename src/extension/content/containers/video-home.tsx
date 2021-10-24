@@ -16,21 +16,37 @@ import { NekoLogo } from "@/common/components/neko-logo";
 import ReactDOM from "react-dom";
 import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
 import { getUIElement } from "../processors/processor";
-import { useCaptionContainerUpdate, useVideoElementUpdate } from "@/hooks";
+import {
+  useCaptionContainerUpdate,
+  useMenuUIElementUpdate,
+  useVideoElementUpdate,
+} from "@/hooks";
 import { EditorContainer } from "./editor-container";
 import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { darkModeSelector } from "@/common/processor-utils";
 import { isAss } from "@/common/caption-utils";
+import nekoFace from "@/assets/images/neko-face-dark.svg";
+import { Popover } from "antd";
+import { getImageLink } from "@/common/chrome-utils";
+import { styledNoPass } from "@/common/style-utils";
 
-const InlineMenuWrapper = styled.div`
+type InlineMenuWrapperProps = {
+  isInline: boolean;
+};
+
+const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
-  margin-top: 5px;
-  padding: 5px;
-  border: 1px solid ${colors.divider};
-  background-color: ${colors.white}59;
+  margin-top: ${({ isInline }: InlineMenuWrapperProps) =>
+    isInline ? "0" : "5px"};
+  padding: ${({ isInline }: InlineMenuWrapperProps) =>
+    isInline ? "0" : "5px"};
+  border: ${({ isInline }: InlineMenuWrapperProps) =>
+    isInline ? "none" : `1px solid ${colors.divider}`};
+  background-color: ${({ isInline }: InlineMenuWrapperProps) =>
+    isInline ? "transparent" : colors.white + "59"};
   & > div:first-child {
     margin-right: auto;
   }
@@ -44,6 +60,28 @@ const InlineMenuWrapper = styled.div`
 const InlineLogoWrapper = styled.div`
   width: 100px;
 `;
+
+const InlineNekoFace = styled.img`
+  width: 38px;
+  height: 38px;
+`;
+
+const InlineVideoPageMenu = () => {
+  return (
+    <>
+      <Popover
+        placement={"top"}
+        content={
+          <div>
+            <VideoPageMenu />
+          </div>
+        }
+      >
+        <InlineNekoFace src={getImageLink(nekoFace)} />
+      </Popover>
+    </>
+  );
+};
 
 export const VideoHome = () => {
   const videoData = useSelector(tabVideoDataSelector(window.tabId));
@@ -71,6 +109,7 @@ export const VideoHome = () => {
 
   useCaptionContainerUpdate([caption]);
   useVideoElementUpdate([]);
+  const menuUpdateToken = useMenuUIElementUpdate([]);
 
   /**
    * Effect for moving the video element to the editor and back
@@ -95,7 +134,15 @@ export const VideoHome = () => {
         return;
       }
       videoUIElement.style.display = "";
-      extensionUIElement.insertAdjacentElement("afterend", videoUIElement);
+      let insertPosition: InsertPosition = "afterend";
+      switch (window.selectedProcessor.inlineMenu?.insertPosition) {
+        case "before":
+          insertPosition = "beforebegin";
+          break;
+        default:
+          insertPosition = "afterend";
+      }
+      extensionUIElement.insertAdjacentElement(insertPosition, videoUIElement);
     })();
     return () => {
       // Move the video ui container back to the body
@@ -107,7 +154,7 @@ export const VideoHome = () => {
         document.body.appendChild(videoUIElement);
       }
     };
-  }, []);
+  }, [menuUpdateToken]);
 
   const isUsingAdvancedRenderer =
     renderer === CaptionRendererType.AdvancedOctopus && isAss(rawType);
@@ -118,11 +165,19 @@ export const VideoHome = () => {
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
-        <InlineMenuWrapper className="scoped-antd use-site-dark-mode">
-          <VideoPageMenu />
-          <InlineLogoWrapper>
-            <NekoLogo />
-          </InlineLogoWrapper>
+        <InlineMenuWrapper
+          className="scoped-antd use-site-dark-mode"
+          isInline={!!window.selectedProcessor.inlineMenu}
+        >
+          {window.selectedProcessor.inlineMenu && <InlineVideoPageMenu />}
+          {!window.selectedProcessor.inlineMenu && (
+            <>
+              <VideoPageMenu />
+              <InlineLogoWrapper>
+                <NekoLogo />
+              </InlineLogoWrapper>
+            </>
+          )}
         </InlineMenuWrapper>
       )}
       {shouldRenderEditor && <EditorContainer />}
