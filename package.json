@@ -126,7 +126,7 @@
     "@manaflair/redux-batch": "^1.0.0",
     "@reduxjs/toolkit": "^1.5.0",
     "antd": "^4.10.0",
-    "ass-compiler": "^0.1.1",
+    "ass-compiler": "^0.1.4",
     "compression": "^1.7.4",
     "connected-react-router": "^6.8.0",
     "cors": "^2.8.5",
