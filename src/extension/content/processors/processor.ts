@@ -74,6 +74,11 @@ export interface Processor {
   editorVideoPlayerStyles: string;
   globalStyles?: string;
   darkModeSelector?: string;
+  observeChanges?: boolean;
+  observedMenuElementSelector?: string;
+  inlineMenu?: {
+    insertPosition: "before" | "after";
+  };
   supportAutoCaptions: (videoId: string) => boolean;
   getAutoCaptionList?: (videoId: string) => Promise<AutoCaptionLanguage[]>;
   getAutoCaption?: (
