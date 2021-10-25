@@ -97,10 +97,16 @@ function* updateLoadedCaptionFromFileSaga({
     }
   }
 
-  const parsedCaption = parseCaption(type, content);
-  const caption: CaptionContainer = canAutoConvertToNekoCaption
-    ? convertToCaptionContainer(parsedCaption, videoId, videoSource)
-    : { data: { tracks: [] }, loadedByUser: true, videoId, videoSource };
+  let caption: CaptionContainer = {
+    data: { tracks: [] },
+    loadedByUser: true,
+    videoId,
+    videoSource,
+  };
+  if (canAutoConvertToNekoCaption) {
+    const parsedCaption = parseCaption(type, content);
+    caption = convertToCaptionContainer(parsedCaption, videoId, videoSource);
+  }
 
   yield put([
     clearHistory(tabId),

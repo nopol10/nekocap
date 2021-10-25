@@ -241,6 +241,7 @@ export const VideoPageMenu = ({
   const showCaption = tabData ? tabData.showCaption : true;
   const caption = editorTabData ? editorTabData.caption : tabData?.caption;
   const selectedRenderer = tabData?.renderer;
+  const editorEnabled = !window.selectedProcessor.disableEditor;
 
   const handleClickFromFile = () => {
     setIsSelectFileOpen(true);
@@ -358,22 +359,28 @@ export const VideoPageMenu = ({
 
     return (
       <Menu onClick={handleClickEditorMenu}>
-        <Menu.Item onClick={handleClickCreate}>New</Menu.Item>
-        <Menu.Item onClick={handleSave}>Save (local)</Menu.Item>
+        {editorEnabled && (
+          <Menu.Item onClick={handleClickCreate}>New</Menu.Item>
+        )}
+        {editorEnabled && (
+          <Menu.Item onClick={handleSave}>Save (local)</Menu.Item>
+        )}
         <Menu.SubMenu title="Load">
           <Menu.Item onClick={handleClickFromFile}>Load from file</Menu.Item>
-          <Menu.Item onClick={handleClickFromLocalSave}>
-            Load from local save
-          </Menu.Item>
+          {editorEnabled && (
+            <Menu.Item onClick={handleClickFromLocalSave}>
+              Load from local save
+            </Menu.Item>
+          )}
         </Menu.SubMenu>
         {canExport && (
           <Menu.SubMenu title="Export">
             <Menu.Item onClick={() => handleExport("srt")}>SRT</Menu.Item>
           </Menu.SubMenu>
         )}
-        {renderAutoCaptionButton()}
+        {editorEnabled && renderAutoCaptionButton()}
         {renderAutoSaveToggle()}
-        {renderShowEditorButton()}
+        {editorEnabled && renderShowEditorButton()}
         {renderUploadButton()}
       </Menu>
     );
@@ -568,7 +575,7 @@ export const VideoPageMenu = ({
         target="_blank"
         rel="noreferrer"
         href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}capper/${caption.creator}`}
-        style={{ fontWeight: "bold" }}
+        style={{ fontWeight: "bold", color: colors.base }}
       >
         View captioner profile
       </a>
@@ -618,9 +625,11 @@ export const VideoPageMenu = ({
       <Space>
         {!inEditorScreen && (
           <>
-            <WSButton onClick={handleCloseMenuBar}>
-              <CloseOutlined />
-            </WSButton>
+            {editorEnabled && (
+              <WSButton onClick={handleCloseMenuBar}>
+                <CloseOutlined />
+              </WSButton>
+            )}
             <Spin spinning={isLoadingCaptionList}>
               <Tooltip trigger={"hover"} title={loadingCaptionListError}>
                 {renderCaptionList()}

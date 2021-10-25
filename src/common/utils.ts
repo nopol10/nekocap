@@ -85,3 +85,59 @@ export const roundMs = (timeMs: number) => {
 export const generateRandomId = () => {
   return Math.random().toString(36).substr(2) + Date.now().toString(36);
 };
+
+export const createElementAdditionObserver = (
+  elementSelector: string,
+  addedCallback: () => void
+): MutationObserver => {
+  const mutationObserver = new MutationObserver(function (mutations) {
+    if (mutations.length <= 0) {
+      return;
+    }
+    mutations.forEach((mutation) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mutation.addedNodes.forEach((addedNode: any) => {
+        if (!addedNode["tagName"]) return;
+        const element = addedNode as HTMLElement;
+        const addedElement = element.querySelector(elementSelector);
+        if (addedElement) {
+          addedCallback();
+        }
+      });
+    });
+  });
+
+  mutationObserver.observe(window.document, {
+    childList: true,
+    subtree: true,
+  });
+  return mutationObserver;
+};
+
+export const createElementRemovalObserver = (
+  elementSelector: string,
+  removedCallback: () => void
+): MutationObserver => {
+  const mutationObserver = new MutationObserver(function (mutations) {
+    if (mutations.length <= 0) {
+      return;
+    }
+    mutations.forEach((mutation) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mutation.removedNodes.forEach((removedNode: any) => {
+        if (!removedNode["tagName"]) return;
+        const element = removedNode as HTMLElement;
+        const removedElement = element.querySelector(elementSelector);
+        if (removedElement) {
+          removedCallback();
+        }
+      });
+    });
+  });
+
+  mutationObserver.observe(window.document, {
+    childList: true,
+    subtree: true,
+  });
+  return mutationObserver;
+};

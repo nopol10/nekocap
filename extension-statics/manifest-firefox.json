@@ -18,12 +18,11 @@
         "https://*.tver.jp/*",
         "https://*.nicovideo.jp/*",
         "https://*.vimeo.com/*",
-        "https://*.bilibili.com/*"
+        "https://*.bilibili.com/*",
+        "https://*.netflix.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -31,12 +30,11 @@
         "https://*.tver.jp/*",
         "https://*.nicovideo.jp/*",
         "https://*.vimeo.com/*",
-        "https://*.bilibili.com/*"
+        "https://*.bilibili.com/*",
+        "https://*.netflix.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -44,11 +42,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation",
-    "identity"
-  ],
+  "permissions": ["storage", "webNavigation", "identity"],
   "web_accessible_resources": [
     "img/*.jpg",
     "img/*.png",
