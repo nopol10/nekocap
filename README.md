@@ -61,6 +61,15 @@ Website:
 - Caption review page
 - Captioner moderation tools (verify, reject)
 
+### Supported sites
+
+- YouTube
+- Vimeo
+- bilibili
+- niconico
+- TVer
+- Netflix (editor disabled)
+
 ## Setup for local development
 
 1. Run `npm install`
