@@ -5,6 +5,7 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
 } from "react";
 import { findClosestCaption } from "@/common/feature/video/utils";
 import type {
@@ -24,6 +25,11 @@ import {
 import { isEqual } from "lodash";
 import { Coords, Dimension } from "@/common/types";
 import { useAnimationFrame, useResize } from "@/hooks";
+import {
+  createElementAdditionObserver,
+  createElementRemovalObserver,
+} from "@/common/utils";
+import { refreshVideoMeta } from "../utils";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   videoElement: HTMLVideoElement;
@@ -186,6 +192,10 @@ const CaptionRendererInternal = React.forwardRef(
       height: 0,
     });
     const previousTime = useRef<number>(-1);
+    const [
+      recreateLocalCaptionContainer,
+      setRecreateLocalCaptionContainer,
+    ] = useState<boolean>(false);
 
     const updateCaptionContainerStyles = (width: number, height: number) => {
       if (!localCaptionContainer.current) {
@@ -200,12 +210,48 @@ const CaptionRendererInternal = React.forwardRef(
       handleTimeUpdate(0, true);
     };
 
+    // Sites like Netflix will remove the caption container. This helps us recreate it
+    useEffect(() => {
+      if (!window.selectedProcessor.observeChanges) {
+        return;
+      }
+      let recreateContainer = false;
+      const removalObserver = createElementRemovalObserver(
+        ".nekocap-cap-container",
+        () => {
+          recreateContainer = true;
+          setRecreateLocalCaptionContainer(false);
+        }
+      );
+      const videoSelector =
+        typeof window.selectedProcessor.videoSelector == "string"
+          ? window.selectedProcessor.videoSelector
+          : "video";
+      const additionObserver = createElementAdditionObserver(
+        videoSelector,
+        async () => {
+          if (recreateContainer) {
+            await refreshVideoMeta();
+            recreateContainer = false;
+            setRecreateLocalCaptionContainer(true);
+          }
+        }
+      );
+      return () => {
+        removalObserver.disconnect();
+        additionObserver.disconnect();
+      };
+    }, []);
+
     // Create the caption element to render into
     useEffect(() => {
       if (!captionContainerElement) {
         return;
       }
       captionContainerElement.style.position = "relative";
+      if (document.querySelector(".nekocap-cap-container")) {
+        return;
+      }
 
       const newCaptionElements = [];
       const newCaptionTextElements = [];
@@ -263,7 +309,7 @@ const CaptionRendererInternal = React.forwardRef(
         localCaptionContainer.current.remove();
         localCaptionContainer.current = undefined;
       };
-    }, [captionContainerElement, videoElement]);
+    }, [captionContainerElement, videoElement, recreateLocalCaptionContainer]);
 
     // Register video listener
     useEffect(() => {

@@ -595,11 +595,12 @@ function* generateCaptionAndShowEditorSaga({
     videoId,
     videoSource
   );
+  const processor = videoSourceToProcessorMap[videoSource];
   // @ts-ignore
   yield put([
     setEditorCaptionAfterEdit({ caption, tabId }),
     setRenderer({ tabId, renderer: CaptionRendererType.Default }),
-    setShowEditor({ tabId, show: true }),
+    setShowEditor({ tabId, show: !processor.disableEditor }),
   ]);
 }
 

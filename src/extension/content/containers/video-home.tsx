@@ -15,7 +15,11 @@ import styled, { css } from "styled-components";
 import { NekoLogo } from "@/common/components/neko-logo";
 import ReactDOM from "react-dom";
 import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
-import { getUIElement } from "../processors/processor";
+import {
+  getUIElement,
+  getVideoTitle,
+  isInaccurateTitle,
+} from "../processors/processor";
 import {
   useCaptionContainerUpdate,
   useMenuUIElementUpdate,
@@ -64,6 +68,11 @@ const InlineLogoWrapper = styled.div`
 const InlineNekoFace = styled.img`
   width: 38px;
   height: 38px;
+  transition: transform 150ms ease-in-out;
+  transform: scale(1);
+  &:hover {
+    transform: scale(1.3);
+  }
 `;
 
 const InlineVideoPageMenu = () => {
@@ -121,6 +130,12 @@ export const VideoHome = () => {
       if (window.selectedProcessor.waitUntilPageIsReady) {
         await window.selectedProcessor.waitUntilPageIsReady();
       }
+      if (
+        window.selectedProcessor.observeChanges &&
+        isInaccurateTitle(window.videoName, window.selectedProcessor)
+      ) {
+        window.videoName = await getVideoTitle(window.selectedProcessor);
+      }
       const extensionUIElement: HTMLElement = await getUIElement(
         window.selectedProcessor
       );
@@ -161,16 +176,16 @@ export const VideoHome = () => {
   const shouldRenderEditor =
     !isUsingAdvancedRenderer ||
     (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0);
-
+  const isInlineMenu = !!window.selectedProcessor.inlineMenu;
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
         <InlineMenuWrapper
           className="scoped-antd use-site-dark-mode"
-          isInline={!!window.selectedProcessor.inlineMenu}
+          isInline={isInlineMenu}
         >
-          {window.selectedProcessor.inlineMenu && <InlineVideoPageMenu />}
-          {!window.selectedProcessor.inlineMenu && (
+          {isInlineMenu && <InlineVideoPageMenu />}
+          {!isInlineMenu && (
             <>
               <VideoPageMenu />
               <InlineLogoWrapper>

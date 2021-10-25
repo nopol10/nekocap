@@ -6,7 +6,7 @@ import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 import type { Dimension } from "@/common/types";
 import type { IFrameProps } from "@/common/feature/video/types";
 import { useAnimationFrame } from "@/hooks";
-import { createElementRemovalDetector } from "@/common/utils";
+import { createElementRemovalObserver } from "@/common/utils";
 
 interface OctopusRendererProps {
   rawCaption?: string;
@@ -88,12 +88,21 @@ const OctopusRendererInternal = ({
 
   // This is needed for sites where the renderer can get removed from the DOM
   useEffect(() => {
-    createElementRemovalDetector(".libassjs-canvas-parent", () => {
-      if (octopusInstance.current) {
-        octopusInstance.current.dispose();
-        octopusInstance.current = null;
+    if (!window.selectedProcessor.observeChanges) {
+      return;
+    }
+    const detector = createElementRemovalObserver(
+      ".libassjs-canvas-parent",
+      () => {
+        if (octopusInstance.current) {
+          octopusInstance.current.dispose();
+          octopusInstance.current = null;
+        }
       }
-    });
+    );
+    return () => {
+      detector.disconnect();
+    };
   }, [octopusInstance]);
 
   // Register video listener

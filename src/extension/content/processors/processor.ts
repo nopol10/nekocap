@@ -38,6 +38,16 @@ export const getVideoTitle = async (processor: Processor): Promise<string> => {
   return processor.titleSelector();
 };
 
+export const isInaccurateTitle = (
+  title: string,
+  processor: Processor
+): boolean => {
+  if (!processor.inaccurateTitles) {
+    return false;
+  }
+  return processor.inaccurateTitles.includes(title.toLowerCase());
+};
+
 export const retrieveVideoDimensions = async (
   videoId: string,
   processor: Processor,
@@ -67,6 +77,9 @@ export interface Processor {
    * so that the container sits beside the video element (as a sibling).
    */
   captionContainerSelector: string | (() => Promise<HTMLElement>);
+  // Used to identify when an inaccurate title was detected. For sites where the title is not always retrievable
+  // at any time. If any of the titles in this list are found, the title should be updated to the correct one.
+  inaccurateTitles?: [string];
   titleSelector: string | (() => Promise<string>);
   /**
    * Styles to be applied on the video player when it is moved inside the editor
@@ -75,6 +88,7 @@ export interface Processor {
   globalStyles?: string;
   darkModeSelector?: string;
   observeChanges?: boolean;
+  disableEditor?: boolean;
   observedMenuElementSelector?: string;
   inlineMenu?: {
     insertPosition: "before" | "after";

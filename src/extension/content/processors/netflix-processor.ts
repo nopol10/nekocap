@@ -21,23 +21,28 @@ export const NetflixProcessor: Processor = {
     }
     return controlsWrapper;
   },
-  titleSelector: "head title",
+  inaccurateTitles: ["netflix"],
+  titleSelector: async () => {
+    const backupTitle = await waitForElement(`head title`);
+    const actualTitle = document.querySelector('div[data-uia="video-title"]');
+    if (actualTitle) {
+      return Array.from(actualTitle.children)
+        .map((child) => {
+          return child.textContent;
+        })
+        .join(" ");
+    }
+    return (backupTitle as HTMLElement).innerText;
+  },
   editorVideoPlayerStyles: `
-  #playerWrapper {
-    width: 100% !important;
-    height: 100% !important;
-  }
-
   video {
     width: 100% !important;
     height: auto !important;
     left: 0 !important;
   }
-  img[class^="tver-"] {
-    display: none !important;
-  }
   `,
   observeChanges: true,
+  disableEditor: true,
   observedMenuElementSelector: `.watch-video--bottom-controls-container`,
   inlineMenu: {
     insertPosition: "before",
