@@ -27,6 +27,7 @@ import {
   openMenuBar,
   loadWebsiteViewerCaption,
   setVideoDimensions,
+  setFontList,
 } from "@/common/feature/video/actions";
 import { videoActionTypes } from "@/common/feature/video/action-types";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -73,6 +74,8 @@ import { isAss } from "@/common/caption-utils";
 import { take } from "lodash";
 import { withSuccess } from "antd/lib/modal/confirm";
 import { Locator } from "@/common/locator/locator";
+import { loadFontListApi } from "@/common/feature/video/api";
+import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 
 function* updateLoadedCaptionFromFileSaga({
   payload,
@@ -83,6 +86,7 @@ function* updateLoadedCaptionFromFileSaga({
   let rawCaption: RawCaptionData;
   let canAutoConvertToNekoCaption = true;
   let defaultRenderer: CaptionRendererType = CaptionRendererType.Default;
+  let fontList = SUBSTATION_FONT_LIST;
   if (format) {
     rawCaption = {
       data: content,
@@ -93,6 +97,7 @@ function* updateLoadedCaptionFromFileSaga({
       // Other file formats don't support fancy effects so we'll allow them to be auto converted
       canAutoConvertToNekoCaption = false;
       defaultRenderer = CaptionRendererType.AdvancedOctopus;
+      fontList = yield call(loadFontListApi);
       yield put(setShowEditor({ tabId, show: false }));
     }
   }
@@ -110,6 +115,7 @@ function* updateLoadedCaptionFromFileSaga({
 
   yield put([
     clearHistory(tabId),
+    setFontList({ list: fontList }),
     // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
     setRenderer({ tabId, renderer: defaultRenderer }),
     setEditorCaptionAfterEdit({ caption, tabId }),
@@ -175,12 +181,15 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
     throw new Error("Could not load the caption.");
   }
   const { caption, rawCaption: rawCaptionString } = response;
+  let fontList = SUBSTATION_FONT_LIST;
   let rawCaption: RawCaptionData;
   if (rawCaptionString) {
     rawCaption = JSON.parse(rawCaptionString);
     if (rawCaption && rawCaption.data) {
       if (rawCaption.data) {
+        // Also load the font list when raw captions are required
         rawCaption.data = lzDecompress(rawCaption.data);
+        fontList = yield call(loadFontListApi);
       }
     }
   }
@@ -199,6 +208,7 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
 
   yield put([
     clearHistory(tabId),
+    setFontList({ list: fontList }),
     setLoadedCaption({ tabId, caption, rawCaption }),
     setRenderer({ tabId, renderer: defaultRenderer }),
     // We set the caption for the editor to this caption, but this does not make it editable.

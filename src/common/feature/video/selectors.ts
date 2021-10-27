@@ -2,6 +2,10 @@ import { RootState } from "@/common/store/types";
 import { CaptionRendererType } from "./types";
 // Caption Editor relies on Video feature, but not the other way round. Don't import caption-editor files here
 
+export const fontListSelector = () => (state: RootState) => {
+  return state.video.fontList;
+};
+
 export const loadedCaptionSelector = (tabId: number) => (state: RootState) => {
   const tabData = state.video.tabData;
   if (!tabData || !tabData[tabId]) {

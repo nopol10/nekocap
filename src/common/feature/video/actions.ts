@@ -17,6 +17,7 @@ import type {
   SetContentPageType,
   SetMenuHidden,
   SetVideoDimensions,
+  SetFontList,
 } from "./types";
 
 const csa = createSignalActionInState("video", true);
@@ -104,4 +105,8 @@ export const setVideoDimensions = createAction<SetVideoDimensions>(
 
 export const setMenuHidden = createAction<SetMenuHidden>(
   videoActionTypes.setMenuHidden
+);
+
+export const setFontList = createAction<SetFontList>(
+  videoActionTypes.setFontList
 );

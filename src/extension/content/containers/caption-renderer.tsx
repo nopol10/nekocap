@@ -30,6 +30,7 @@ import {
   createElementRemovalObserver,
 } from "@/common/utils";
 import { refreshVideoMeta } from "../utils";
+import { isInExtension } from "@/common/client-utils";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   videoElement: HTMLVideoElement;
@@ -212,7 +213,7 @@ const CaptionRendererInternal = React.forwardRef(
 
     // Sites like Netflix will remove the caption container. This helps us recreate it
     useEffect(() => {
-      if (!window.selectedProcessor.observeChanges) {
+      if (!isInExtension() || !window.selectedProcessor.observeChanges) {
         return;
       }
       let recreateContainer = false;

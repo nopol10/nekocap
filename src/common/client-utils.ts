@@ -23,3 +23,7 @@ export const isClient = () => {
 export const isServer = () => {
   return typeof window === "undefined";
 };
+
+export const getNekoCapWebsiteUrl = () => {
+  return isInExtension() ? process.env.NEXT_PUBLIC_WEBSITE_URL : "";
+};

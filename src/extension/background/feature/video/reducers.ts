@@ -6,6 +6,7 @@ import {
   loadCaptions,
   loadWebsiteViewerCaption,
   setContentPageType,
+  setFontList,
   setLoadedCaption,
   setMenuHidden,
   setRenderer,
@@ -31,7 +32,7 @@ const defaultTabVideoData: TabVideoData = {
 };
 
 export const videoReducer = createReducer<VideoState>(
-  { tabData: {} },
+  { fontList: {}, tabData: {} },
   (builder) => {
     loadCaptions.augmentReducer(builder);
     loadWebsiteViewerCaption.augmentReducer(builder);
@@ -54,6 +55,14 @@ export const videoReducer = createReducer<VideoState>(
               showCaption: true,
             },
           },
+        };
+      })
+      .addCase(setFontList, (state, action) => {
+        const { payload } = action;
+        const { list } = payload;
+        return {
+          ...state,
+          fontList: list,
         };
       })
       .addCase(setShowCaption, (state, action) => {

@@ -24,6 +24,7 @@ import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { isClient, isServer } from "@/common/client-utils";
+import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 
 const { Title, Text, Link } = Typography;
 
@@ -82,8 +83,9 @@ export const ViewerPage = ({
 }: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] =
-    useStateRef<HTMLDivElement>(null);
+  const [captionContainerElement, captionContainerElementRef] = useStateRef<
+    HTMLDivElement
+  >(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
@@ -252,6 +254,7 @@ export const ViewerPage = ({
             showCaption={true}
             isIframe={true}
             iframeProps={iframeProps}
+            fontList={SUBSTATION_FONT_LIST}
           />
         )}
       </Skeleton>

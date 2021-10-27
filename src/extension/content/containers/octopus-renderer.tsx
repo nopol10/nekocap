@@ -7,6 +7,7 @@ import type { Dimension } from "@/common/types";
 import type { IFrameProps } from "@/common/feature/video/types";
 import { useAnimationFrame } from "@/hooks";
 import { createElementRemovalObserver } from "@/common/utils";
+import { isInExtension } from "@/common/client-utils";
 
 interface OctopusRendererProps {
   rawCaption?: string;
@@ -15,6 +16,7 @@ interface OctopusRendererProps {
   showCaption: boolean;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
+  fontList: { [name: string]: string };
 }
 
 const localCaptionContainerStyle = `
@@ -66,6 +68,7 @@ const OctopusRendererInternal = ({
   captionContainerElement,
   isIframe = false,
   iframeProps,
+  fontList,
 }: OctopusRendererProps) => {
   /**
    * We'll create our own container element to prevent modifying the original page too much
@@ -88,7 +91,7 @@ const OctopusRendererInternal = ({
 
   // This is needed for sites where the renderer can get removed from the DOM
   useEffect(() => {
-    if (!window.selectedProcessor.observeChanges) {
+    if (!isInExtension() || !window.selectedProcessor.observeChanges) {
       return;
     }
     const detector = createElementRemovalObserver(
@@ -135,7 +138,7 @@ const OctopusRendererInternal = ({
       video: videoElement,
       canvas: isIframe ? canvas : undefined,
       subContent: rawCaption,
-      availableFonts: SUBSTATION_FONT_LIST,
+      availableFonts: fontList,
       workerUrl: getURL("js/subtitle-octopus/subtitles-octopus-worker.js"),
       legacyWorkerUrl: getURL(
         "js/subtitle-octopus/subtitles-octopus-worker-legacy.js"
@@ -203,6 +206,7 @@ export const OctopusRenderer = React.memo(
       prevProps.captionContainerElement === nextProps.captionContainerElement &&
       prevProps.showCaption === nextProps.showCaption &&
       prevProps.isIframe === nextProps.isIframe &&
+      isEqual(prevProps.fontList, nextProps.fontList) &&
       isEqual(prevProps.rawCaption, nextProps.rawCaption) &&
       isEqual(prevProps.iframeProps, nextProps.iframeProps)
     );

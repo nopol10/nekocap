@@ -5,7 +5,10 @@ import {
   tabEditorDataSelector,
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
-import { tabVideoDataSelector } from "@/common/feature/video/selectors";
+import {
+  fontListSelector,
+  tabVideoDataSelector,
+} from "@/common/feature/video/selectors";
 import { CaptionRendererType } from "@/common/feature/video/types";
 import { colors } from "@/common/colors";
 import { CaptionRenderer } from "./caption-renderer";
@@ -102,6 +105,7 @@ export const VideoHome = () => {
   const shouldHideVideoPageMenu = useSelector(
     shouldHideVideoPageMenuSelector(window.tabId)
   );
+  const fontList = useSelector(fontListSelector());
   const { renderer, showCaption = true } = videoData || {};
   const caption =
     isUserCaptionLoaded && editorData && editorData.caption
@@ -210,6 +214,7 @@ export const VideoHome = () => {
           videoElement={window.videoElement}
           captionContainerElement={window.captionContainerElement}
           showCaption={showCaption}
+          fontList={fontList}
         />
       )}
     </>,

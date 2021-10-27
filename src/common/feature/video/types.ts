@@ -1,10 +1,5 @@
 import type { RcFile } from "antd/lib/upload";
-import {
-  CaptionFileFormat,
-  Dimension,
-  ServerResponse,
-  TabbedType,
-} from "@/common/types";
+import { CaptionFileFormat, Dimension, TabbedType } from "@/common/types";
 import type { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { SHORTCUT_TYPES } from "../caption-editor/types";
 import type { KeySequence } from "react-hotkeys-ce";
@@ -73,6 +68,7 @@ export type TabVideoData = {
 };
 
 export type VideoState = {
+  fontList: { [name: string]: string };
   tabData: {
     [tabId: number]: TabVideoData;
   };
@@ -237,4 +233,8 @@ export type IFrameProps = {
   width: number;
   height: number;
   getCurrentTime: () => number; // Get the current video's time in seconds
+};
+
+export type SetFontList = {
+  list: { [name: string]: string };
 };
