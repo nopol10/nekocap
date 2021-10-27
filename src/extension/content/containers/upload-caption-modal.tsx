@@ -14,6 +14,8 @@ import {
   MAX_VERIFIED_CAPTION_FILE_BYTES,
 } from "@/common/feature/caption-editor/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
+import Link from "antd/lib/typography/Link";
+import { DISCORD_INVITE_URL } from "@/common/constants";
 
 interface SelectFileModalProps {
   visible: boolean;
@@ -44,6 +46,11 @@ export const SelectFileModal = ({
   const [fileContent, setFileContent] = useState<string>("");
   const [file, setFile] = useState<RcFile>();
 
+  const maxVerifiedUploadSizeMB = MAX_VERIFIED_CAPTION_FILE_BYTES / 1000000;
+  const maxNonVerifiedUploadSizeMB = MAX_CAPTION_FILE_BYTES / 1000000;
+  const maxPreviewSize = MAX_VERIFIED_CAPTION_FILE_BYTES;
+  const isUserVerified = captioner?.captioner?.verified;
+
   const beforeUpload = (file: RcFile): boolean => {
     const extension = file.name
       .substring(file.name.lastIndexOf(".") + 1)
@@ -53,12 +60,9 @@ export const SelectFileModal = ({
       message.error(`You can only load ${supportedFileTypesString} files!`);
       return;
     }
-    const maxSize: number = captioner?.captioner?.verified
-      ? MAX_VERIFIED_CAPTION_FILE_BYTES
-      : MAX_CAPTION_FILE_BYTES;
-    const isSizeValid = file.size < maxSize;
+    const isSizeValid = file.size < maxPreviewSize;
     if (!isSizeValid) {
-      message.error(`Caption must smaller than ${maxSize / 1000000}MB!`);
+      message.error(`Caption must smaller than ${maxPreviewSize / 1000000}MB!`);
       return;
     }
     setFile(file);
@@ -103,6 +107,26 @@ export const SelectFileModal = ({
           {file && file.name}
           {!file && <div>Drop the caption file here!</div>}
         </Dragger>
+        <div style={{ marginTop: 16 }}>
+          {isUserVerified && (
+            <div>Max upload size: {maxVerifiedUploadSizeMB}MB</div>
+          )}
+          {!isUserVerified && (
+            <>
+              <div>
+                Non-verified users can upload up to {maxNonVerifiedUploadSizeMB}{" "}
+                MB
+              </div>
+              <div>
+                Verified users can upload up to {maxVerifiedUploadSizeMB} MB
+              </div>
+              <div>
+                Join the <Link href={DISCORD_INVITE_URL}>Discord</Link> server
+                to get verified
+              </div>
+            </>
+          )}
+        </div>
       </Form>
     </Modal>
   );
