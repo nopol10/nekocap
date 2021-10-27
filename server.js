@@ -29,6 +29,9 @@ server.use(compression());
 
 app.prepare().then(() => {
   server.all("*", (req, res) => {
+    if (!!req.path && req.path.endsWith(".woff2")) {
+      res.setHeader("Cache-Control", "public,max-age=31536000");
+    }
     return handle(req, res);
   });
   spdy.createServer(options, server).listen(PORT);
