@@ -335,10 +335,7 @@ function startWorker(message) {
       for (var i = 0; i < chunkedFontNames.length; i++) {
         await Promise.all(
           chunkedFontNames[i].map((font) => {
-            return new Promise((resolve) => {
-              self.writeFontToFS(font);
-              resolve();
-            });
+            return self.writeFontToFSAsync(font);
           })
         );
         postMessage({
@@ -2400,7 +2397,12 @@ function startWorker(message) {
     return scriptDirectory + path;
   }
 
-  var read_, readAsync, readBinary, setWindowTitle;
+  var read_,
+    readAsync,
+    readRemoteAsync_,
+    readBinary,
+    readBinaryAsync,
+    setWindowTitle;
 
   var nodeFS;
 
@@ -2460,6 +2462,7 @@ function startWorker(message) {
       assert(typeof data === "object");
       return data;
     };
+    readBinaryAsync = readBinary;
     if (typeof scriptArgs != "undefined") {
       arguments_ = scriptArgs;
     } else if (typeof arguments != "undefined") {
@@ -2519,6 +2522,27 @@ function startWorker(message) {
         };
         xhr.onerror = onerror;
         xhr.send(null);
+      };
+      readRemoteAsync_ = function (url) {
+        return new Promise((resolve, reject) => {
+          readAsync(
+            url,
+            (result) => {
+              resolve(result);
+            },
+            (error) => {
+              reject(error);
+            }
+          );
+        });
+      };
+      readBinaryAsync = async function readBinaryAsync(filename) {
+        var ret = await readRemoteAsync_(filename, true);
+        if (!ret.buffer) {
+          ret = new Uint8Array(ret);
+        }
+        assert(ret.buffer);
+        return ret;
       };
     }
     setWindowTitle = function (title) {
@@ -13128,6 +13152,27 @@ function startWorker(message) {
     self.fontMap_[font] = true;
     if (!self.availableFonts.hasOwnProperty(font)) return;
     var content = readBinary(self.availableFonts[font]);
+    Module["FS"].writeFile(
+      "/fonts/font" +
+        self.fontId++ +
+        "-" +
+        self.availableFonts[font].split("/").pop(),
+      content,
+      {
+        encoding: "binary",
+      }
+    );
+  };
+
+  self.writeFontToFSAsync = async function (font) {
+    font = font.trim().toLowerCase();
+    if (font.startsWith("@")) {
+      font = font.substr(1);
+    }
+    if (self.fontMap_.hasOwnProperty(font)) return;
+    self.fontMap_[font] = true;
+    if (!self.availableFonts.hasOwnProperty(font)) return;
+    var content = await readBinaryAsync(self.availableFonts[font]);
     Module["FS"].writeFile(
       "/fonts/font" +
         self.fontId++ +
