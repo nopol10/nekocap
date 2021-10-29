@@ -1,6 +1,10 @@
 import { Action } from "redux";
 import { PutEffect } from "redux-saga/effects";
-import { PageType, VideoSource } from "./common/feature/video/types";
+import {
+  PageType,
+  RawCaptionData,
+  VideoSource,
+} from "./common/feature/video/types";
 import { BackendProvider } from "./common/providers/backend-provider";
 import { Processor } from "./extension/content/processors/processor";
 
@@ -19,6 +23,10 @@ declare global {
     backendProvider: BackendProvider<any>;
     backupHotkeyParentElement: Node | null;
     backupHotkeyElement: Node | null;
+    rawCaption: RawCaptionData | null;
+    editorRawCaption: RawCaptionData | null;
+    backgroundRawCaption: { [id: string]: RawCaptionData } | null;
+    backgroundEditorRawCaption: { [id: string]: RawCaptionData } | null;
   }
 
   namespace NodeJS {

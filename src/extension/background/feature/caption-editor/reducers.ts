@@ -22,6 +22,7 @@ import { captionEditorActionTypes } from "@/common/feature/caption-editor/action
 import { SetCaption, SetRawCaption } from "@/common/feature/video/types";
 import { TabbedType } from "@/common/types";
 import { hydrate } from "@/web/store/action";
+import { isInBackgroundScript } from "@/common/client-utils";
 
 const defaultTabEditorData: TabEditorData = {
   showEditorIfPossible: false,
@@ -47,12 +48,6 @@ const setRawCaptionReducer = (
   const { tabId, rawCaption } = payload;
   return {
     ...state,
-    tabRawData: {
-      ...state.tabRawData,
-      [tabId]: {
-        rawCaption,
-      },
-    },
   };
 };
 
@@ -116,7 +111,6 @@ const isTabbedAction = (
 export const captionEditorReducer = createReducer<CaptionEditorState>(
   {
     tabData: {},
-    tabRawData: {},
     shortcutType: "NekoCap",
     keyboardShortcuts: {
       ...BUILT_IN_SHORTCUTS[SHORTCUT_TYPES.NekoCap],
@@ -136,6 +130,15 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
       })
       .addCase(clearTabData, (state, action) => {
         const { tabId } = action.payload;
+        if (
+          isInBackgroundScript() &&
+          window.backgroundEditorRawCaption &&
+          !!window.backgroundEditorRawCaption[tabId]
+        ) {
+          delete window.backgroundEditorRawCaption[tabId];
+        } else {
+          window.editorRawCaption = null;
+        }
         return {
           ...state,
           tabData: {
@@ -146,12 +149,6 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
               past: [],
             },
           },
-          tabRawData: {
-            ...state.tabRawData,
-            [tabId]: {
-              rawCaption: undefined,
-            },
-          },
         };
       })
       .addCase(setEditorRawCaption, setRawCaptionReducer)
@@ -159,16 +156,22 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
         const { payload } = action;
         const { tabId } = payload;
         const newTabData = { ...state.tabData };
-        const newTabRawData = { ...state.tabRawData };
         delete newTabData[tabId];
-        delete newTabRawData[tabId];
         // @ts-ignore
         const newTabMeta = { ...state.tabMeta };
         delete newTabMeta[tabId];
+        if (
+          isInBackgroundScript() &&
+          window.backgroundEditorRawCaption &&
+          !!window.backgroundEditorRawCaption[tabId]
+        ) {
+          delete window.backgroundEditorRawCaption[tabId];
+        } else {
+          window.editorRawCaption = null;
+        }
         return {
           ...state,
           tabData: newTabData,
-          tabRawData: newTabRawData,
           tabMeta: newTabMeta,
         };
       })

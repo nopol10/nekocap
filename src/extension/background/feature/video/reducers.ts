@@ -23,6 +23,7 @@ import {
   VideoState,
 } from "@/common/feature/video/types";
 import { hydrate } from "@/web/store/action";
+import { isInBackgroundScript } from "@/common/client-utils";
 
 const defaultTabVideoData: TabVideoData = {
   showEditorIfPossible: true,
@@ -43,7 +44,7 @@ export const videoReducer = createReducer<VideoState>(
     return builder
       .addCase(setLoadedCaption, (state, action) => {
         const { payload } = action;
-        const { caption, rawCaption, tabId } = payload;
+        const { caption, tabId } = payload;
         const currentTab: TabVideoData =
           state.tabData[tabId] || defaultTabVideoData;
         return {
@@ -53,7 +54,6 @@ export const videoReducer = createReducer<VideoState>(
             [tabId]: {
               ...currentTab,
               caption,
-              rawCaption,
               showCaption: true,
             },
           },
@@ -161,6 +161,15 @@ export const videoReducer = createReducer<VideoState>(
       .addCase(clearTabData, (state, action) => {
         const { payload } = action;
         const { tabId } = payload;
+        if (
+          isInBackgroundScript() &&
+          window.backgroundRawCaption &&
+          !!window.backgroundRawCaption[tabId]
+        ) {
+          delete window.backgroundRawCaption[tabId];
+        } else {
+          window.rawCaption = null;
+        }
         return {
           ...state,
           tabData: {
@@ -184,6 +193,15 @@ export const videoReducer = createReducer<VideoState>(
         const newTabMeta = { ...state.tabMeta };
         delete newTabData[tabId];
         delete newTabMeta[tabId];
+        if (
+          isInBackgroundScript() &&
+          window.backgroundRawCaption &&
+          !!window.backgroundRawCaption[tabId]
+        ) {
+          delete window.backgroundRawCaption[tabId];
+        } else {
+          window.rawCaption = null;
+        }
         return {
           ...state,
           tabData: newTabData,

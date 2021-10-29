@@ -77,6 +77,7 @@ import { withSuccess } from "antd/lib/modal/confirm";
 import { Locator } from "@/common/locator/locator";
 import { loadFontListApi } from "@/common/feature/video/api";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
+import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
 
 function* updateLoadedCaptionFromFileSaga({
   payload,
@@ -102,6 +103,7 @@ function* updateLoadedCaptionFromFileSaga({
         setIsLoadingRawCaption({ loading: true, percentage: 0, tabId })
       );
       fontList = yield call(loadFontListApi);
+      yield call(storeRawCaption, tabId, rawCaption, true);
       yield put(setShowEditor({ tabId, show: false }));
     }
   }
@@ -123,7 +125,6 @@ function* updateLoadedCaptionFromFileSaga({
     // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
     setRenderer({ tabId, renderer: defaultRenderer }),
     setEditorCaptionAfterEdit({ caption, tabId }),
-    setEditorRawCaption({ rawCaption, tabId }),
   ]);
 }
 
@@ -171,6 +172,58 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
 }
 
 /**
+ * Saves the raw caption outside the store as they can be quite large
+ * and cause state updates to lag
+ * On the extension, sends it to the tab's content script
+ * @param tabId The tab to send the caption to
+ * @param rawCaption rawCaption data to send
+ */
+async function storeRawCaption(
+  tabId: number,
+  rawCaption: RawCaptionData,
+  isEditor
+): Promise<void> {
+  if (!isInExtension()) {
+    if (isEditor) {
+      window.editorRawCaption = rawCaption;
+    } else {
+      window.rawCaption = rawCaption;
+    }
+    return Promise.resolve();
+  }
+  if (isInBackgroundScript()) {
+    if (isEditor) {
+      if (!window.backgroundEditorRawCaption) {
+        window.backgroundEditorRawCaption = {};
+      }
+      window.backgroundEditorRawCaption[tabId] = rawCaption;
+    } else {
+      if (!window.backgroundRawCaption) {
+        window.backgroundRawCaption = {};
+      }
+      window.backgroundRawCaption[tabId] = rawCaption;
+    }
+  }
+  return new Promise<void>((resolve, reject) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      {
+        type: ChromeMessageType.RawCaption,
+        payload: { isEditor, rawCaption },
+      },
+      (response) => {
+        console.log("Received response after sending caption", response);
+        if (response) {
+          resolve();
+          return;
+        }
+        reject();
+      }
+    );
+  });
+}
+
+/**
  * Load a single caption
  */
 function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
@@ -212,17 +265,17 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
     // Other file formats don't support fancy effects so we'll allow them to be auto converted
     defaultRenderer = CaptionRendererType.AdvancedOctopus;
     yield put(setShowEditor({ tabId, show: false }));
+    yield call(storeRawCaption, tabId, rawCaption, false);
   }
 
   yield put([
     clearHistory(tabId),
     setFontList({ list: fontList }),
-    setLoadedCaption({ tabId, caption, rawCaption }),
+    setLoadedCaption({ tabId, caption }),
     setRenderer({ tabId, renderer: defaultRenderer }),
     // We set the caption for the editor to this caption, but this does not make it editable.
     // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
     setEditorCaptionAfterEdit({ tabId, caption }),
-    setEditorRawCaption({ tabId, rawCaption }),
     loadServerCaption.success(),
   ]);
 }

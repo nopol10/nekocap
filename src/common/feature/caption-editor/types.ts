@@ -76,9 +76,6 @@ export type CaptionEditorState = {
   tabData: {
     [tabId: number]: StateWithHistory<TabEditorData>;
   };
-  tabRawData: {
-    [tabId: number]: TabRawCaptionData;
-  };
   shortcutType: keyof typeof SHORTCUT_TYPES;
   keyboardShortcuts: {
     [id: string]: KeySequence;

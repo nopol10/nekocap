@@ -117,6 +117,13 @@ const initialize = async () => {
           infoMessage.message,
           infoMessage.duration || 4
         );
+      } else if (message.type === ChromeMessageType.RawCaption) {
+        if (message.payload.isEditor) {
+          window.editorRawCaption = message.payload.rawCaption;
+        } else {
+          window.rawCaption = message.payload.rawCaption;
+        }
+        sendResponse(true);
       }
     }
   );

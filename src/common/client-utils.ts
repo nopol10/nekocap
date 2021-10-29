@@ -12,6 +12,17 @@ export const isInExtension = () => {
   );
 };
 
+export const isInBackgroundScript = () => {
+  if (
+    !window.chrome ||
+    !window.chrome.extension ||
+    !window.chrome.extension.getBackgroundPage
+  ) {
+    return false;
+  }
+  return window.chrome.extension.getBackgroundPage() === window;
+};
+
 export const isFirefoxExtension = () => {
   return location.protocol === "moz-extension:";
 };

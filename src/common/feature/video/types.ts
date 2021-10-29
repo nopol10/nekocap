@@ -57,7 +57,6 @@ export enum PageType {
 
 export type TabVideoData = {
   caption?: CaptionContainer;
-  rawCaption?: RawCaptionData;
   showCaption: boolean;
   showEditorIfPossible: boolean;
   serverCaptionList?: LoadCaptionsResult[];
@@ -123,7 +122,6 @@ export type SetContentPageType = TabbedType & {
 
 export type SetCaption = TabbedType & {
   caption?: CaptionContainer;
-  rawCaption?: RawCaptionData;
 };
 
 export type SetRawCaption = TabbedType & {

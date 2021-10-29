@@ -9,6 +9,7 @@ export enum ChromeMessageType {
   GetTabId,
   ContentScriptUpdate,
   SaveFile,
+  RawCaption,
   InfoMessage,
 }
 

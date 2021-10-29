@@ -1,3 +1,4 @@
+import { isInBackgroundScript } from "@/common/client-utils";
 import { RootState } from "@/common/store/types";
 import { CaptionRendererType } from "./types";
 // Caption Editor relies on Video feature, but not the other way round. Don't import caption-editor files here
@@ -27,7 +28,10 @@ export const availableRenderersSelector = (tabId: number) => (
 ): CaptionRendererType[] => {
   const videoTabData = state.video.tabData;
   const editorTabData = state.captionEditor.tabData;
-  const editorTabRawData = state.captionEditor.tabRawData;
+  const background = isInBackgroundScript();
+  const editorTabRawData = background
+    ? window.backgroundEditorRawCaption[tabId]
+    : window.editorRawCaption; //state.captionEditor.tabRawData;
   if (!videoTabData && !editorTabData && !editorTabRawData) {
     return [];
   }
@@ -35,10 +39,11 @@ export const availableRenderersSelector = (tabId: number) => (
     editorTabData && editorTabData[tabId]
       ? editorTabData[tabId].present.caption
       : videoTabData[tabId]?.caption;
-  const rawCaptionInUse =
-    editorTabRawData && editorTabRawData[tabId]
-      ? editorTabRawData[tabId].rawCaption
-      : videoTabData[tabId]?.rawCaption;
+  const rawCaptionInUse = editorTabRawData
+    ? editorTabRawData
+    : background
+    ? window.backgroundRawCaption[tabId]
+    : window.rawCaption;
   const isValidCaption = captionInUse && captionInUse.data?.tracks?.length > 0;
   if (!isValidCaption && !rawCaptionInUse) {
     return [];

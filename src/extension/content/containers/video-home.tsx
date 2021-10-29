@@ -157,13 +157,13 @@ export const VideoHome = () => {
       ? editorData.caption
       : videoData?.caption;
   const rawCaption =
-    isUserCaptionLoaded && rawEditorData && rawEditorData.rawCaption?.data
-      ? rawEditorData.rawCaption.data
-      : videoData?.rawCaption?.data;
+    isUserCaptionLoaded && rawEditorData
+      ? rawEditorData.data
+      : window.rawCaption?.data;
   const rawType =
-    isUserCaptionLoaded && rawEditorData && rawEditorData.rawCaption?.type
-      ? rawEditorData.rawCaption.type
-      : videoData?.rawCaption?.type;
+    isUserCaptionLoaded && rawEditorData
+      ? rawEditorData.type
+      : window.rawCaption?.type;
 
   useCaptionContainerUpdate([caption]);
   useVideoElementUpdate([]);

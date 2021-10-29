@@ -464,9 +464,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
     ...updatedCaption,
     translatedTitle,
   };
-  const { rawCaption }: TabRawCaptionData = yield select(
-    tabEditorRawDataSelector(tabId)
-  );
+  const rawCaption = yield select(tabEditorRawDataSelector(tabId));
   // The raw caption will be compressed locally and decompressed on retrieval
   const processedRawCaption = { ...rawCaption };
   if (processedRawCaption.data) {

@@ -1,6 +1,8 @@
+import { isInBackgroundScript } from "@/common/client-utils";
 import { RootState } from "@/common/store/types";
 import { createSelector } from "@reduxjs/toolkit";
 import { captionerSelector } from "../captioner/selectors";
+import { RawCaptionData } from "../video/types";
 
 export const tabEditorDataSelector = (tabId: number) => (state: RootState) => {
   const tabData = state.captionEditor.tabData;
@@ -48,12 +50,16 @@ export const hasEditorCaptionDataSelector = (tabId: number) => (
 
 export const tabEditorRawDataSelector = (tabId: number) => (
   state: RootState
-) => {
-  const tabRawData = state.captionEditor.tabRawData;
-  if (!tabRawData || !tabRawData[tabId]) {
+): RawCaptionData => {
+  const background = isInBackgroundScript();
+  const tabRawData = background
+    ? window.backgroundEditorRawCaption[tabId]
+    : window.editorRawCaption; // state.captionEditor.tabRawData;
+  // if (!tabRawData || !tabRawData[tabId]) {
+  if (!tabRawData) {
     return undefined;
   }
-  return state.captionEditor.tabRawData[tabId];
+  return tabRawData;
 };
 
 export const loadedEditorCaptionSelector = (tabId: number) => (
