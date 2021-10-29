@@ -7,7 +7,11 @@ import { YouTubePlayer } from "youtube-player/dist/types";
 import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { routeNames } from "@/web/feature/route-types";
-import { CaptionRendererType, VideoSource } from "@/common/feature/video/types";
+import {
+  CaptionRendererType,
+  RawCaptionData,
+  VideoSource,
+} from "@/common/feature/video/types";
 import {
   CaptionRenderer,
   CaptionRendererHandle,
@@ -76,16 +80,17 @@ const ExtensionMessage = styled.div`
 
 export type ViewerPageProps = {
   captionId: string;
+  rawCaption?: RawCaptionData;
 };
 
 export const ViewerPage = ({
   captionId = "",
+  rawCaption,
 }: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] = useStateRef<
-    HTMLDivElement
-  >(null);
+  const [captionContainerElement, captionContainerElementRef] =
+    useStateRef<HTMLDivElement>(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
@@ -98,7 +103,7 @@ export const ViewerPage = ({
   }, []);
 
   const noData =
-    loadComplete && (!tabData || (!tabData.caption && !tabData.rawCaption));
+    loadComplete && (!tabData || (!tabData.caption && !rawCaption));
 
   const renderNoDataMessage = () => {
     if (!noData) {
@@ -114,7 +119,7 @@ export const ViewerPage = ({
     );
   };
 
-  const { caption, rawCaption, videoDimensions, renderer } = tabData || {};
+  const { caption, videoDimensions, renderer } = tabData || {};
 
   const getCurrentTime = (): number => {
     if (youtubePlayer) {

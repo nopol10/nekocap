@@ -15,6 +15,7 @@ const getCSP = (props) => {
     "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/";
   const commonScriptSrc = "https://*.google.com/";
   const commonFrameSrc = "https://nekocap-42.firebaseapp.com";
+  const isViewer = props.url?.startsWith("/view/");
 
   if (process.env.NODE_ENV !== "production") {
     csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
@@ -23,7 +24,9 @@ const getCSP = (props) => {
     csp += `connect-src 'self' http://localhost:* ${commonConnectSrc};`;
     csp += `frame-src 'self' http://www.youtube.com/ ${commonFrameSrc};`;
   } else {
-    csp += `script-src 'self' https://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
+    csp += `script-src 'self'${
+      isViewer ? " 'unsafe-eval'" : ""
+    } https://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
     csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
@@ -44,7 +47,7 @@ export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
-
+    const url = ctx.req.url;
     try {
       ctx.renderPage = () =>
         originalRenderPage({
@@ -56,6 +59,7 @@ export default class MyDocument extends Document {
 
       return {
         ...initialProps,
+        url,
         styles: (
           <>
             {initialProps.styles}

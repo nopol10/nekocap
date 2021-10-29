@@ -19,11 +19,16 @@ import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { Dimension } from "@/common/types";
 import { truncate } from "lodash";
 import { Main } from "@/web/feature/home/main";
+import { RawCaptionData } from "@/common/feature/video/types";
 
 const TRANSLATION_NAMESPACES = ["common"];
 const TAB_ID = 0;
 
-export default function ViewCaptionPage() {
+type ViewCaptionPageProps = {
+  rawCaption?: RawCaptionData;
+};
+
+export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
   const router = useRouter();
   const captionId = router.query.id as string;
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
@@ -74,7 +79,7 @@ export default function ViewCaptionPage() {
         </>
       </Head>
       <Main>
-        <ViewerPage captionId={captionId} />
+        <ViewerPage captionId={captionId} rawCaption={rawCaption} />
       </Main>
     </>
   );
@@ -89,10 +94,12 @@ export const getServerSideProps: GetServerSideProps =
     wrapper.getServerSideProps(
       (store) =>
         async ({ locale, params }: GetServerSidePropsContext<PageParams>) => {
+          let rawCaption: RawCaptionData | null = null;
           try {
             const { id: captionId } = params;
-            const { caption, rawCaption, renderer } =
-              await loadWebsiteViewerCaptionApi(captionId);
+            const response = await loadWebsiteViewerCaptionApi(captionId);
+            const { caption, renderer } = response;
+            rawCaption = response.rawCaption;
             const tabId = TAB_ID;
 
             const processor = videoSourceToProcessorMap[caption.videoSource];
@@ -100,7 +107,7 @@ export const getServerSideProps: GetServerSideProps =
               await processor.retrieveVideoDimensions(caption.videoId);
 
             batch(() => {
-              store.dispatch(setLoadedCaption({ tabId, caption, rawCaption }));
+              store.dispatch(setLoadedCaption({ tabId, caption }));
               store.dispatch(setRenderer({ tabId, renderer }));
               store.dispatch(setVideoDimensions({ tabId, dimensions }));
               store.dispatch(loadServerCaption.success());
@@ -112,6 +119,7 @@ export const getServerSideProps: GetServerSideProps =
           return {
             props: {
               ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+              rawCaption,
             },
           };
         }
