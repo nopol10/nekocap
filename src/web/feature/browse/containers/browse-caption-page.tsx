@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Typography } from "antd";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
@@ -24,16 +24,27 @@ const ResultsList = styled.div`
 
 export const BrowseCaptionPage = () => {
   const dispatch = useDispatch();
-  const {
-    currentResultPage,
-    browseResults = [],
-    hasMoreResults,
-  } = useSelector(publicDashboardSelector);
+  const { currentResultPage, browseResults = [], hasMoreResults } = useSelector(
+    publicDashboardSelector
+  );
   const captionerState = useSelector(captionerSelector);
 
   const isSearching = useSelector(search.isLoading(null));
   const isLoading = useSelector(loadAllCaptions.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (browseResults.length > 0) {
+      return;
+    }
+    dispatch(
+      loadAllCaptions.request({
+        pageNumber: 0,
+        pageSize: PAGE_SIZE,
+        append: false,
+      })
+    );
+  }, [browseResults]);
 
   const { captioner: loggedInUserPublicProfile } = captionerState;
   // Add one to the caption count if more results are available
