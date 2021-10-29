@@ -79,7 +79,23 @@ const InlineNekoFace = styled.img`
   }
 `;
 
+const RawLoadingIndicator = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  font-size: 10px;
+  color: black;
+  font-weight: 700;
+`;
+
 const InlineVideoPageMenu = () => {
+  const videoData = useSelector(tabVideoDataSelector(window.tabId));
+  const isLoading = videoData.isLoadingRawCaption;
+  const loadingPercentage = `${(videoData.rawLoadPercentage || 0).toFixed(0)}%`;
   return (
     <>
       <Popover
@@ -90,7 +106,15 @@ const InlineVideoPageMenu = () => {
           </div>
         }
       >
-        <InlineNekoFace src={getImageLink(nekoFace)} />
+        <div style={{ position: "relative" }}>
+          <InlineNekoFace
+            style={{ opacity: isLoading ? 0.7 : 1 }}
+            src={getImageLink(nekoFace)}
+          />
+          {isLoading && (
+            <RawLoadingIndicator>{loadingPercentage}</RawLoadingIndicator>
+          )}
+        </div>
       </Popover>
     </>
   );
