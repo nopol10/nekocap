@@ -65,6 +65,8 @@ export type TabVideoData = {
   pageType: PageType;
   videoDimensions?: Dimension;
   menuHidden: boolean;
+  isLoadingRawCaption: boolean;
+  rawLoadPercentage?: number;
 };
 
 export type VideoState = {
@@ -237,4 +239,9 @@ export type IFrameProps = {
 
 export type SetFontList = {
   list: { [name: string]: string };
+};
+
+export type SetIsLoadingRawCaption = TabbedType & {
+  loading: boolean;
+  percentage?: number;
 };

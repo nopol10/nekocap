@@ -7,6 +7,7 @@ import {
   loadWebsiteViewerCaption,
   setContentPageType,
   setFontList,
+  setIsLoadingRawCaption,
   setLoadedCaption,
   setMenuHidden,
   setRenderer,
@@ -29,6 +30,7 @@ const defaultTabVideoData: TabVideoData = {
   renderer: CaptionRendererType.Default,
   pageType: PageType.SearchResults,
   menuHidden: false,
+  isLoadingRawCaption: false,
 };
 
 export const videoReducer = createReducer<VideoState>(
@@ -169,6 +171,7 @@ export const videoReducer = createReducer<VideoState>(
               renderer: CaptionRendererType.Default,
               pageType: PageType.SearchResults,
               menuHidden: false,
+              isLoadingRawCaption: false,
             },
           },
         };
@@ -185,6 +188,22 @@ export const videoReducer = createReducer<VideoState>(
           ...state,
           tabData: newTabData,
           tabMeta: newTabMeta,
+        };
+      })
+      .addCase(setIsLoadingRawCaption, (state, action) => {
+        const { payload } = action;
+        const { loading, percentage, tabId } = payload;
+        const currentTab: TabVideoData = { ...state.tabData[tabId] };
+        return {
+          ...state,
+          tabData: {
+            ...state.tabData,
+            [tabId]: {
+              ...currentTab,
+              isLoadingRawCaption: loading,
+              rawLoadPercentage: percentage,
+            },
+          },
         };
       })
       .addCase(hydrate, (state, action) => {

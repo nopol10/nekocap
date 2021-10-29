@@ -28,6 +28,7 @@ import {
   loadWebsiteViewerCaption,
   setVideoDimensions,
   setFontList,
+  setIsLoadingRawCaption,
 } from "@/common/feature/video/actions";
 import { videoActionTypes } from "@/common/feature/video/action-types";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -97,6 +98,9 @@ function* updateLoadedCaptionFromFileSaga({
       // Other file formats don't support fancy effects so we'll allow them to be auto converted
       canAutoConvertToNekoCaption = false;
       defaultRenderer = CaptionRendererType.AdvancedOctopus;
+      yield put(
+        setIsLoadingRawCaption({ loading: true, percentage: 0, tabId })
+      );
       fontList = yield call(loadFontListApi);
       yield put(setShowEditor({ tabId, show: false }));
     }
@@ -171,6 +175,7 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
  */
 function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
   const { tabId, captionId } = payload;
+  yield put(setIsLoadingRawCaption({ loading: true, percentage: 0, tabId }));
   const response: LoadSingleCaptionResult = yield call(
     [Locator.provider(), "loadCaption"],
     {
@@ -192,6 +197,9 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
         fontList = yield call(loadFontListApi);
       }
     }
+  } else {
+    // Not a raw caption, hide the loader
+    yield put(setIsLoadingRawCaption({ loading: false, tabId }));
   }
 
   let defaultRenderer: CaptionRendererType = CaptionRendererType.Default;

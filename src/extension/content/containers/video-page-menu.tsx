@@ -458,6 +458,17 @@ export const VideoPageMenu = ({
     return <WSButton onClick={handleClickShowHideCaption}>{label}</WSButton>;
   };
 
+  const renderRawLoadingState = () => {
+    if (tabData.isLoadingRawCaption) {
+      const percentage =
+        tabData.rawLoadPercentage !== undefined &&
+        tabData.rawLoadPercentage !== null
+          ? `${tabData.rawLoadPercentage.toFixed(0)}%`
+          : "";
+      return <div>Loading... {percentage}</div>;
+    }
+  };
+
   const renderShowEditorButton = () => {
     if (!isUserCaptionLoaded) {
       return null;
@@ -653,6 +664,7 @@ export const VideoPageMenu = ({
           </Dropdown>
         }
         {renderShowHideButton()}
+        {renderRawLoadingState()}
         {!inEditorScreen && renderLikeButtons()}
         {renderCaptionerProfileLink()}
       </Space>

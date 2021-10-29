@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   isUserCaptionLoadedSelector,
   tabEditorDataSelector,
@@ -36,6 +36,7 @@ import nekoFace from "@/assets/images/neko-face-dark.svg";
 import { Popover } from "antd";
 import { getImageLink } from "@/common/chrome-utils";
 import { styledNoPass } from "@/common/style-utils";
+import { setIsLoadingRawCaption } from "@/common/feature/video/actions";
 
 type InlineMenuWrapperProps = {
   isInline: boolean;
@@ -96,6 +97,7 @@ const InlineVideoPageMenu = () => {
 };
 
 export const VideoHome = () => {
+  const dispatch = useDispatch();
   const videoData = useSelector(tabVideoDataSelector(window.tabId));
   const editorData = useSelector(tabEditorDataSelector(window.tabId));
   const rawEditorData = useSelector(tabEditorRawDataSelector(window.tabId));
@@ -106,6 +108,25 @@ export const VideoHome = () => {
     shouldHideVideoPageMenuSelector(window.tabId)
   );
   const fontList = useSelector(fontListSelector());
+  const handleFontsLoaded = useCallback(
+    (progress: number) => {
+      if (progress < 1) {
+        dispatch(
+          setIsLoadingRawCaption({
+            loading: true,
+            percentage: progress * 100,
+            tabId: window.tabId,
+          })
+        );
+      } else {
+        dispatch(
+          setIsLoadingRawCaption({ loading: false, tabId: window.tabId })
+        );
+      }
+    },
+    [dispatch]
+  );
+
   const { renderer, showCaption = true } = videoData || {};
   const caption =
     isUserCaptionLoaded && editorData && editorData.caption
@@ -215,6 +236,7 @@ export const VideoHome = () => {
           captionContainerElement={window.captionContainerElement}
           showCaption={showCaption}
           fontList={fontList}
+          onFontsLoaded={handleFontsLoaded}
         />
       )}
     </>,

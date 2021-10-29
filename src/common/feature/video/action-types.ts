@@ -24,4 +24,5 @@ export const videoActionTypes = {
   setVideoDimensions: `${reducerName}/setVideoDimensions`,
   setMenuHidden: `${reducerName}/setMenuHidden`,
   setFontList: `${reducerName}/setFontList`,
+  setIsLoadingRawCaption: `${reducerName}/setIsLoadingRawCaption`,
 };

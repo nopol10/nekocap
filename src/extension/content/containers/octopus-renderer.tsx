@@ -17,6 +17,7 @@ interface OctopusRendererProps {
   isIframe?: boolean;
   iframeProps?: IFrameProps;
   fontList: { [name: string]: string };
+  onFontsLoaded?: (progress: number) => void;
 }
 
 const localCaptionContainerStyle = `
@@ -69,6 +70,7 @@ const OctopusRendererInternal = ({
   isIframe = false,
   iframeProps,
   fontList,
+  onFontsLoaded,
 }: OctopusRendererProps) => {
   /**
    * We'll create our own container element to prevent modifying the original page too much
@@ -107,6 +109,13 @@ const OctopusRendererInternal = ({
       detector.disconnect();
     };
   }, [octopusInstance]);
+
+  // Progress range = [0, 1]
+  const handleFontsLoaded = useCallback((progress: number) => {
+    if (onFontsLoaded) {
+      onFontsLoaded(progress);
+    }
+  }, []);
 
   // Register video listener
   useEffect(() => {
@@ -149,6 +158,7 @@ const OctopusRendererInternal = ({
     };
     // @ts-ignore
     octopusInstance.current = new SubtitlesOctopus(options);
+    octopusInstance.current.onFontsLoaded = handleFontsLoaded;
     octopusInstance.current.setCurrentTime(
       isIframe && iframeProps && iframeProps.getCurrentTime
         ? iframeProps.getCurrentTime()
@@ -178,6 +188,7 @@ const OctopusRendererInternal = ({
     rawCaption,
     isIframe,
     iframeProps,
+    onFontsLoaded,
   ]);
 
   const handleTimeUpdate = useCallback(() => {

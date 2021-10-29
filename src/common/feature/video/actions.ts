@@ -18,6 +18,7 @@ import type {
   SetMenuHidden,
   SetVideoDimensions,
   SetFontList,
+  SetIsLoadingRawCaption,
 } from "./types";
 
 const csa = createSignalActionInState("video", true);
@@ -109,4 +110,8 @@ export const setMenuHidden = createAction<SetMenuHidden>(
 
 export const setFontList = createAction<SetFontList>(
   videoActionTypes.setFontList
+);
+
+export const setIsLoadingRawCaption = createAction<SetIsLoadingRawCaption>(
+  videoActionTypes.setIsLoadingRawCaption
 );
