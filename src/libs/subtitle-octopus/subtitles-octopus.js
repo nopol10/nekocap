@@ -381,6 +381,12 @@ var SubtitlesOctopus = function (options) {
     }
     var data = event.data;
     switch (data.target) {
+      case "fontsloaded": {
+        if (self.onFontsLoaded) {
+          self.onFontsLoaded(data.content);
+        }
+        break;
+      }
       case "stdout": {
         console.log(data.content);
         break;
