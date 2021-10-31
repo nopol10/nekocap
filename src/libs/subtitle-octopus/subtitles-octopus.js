@@ -19,7 +19,14 @@ var SubtitlesOctopus = function (options) {
 
   var self = this;
   self.canvas = options.canvas; // HTML canvas element (optional if video specified)
-  self.lossyRender = options.lossyRender; // Speedup render for heavy subs
+  self.renderMode = options.lossyRender
+    ? "fast"
+    : options.blendRender
+    ? "blend"
+    : "normal";
+  self.libassMemoryLimit = options.libassMemoryLimit || 0;
+  self.libassGlyphLimit = options.libassGlyphLimit || 0;
+  self.targetFps = options.targetFps || undefined;
   self.isOurCanvas = false; // (internal) we created canvas and manage it
   self.video = options.video; // HTML video element (optional if canvas specified)
   self.canvasParent = null; // (internal) HTML canvas parent element
@@ -121,12 +128,15 @@ var SubtitlesOctopus = function (options) {
       URL: document.URL,
       currentScript: self.workerUrl,
       preMain: true,
-      fastRender: self.lossyRender,
+      renderMode: self.renderMode,
       subUrl: self.subUrl,
       subContent: self.subContent,
       fonts: self.fonts,
       availableFonts: self.availableFonts,
       debug: self.debug,
+      targetFps: self.targetFps,
+      libassMemoryLimit: self.libassMemoryLimit,
+      libassGlyphLimit: self.libassGlyphLimit,
     });
   };
 
@@ -278,8 +288,8 @@ var SubtitlesOctopus = function (options) {
       } else {
         self.video.addEventListener(
           "loadedmetadata",
-          function (e) {
-            e.target.removeEventListener(e.type, arguments.callee);
+          function listener(e) {
+            e.target.removeEventListener(e.type, listener);
             self.resize();
           },
           false
@@ -334,9 +344,24 @@ var SubtitlesOctopus = function (options) {
     }
     if (self.debug) {
       var drawTime = Math.round(performance.now() - beforeDrawTime);
-      console.log(
-        Math.round(data.spentTime) + " ms (+ " + drawTime + " ms draw)"
-      );
+      var blendTime = data.blendTime;
+      if (typeof blendTime !== "undefined") {
+        console.log(
+          "render: " +
+            Math.round(data.spentTime - blendTime) +
+            " ms, blend: " +
+            Math.round(blendTime) +
+            " ms, draw: " +
+            drawTime +
+            " ms; TOTAL=" +
+            Math.round(data.spentTime + drawTime) +
+            " ms"
+        );
+      } else {
+        console.log(
+          Math.round(data.spentTime) + " ms (+ " + drawTime + " ms draw)"
+        );
+      }
       self.renderStart = performance.now();
     }
   }
@@ -484,6 +509,9 @@ var SubtitlesOctopus = function (options) {
       case "get-styles": {
         console.log(data.target);
         console.log(data.styles);
+        break;
+      }
+      case "ready": {
         break;
       }
       default:
@@ -676,6 +704,7 @@ var SubtitlesOctopus = function (options) {
       index: index,
     });
   };
+
   self.init();
 };
 
