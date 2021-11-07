@@ -21,9 +21,13 @@ export const MobileCaptionWrapper = styled.a`
 const MobileCaptionThumbnail = styled.img``;
 
 const MobileTranslatedTitle = styled.div`
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   color: ${colors.white};
+`;
+
+const LanguageLabel = styled.div`
+  font-size: 12px;
 `;
 
 const MobileCaptionCreator = styled.div`
@@ -40,10 +44,15 @@ const MobileCaptionOverlay = styled.div`
   height: 100%;
   padding: 0 50px 10px 8px;
   background: linear-gradient(0deg, #000000cf 0%, transparent 69%);
+  backdrop-filter: blur(6px) brightness(0.7);
 
   header {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     margin-top: auto;
-    font-size: 14px;
+    font-size: 12px;
     color: ${colors.white};
   }
 `;
@@ -84,9 +93,9 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
               <MobileTranslatedTitle>
                 {caption.translatedTitle}
               </MobileTranslatedTitle>
-              <div>
+              <LanguageLabel>
                 {fromLanguage} <CaretRightOutlined /> <b>{toLanguage}</b>
-              </div>
+              </LanguageLabel>
               <MobileCaptionCreator>
                 captioned by{" "}
                 <b>

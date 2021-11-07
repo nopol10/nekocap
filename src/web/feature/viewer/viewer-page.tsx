@@ -29,6 +29,7 @@ import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { isClient, isServer } from "@/common/client-utils";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
+import { WSText } from "@/common/components/ws-text";
 
 const { Title, Text, Link } = Typography;
 
@@ -65,8 +66,31 @@ const DetailsWrapper = styledNoPass<{ width?: number }>("div")`
     }
 `;
 
+const ViewerTitle = styled(Title)`
+  &.ant-typography {
+    font-weight: 700;
+    font-style: normal;
+    @media ${DEVICE.mobileOnly} {
+      font-size: 1.2em;
+    }
+  }
+`;
+
+const TranslatedTitle = styled(Title)`
+  &.ant-typography {
+    font-weight: 600;
+    font-style: normal;
+    @media ${DEVICE.mobileOnly} {
+      font-size: 1.1em;
+    }
+  }
+`;
+
 const CaptionerMessage = styled(Text)`
   font-size: 1.2em;
+  @media ${DEVICE.mobileOnly} {
+    font-size: 1em;
+  }
 `;
 
 const ExtensionMessage = styled.div`
@@ -203,8 +227,10 @@ export const ViewerPage = ({
         </VideoWrapper>
         {caption && (
           <DetailsWrapper>
-            <Title>{caption.originalTitle}</Title>
-            <Title level={2}>{caption.translatedTitle}</Title>
+            <ViewerTitle>{caption.originalTitle}</ViewerTitle>
+            <TranslatedTitle level={2}>
+              {caption.translatedTitle}
+            </TranslatedTitle>
             <CaptionerMessage>
               Caption submitted by{" "}
               <Link
@@ -214,11 +240,11 @@ export const ViewerPage = ({
               </Link>
             </CaptionerMessage>
             <ExtensionMessage>
-              <Text>
+              <WSText>
                 For the best caption viewing &amp; creating experience, download
                 the NekoCap extension and view captions directly in{" "}
                 {processor ? processor.name : "YouTube"}.
-              </Text>
+              </WSText>
               <Badges style={{ justifyContent: "left" }}>
                 <Space direction={isDesktop ? "horizontal" : "vertical"}>
                   <a
