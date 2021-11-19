@@ -29,9 +29,12 @@ export const availableRenderersSelector = (tabId: number) => (
   const videoTabData = state.video.tabData;
   const editorTabData = state.captionEditor.tabData;
   const background = isInBackgroundScript();
-  const editorTabRawData = background
-    ? window.backgroundEditorRawCaption[tabId]
-    : window.editorRawCaption; //state.captionEditor.tabRawData;
+  const editorTabRawData =
+    background &&
+    window.backgroundEditorRawCaption &&
+    window.backgroundEditorRawCaption[tabId]
+      ? window.backgroundEditorRawCaption[tabId]
+      : window.editorRawCaption; //state.captionEditor.tabRawData;
   if (!videoTabData && !editorTabData && !editorTabRawData) {
     return [];
   }
@@ -41,7 +44,9 @@ export const availableRenderersSelector = (tabId: number) => (
       : videoTabData[tabId]?.caption;
   const rawCaptionInUse = editorTabRawData
     ? editorTabRawData
-    : background
+    : background &&
+      window.backgroundRawCaption &&
+      window.backgroundRawCaption[tabId]
     ? window.backgroundRawCaption[tabId]
     : window.rawCaption;
   const isValidCaption = captionInUse && captionInUse.data?.tracks?.length > 0;

@@ -12,7 +12,7 @@ export async function hasSaveData(
   const result:
     | { editor: CaptionEditorStorage }
     | undefined = await chromeProm.storage.local.get(["editor"]);
-  if (!result) {
+  if (!result || !result.editor) {
     return false;
   }
   const { saves = [] } = result.editor;

@@ -52,9 +52,12 @@ export const tabEditorRawDataSelector = (tabId: number) => (
   state: RootState
 ): RawCaptionData => {
   const background = isInBackgroundScript();
-  const tabRawData = background
-    ? window.backgroundEditorRawCaption[tabId]
-    : window.editorRawCaption; // state.captionEditor.tabRawData;
+  const tabRawData =
+    background &&
+    window.backgroundEditorRawCaption &&
+    window.backgroundEditorRawCaption[tabId]
+      ? window.backgroundEditorRawCaption[tabId]
+      : window.editorRawCaption; // state.captionEditor.tabRawData;
   // if (!tabRawData || !tabRawData[tabId]) {
   if (!tabRawData) {
     return undefined;
