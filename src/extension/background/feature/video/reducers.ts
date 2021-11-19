@@ -227,6 +227,7 @@ export const videoReducer = createReducer<VideoState>(
       .addCase(hydrate, (state, action) => {
         return {
           ...state,
+          ...action.payload.video,
           tabData: {
             ...state.tabData,
             ...action.payload.video.tabData,

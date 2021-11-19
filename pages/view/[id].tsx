@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { loadWebsiteViewerCaptionApi } from "@/web/feature/viewer/api";
 import {
   loadServerCaption,
+  setFontList,
   setLoadedCaption,
   setRenderer,
   setVideoDimensions,
@@ -20,6 +21,7 @@ import { Dimension } from "@/common/types";
 import { truncate } from "lodash";
 import { Main } from "@/web/feature/home/main";
 import { RawCaptionData } from "@/common/feature/video/types";
+import { loadFontListApi } from "@/common/feature/video/api";
 
 const TRANSLATION_NAMESPACES = ["common"];
 const TAB_ID = 0;
@@ -89,39 +91,43 @@ type PageParams = {
   id: string;
 };
 
-export const getServerSideProps: GetServerSideProps =
-  NextWrapper.getServerSideProps(
-    wrapper.getServerSideProps(
-      (store) =>
-        async ({ locale, params }: GetServerSidePropsContext<PageParams>) => {
-          let rawCaption: RawCaptionData | null = null;
-          try {
-            const { id: captionId } = params;
-            const response = await loadWebsiteViewerCaptionApi(captionId);
-            const { caption, renderer } = response;
-            rawCaption = response.rawCaption;
-            const tabId = TAB_ID;
+export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
+  wrapper.getServerSideProps(
+    (store) => async ({
+      locale,
+      params,
+    }: GetServerSidePropsContext<PageParams>) => {
+      let rawCaption: RawCaptionData | null = null;
+      try {
+        const { id: captionId } = params;
+        const response = await loadWebsiteViewerCaptionApi(captionId);
+        const fontList = await loadFontListApi();
+        const { caption, renderer } = response;
+        rawCaption = response.rawCaption;
+        const tabId = TAB_ID;
 
-            const processor = videoSourceToProcessorMap[caption.videoSource];
-            const dimensions: Dimension =
-              await processor.retrieveVideoDimensions(caption.videoId);
+        const processor = videoSourceToProcessorMap[caption.videoSource];
+        const dimensions: Dimension = await processor.retrieveVideoDimensions(
+          caption.videoId
+        );
 
-            batch(() => {
-              store.dispatch(setLoadedCaption({ tabId, caption }));
-              store.dispatch(setRenderer({ tabId, renderer }));
-              store.dispatch(setVideoDimensions({ tabId, dimensions }));
-              store.dispatch(loadServerCaption.success());
-            });
-          } catch (e) {
-            console.error("Error during viewer page generation", e);
-          }
+        batch(() => {
+          store.dispatch(setFontList({ list: fontList }));
+          store.dispatch(setLoadedCaption({ tabId, caption }));
+          store.dispatch(setRenderer({ tabId, renderer }));
+          store.dispatch(setVideoDimensions({ tabId, dimensions }));
+          store.dispatch(loadServerCaption.success());
+        });
+      } catch (e) {
+        console.error("Error during viewer page generation", e);
+      }
 
-          return {
-            props: {
-              ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-              rawCaption,
-            },
-          };
-        }
-    )
-  );
+      return {
+        props: {
+          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          rawCaption,
+        },
+      };
+    }
+  )
+);

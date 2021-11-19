@@ -5,7 +5,10 @@ import styled from "styled-components";
 import YouTube from "react-youtube";
 import { YouTubePlayer } from "youtube-player/dist/types";
 import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
-import { tabVideoDataSelector } from "@/common/feature/video/selectors";
+import {
+  fontListSelector,
+  tabVideoDataSelector,
+} from "@/common/feature/video/selectors";
 import { routeNames } from "@/web/feature/route-types";
 import {
   CaptionRendererType,
@@ -113,10 +116,12 @@ export const ViewerPage = ({
 }: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] =
-    useStateRef<HTMLDivElement>(null);
+  const [captionContainerElement, captionContainerElementRef] = useStateRef<
+    HTMLDivElement
+  >(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
+  const fontList = useSelector(fontListSelector());
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
 
@@ -285,7 +290,7 @@ export const ViewerPage = ({
             showCaption={true}
             isIframe={true}
             iframeProps={iframeProps}
-            fontList={SUBSTATION_FONT_LIST}
+            fontList={fontList}
           />
         )}
       </Skeleton>
