@@ -62,6 +62,12 @@ const CloseButton = styled(WSButton)``;
 
 const Buttons = styled.div``;
 
+const HorizontalSpace = styled.div`
+  display: inline-flex;
+  flex-direction: row;
+  grid-column-gap: 8px;
+`;
+
 export const WebHeader = () => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(isLoggedInSelector);
@@ -98,7 +104,7 @@ export const WebHeader = () => {
     return (
       <Buttons>
         <Spin spinning={isLoggingOut}>
-          <Space>
+          <HorizontalSpace>
             <BasicSearchBar />
             <WSButton onClick={handleClickHome}>Home</WSButton>
             <WSButton
@@ -109,7 +115,7 @@ export const WebHeader = () => {
             {isLoggedIn && (
               <WSButton onClick={handleClickLogout}>Logout</WSButton>
             )}
-          </Space>
+          </HorizontalSpace>
         </Spin>
       </Buttons>
     );

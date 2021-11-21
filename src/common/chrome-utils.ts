@@ -16,11 +16,11 @@ export const requestBackgroundPageVariable = async (variableName: string) => {
  * Safe way to get an image's link in both the website and the extension
  * @param imageName
  */
-export const getImageLink = (imageName: string) => {
+export const getImageLink = (imageName: string | { src: string }): string => {
   if (isInExtension()) {
     return chrome.extension.getURL(`${imageName}`);
   }
-  return `${imageName}`;
+  return (imageName as { src: string }).src;
 };
 
 export const chromeProm = {
