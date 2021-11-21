@@ -257,14 +257,14 @@ export const ViewerPage = ({
                     rel="noreferrer"
                     href={CHROME_DOWNLOAD_URL}
                   >
-                    <img id="chrome-badge" src={chromeLogo} />
+                    <img id="chrome-badge" src={chromeLogo.src} />
                   </a>
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={FIREFOX_DOWNLOAD_URL}
                   >
-                    <img id="firefox-badge" src={firefoxLogo} />
+                    <img id="firefox-badge" src={firefoxLogo.src} />
                   </a>
                 </Space>
               </Badges>

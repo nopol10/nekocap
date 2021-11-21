@@ -48,6 +48,15 @@ export const SupportedSites = () => {
           TVer
         </SiteLink>
       </li>
+      <li>
+        <SiteLink
+          href="https://www.netflix.com/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Netflix
+        </SiteLink>
+      </li>
     </ul>
   );
 };

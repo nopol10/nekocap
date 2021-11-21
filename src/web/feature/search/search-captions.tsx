@@ -214,11 +214,9 @@ export const SearchCaptions = ({
   title = "",
 }: SearchCaptionsProps): JSX.Element => {
   const dispatch = useDispatch();
-  const {
-    currentResultPage,
-    videos = [],
-    hasMoreResults,
-  } = useSelector(searchSelector);
+  const { currentResultPage, videos = [], hasMoreResults } = useSelector(
+    searchSelector
+  );
   const isSearching = useSelector(search.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
 
@@ -247,8 +245,14 @@ export const SearchCaptions = ({
         </List.Item>
       );
     }
-    const { name, captionCount, captions, sourceId, source, thumbnailUrl } =
-      video;
+    const {
+      name,
+      captionCount,
+      captions,
+      sourceId,
+      source,
+      thumbnailUrl,
+    } = video;
     const processor = videoSourceToProcessorMap[parseInt(source)];
     const languageList = Object.keys(captions).filter(
       (language) => captions[language] > 0
@@ -266,7 +270,7 @@ export const SearchCaptions = ({
               >
                 <img
                   style={{ width: "100%" }}
-                  src={thumbnailUrl || emptyVideoImage}
+                  src={thumbnailUrl || emptyVideoImage.src}
                 />
               </a>
             </div>

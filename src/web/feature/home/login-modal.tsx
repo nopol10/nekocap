@@ -23,7 +23,7 @@ export const LoginModal = ({ modalProps }: LoginModalProps) => {
         title={"Sign in to access your dashboard"}
       >
         <AuthButton
-          src={googleLoginImage}
+          src={googleLoginImage.src}
           onClick={handleClickGoogleLogin}
           href="#"
         />

@@ -111,7 +111,7 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
               </MobileCaptionCreator>
             </MobileCaptionOverlay>
             <MobileCaptionThumbnail
-              src={caption.thumbnailUrl || emptyVideoImage}
+              src={caption.thumbnailUrl || emptyVideoImage.src}
             />
           </MobileCaptionWrapper>
         );
