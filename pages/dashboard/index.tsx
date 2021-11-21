@@ -12,13 +12,13 @@ import {
 import { Main } from "@/web/feature/home/main";
 import { OwnProfile } from "@/web/feature/profile/containers/own-profile";
 import ProtectedNextComponent from "@/web/feature/protected-next-component";
+import { STRING_CONSTANTS } from "@/common/string-constants";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
 export default function DashboardPage(): JSX.Element {
   const metaTitle = "NekoCap - Dashboard";
-  const metaDescription =
-    "Create and upload captions for YouTube, niconico and Vimeo videos with NekoCap";
+  const metaDescription = STRING_CONSTANTS.metaDescription;
 
   return (
     <>

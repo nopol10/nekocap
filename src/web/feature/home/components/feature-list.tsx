@@ -1,14 +1,9 @@
 import { colors } from "@/common/colors";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
-import { Col, List, Row } from "antd";
+import { Col, Row } from "antd";
 import Modal from "antd/lib/modal/Modal";
-import {
-  EXCLUDED_FONTS,
-  SUBSTATION_GROUPED_FONTS,
-} from "@/common/substation-fonts";
 import Title from "antd/lib/typography/Title";
-import { startCase } from "lodash";
 import { SupportedSites } from "@/common/components/supported-sites";
 
 const Wrapper = styled.div`
@@ -39,40 +34,6 @@ type Feature = {
 
 const getSearchableFontName = (fontName: string) => {
   return fontName.replace(/ (Bold|Semibold|Light)/g, "").toLowerCase();
-};
-
-const FontList = () => {
-  return (
-    <div>
-      {Object.keys(SUBSTATION_GROUPED_FONTS).map((group) => {
-        return (
-          <div key={group}>
-            <Title level={4}>{startCase(group)}</Title>
-            <List
-              dataSource={Object.keys(SUBSTATION_GROUPED_FONTS[group])
-                .filter(
-                  (name) => EXCLUDED_FONTS.indexOf(name.toLowerCase()) < 0
-                )
-                .map((fontName) => startCase(fontName))}
-              renderItem={(fontName) => (
-                <List.Item>
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={`https://fonts.google.com/?query=${getSearchableFontName(
-                      fontName
-                    )}`}
-                  >
-                    {fontName}
-                  </a>
-                </List.Item>
-              )}
-            />
-          </div>
-        );
-      })}
-    </div>
-  );
 };
 
 const SupportSiteList = () => {
@@ -115,13 +76,6 @@ const features: Feature[] = [
   {
     title: "Advanced effects (experimental)",
     description: function description() {
-      const [fontListOpened, setFontListOpened] = useState(false);
-      const handleOpenFontList = () => {
-        setFontListOpened(true);
-      };
-      const handleCloseFontList = () => {
-        setFontListOpened(false);
-      };
       return (
         <span>
           View complex captions made in Substation Alpha formats (SSA, ASS)
@@ -134,16 +88,7 @@ const features: Feature[] = [
             Subtitle Octopus
           </a>
           <br />
-          <a href="#" onClick={handleOpenFontList}>
-            View supported custom fonts
-          </a>
-          <Modal
-            visible={fontListOpened}
-            onCancel={handleCloseFontList}
-            footer={null}
-          >
-            <FontList />
-          </Modal>
+          <a href="/fontlist">View supported custom fonts</a>
         </span>
       );
     },

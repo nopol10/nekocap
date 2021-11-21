@@ -8,13 +8,13 @@ import { Main } from "@/web/feature/home/main";
 import { loadCaptionForReviewApi } from "@/web/feature/caption-review/api";
 import { setReviewData } from "@/common/feature/caption-review/actions";
 import { CaptionReview } from "@/web/feature/caption-review/caption-review";
+import { STRING_CONSTANTS } from "@/common/string-constants";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
 export default function CaptionDetailsPage(): JSX.Element {
   const metaTitle = "NekoCap - Review Caption";
-  const metaDescription =
-    "Create and upload captions for YouTube, niconico and Vimeo videos with NekoCap";
+  const metaDescription = STRING_CONSTANTS.metaDescription;
 
   return (
     <>

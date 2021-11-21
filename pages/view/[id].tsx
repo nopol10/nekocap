@@ -22,6 +22,7 @@ import { truncate } from "lodash";
 import { Main } from "@/web/feature/home/main";
 import { RawCaptionData } from "@/common/feature/video/types";
 import { loadFontListApi } from "@/common/feature/video/api";
+import { STRING_CONSTANTS } from "@/common/string-constants";
 
 const TRANSLATION_NAMESPACES = ["common"];
 const TAB_ID = 0;
@@ -49,7 +50,7 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
       ? `Translated from ${truncate(tabData.caption.originalTitle, {
           length: 40,
         })}. NekoCap lets you create and share community captions for online videos. SSA/ASS captions are supported too!`
-      : "Create and upload captions for YouTube, niconico and Vimeo videos with NekoCap";
+      : STRING_CONSTANTS.metaDescription;
   })();
 
   const metaImage = (() => {
