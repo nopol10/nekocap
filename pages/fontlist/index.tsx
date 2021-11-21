@@ -6,16 +6,15 @@ import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
 import { GetStaticProps } from "next";
 import { Main } from "@/web/feature/home/main";
-import { BrowseCaptionPage } from "@/web/feature/browse/containers/browse-caption-page";
-import { BrowseResults } from "@/common/feature/public-dashboard/types";
-import { Locator } from "@/common/locator/locator";
-import { setBrowseResults } from "@/common/feature/public-dashboard/actions";
+import { loadFontListApi } from "@/common/feature/video/api";
+import { setFontList } from "@/common/feature/video/actions";
 import { STRING_CONSTANTS } from "@/common/string-constants";
+import { FontListPage } from "@/web/feature/font-list/font-list-page";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
-export default function BrowseAllCaptionsPage(): JSX.Element {
-  const metaTitle = "NekoCap - Browse Captions";
+export default function FontsPage(): JSX.Element {
+  const metaTitle = "NekoCap - Available Fonts";
   const metaDescription = STRING_CONSTANTS.metaDescription;
 
   return (
@@ -31,7 +30,7 @@ export default function BrowseAllCaptionsPage(): JSX.Element {
         </>
       </Head>
       <Main>
-        <BrowseCaptionPage />
+        <FontListPage />
       </Main>
     </>
   );
@@ -40,34 +39,13 @@ export default function BrowseAllCaptionsPage(): JSX.Element {
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps((store) => async ({ locale }) => {
     try {
-      const {
-        status,
-        error,
-        captions,
-        hasMoreResults,
-      }: BrowseResults = await Locator.provider().browse({
-        limit: 20,
-        offset: 0,
-      });
-      if (status === "error") {
-        throw new Error(error);
-      }
-
-      const pageNumber = 1;
-      const append = false;
+      const fontList = await loadFontListApi();
 
       batch(() => {
-        store.dispatch(
-          setBrowseResults({
-            hasMoreResults,
-            currentResultPage: pageNumber,
-            captions,
-            append,
-          })
-        );
+        store.dispatch(setFontList({ list: fontList }));
       });
     } catch (e) {
-      console.error("Error during browse caption page generation", e);
+      console.error("Error during font list page generation", e);
     }
 
     return {

@@ -8,13 +8,13 @@ import { Main } from "@/web/feature/home/main";
 import { CaptionerProfile } from "@/web/feature/profile/containers/captioner-profile";
 import { loadCaptionerProfileApi } from "@/web/feature/profile/api";
 import { setProfile } from "@/common/feature/profile/actions";
+import { STRING_CONSTANTS } from "@/common/string-constants";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
 export default function CaptionerDetailsPage(): JSX.Element {
   const metaTitle = "NekoCap - Browse Captions";
-  const metaDescription =
-    "Create and upload captions for YouTube, niconico and Vimeo videos with NekoCap";
+  const metaDescription = STRING_CONSTANTS.metaDescription;
 
   return (
     <>
@@ -39,24 +39,25 @@ type PageParams = {
   capperId: string;
 };
 
-export const getServerSideProps: GetServerSideProps =
-  NextWrapper.getServerSideProps(
-    wrapper.getServerSideProps(
-      (store) =>
-        async ({ locale, params }: GetServerSidePropsContext<PageParams>) => {
-          try {
-            const { capperId } = params;
-            const profile = await loadCaptionerProfileApi(capperId);
-            store.dispatch(setProfile(profile));
-          } catch (e) {
-            console.error("Error during profile page generation", e);
-          }
+export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
+  wrapper.getServerSideProps(
+    (store) => async ({
+      locale,
+      params,
+    }: GetServerSidePropsContext<PageParams>) => {
+      try {
+        const { capperId } = params;
+        const profile = await loadCaptionerProfileApi(capperId);
+        store.dispatch(setProfile(profile));
+      } catch (e) {
+        console.error("Error during profile page generation", e);
+      }
 
-          return {
-            props: {
-              ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-            },
-          };
-        }
-    )
-  );
+      return {
+        props: {
+          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+        },
+      };
+    }
+  )
+);

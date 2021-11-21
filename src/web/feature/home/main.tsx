@@ -69,6 +69,7 @@ export const Main = ({ children }: MainProps): JSX.Element => {
               display: "flex",
               flexDirection: "column",
               marginTop: "64px",
+              height: "100%",
             }}
           >
             <AutoLoginContext.Provider value={hasAttemptedAutoLogin}>
