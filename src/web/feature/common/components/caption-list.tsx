@@ -79,6 +79,7 @@ export const CaptionList = ({
 
   const tableColumns: ColumnsType<CaptionListFields> = [
     captionColumns.videoName,
+    isOwner || isLoggedInUserAdmin ? captionColumns.views : undefined,
     captionColumns.videoSource,
     !captionerId ? captionColumns.captioner : undefined,
     captionColumns.createdDate,
@@ -158,11 +159,7 @@ export const CaptionList = ({
       dataSource={captions}
       loading={isLoadingCaptionPage}
       rowKey={"id"}
-      rowClassName={(
-        record: CaptionListFields,
-        index: number,
-        indent: number
-      ) => {
+      rowClassName={(record: CaptionListFields) => {
         return record.rejected ? "rejected-caption" : "";
       }}
       pagination={paginationProps}

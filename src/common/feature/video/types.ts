@@ -213,6 +213,7 @@ export type CaptionListFields = CaptionFields & {
   createdDate: number;
   updatedDate: number;
   verified: boolean;
+  views: number;
   rejected?: boolean;
   thumbnailUrl?: string;
 };

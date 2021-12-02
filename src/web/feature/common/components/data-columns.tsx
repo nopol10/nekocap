@@ -156,6 +156,14 @@ export const captionColumns = {
       );
     },
   },
+  views: {
+    title: "Views",
+    dataIndex: "views",
+    key: "views",
+    render: function render(text, record, index) {
+      return <span>{text}</span>;
+    },
+  },
 };
 
 export const videoColumns = {
