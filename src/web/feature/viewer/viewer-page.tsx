@@ -1,9 +1,15 @@
-import { Skeleton, Space, Typography } from "antd";
+import { Button, Skeleton, Space, Typography } from "antd";
+import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import YouTube from "react-youtube";
 import { YouTubePlayer } from "youtube-player/dist/types";
+import {
+  FullScreen,
+  FullScreenHandle,
+  useFullScreenHandle,
+} from "react-full-screen";
 import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
 import {
   fontListSelector,
@@ -47,10 +53,31 @@ const Wrapper = styled.div`
 const VideoWrapper = styled.div`
   position: relative;
   text-align: center;
-
+  .fullscreen-enabled & {
+    height: 100%;
+  }
+  & > div:not([class]),
+  & > div[class=""] {
+    .fullscreen-enabled & {
+      height: 100%;
+    }
+  }
   iframe {
     width: 100%;
-    max-height: ${MAX_HEIGHT}px;
+    :not(.fullscreen-enabled) & {
+      max-height: ${MAX_HEIGHT}px;
+    }
+    .fullscreen-enabled & {
+      height: 100%;
+    }
+  }
+
+  @media (orientation: portrait) {
+    canvas,
+    .nekocap-cap-container {
+      transform: translate(-50%, -50%) !important;
+      top: 50% !important;
+    }
   }
 `;
 
@@ -105,15 +132,18 @@ const ExtensionMessage = styled.div`
   }
 `;
 
+const FullScreenButton = styled(Button)`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+`;
+
 export type ViewerPageProps = {
   captionId: string;
   rawCaption?: RawCaptionData;
 };
 
-export const ViewerPage = ({
-  captionId = "",
-  rawCaption,
-}: ViewerPageProps): JSX.Element => {
+export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
   const [captionContainerElement, captionContainerElementRef] = useStateRef<
@@ -123,6 +153,7 @@ export const ViewerPage = ({
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
+  const fullScreenHandle = useFullScreenHandle();
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
 
   useEffect(() => {
@@ -202,20 +233,41 @@ export const ViewerPage = ({
     return;
   };
 
-  const videoWidth = Math.ceil(
-    videoDimensions
-      ? (videoDimensions.width * embedHeight) / videoDimensions.height
-      : 0
-  );
-  const videoHeight = embedHeight;
+  const isLandscape = isClient()
+    ? window.innerWidth > window.innerHeight
+    : true;
+  let iframeWidth = 0;
+  let iframeHeight = 0;
+  if (isLandscape) {
+    const currentEmbedHeight = fullScreenHandle.active
+      ? window.innerHeight
+      : embedHeight;
+    iframeWidth = Math.ceil(
+      videoDimensions
+        ? (videoDimensions.width * currentEmbedHeight) / videoDimensions.height
+        : 0
+    );
+    iframeHeight = currentEmbedHeight;
+  } else {
+    const currentEmbedWidth = fullScreenHandle.active
+      ? window.innerWidth
+      : embedWidth;
+    iframeHeight = Math.ceil(
+      videoDimensions
+        ? (videoDimensions.height * currentEmbedWidth) / videoDimensions.width
+        : 0
+    );
+    iframeWidth = currentEmbedWidth;
+  }
+
   const isUsingAdvancedRenderer =
     renderer === CaptionRendererType.AdvancedOctopus &&
     rawCaption &&
     isAss(rawCaption.type);
 
   const iframeProps = {
-    height: videoHeight,
-    width: videoWidth,
+    height: iframeHeight,
+    width: iframeWidth,
     getCurrentTime,
   };
 
@@ -227,9 +279,14 @@ export const ViewerPage = ({
     <Wrapper>
       <Skeleton active={true} loading={isLoading}>
         {renderNoDataMessage()}
-        <VideoWrapper ref={captionContainerElementRef}>
-          {renderVideo()}
-        </VideoWrapper>
+        <FullScreenButton onClick={fullScreenHandle.enter}>
+          <FullscreenOutlined />
+        </FullScreenButton>
+        <FullScreen handle={fullScreenHandle}>
+          <VideoWrapper ref={captionContainerElementRef}>
+            {renderVideo()}
+          </VideoWrapper>
+        </FullScreen>
         {caption && (
           <DetailsWrapper>
             <ViewerTitle>{caption.originalTitle}</ViewerTitle>
