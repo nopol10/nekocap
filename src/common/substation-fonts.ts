@@ -40,6 +40,9 @@ export const SUBSTATION_GROUPED_FONTS = {
     "liberation sans": "/fonts/LiberationSans-Regular.woff2",
     "liberation sans bold": "/fonts/LiberationSans-Bold.woff2",
     misfits: "/fonts/Misfits.woff2",
+    mops: "/fonts/Mops.woff2",
+    "open sans": "/fonts/Open-Sans-Regular.woff2",
+    "open sans bold": "/fonts/Open-Sans-700.woff2",
     overpass: "/fonts/Overpass-Regular.woff2",
     "overpass light": "/fonts/Overpass-300.woff2",
     "overpass bold": "/fonts/Overpass-700.woff2",
@@ -63,6 +66,7 @@ export const SUBSTATION_GROUPED_FONTS = {
     "source sans pro bold": "/fonts/Source-Sans-Pro-700.woff2",
     tinos: "/fonts/Tinos-Regular.woff2",
     "tinos bold": "/fonts/Tinos-700.woff2",
+    "waiting for the sunrise": "/fonts/Waiting-for-the-Sunrise-Regular.woff2",
     zerogothic: "/fonts/ZeroGothic.woff2",
     arial: "/fonts/LiberationSans-Regular.woff2", // Arial is not free
     "arial bold": "/fonts/LiberationSans-Bold.woff2",
