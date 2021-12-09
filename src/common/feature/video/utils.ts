@@ -11,6 +11,7 @@ import { VimeoProcessor } from "@/extension/content/processors/vimeo-processor";
 import { BilibiliProcessor } from "@/extension/content/processors/bilibili-processor";
 import { BilibiliBangumiProcessor } from "@/extension/content/processors/bilibili-bangumi-processor";
 import { NetflixProcessor } from "@/extension/content/processors/netflix-processor";
+import { AmazonPrimeProcessor } from "@/extension/content/processors/amazon-prime-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -81,6 +82,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.Bilibili]: BilibiliProcessor,
   [VideoSource.BilibiliBangumi]: BilibiliBangumiProcessor,
   [VideoSource.Netflix]: NetflixProcessor,
+  [VideoSource.AmazonPrime]: AmazonPrimeProcessor,
 };
 
 export const processorOrder = [
@@ -91,4 +93,5 @@ export const processorOrder = [
   VideoSource.BilibiliBangumi,
   VideoSource.Bilibili,
   VideoSource.Netflix,
+  VideoSource.AmazonPrime,
 ];

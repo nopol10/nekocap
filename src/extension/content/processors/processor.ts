@@ -87,9 +87,13 @@ export interface Processor {
   editorVideoPlayerStyles: string;
   globalStyles?: string;
   darkModeSelector?: string;
-  observeChanges?: boolean;
+  observer?: {
+    shouldObserve: boolean;
+    refreshTabDataAfterElementUpdate: boolean;
+    menuElementSelector?: string;
+  };
   disableEditor?: boolean;
-  observedMenuElementSelector?: string;
+  updateTitleOnSubmission?: boolean;
   inlineMenu?: {
     insertPosition: "before" | "after";
   };

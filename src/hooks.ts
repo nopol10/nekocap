@@ -348,6 +348,65 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
   }, [...dependencies, setDummy]);
 };
 
+type UpdateEvent = "added" | "removed";
+
+export const processorObserveUpdates = (
+  callback: (event: UpdateEvent) => void
+): MutationObserver => {
+  const mutationObserver = new MutationObserver(function (mutations) {
+    if (mutations.length <= 0) {
+      return;
+    }
+    const observerSettings = window.selectedProcessor.observer;
+    mutations.forEach((mutation) => {
+      const addedNodes = Array.from(mutation.addedNodes);
+      let nodeWasAdded = false;
+      for (let i = 0; i < addedNodes.length; i++) {
+        const addedNode = addedNodes[i];
+        if (!addedNode["tagName"]) continue;
+        const element = addedNode as HTMLElement;
+        if (element.querySelector(observerSettings.menuElementSelector)) {
+          nodeWasAdded = true;
+          break;
+        }
+      }
+      if (!nodeWasAdded && mutation.attributeName === "class") {
+        nodeWasAdded = (mutation.target as HTMLElement).classList.contains(
+          observerSettings.menuElementSelector.replace(/[.#]/g, "")
+        );
+      }
+      if (nodeWasAdded) {
+        callback("added");
+      }
+      mutation.removedNodes.forEach((removedNode) => {
+        if (!removedNode["tagName"]) return;
+        const element = removedNode as HTMLElement;
+        if (element.querySelector(observerSettings.menuElementSelector)) {
+          // Our menu element is about to be removed, move the element back to a safe place
+          const videoUIElement = element.querySelector(
+            `#${VIDEO_ELEMENT_CONTAINER_ID}`
+          );
+          const videoUIHTMLElement = videoUIElement
+            ? (videoUIElement as HTMLElement)
+            : null;
+          if (videoUIHTMLElement) {
+            videoUIHTMLElement.style.display = "none";
+            document.body.appendChild(videoUIHTMLElement);
+          }
+          callback("removed");
+        }
+      });
+    });
+  });
+
+  mutationObserver.observe(window.document, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+  });
+  return mutationObserver;
+};
+
 /**
  * Hook that allows the menu element to work on pages where the element that the menu is
  * added to gets added and removed from the DOM frequently (for e.g. based on the user's interactions).
@@ -355,64 +414,27 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
  * @returns
  */
 export const useMenuUIElementUpdate = (
+  callback: () => void = () => null,
   dependencies: DependencyList = []
 ): number => {
   const [dummy, setDummy] = useState(0);
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
-    if (!window.selectedProcessor.observeChanges) {
+    if (
+      !window.selectedProcessor.observer ||
+      !window.selectedProcessor.observer.shouldObserve
+    ) {
       return;
     }
 
-    const detectElementUpdate = () => {
-      mutationObserver.current = new MutationObserver(function (mutations, me) {
-        if (mutations.length <= 0) {
-          return;
+    mutationObserver.current = processorObserveUpdates(
+      (updateEvent: UpdateEvent) => {
+        if (updateEvent === "added") {
+          callback();
         }
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((addedNode) => {
-            if (!addedNode["tagName"]) return;
-            const element = addedNode as HTMLElement;
-            if (
-              element.querySelector(
-                window.selectedProcessor.observedMenuElementSelector
-              )
-            ) {
-              setDummy(Math.random());
-            }
-          });
-          mutation.removedNodes.forEach((removedNode) => {
-            if (!removedNode["tagName"]) return;
-            const element = removedNode as HTMLElement;
-            if (
-              element.querySelector(
-                window.selectedProcessor.observedMenuElementSelector
-              )
-            ) {
-              // Our menu element is about to be removed, move the element back to a safe place
-              const videoUIElement = element.querySelector(
-                `#${VIDEO_ELEMENT_CONTAINER_ID}`
-              );
-              const videoUIHTMLElement = videoUIElement
-                ? (videoUIElement as HTMLElement)
-                : null;
-              if (videoUIHTMLElement) {
-                videoUIHTMLElement.style.display = "none";
-                document.body.appendChild(videoUIHTMLElement);
-              }
-              setDummy(Math.random());
-            }
-          });
-        });
-      });
-
-      mutationObserver.current.observe(window.document, {
-        childList: true,
-        subtree: true,
-      });
-    };
-
-    detectElementUpdate();
+        setDummy(Math.random());
+      }
+    );
 
     return () => {
       if (mutationObserver.current) {

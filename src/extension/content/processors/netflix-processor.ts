@@ -41,9 +41,12 @@ export const NetflixProcessor: Processor = {
     left: 0 !important;
   }
   `,
-  observeChanges: true,
+  observer: {
+    shouldObserve: true,
+    refreshTabDataAfterElementUpdate: false,
+    menuElementSelector: `.watch-video--bottom-controls-container`,
+  },
   disableEditor: true,
-  observedMenuElementSelector: `.watch-video--bottom-controls-container`,
   inlineMenu: {
     insertPosition: "before",
   },

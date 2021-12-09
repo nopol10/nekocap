@@ -36,7 +36,11 @@ import nekoFace from "@/assets/images/neko-face-dark.svg";
 import { Popover } from "antd";
 import { getImageLink } from "@/common/chrome-utils";
 import { styledNoPass } from "@/common/style-utils";
-import { setIsLoadingRawCaption } from "@/common/feature/video/actions";
+import {
+  requestFreshTabData,
+  setIsLoadingRawCaption,
+} from "@/common/feature/video/actions";
+import { refreshVideoMeta } from "../utils";
 
 type InlineMenuWrapperProps = {
   isInline: boolean;
@@ -167,7 +171,28 @@ export const VideoHome = () => {
 
   useCaptionContainerUpdate([caption]);
   useVideoElementUpdate([]);
-  const menuUpdateToken = useMenuUIElementUpdate([]);
+  const requestFreshTabDataCallback = useCallback(async () => {
+    if (
+      !window.selectedProcessor.observer ||
+      !window.selectedProcessor.observer.shouldObserve ||
+      !window.selectedProcessor.observer.refreshTabDataAfterElementUpdate
+    ) {
+      return;
+    }
+    await refreshVideoMeta();
+    dispatch(
+      requestFreshTabData({
+        tabId: window.tabId,
+        newVideoId: window.videoId,
+        newVideoSource: window.videoSource,
+        newPageType: window.pageType,
+      })
+    );
+  }, []);
+  const menuUpdateToken = useMenuUIElementUpdate(
+    requestFreshTabDataCallback,
+    []
+  );
 
   /**
    * Effect for moving the video element to the editor and back
@@ -180,7 +205,8 @@ export const VideoHome = () => {
         await window.selectedProcessor.waitUntilPageIsReady();
       }
       if (
-        window.selectedProcessor.observeChanges &&
+        window.selectedProcessor.observer &&
+        window.selectedProcessor.observer.shouldObserve &&
         isInaccurateTitle(window.videoName, window.selectedProcessor)
       ) {
         window.videoName = await getVideoTitle(window.selectedProcessor);
