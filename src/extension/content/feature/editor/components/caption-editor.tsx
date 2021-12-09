@@ -1207,6 +1207,7 @@ const CaptionEditorInternal = ({
             <TextEditorColumn span={14}>
               <EditorTextAreaWrapper>
                 <EditorTextArea
+                  dir="auto"
                   key={rowKey}
                   id={`nc-ta-${index}`}
                   defaultValue={currentCaption.text}

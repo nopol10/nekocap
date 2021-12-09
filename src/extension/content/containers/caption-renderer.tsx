@@ -287,6 +287,7 @@ const CaptionRendererInternal = React.forwardRef(
           localCaptionContainer.current.appendChild(captionContainer);
 
           const captionTextElement = document.createElement("div");
+          captionTextElement.setAttribute("dir", "auto");
           captionTextElement.classList.add("nekocap-caption-text");
           captionTextElement.style.cssText = captionTextElementStyle;
 

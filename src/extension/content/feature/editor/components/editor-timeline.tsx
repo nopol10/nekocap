@@ -666,6 +666,7 @@ export const EditorTimeline = ({
       return (
         <CueItem
           key={rowKey}
+          dir="auto"
           style={{ ...style }}
           selected={selectedCaption === captionId && selectedTrack === trackId}
           timelineWidth={totalWidth}
