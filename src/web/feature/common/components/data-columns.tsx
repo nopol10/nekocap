@@ -39,13 +39,21 @@ export const captionColumns = {
       const processor: Processor =
         videoSourceToProcessorMap[record.videoSource];
       if (!processor) {
-        return text;
+        return (
+          <div>
+            <span dir="auto">{record.translatedTitle}</span>
+            <br />
+            <span dir="auto">{text}</span>
+          </div>
+        );
       }
       const link = processor.generateVideoLink(record.videoId);
       return (
         <>
-          {record.translatedTitle && <div>{record.translatedTitle}</div>}
-          {record.videoName}
+          {record.translatedTitle && (
+            <div dir="auto">{record.translatedTitle}</div>
+          )}
+          <span dir="auto">{record.videoName}</span>
           {hasTag(record.tags, captionTags.audioDescribed) && (
             <AudioDescribedTag />
           )}
@@ -79,10 +87,6 @@ export const captionColumns = {
     title: "",
     key: "thumbnail",
     render: function render(text, record: CaptionListFields) {
-      const processor = videoSourceToProcessorMap[record.videoSource];
-      if (!processor) {
-        return text;
-      }
       return <img style={{ maxWidth: "64px" }} src={record.thumbnailUrl} />;
     },
   },
@@ -91,10 +95,10 @@ export const captionColumns = {
     dataIndex: "videoSource",
     key: "videoSource",
     align: "center",
-    render: (text, record: CaptionListFields): string => {
+    render: function render(_, record: CaptionListFields) {
       const processor: Processor =
         videoSourceToProcessorMap[record.videoSource];
-      return processor.name;
+      return <span>{processor?.name || ""}</span>;
     },
   },
   createdDate: {

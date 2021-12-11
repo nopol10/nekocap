@@ -69,7 +69,7 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
         const toLanguage = languages[caption.language];
         const canWatchInWebsite =
           videoSourceToProcessorMap[parseInt(caption.videoSource)]
-            .canWatchInNekoCapSite;
+            ?.canWatchInNekoCapSite || false;
         const url = canWatchInWebsite
           ? `${routeNames.caption.view.replace(":id", caption.id)}`
           : "#";
