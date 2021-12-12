@@ -128,6 +128,7 @@ export const SubmitCaptionModal = ({
           <Controller
             as={Input}
             name={"translatedTitle"}
+            dir={"auto"}
             defaultValue={""}
             control={control}
             placeholder={"Translated Title"}

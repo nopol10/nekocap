@@ -1074,7 +1074,11 @@ const CaptionEditorInternal = ({
     event: ChangeEvent<HTMLTextAreaElement>
   ) => {
     queueDebounceUpdateCaption(
-      modifyCaptionText({ trackId, captionId, text: event.target.value })
+      modifyCaptionText({
+        trackId,
+        captionId,
+        text: event.target.value,
+      })
     );
   };
 
@@ -1209,7 +1213,9 @@ const CaptionEditorInternal = ({
                 <EditorTextArea
                   dir="auto"
                   key={rowKey}
+                  name={`nc-ta-${index}`}
                   id={`nc-ta-${index}`}
+                  dirName={`nc-ta-${index}.dir`}
                   defaultValue={currentCaption.text}
                   onClick={handleClickCaptionTextArea(selectedTrack, index)}
                   onChange={handleChangeCaptionText(selectedTrack, index)}

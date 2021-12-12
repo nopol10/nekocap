@@ -289,9 +289,11 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
         </FullScreen>
         {caption && (
           <DetailsWrapper>
-            <ViewerTitle>{caption.originalTitle}</ViewerTitle>
+            <ViewerTitle>
+              <span dir="auto">{caption.originalTitle}</span>
+            </ViewerTitle>
             <TranslatedTitle level={2}>
-              {caption.translatedTitle}
+              <span dir="auto">{caption.translatedTitle}</span>
             </TranslatedTitle>
             <CaptionerMessage>
               Caption submitted by{" "}

@@ -3,6 +3,7 @@ import { parseSBV } from "./sbv-parser";
 import { NekoCaption, CaptionDataContainer, Track } from "./types";
 import { compile as compileAss, CompiledASS, Dialogue } from "ass-compiler";
 import { CaptionFileFormat, Coords } from "../types";
+import { isRTLString } from "../utils";
 
 // #region Parse
 const convertSrtCaptionsToNekoCaptionData = (
@@ -123,10 +124,17 @@ const flattenNekoCaption = (caption: CaptionDataContainer) => {
 const stringifyNekoToSrt = (captionContainer: CaptionDataContainer) => {
   return stringifySrt(
     flattenNekoCaption(captionContainer).tracks[0].cues.map((caption) => {
+      let text = caption.text;
+      // RTL is only checked here instead of when the text is updated so that if the user
+      // loads a file, makes no changes and exports, the text's RTL will still be updated correctly
+      if (isRTLString(text)) {
+        text = text.replace(/\u202B/g, "");
+        text = "\u202B" + text + "\u202C";
+      }
       return {
         start: Math.floor(caption.start),
         end: Math.floor(caption.end),
-        text: caption.text,
+        text,
       };
     })
   );
