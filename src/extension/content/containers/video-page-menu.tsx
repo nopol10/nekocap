@@ -69,8 +69,8 @@ import { Switch } from "antd";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
-import Modal from "antd/lib/modal/Modal";
 import { ConfirmSaveModal } from "./confirm-save-modal";
+import { useIsInPopup } from "@/hooks";
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -78,6 +78,15 @@ const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
 type LikeTextProps = {
   activated?: boolean;
 };
+
+const MenuRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+`;
 
 const LikeText = styledNoPass<LikeTextProps, "span">("span")`
   color: ${({ activated }: LikeTextProps) =>
@@ -171,15 +180,14 @@ export const VideoPageMenu = ({
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [isSelectFileOpen, setIsSelectFileOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-  const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] = useState(
-    false
-  );
+  const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] =
+    useState(false);
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
   const [editorMenuVisible, setEditorMenuVisible] = useState(false);
+  const isInPopup = useIsInPopup();
 
-  const newLoadedFileAction = useRef<
-    ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
-  >(undefined);
+  const newLoadedFileAction =
+    useRef<ThunkedPayloadAction<UpdateLoadedCaptionFromFile>>(undefined);
 
   const handleForceSave = useCallback(() => {
     setIsConfirmSaveOpen(false);
@@ -386,12 +394,12 @@ export const VideoPageMenu = ({
     );
   };
 
-  const handleUpdateRenderer = (renderer: CaptionRendererType) => (
-    event: React.MouseEvent<HTMLAnchorElement>
-  ) => {
-    dispatch(updateRenderer({ tabId: window.tabId, renderer }));
-    event.preventDefault();
-  };
+  const handleUpdateRenderer =
+    (renderer: CaptionRendererType) =>
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      dispatch(updateRenderer({ tabId: window.tabId, renderer }));
+      event.preventDefault();
+    };
 
   const renderRendererMenu = () => {
     return (
@@ -633,10 +641,10 @@ export const VideoPageMenu = ({
 
   return (
     <>
-      <Space>
+      <MenuRow>
         {!inEditorScreen && (
           <>
-            {editorEnabled && (
+            {editorEnabled && !isInPopup && (
               <WSButton onClick={handleCloseMenuBar}>
                 <CloseOutlined />
               </WSButton>
@@ -667,7 +675,7 @@ export const VideoPageMenu = ({
         {renderRawLoadingState()}
         {!inEditorScreen && renderLikeButtons()}
         {renderCaptionerProfileLink()}
-      </Space>
+      </MenuRow>
       <ConfirmSaveModal
         visible={isConfirmSaveOpen}
         onCancel={handleCancelConfirmSaveModal}

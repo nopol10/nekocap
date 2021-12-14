@@ -1,15 +1,65 @@
 import { isInExtension } from "./client-utils";
+import { videoSourceToProcessorMap } from "./feature/video/utils";
+import { ChromeMessageType } from "./types";
 
-export const requestBackgroundPageVariable = async (variableName: string) => {
+export const requestBackgroundPageVariable = async (
+  variableNames: string[]
+) => {
   if (!chrome) {
     return undefined;
   }
   return new Promise<void>((resolve) => {
     chrome.runtime.getBackgroundPage((page) => {
-      window[variableName] = page[variableName];
+      variableNames.forEach((variableName) => {
+        window[variableName] = page[variableName];
+      });
       resolve();
     });
   });
+};
+
+export const requestContentPageVariable = async (
+  tabId: number,
+  variableNames: string[]
+) => {
+  if (!chrome) {
+    return undefined;
+  }
+  return new Promise<void>((resolve) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      {
+        type: ChromeMessageType.GetContentScriptVariables,
+        payload: variableNames,
+      },
+      (response) => {
+        window.tabId = response;
+        // Initialize the tab data once we have the id
+        if (!response) {
+          resolve();
+          return;
+        }
+        response.forEach((value, index) => {
+          window[variableNames[index]] = value;
+        });
+        resolve();
+      }
+    );
+  });
+};
+
+export const syncWindowVarsToPopup = async (tabId: number) => {
+  if (!chrome) {
+    return undefined;
+  }
+  await requestContentPageVariable(tabId, [
+    "videoId",
+    "videoSource",
+    "videoName",
+    "pageType",
+    "tabId",
+  ]);
+  window.selectedProcessor = videoSourceToProcessorMap[window.videoSource];
 };
 
 /**

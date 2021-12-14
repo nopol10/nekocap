@@ -6,6 +6,7 @@ import { styledNoPass } from "../style-utils";
 type NekoLogoProps = {
   width?: string;
   height?: string;
+  style?: React.CSSProperties;
 };
 
 const NekoTitle = styledNoPass<NekoLogoProps>("div")`
@@ -35,12 +36,26 @@ const NekoTitle = styledNoPass<NekoLogoProps>("div")`
   }
 `;
 
-export const NekoLogo = ({ width, height }: NekoLogoProps) => {
+export const NekoLogo = ({ width, height, style }: NekoLogoProps) => {
   return (
-    <NekoTitle width={width} height={height}>
+    <NekoTitle width={width} height={height} style={style}>
       <a href="https://nekocap.com/" target="_blank" rel="noreferrer">
         <NekoLogoSvg />
       </a>
     </NekoTitle>
+  );
+};
+
+export const NekoLogoPopup = () => {
+  return (
+    <NekoLogo
+      width={undefined}
+      height={undefined}
+      style={{
+        maxWidth: "300px",
+        marginLeft: "auto",
+        marginRight: "auto",
+      }}
+    />
   );
 };

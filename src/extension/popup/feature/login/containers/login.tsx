@@ -7,13 +7,15 @@ import { loginRoutes } from "@/common/feature/login/routes";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { PopupPage } from "@/extension/popup/common/components/popup-page";
-import { NekoLogo } from "@/common/components/neko-logo";
+import { NekoLogo, NekoLogoPopup } from "@/common/components/neko-logo";
 import googleLoginImage from "@/assets/images/google/btn_google_signin_light_normal_web@2x.png";
 import { AuthButton } from "@/common/components/auth-button";
 import { ExtensionPreferences } from "./extension-preferences";
 import { getImageLink } from "@/common/chrome-utils";
 import styled from "styled-components";
-import { Spin } from "antd";
+import { Divider, Spin } from "antd";
+import { VideoPageMenu } from "@/extension/content/containers/video-page-menu";
+import { PopupVideoMenu } from "./popup-video-menu";
 
 const Page = styled(PopupPage)`
   align-items: center;
@@ -67,7 +69,7 @@ export const Login = () => {
 
   return (
     <Page>
-      <NekoLogo width="80%" />
+      <NekoLogoPopup />
       <Intro>
         Log in to create, upload and rate captions.
         <br />
@@ -80,7 +82,14 @@ export const Login = () => {
           href="#"
         />
       </Spin>
-      <ExtensionPreferences />
+      <Divider />
+      <div style={{ alignSelf: "start" }}>
+        <PopupVideoMenu />
+      </div>
+      <Divider />
+      <div style={{ alignSelf: "start", width: "100%" }}>
+        <ExtensionPreferences />
+      </div>
     </Page>
   );
 };

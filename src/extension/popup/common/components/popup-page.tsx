@@ -7,5 +7,5 @@ export const PopupPage = styled.div<{ width?: string }>`
   padding: 20px;
   min-height: 400px;
   background-color: white;
-  width: ${(props) => props.width || "300px"};
+  width: ${(props) => props.width || "500px"};
 `;

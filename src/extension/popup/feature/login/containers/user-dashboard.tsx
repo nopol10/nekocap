@@ -4,11 +4,13 @@ import { logout } from "@/common/feature/login/actions";
 import { userDataSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import styled from "styled-components";
-import { Button } from "antd";
-import { NekoLogo } from "@/common/components/neko-logo";
+import { Button, Divider } from "antd";
+import { NekoLogo, NekoLogoPopup } from "@/common/components/neko-logo";
 import { PopupPage } from "@/extension/popup/common/components/popup-page";
 import { SupportedSites } from "@/common/components/supported-sites";
 import { ExtensionPreferences } from "./extension-preferences";
+import { VideoPageMenu } from "@/extension/content/containers/video-page-menu";
+import { PopupVideoMenu } from "./popup-video-menu";
 
 const HelloText = styled.div`
   font-size: 14px;
@@ -35,7 +37,7 @@ export const UserDashboard = () => {
 
   return (
     <PopupPage>
-      <NekoLogo />
+      <NekoLogoPopup />
       <HelloText>
         Hello <b>{captionerData.captioner.name}</b>
       </HelloText>
@@ -43,6 +45,9 @@ export const UserDashboard = () => {
         Visit one of the supported sites to start viewing and creating captions:
       </div>
       <SupportedSites />
+      <Divider />
+      <PopupVideoMenu />
+      <Divider />
       <ExtensionPreferences />
       <Buttons>
         <Button onClick={handleClickLogout}>Logout</Button>

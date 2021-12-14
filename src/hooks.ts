@@ -4,6 +4,7 @@ import {
   EffectCallback,
   MutableRefObject,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -18,6 +19,7 @@ import { isClient, isServer } from "./common/client-utils";
 import { TIME, VIDEO_ELEMENT_CONTAINER_ID } from "./common/constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
+import { PopupContext } from "./extension/common/popup-context";
 import { getVideoElement } from "./extension/content/processors/processor";
 
 /**
@@ -555,4 +557,8 @@ export const useSSRMediaQuery = (
   }, []);
 
   return isInClient ? isMatch : false;
+};
+
+export const useIsInPopup = (): boolean => {
+  return !!useContext(PopupContext);
 };

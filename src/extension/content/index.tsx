@@ -124,6 +124,11 @@ const initialize = async () => {
           window.rawCaption = message.payload.rawCaption;
         }
         sendResponse(true);
+      } else if (message.type === ChromeMessageType.GetContentScriptVariables) {
+        const variables = message.payload.map((variableName) => {
+          return window[variableName];
+        });
+        sendResponse(variables);
       }
     }
   );

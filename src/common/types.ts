@@ -11,6 +11,7 @@ export enum ChromeMessageType {
   SaveFile,
   RawCaption,
   InfoMessage,
+  GetContentScriptVariables,
 }
 
 export type NotificationMessage = {

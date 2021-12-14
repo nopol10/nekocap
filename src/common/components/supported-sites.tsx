@@ -8,55 +8,58 @@ const SiteLink = styled(Link)`
   font-weight: bold;
 `;
 
+type SupportedSite = {
+  url: string;
+  name: string;
+};
+
+const SUPPORTED_SITES: SupportedSite[] = [
+  {
+    url: "https://www.youtube.com/",
+    name: "YouTube",
+  },
+  {
+    url: "https://www.nicovideo.jp/",
+    name: "niconico",
+  },
+  {
+    url: "https://vimeo.com/",
+    name: "Vimeo",
+  },
+  {
+    url: "https://www.bilibili.com/",
+    name: "bilibili",
+  },
+  {
+    url: "https://tver.jp/",
+    name: "TVer",
+  },
+  {
+    url: "https://www.netflix.com/",
+    name: "Netflix",
+  },
+];
+
 export const SupportedSites = () => {
   return (
-    <ul>
-      <li>
-        <SiteLink
-          href="https://www.youtube.com/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Youtube
-        </SiteLink>
-      </li>
-      <li>
-        <SiteLink
-          href="https://www.nicovideo.jp/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          niconico
-        </SiteLink>
-      </li>
-      <li>
-        <SiteLink href="https://vimeo.com/" target="_blank" rel="noreferrer">
-          Vimeo
-        </SiteLink>
-      </li>
-      <li>
-        <SiteLink
-          href="https://www.bilibili.com/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          bilibili
-        </SiteLink>
-      </li>
-      <li>
-        <SiteLink href="https://tver.jp/" target="_blank" rel="noreferrer">
-          TVer
-        </SiteLink>
-      </li>
-      <li>
-        <SiteLink
-          href="https://www.netflix.com/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Netflix
-        </SiteLink>
-      </li>
+    <ul
+      style={{
+        paddingInlineStart: 0,
+        display: "inline-flex",
+        columnGap: "8px",
+      }}
+    >
+      {SUPPORTED_SITES.map((site, index) => {
+        const isLast = index === SUPPORTED_SITES.length - 1;
+        return (
+          <li key={site.url} style={{ display: "inline-block" }}>
+            <SiteLink href={site.url} target="_blank" rel="noreferrer">
+              {site.name}
+            </SiteLink>
+            {!isLast && <span>・</span>}
+          </li>
+        );
+      })}
     </ul>
   );
 };
