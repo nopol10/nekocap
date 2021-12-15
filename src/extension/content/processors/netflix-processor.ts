@@ -42,7 +42,8 @@ export const NetflixProcessor: Processor = {
   }
   `,
   observer: {
-    shouldObserve: true,
+    shouldObserveMenuPlaceability: true,
+    shouldObserveVideoMetaUpdate: false,
     refreshTabDataAfterElementUpdate: false,
     menuElementSelector: `.watch-video--bottom-controls-container`,
   },

@@ -25,7 +25,8 @@ export const AmazonPrimeProcessor: Processor = {
   },
   inlineMenu: { insertPosition: "after" },
   observer: {
-    shouldObserve: true,
+    shouldObserveMenuPlaceability: true,
+    shouldObserveVideoMetaUpdate: true,
     refreshTabDataAfterElementUpdate: true,
     menuElementSelector: `.dv-player-fullscreen`,
   },

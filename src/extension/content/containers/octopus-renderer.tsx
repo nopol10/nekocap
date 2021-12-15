@@ -95,7 +95,7 @@ const OctopusRendererInternal = ({
     if (
       !isInExtension() ||
       !window.selectedProcessor.observer ||
-      !window.selectedProcessor.observer.shouldObserve
+      !window.selectedProcessor.observer.shouldObserveMenuPlaceability
     ) {
       return;
     }

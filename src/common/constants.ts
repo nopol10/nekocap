@@ -25,6 +25,7 @@ export const TIME = {
 
 export const EDITOR_PORTAL_ELEMENT_ID = "nekocap-caption-editor";
 export const VIDEO_ELEMENT_CONTAINER_ID = "nekocap-video-page-container";
+export const IN_PAGE_MENU_CONTAINER_ID = "nekocap-menu-container";
 export const EDITOR_OPEN_ATTRIBUTE = "nekocap-editor-open";
 
 /**

@@ -16,7 +16,11 @@ import {
   useMediaQuery,
 } from "react-responsive";
 import { isClient, isServer } from "./common/client-utils";
-import { TIME, VIDEO_ELEMENT_CONTAINER_ID } from "./common/constants";
+import {
+  IN_PAGE_MENU_CONTAINER_ID,
+  TIME,
+  VIDEO_ELEMENT_CONTAINER_ID,
+} from "./common/constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { PopupContext } from "./extension/common/popup-context";
@@ -350,52 +354,78 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
   }, [...dependencies, setDummy]);
 };
 
-type UpdateEvent = "added" | "removed";
+type UpdateEvent =
+  | "menuElementAdded"
+  | "menuElementRemoved"
+  | "videoElementAdded"
+  | "videoElementRemoved";
 
 export const processorObserveUpdates = (
-  callback: (event: UpdateEvent) => void
+  callback: (event: UpdateEvent, element?: HTMLElement) => void
 ): MutationObserver => {
   const mutationObserver = new MutationObserver(function (mutations) {
     if (mutations.length <= 0) {
       return;
     }
     const observerSettings = window.selectedProcessor.observer;
+    if (!observerSettings) {
+      return;
+    }
     mutations.forEach((mutation) => {
       const addedNodes = Array.from(mutation.addedNodes);
-      let nodeWasAdded = false;
+      let menuNodeWasAdded = false;
+      let metaNodeWasAdded = false;
       for (let i = 0; i < addedNodes.length; i++) {
         const addedNode = addedNodes[i];
         if (!addedNode["tagName"]) continue;
         const element = addedNode as HTMLElement;
         if (element.querySelector(observerSettings.menuElementSelector)) {
-          nodeWasAdded = true;
+          menuNodeWasAdded = true;
+          break;
+        }
+        if (element.querySelector(observerSettings.videoMetaElementSelector)) {
+          metaNodeWasAdded = true;
           break;
         }
       }
-      if (!nodeWasAdded && mutation.attributeName === "class") {
-        nodeWasAdded = (mutation.target as HTMLElement).classList.contains(
+      if (
+        !menuNodeWasAdded &&
+        mutation.attributeName === "class" &&
+        observerSettings.shouldObserveMenuPlaceability
+      ) {
+        menuNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
           observerSettings.menuElementSelector.replace(/[.#]/g, "")
         );
       }
-      if (nodeWasAdded) {
-        callback("added");
+      if (
+        !metaNodeWasAdded &&
+        mutation.attributeName === "class" &&
+        observerSettings.shouldObserveVideoMetaUpdate
+      ) {
+        metaNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
+          observerSettings.videoMetaElementSelector.replace(/[.#]/g, "")
+        );
+      }
+      if (menuNodeWasAdded && observerSettings.shouldObserveMenuPlaceability) {
+        callback("menuElementAdded");
+      }
+      if (metaNodeWasAdded && observerSettings.shouldObserveVideoMetaUpdate) {
+        callback("videoElementAdded");
       }
       mutation.removedNodes.forEach((removedNode) => {
         if (!removedNode["tagName"]) return;
         const element = removedNode as HTMLElement;
-        if (element.querySelector(observerSettings.menuElementSelector)) {
-          // Our menu element is about to be removed, move the element back to a safe place
-          const videoUIElement = element.querySelector(
-            `#${VIDEO_ELEMENT_CONTAINER_ID}`
-          );
-          const videoUIHTMLElement = videoUIElement
-            ? (videoUIElement as HTMLElement)
-            : null;
-          if (videoUIHTMLElement) {
-            videoUIHTMLElement.style.display = "none";
-            document.body.appendChild(videoUIHTMLElement);
-          }
-          callback("removed");
+        if (
+          observerSettings.shouldObserveMenuPlaceability &&
+          element.querySelector(observerSettings.menuElementSelector)
+        ) {
+          callback("menuElementRemoved", element);
+        }
+        if (
+          observerSettings.shouldObserveVideoMetaUpdate &&
+          element.querySelector(observerSettings.videoMetaElementSelector)
+        ) {
+          callback("videoElementRemoved", element);
         }
       });
     });
@@ -416,25 +446,48 @@ export const processorObserveUpdates = (
  * @returns
  */
 export const useMenuUIElementUpdate = (
-  callback: () => void = () => null,
   dependencies: DependencyList = []
-): number => {
-  const [dummy, setDummy] = useState(0);
+): { menuUpdateToken: number; videoMetaUpdateToken: number } => {
+  const [menuUpdateDummy, setMenuUpdateDummy] = useState(0);
+  const [metaUpdateDummy, setMetaUpdateDummy] = useState(0);
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
     if (
       !window.selectedProcessor.observer ||
-      !window.selectedProcessor.observer.shouldObserve
+      (!window.selectedProcessor.observer.shouldObserveMenuPlaceability &&
+        !window.selectedProcessor.observer.shouldObserveVideoMetaUpdate)
     ) {
       return;
     }
 
     mutationObserver.current = processorObserveUpdates(
-      (updateEvent: UpdateEvent) => {
-        if (updateEvent === "added") {
-          callback();
+      (updateEvent: UpdateEvent, removedElement?: HTMLElement) => {
+        if (
+          updateEvent === "menuElementAdded" ||
+          updateEvent === "menuElementRemoved"
+        ) {
+          // Our menu element is about to be removed, move the element back to a safe place
+          // This must be done here so that we can prevent our portal container element from being removed
+          // when the element that contains it gets removed
+          if (updateEvent === "menuElementRemoved") {
+            const menuUIElement = removedElement.querySelector(
+              `#${IN_PAGE_MENU_CONTAINER_ID}`
+            );
+            const menuUIHTMLElement = menuUIElement
+              ? (menuUIElement as HTMLElement)
+              : null;
+            if (menuUIHTMLElement) {
+              menuUIHTMLElement.style.display = "none";
+              document.body.appendChild(menuUIHTMLElement);
+            }
+          }
+          setMenuUpdateDummy(Math.random());
+        } else if (
+          updateEvent === "videoElementAdded" ||
+          updateEvent === "videoElementRemoved"
+        ) {
+          setMetaUpdateDummy(Math.random());
         }
-        setDummy(Math.random());
       }
     );
 
@@ -443,8 +496,11 @@ export const useMenuUIElementUpdate = (
         mutationObserver.current.disconnect();
       }
     };
-  }, [...dependencies, setDummy]);
-  return dummy;
+  }, [...dependencies, setMenuUpdateDummy]);
+  return {
+    menuUpdateToken: menuUpdateDummy,
+    videoMetaUpdateToken: metaUpdateDummy,
+  };
 };
 
 export const useMount = (callback: EffectCallback) => {

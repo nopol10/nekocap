@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
+import ReactDOM from "react-dom";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   isUserCaptionLoadedSelector,
   tabEditorDataSelector,
@@ -14,10 +17,11 @@ import { colors } from "@/common/colors";
 import { CaptionRenderer } from "./caption-renderer";
 import { VideoPageMenu } from "./video-page-menu";
 import { OctopusRenderer } from "./octopus-renderer";
-import styled, { css } from "styled-components";
 import { NekoLogo } from "@/common/components/neko-logo";
-import ReactDOM from "react-dom";
-import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
+import {
+  IN_PAGE_MENU_CONTAINER_ID,
+  VIDEO_ELEMENT_CONTAINER_ID,
+} from "@/common/constants";
 import {
   getUIElement,
   getVideoTitle,
@@ -95,6 +99,31 @@ const RawLoadingIndicator = styled.div`
   color: black;
   font-weight: 700;
 `;
+
+const InPageMenuContainer = () => {
+  const isInlineMenu = !!window.selectedProcessor.inlineMenu;
+  return ReactDOM.createPortal(
+    <>
+      {
+        <InlineMenuWrapper
+          className="scoped-antd use-site-dark-mode"
+          isInline={isInlineMenu}
+        >
+          {isInlineMenu && <InlineVideoPageMenu />}
+          {!isInlineMenu && (
+            <>
+              <VideoPageMenu />
+              <InlineLogoWrapper>
+                <NekoLogo />
+              </InlineLogoWrapper>
+            </>
+          )}
+        </InlineMenuWrapper>
+      }
+    </>,
+    document.getElementById(IN_PAGE_MENU_CONTAINER_ID)
+  );
+};
 
 const InlineVideoPageMenu = () => {
   const videoData = useSelector(tabVideoDataSelector(window.tabId));
@@ -174,7 +203,7 @@ export const VideoHome = () => {
   const requestFreshTabDataCallback = useCallback(async () => {
     if (
       !window.selectedProcessor.observer ||
-      !window.selectedProcessor.observer.shouldObserve ||
+      !window.selectedProcessor.observer.shouldObserveMenuPlaceability ||
       !window.selectedProcessor.observer.refreshTabDataAfterElementUpdate
     ) {
       return;
@@ -189,10 +218,11 @@ export const VideoHome = () => {
       })
     );
   }, []);
-  const menuUpdateToken = useMenuUIElementUpdate(
-    requestFreshTabDataCallback,
-    []
-  );
+  const { menuUpdateToken, videoMetaUpdateToken } = useMenuUIElementUpdate([]);
+
+  useEffect(() => {
+    requestFreshTabDataCallback();
+  }, [videoMetaUpdateToken, requestFreshTabDataCallback]);
 
   /**
    * Effect for moving the video element to the editor and back
@@ -206,7 +236,8 @@ export const VideoHome = () => {
       }
       if (
         window.selectedProcessor.observer &&
-        window.selectedProcessor.observer.shouldObserve &&
+        window.selectedProcessor.observer.shouldObserveMenuPlaceability &&
+        window.videoName &&
         isInaccurateTitle(window.videoName, window.selectedProcessor)
       ) {
         window.videoName = await getVideoTitle(window.selectedProcessor);
@@ -217,13 +248,11 @@ export const VideoHome = () => {
       if (!extensionUIElement) {
         return;
       }
-      const videoUIElement = document.getElementById(
-        VIDEO_ELEMENT_CONTAINER_ID
-      );
-      if (!videoUIElement) {
+      const menuUIElement = document.getElementById(IN_PAGE_MENU_CONTAINER_ID);
+      if (!menuUIElement) {
         return;
       }
-      videoUIElement.style.display = "";
+      menuUIElement.style.display = "";
       let insertPosition: InsertPosition = "afterend";
       switch (window.selectedProcessor.inlineMenu?.insertPosition) {
         case "before":
@@ -232,16 +261,14 @@ export const VideoHome = () => {
         default:
           insertPosition = "afterend";
       }
-      extensionUIElement.insertAdjacentElement(insertPosition, videoUIElement);
+      extensionUIElement.insertAdjacentElement(insertPosition, menuUIElement);
     })();
     return () => {
       // Move the video ui container back to the body
-      const videoUIElement = document.getElementById(
-        VIDEO_ELEMENT_CONTAINER_ID
-      );
-      if (videoUIElement) {
-        videoUIElement.style.display = "none";
-        document.body.appendChild(videoUIElement);
+      const menuUIElement = document.getElementById(IN_PAGE_MENU_CONTAINER_ID);
+      if (menuUIElement) {
+        menuUIElement.style.display = "none";
+        document.body.appendChild(menuUIElement);
       }
     };
   }, [menuUpdateToken]);
@@ -251,24 +278,12 @@ export const VideoHome = () => {
   const shouldRenderEditor =
     !isUsingAdvancedRenderer ||
     (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0);
-  const isInlineMenu = !!window.selectedProcessor.inlineMenu;
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
-        <InlineMenuWrapper
-          className="scoped-antd use-site-dark-mode"
-          isInline={isInlineMenu}
-        >
-          {isInlineMenu && <InlineVideoPageMenu />}
-          {!isInlineMenu && (
-            <>
-              <VideoPageMenu />
-              <InlineLogoWrapper>
-                <NekoLogo />
-              </InlineLogoWrapper>
-            </>
-          )}
-        </InlineMenuWrapper>
+        <ErrorBoundary FallbackComponent={() => <></>}>
+          <InPageMenuContainer />
+        </ErrorBoundary>
       )}
       {shouldRenderEditor && <EditorContainer />}
       {renderer === CaptionRendererType.Default && (

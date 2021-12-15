@@ -216,7 +216,7 @@ const CaptionRendererInternal = React.forwardRef(
       if (
         !isInExtension() ||
         !window.selectedProcessor.observer ||
-        !window.selectedProcessor.observer.shouldObserve
+        !window.selectedProcessor.observer.shouldObserveMenuPlaceability
       ) {
         return;
       }
