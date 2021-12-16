@@ -87,9 +87,18 @@ export interface Processor {
   editorVideoPlayerStyles: string;
   globalStyles?: string;
   darkModeSelector?: string;
-  observeChanges?: boolean;
+  observer?: {
+    // This observes whether the menu can be added to the page
+    shouldObserveMenuPlaceability: boolean;
+    // This is the element that will be observed to decide when to add the menu
+    menuElementSelector?: string;
+    shouldObserveVideoMetaUpdate: boolean;
+    // This is the element that will be observed for changes to trigger updates to the video's meta data
+    videoMetaElementSelector?: string;
+    refreshTabDataAfterElementUpdate: boolean;
+  };
   disableEditor?: boolean;
-  observedMenuElementSelector?: string;
+  updateTitleOnSubmission?: boolean;
   inlineMenu?: {
     insertPosition: "before" | "after";
   };

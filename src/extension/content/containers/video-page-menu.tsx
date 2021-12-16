@@ -69,8 +69,8 @@ import { Switch } from "antd";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
-import Modal from "antd/lib/modal/Modal";
 import { ConfirmSaveModal } from "./confirm-save-modal";
+import { useIsInPopup } from "@/hooks";
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -78,6 +78,15 @@ const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
 type LikeTextProps = {
   activated?: boolean;
 };
+
+const MenuRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+`;
 
 const LikeText = styledNoPass<LikeTextProps, "span">("span")`
   color: ${({ activated }: LikeTextProps) =>
@@ -176,6 +185,7 @@ export const VideoPageMenu = ({
   );
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
   const [editorMenuVisible, setEditorMenuVisible] = useState(false);
+  const isInPopup = useIsInPopup();
 
   const newLoadedFileAction = useRef<
     ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
@@ -617,6 +627,7 @@ export const VideoPageMenu = ({
         dropdownAlign={{
           points: ["bl", "tl"],
         }}
+        value={caption?.id || null}
       >
         {captionOptions}
       </WSSelect>
@@ -633,10 +644,10 @@ export const VideoPageMenu = ({
 
   return (
     <>
-      <Space>
+      <MenuRow>
         {!inEditorScreen && (
           <>
-            {editorEnabled && (
+            {editorEnabled && !isInPopup && (
               <WSButton onClick={handleCloseMenuBar}>
                 <CloseOutlined />
               </WSButton>
@@ -667,7 +678,7 @@ export const VideoPageMenu = ({
         {renderRawLoadingState()}
         {!inEditorScreen && renderLikeButtons()}
         {renderCaptionerProfileLink()}
-      </Space>
+      </MenuRow>
       <ConfirmSaveModal
         visible={isConfirmSaveOpen}
         onCancel={handleCancelConfirmSaveModal}

@@ -130,7 +130,7 @@ export const videoReducer = createReducer<VideoState>(
       })
       .addCase(setContentPageType, (state, action) => {
         const { payload } = action;
-        const { pageType, tabId } = payload;
+        const { currentUrl, pageType, tabId } = payload;
         const currentTab: TabVideoData = { ...state.tabData[tabId] };
         return {
           ...state,
@@ -138,6 +138,7 @@ export const videoReducer = createReducer<VideoState>(
             ...state.tabData,
             [tabId]: {
               ...currentTab,
+              currentUrl,
               pageType,
             },
           },

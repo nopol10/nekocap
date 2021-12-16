@@ -7,7 +7,9 @@ import type { KeySequence } from "react-hotkeys-ce";
 export type RequestFreshTabData = TabbedType & {
   newVideoId?: string; // id of the video on the new page
   newVideoSource?: VideoSource;
+  newCaptionId?: string; // will be present if a caption should be automatically loaded
   newPageType: PageType;
+  currentUrl: string;
 };
 
 /**
@@ -22,6 +24,7 @@ export enum VideoSource {
   Bilibili = 4,
   BilibiliBangumi = 5,
   Netflix = 6,
+  AmazonPrime = 7,
 }
 
 export type CaptionContainer = {
@@ -66,6 +69,7 @@ export type TabVideoData = {
   menuHidden: boolean;
   isLoadingRawCaption: boolean;
   rawLoadPercentage?: number;
+  currentUrl?: string;
 };
 
 export type VideoState = {
@@ -118,6 +122,7 @@ export type LoadSingleCaptionResult = LoadSingleCaption;
 
 export type SetContentPageType = TabbedType & {
   pageType: PageType;
+  currentUrl: string;
 };
 
 export type SetCaption = TabbedType & {

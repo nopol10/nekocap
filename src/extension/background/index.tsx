@@ -65,7 +65,7 @@ chrome.tabs.onRemoved.addListener((tabId: number, removeInfo) => {
 // Youtube fires multiple history update events in quick succession when opening a video.
 // Throttle the updates so that multiple contents scripts will not get added
 const debouncedHistoryUpdateListener = debounce((details) => {
-  const { tabId } = details;
+  const { tabId, url } = details;
   chrome.tabs.sendMessage(
     tabId,
     { type: ChromeMessageType.ContentScriptUpdate },
@@ -74,8 +74,34 @@ const debouncedHistoryUpdateListener = debounce((details) => {
       const newPageType = res.pageType;
       const newVideoId = res.videoId;
       const newVideoSource = res.videoSource;
+      const currentUrlString =
+        store.getState().video?.tabData[tabId]?.currentUrl || "";
+      try {
+        // We don't want to refresh if the url is the same
+        const currentUrl = new URL(currentUrlString);
+        const newUrl = new URL(url);
+        // In case the user used a url that loads the caption directly
+        currentUrl.searchParams.delete("nekocap");
+        newUrl.searchParams.delete("nekocap");
+        if (
+          currentUrl.origin === newUrl.origin &&
+          currentUrl.pathname === newUrl.pathname &&
+          currentUrl.search === newUrl.search
+        ) {
+          return;
+        }
+      } catch (e) {
+        console.log("Error parsing url", e);
+      }
+
       store.dispatch(
-        requestFreshTabData({ tabId, newVideoId, newVideoSource, newPageType })
+        requestFreshTabData({
+          tabId,
+          newVideoId,
+          newVideoSource,
+          newPageType,
+          currentUrl: url,
+        })
       );
     }
   );

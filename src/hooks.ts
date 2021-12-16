@@ -4,6 +4,7 @@ import {
   EffectCallback,
   MutableRefObject,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -15,9 +16,14 @@ import {
   useMediaQuery,
 } from "react-responsive";
 import { isClient, isServer } from "./common/client-utils";
-import { TIME, VIDEO_ELEMENT_CONTAINER_ID } from "./common/constants";
+import {
+  IN_PAGE_MENU_CONTAINER_ID,
+  TIME,
+  VIDEO_ELEMENT_CONTAINER_ID,
+} from "./common/constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
+import { PopupContext } from "./extension/common/popup-context";
 import { getVideoElement } from "./extension/content/processors/processor";
 
 /**
@@ -348,6 +354,91 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
   }, [...dependencies, setDummy]);
 };
 
+type UpdateEvent =
+  | "menuElementAdded"
+  | "menuElementRemoved"
+  | "videoElementAdded"
+  | "videoElementRemoved";
+
+export const processorObserveUpdates = (
+  callback: (event: UpdateEvent, element?: HTMLElement) => void
+): MutationObserver => {
+  const mutationObserver = new MutationObserver(function (mutations) {
+    if (mutations.length <= 0) {
+      return;
+    }
+    const observerSettings = window.selectedProcessor.observer;
+    if (!observerSettings) {
+      return;
+    }
+    mutations.forEach((mutation) => {
+      const addedNodes = Array.from(mutation.addedNodes);
+      let menuNodeWasAdded = false;
+      let metaNodeWasAdded = false;
+      for (let i = 0; i < addedNodes.length; i++) {
+        const addedNode = addedNodes[i];
+        if (!addedNode["tagName"]) continue;
+        const element = addedNode as HTMLElement;
+        if (element.querySelector(observerSettings.menuElementSelector)) {
+          menuNodeWasAdded = true;
+          break;
+        }
+        if (element.querySelector(observerSettings.videoMetaElementSelector)) {
+          metaNodeWasAdded = true;
+          break;
+        }
+      }
+      if (
+        !menuNodeWasAdded &&
+        mutation.attributeName === "class" &&
+        observerSettings.shouldObserveMenuPlaceability
+      ) {
+        menuNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
+          observerSettings.menuElementSelector.replace(/[.#]/g, "")
+        );
+      }
+      if (
+        !metaNodeWasAdded &&
+        mutation.attributeName === "class" &&
+        observerSettings.shouldObserveVideoMetaUpdate
+      ) {
+        metaNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
+          observerSettings.videoMetaElementSelector.replace(/[.#]/g, "")
+        );
+      }
+      if (menuNodeWasAdded && observerSettings.shouldObserveMenuPlaceability) {
+        callback("menuElementAdded");
+      }
+      if (metaNodeWasAdded && observerSettings.shouldObserveVideoMetaUpdate) {
+        callback("videoElementAdded");
+      }
+      mutation.removedNodes.forEach((removedNode) => {
+        if (!removedNode["tagName"]) return;
+        const element = removedNode as HTMLElement;
+        if (
+          observerSettings.shouldObserveMenuPlaceability &&
+          element.querySelector(observerSettings.menuElementSelector)
+        ) {
+          callback("menuElementRemoved", element);
+        }
+        if (
+          observerSettings.shouldObserveVideoMetaUpdate &&
+          element.querySelector(observerSettings.videoMetaElementSelector)
+        ) {
+          callback("videoElementRemoved", element);
+        }
+      });
+    });
+  });
+
+  mutationObserver.observe(window.document, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+  });
+  return mutationObserver;
+};
+
 /**
  * Hook that allows the menu element to work on pages where the element that the menu is
  * added to gets added and removed from the DOM frequently (for e.g. based on the user's interactions).
@@ -356,71 +447,60 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
  */
 export const useMenuUIElementUpdate = (
   dependencies: DependencyList = []
-): number => {
-  const [dummy, setDummy] = useState(0);
+): { menuUpdateToken: number; videoMetaUpdateToken: number } => {
+  const [menuUpdateDummy, setMenuUpdateDummy] = useState(0);
+  const [metaUpdateDummy, setMetaUpdateDummy] = useState(0);
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
-    if (!window.selectedProcessor.observeChanges) {
+    if (
+      !window.selectedProcessor.observer ||
+      (!window.selectedProcessor.observer.shouldObserveMenuPlaceability &&
+        !window.selectedProcessor.observer.shouldObserveVideoMetaUpdate)
+    ) {
       return;
     }
 
-    const detectElementUpdate = () => {
-      mutationObserver.current = new MutationObserver(function (mutations, me) {
-        if (mutations.length <= 0) {
-          return;
+    mutationObserver.current = processorObserveUpdates(
+      (updateEvent: UpdateEvent, removedElement?: HTMLElement) => {
+        if (
+          updateEvent === "menuElementAdded" ||
+          updateEvent === "menuElementRemoved"
+        ) {
+          // Our menu element is about to be removed, move the element back to a safe place
+          // This must be done here so that we can prevent our portal container element from being removed
+          // when the element that contains it gets removed
+          if (updateEvent === "menuElementRemoved") {
+            const menuUIElement = removedElement.querySelector(
+              `#${IN_PAGE_MENU_CONTAINER_ID}`
+            );
+            const menuUIHTMLElement = menuUIElement
+              ? (menuUIElement as HTMLElement)
+              : null;
+            if (menuUIHTMLElement) {
+              menuUIHTMLElement.style.display = "none";
+              document.body.appendChild(menuUIHTMLElement);
+            }
+          }
+          setMenuUpdateDummy(Math.random());
+        } else if (
+          updateEvent === "videoElementAdded" ||
+          updateEvent === "videoElementRemoved"
+        ) {
+          setMetaUpdateDummy(Math.random());
         }
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((addedNode) => {
-            if (!addedNode["tagName"]) return;
-            const element = addedNode as HTMLElement;
-            if (
-              element.querySelector(
-                window.selectedProcessor.observedMenuElementSelector
-              )
-            ) {
-              setDummy(Math.random());
-            }
-          });
-          mutation.removedNodes.forEach((removedNode) => {
-            if (!removedNode["tagName"]) return;
-            const element = removedNode as HTMLElement;
-            if (
-              element.querySelector(
-                window.selectedProcessor.observedMenuElementSelector
-              )
-            ) {
-              // Our menu element is about to be removed, move the element back to a safe place
-              const videoUIElement = element.querySelector(
-                `#${VIDEO_ELEMENT_CONTAINER_ID}`
-              );
-              const videoUIHTMLElement = videoUIElement
-                ? (videoUIElement as HTMLElement)
-                : null;
-              if (videoUIHTMLElement) {
-                videoUIHTMLElement.style.display = "none";
-                document.body.appendChild(videoUIHTMLElement);
-              }
-              setDummy(Math.random());
-            }
-          });
-        });
-      });
-
-      mutationObserver.current.observe(window.document, {
-        childList: true,
-        subtree: true,
-      });
-    };
-
-    detectElementUpdate();
+      }
+    );
 
     return () => {
       if (mutationObserver.current) {
         mutationObserver.current.disconnect();
       }
     };
-  }, [...dependencies, setDummy]);
-  return dummy;
+  }, [...dependencies, setMenuUpdateDummy]);
+  return {
+    menuUpdateToken: menuUpdateDummy,
+    videoMetaUpdateToken: metaUpdateDummy,
+  };
 };
 
 export const useMount = (callback: EffectCallback) => {
@@ -533,4 +613,8 @@ export const useSSRMediaQuery = (
   }, []);
 
   return isInClient ? isMatch : false;
+};
+
+export const useIsInPopup = (): boolean => {
+  return !!useContext(PopupContext);
 };

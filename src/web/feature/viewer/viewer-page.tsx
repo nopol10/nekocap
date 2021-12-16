@@ -136,6 +136,7 @@ const FullScreenButton = styled(Button)`
   position: fixed;
   bottom: 20px;
   right: 20px;
+  z-index: 10;
 `;
 
 export type ViewerPageProps = {
@@ -146,9 +147,8 @@ export type ViewerPageProps = {
 export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] = useStateRef<
-    HTMLDivElement
-  >(null);
+  const [captionContainerElement, captionContainerElementRef] =
+    useStateRef<HTMLDivElement>(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());

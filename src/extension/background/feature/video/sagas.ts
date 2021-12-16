@@ -327,11 +327,18 @@ function* dislikeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
 function* requestFreshTabDataSaga({
   payload,
 }: PayloadAction<RequestFreshTabData>) {
-  const { tabId, newVideoId, newVideoSource, newPageType } = payload;
+  const {
+    tabId,
+    newVideoId,
+    newVideoSource,
+    newPageType,
+    newCaptionId,
+    currentUrl,
+  } = payload;
 
   // @ts-ignore
   yield put([clearHistory(tabId), clearTabData({ tabId })]);
-  yield put(setContentPageType({ tabId, pageType: newPageType }));
+  yield put(setContentPageType({ tabId, pageType: newPageType, currentUrl }));
   /**
    * This somehow forces the saga to wait for clearTabData to go through the reducer before continuing.
    * Prevents caption loading from finishing before clearTabData, which would erase loaded captions immediately
@@ -345,6 +352,9 @@ function* requestFreshTabDataSaga({
         tabId,
       })
     );
+  }
+  if (newPageType === PageType.Video && newCaptionId) {
+    yield put(loadServerCaption.request({ captionId: newCaptionId, tabId }));
   }
 }
 

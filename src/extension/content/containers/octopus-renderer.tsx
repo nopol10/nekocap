@@ -92,7 +92,11 @@ const OctopusRendererInternal = ({
 
   // This is needed for sites where the renderer can get removed from the DOM
   useEffect(() => {
-    if (!isInExtension() || !window.selectedProcessor.observeChanges) {
+    if (
+      !isInExtension() ||
+      !window.selectedProcessor.observer ||
+      !window.selectedProcessor.observer.shouldObserveMenuPlaceability
+    ) {
       return;
     }
     const detector = createElementRemovalObserver(

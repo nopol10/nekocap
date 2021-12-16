@@ -7,8 +7,12 @@ import { Store } from "webext-redux";
 import { ChromeMessage, ChromeMessageType } from "@/common/types";
 import { appHistory } from "./common/store";
 import "../../ant.less";
-import { requestBackgroundPageVariable } from "@/common/chrome-utils";
+import {
+  requestBackgroundPageVariable,
+  syncWindowVarsToPopup,
+} from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
+import { PopupProvider } from "../common/popup-context";
 
 chrome.runtime.onMessage.addListener(
   (request: ChromeMessage, sender, sendResponse) => {
@@ -22,14 +26,16 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
   const store = new Store();
 
   store.ready().then(async () => {
-    await requestBackgroundPageVariable("backendProvider");
-
+    await requestBackgroundPageVariable(["backendProvider"]);
+    await syncWindowVarsToPopup(tab[0].id);
     ReactDOM.render(
       <Provider store={store}>
         <Router history={appHistory}>
-          <Switch>
-            <LoginRoutes />
-          </Switch>
+          <PopupProvider>
+            <Switch>
+              <LoginRoutes />
+            </Switch>
+          </PopupProvider>
         </Router>
       </Provider>,
       document.getElementById("popup")

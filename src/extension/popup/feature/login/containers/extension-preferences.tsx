@@ -11,9 +11,7 @@ import { WSButton } from "@/common/components/ws-button";
 import { openMenuBar } from "@/common/feature/video/actions";
 
 const Wrapper = styled.div`
-  border-top: 1px solid ${colors.divider};
   margin: 20px 0;
-  padding-top: 20px;
 
   h2 {
     font-size: 16px;

@@ -22,6 +22,7 @@ import "../../ant-content.less";
 import "react-virtualized/styles.css";
 import {
   EDITOR_PORTAL_ELEMENT_ID,
+  IN_PAGE_MENU_CONTAINER_ID,
   VIDEO_ELEMENT_CONTAINER_ID,
   Z_INDEX,
 } from "@/common/constants";
@@ -83,10 +84,26 @@ const createVideoUIPortalElement = () => {
   document.body.appendChild(videoUIElement);
 };
 
+const createInpageMenuPortalElement = () => {
+  if (document.getElementById(IN_PAGE_MENU_CONTAINER_ID)) {
+    return;
+  }
+  const videoUIRootStyle = `
+    display: none;
+  `;
+
+  const videoUIElement = document.createElement("div");
+  videoUIElement.id = IN_PAGE_MENU_CONTAINER_ID;
+  videoUIElement.style.cssText = videoUIRootStyle;
+  document.body.appendChild(videoUIElement);
+};
+
 const initialize = async () => {
   window.isInExtension = true;
+  const autoLoadCaptionId = new URL(location.href).searchParams.get("nekocap");
   createEditorPortalElement();
   createVideoUIPortalElement();
+  createInpageMenuPortalElement();
   chrome.runtime.onMessage.addListener(
     (message: ChromeMessage, sender, sendResponse) => {
       if (message.type === ChromeMessageType.SaveFile) {
@@ -124,6 +141,11 @@ const initialize = async () => {
           window.rawCaption = message.payload.rawCaption;
         }
         sendResponse(true);
+      } else if (message.type === ChromeMessageType.GetContentScriptVariables) {
+        const variables = message.payload.map((variableName) => {
+          return window[variableName];
+        });
+        sendResponse(variables);
       }
     }
   );
@@ -153,6 +175,8 @@ const initialize = async () => {
           newVideoId: window.videoId,
           newVideoSource: window.videoSource,
           newPageType: window.pageType,
+          newCaptionId: autoLoadCaptionId,
+          currentUrl: location.href,
         })
       );
     }

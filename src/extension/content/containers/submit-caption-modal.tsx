@@ -16,6 +16,7 @@ import { Input } from "antd";
 import { colors } from "@/common/colors";
 import { DISCORD_INVITE_URL, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
+import { getVideoTitle } from "../processors/processor";
 
 interface SubmitCaptionModalProps {
   visible: boolean;
@@ -41,13 +42,16 @@ export const SubmitCaptionModal = ({
 
   const { handleSubmit, control, errors } = useForm<FormType>();
 
-  const onSubmit = (data: FormType) => {
+  const onSubmit = async (data: FormType) => {
     const {
       languageCode,
       hasAudioDescription,
       videoLanguageCode,
       translatedTitle,
     } = data;
+    if (window.selectedProcessor.updateTitleOnSubmission) {
+      window.videoName = await getVideoTitle(window.selectedProcessor);
+    }
     const video: VideoMeta = {
       id: window.videoId,
       source: window.videoSource,
