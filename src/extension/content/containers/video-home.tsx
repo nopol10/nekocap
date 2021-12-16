@@ -215,6 +215,7 @@ export const VideoHome = () => {
         newVideoId: window.videoId,
         newVideoSource: window.videoSource,
         newPageType: window.pageType,
+        currentUrl: location.href,
       })
     );
   }, []);

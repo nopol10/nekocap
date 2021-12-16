@@ -180,14 +180,16 @@ export const VideoPageMenu = ({
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [isSelectFileOpen, setIsSelectFileOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-  const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] =
-    useState(false);
+  const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] = useState(
+    false
+  );
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
   const [editorMenuVisible, setEditorMenuVisible] = useState(false);
   const isInPopup = useIsInPopup();
 
-  const newLoadedFileAction =
-    useRef<ThunkedPayloadAction<UpdateLoadedCaptionFromFile>>(undefined);
+  const newLoadedFileAction = useRef<
+    ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
+  >(undefined);
 
   const handleForceSave = useCallback(() => {
     setIsConfirmSaveOpen(false);
@@ -394,12 +396,12 @@ export const VideoPageMenu = ({
     );
   };
 
-  const handleUpdateRenderer =
-    (renderer: CaptionRendererType) =>
-    (event: React.MouseEvent<HTMLAnchorElement>) => {
-      dispatch(updateRenderer({ tabId: window.tabId, renderer }));
-      event.preventDefault();
-    };
+  const handleUpdateRenderer = (renderer: CaptionRendererType) => (
+    event: React.MouseEvent<HTMLAnchorElement>
+  ) => {
+    dispatch(updateRenderer({ tabId: window.tabId, renderer }));
+    event.preventDefault();
+  };
 
   const renderRendererMenu = () => {
     return (
@@ -625,6 +627,7 @@ export const VideoPageMenu = ({
         dropdownAlign={{
           points: ["bl", "tl"],
         }}
+        value={caption?.id || null}
       >
         {captionOptions}
       </WSSelect>

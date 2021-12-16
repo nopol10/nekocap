@@ -35,6 +35,21 @@ export const getClickableVideoLink = (
   );
 };
 
+export const getDirectCaptionLoadLink = (
+  processor: Processor,
+  videoId: string,
+  captionId: string
+): string => {
+  const linkString = processor.generateVideoLink(videoId);
+  try {
+    const link = new URL(linkString);
+    link.searchParams.append("nekocap", captionId);
+    return link.toString();
+  } catch (e) {
+    return linkString;
+  }
+};
+
 export const darkModeSelector = (
   styles: ReturnType<typeof css> | string
 ): ReturnType<typeof css> | string => {

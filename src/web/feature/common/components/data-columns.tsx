@@ -13,7 +13,10 @@ import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
 import PlayCircleOutlined from "@ant-design/icons/PlayCircleOutlined";
 import { Space, Tooltip } from "antd";
-import { getVideoSourceIcon } from "@/common/processor-utils";
+import {
+  getDirectCaptionLoadLink,
+  getVideoSourceIcon,
+} from "@/common/processor-utils";
 import { Link as RouterLink } from "react-router-dom";
 import { hasTag } from "@/common/caption-utils";
 import { captionTags } from "@/common/constants";
@@ -47,7 +50,12 @@ export const captionColumns = {
           </div>
         );
       }
-      const link = processor.generateVideoLink(record.videoId);
+
+      const link = getDirectCaptionLoadLink(
+        processor,
+        record.videoId,
+        record.id
+      );
       return (
         <>
           {record.translatedTitle && (

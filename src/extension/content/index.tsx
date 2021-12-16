@@ -100,6 +100,7 @@ const createInpageMenuPortalElement = () => {
 
 const initialize = async () => {
   window.isInExtension = true;
+  const autoLoadCaptionId = new URL(location.href).searchParams.get("nekocap");
   createEditorPortalElement();
   createVideoUIPortalElement();
   createInpageMenuPortalElement();
@@ -174,6 +175,8 @@ const initialize = async () => {
           newVideoId: window.videoId,
           newVideoSource: window.videoSource,
           newPageType: window.pageType,
+          newCaptionId: autoLoadCaptionId,
+          currentUrl: location.href,
         })
       );
     }
