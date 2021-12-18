@@ -7,6 +7,7 @@ import type { IFrameProps } from "@/common/feature/video/types";
 import { useAnimationFrame } from "@/hooks";
 import { createElementRemovalObserver } from "@/common/utils";
 import { isInExtension } from "@/common/client-utils";
+import { createGlobalStyle } from "styled-components";
 
 interface OctopusRendererProps {
   rawCaption?: string;
@@ -22,9 +23,17 @@ interface OctopusRendererProps {
 const localCaptionContainerStyle = `
 position: absolute;
 left: 50%;
-transform: translate(-50%, 0);
+top: 50%;
+transform: translate(-50%, -50%);
 pointer-events: none;
 `;
+
+const WebViewerStyle = createGlobalStyle`
+.libassjs-canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+  `;
 
 const createCanvas = (
   dimension: Dimension,
@@ -137,10 +146,14 @@ const OctopusRendererInternal = ({
     let canvas: HTMLCanvasElement;
     let canvasParent: HTMLDivElement;
     if (isIframe) {
-      [canvas, canvasParent] = createCanvas(
-        { width: iframeProps.width, height: iframeProps.height },
+      const width: number = window.screen.width * window.devicePixelRatio;
+      const height: number = width * (iframeProps.height / iframeProps.width);
+      const canvasElements = createCanvas(
+        { width: width, height: height },
         captionContainerElement
       );
+      canvas = canvasElements[0];
+      canvasParent = canvasElements[1];
     }
     if (!videoElement && !canvas) {
       return;
@@ -209,7 +222,7 @@ const OctopusRendererInternal = ({
     iframeProps,
   ]);
 
-  return <></>;
+  return <>{!isInExtension() && <WebViewerStyle />}</>;
 };
 
 export const OctopusRenderer = React.memo(
