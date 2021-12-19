@@ -168,6 +168,16 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
       videoSource,
     }
   );
+  if (
+    isInBackgroundScript() &&
+    chrome.browserAction &&
+    chrome.browserAction.setBadgeText
+  ) {
+    chrome.browserAction.setBadgeText({
+      text: result.length.toString(),
+      tabId,
+    });
+  }
   yield put(setServerCaptions({ captions: result, tabId }));
 }
 
