@@ -528,7 +528,7 @@ const CaptionRendererInternal = React.forwardRef(
       iframeProps,
     ]);
 
-    useAnimationFrame(handleTimeUpdate, [
+    useAnimationFrame(60, handleTimeUpdate, [
       videoElement,
       caption,
       isIframe,

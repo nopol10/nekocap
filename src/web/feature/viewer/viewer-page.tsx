@@ -5,11 +5,7 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import YouTube from "react-youtube";
 import { YouTubePlayer } from "youtube-player/dist/types";
-import {
-  FullScreen,
-  FullScreenHandle,
-  useFullScreenHandle,
-} from "react-full-screen";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
 import {
   fontListSelector,
@@ -43,6 +39,7 @@ import { WSText } from "@/common/components/ws-text";
 const { Title, Text, Link } = Typography;
 
 const TAB_ID = 0;
+const YOUTUBE_IFRAME_ID = "youtube-iframe";
 
 const MAX_HEIGHT = 600;
 
@@ -147,8 +144,9 @@ export type ViewerPageProps = {
 export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] =
-    useStateRef<HTMLDivElement>(null);
+  const [captionContainerElement, captionContainerElementRef] = useStateRef<
+    HTMLDivElement
+  >(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());
@@ -216,6 +214,7 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
             fs: 0,
           },
         }}
+        id={YOUTUBE_IFRAME_ID}
         videoId={caption.videoId}
         onReady={handleYoutubeReady}
         onPlay={handleYoutubePlay}

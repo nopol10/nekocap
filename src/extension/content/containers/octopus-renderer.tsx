@@ -28,8 +28,11 @@ transform: translate(-50%, -50%);
 pointer-events: none;
 `;
 
+const CANVAS_CLASS_NAME = "libassjs-canvas";
+const CANVAS_PARENT_CLASS_NAME = "libassjs-canvas-parent";
+
 const WebViewerStyle = createGlobalStyle`
-.libassjs-canvas {
+.${CANVAS_CLASS_NAME} {
   max-width: 100%;
   max-height: 100%;
 }
@@ -43,14 +46,14 @@ const createCanvas = (
     return [undefined, undefined];
   }
   const canvas = document.createElement("canvas");
-  canvas.className = "libassjs-canvas";
+  canvas.className = CANVAS_CLASS_NAME;
   canvas.style.display = "none";
   canvas.style.cssText = localCaptionContainerStyle;
   canvas.width = dimension.width;
   canvas.height = dimension.height;
 
   const canvasParent = document.createElement("div");
-  canvasParent.className = "libassjs-canvas-parent";
+  canvasParent.className = CANVAS_PARENT_CLASS_NAME;
   canvasParent.appendChild(canvas);
   captionContainerElement.prepend(canvasParent);
   return [canvas, canvasParent];
@@ -92,7 +95,7 @@ const OctopusRendererInternal = ({
 
   useEffect(() => {
     const canvas = document.querySelector(
-      ".libassjs-canvas-parent"
+      `.${CANVAS_PARENT_CLASS_NAME}`
     ) as HTMLElement;
     if (canvas) {
       canvas.style.visibility = showCaption ? "visible" : "hidden";
@@ -109,7 +112,7 @@ const OctopusRendererInternal = ({
       return;
     }
     const detector = createElementRemovalObserver(
-      ".libassjs-canvas-parent",
+      `.${CANVAS_PARENT_CLASS_NAME}`,
       () => {
         if (octopusInstance.current) {
           octopusInstance.current.dispose();
@@ -143,6 +146,22 @@ const OctopusRendererInternal = ({
       }
     };
 
+    const cleanup = () => {
+      if (octopusInstance.current) {
+        octopusInstance.current.dispose();
+      }
+      const canvasElement = document.querySelector(`.${CANVAS_CLASS_NAME}`);
+      if (canvasElement) {
+        canvasElement.remove();
+      }
+      const canvasParentElement = document.querySelector(
+        `.${CANVAS_PARENT_CLASS_NAME}`
+      );
+      if (canvasParentElement) {
+        canvasParentElement.remove();
+      }
+    };
+
     let canvas: HTMLCanvasElement;
     let canvasParent: HTMLDivElement;
     if (isIframe) {
@@ -156,7 +175,7 @@ const OctopusRendererInternal = ({
       canvasParent = canvasElements[1];
     }
     if (!videoElement && !canvas) {
-      return;
+      return cleanup;
     }
 
     const options = {
@@ -190,14 +209,7 @@ const OctopusRendererInternal = ({
       localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
     }
 
-    return () => {
-      if (canvasParent) {
-        canvasParent.remove();
-      }
-      if (octopusInstance.current) {
-        octopusInstance.current.dispose();
-      }
-    };
+    return cleanup;
   }, [
     videoElement,
     captionContainerElement,
@@ -215,7 +227,7 @@ const OctopusRendererInternal = ({
     octopusInstance.current.setCurrentTime(currentTime);
   }, [isIframe, iframeProps, octopusInstance]);
 
-  useAnimationFrame(handleTimeUpdate, [
+  useAnimationFrame(10, handleTimeUpdate, [
     videoElement,
     rawCaption,
     isIframe,

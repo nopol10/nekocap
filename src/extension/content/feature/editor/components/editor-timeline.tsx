@@ -392,7 +392,7 @@ export const EditorTimeline = ({
     }
   };
 
-  useAnimationFrame(updateTimebarCanvas, [
+  useAnimationFrame(60, updateTimebarCanvas, [
     scale,
     timebarCanvas,
     videoElement,

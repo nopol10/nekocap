@@ -31,19 +31,24 @@ import { getVideoElement } from "./extension/content/processors/processor";
  * @param callback
  */
 export const useAnimationFrame = (
+  maxFps: number,
   callback: (deltaTime: number) => void,
   dependencies: DependencyList
 ) => {
   const requestRef = useRef(0);
   const previousTimeRef = useRef(0);
+  const fpsInterval = 1000 / maxFps;
 
   const frameFunction = (time) => {
-    if (previousTimeRef.current != undefined) {
-      const deltaTime = time - previousTimeRef.current;
+    requestRef.current = requestAnimationFrame(frameFunction);
+    if (previousTimeRef.current == undefined) {
+      return;
+    }
+    const deltaTime = time - previousTimeRef.current;
+    if (deltaTime > fpsInterval) {
+      previousTimeRef.current = time;
       callback(deltaTime);
     }
-    previousTimeRef.current = time;
-    requestRef.current = requestAnimationFrame(frameFunction);
   };
 
   useEffect(() => {
