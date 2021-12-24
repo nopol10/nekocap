@@ -184,6 +184,16 @@ export type SubmitCaptionRequest = {
   video: VideoMeta;
 };
 
+// Request for updating a caption
+// Only non-null values will be updated
+export type UpdateCaptionRequest = {
+  captionId: string;
+  captionData?: CaptionDataContainer;
+  rawCaption?: RawCaptionData;
+  hasAudioDescription?: boolean;
+  translatedTitle?: string;
+};
+
 export type VideoCaptionData = {
   [languageCode: string]: number; // Map of language code to the number of captions in it
 };
