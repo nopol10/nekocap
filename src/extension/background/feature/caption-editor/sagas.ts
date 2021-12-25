@@ -12,6 +12,8 @@ import {
   SetShowEditorIfPossible,
   CaptionRendererType,
   VideoSource,
+  UpdateUploadedCaption,
+  RawCaptionData,
 } from "@/common/feature/video/types";
 
 import { getStringByteLength } from "@/common/utils";
@@ -60,6 +62,7 @@ import {
   updateShowEditor,
   fixOverlaps,
   shiftTimings,
+  updateUploadedCaption,
 } from "@/common/feature/caption-editor/actions";
 import { ThunkedPayloadAction } from "@/common/store/action";
 import {
@@ -104,6 +107,7 @@ import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { CaptionMutators } from "@/extension/content/feature/editor/utils";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
 import { Locator } from "@/common/locator/locator";
+import { getCaptionContainersFromFile } from "./utils";
 
 const isActionType = <T>(
   action: AnyAction,
@@ -492,6 +496,53 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
   );
 }
 
+function* updateUploadedCaptionSaga({
+  payload,
+}: ThunkedPayloadAction<UpdateUploadedCaption>) {
+  const {
+    tabId,
+    hasAudioDescription,
+    translatedTitle,
+    captionId,
+    content,
+    type,
+  } = payload;
+  let rawCaption: RawCaptionData = undefined;
+  let captionData: CaptionDataContainer = undefined;
+  if (content && type) {
+    const convertedCaptions = getCaptionContainersFromFile({
+      content,
+      type,
+    });
+    rawCaption = convertedCaptions.rawCaptionData;
+    captionData = convertedCaptions.captionData;
+  }
+  // The raw caption will be compressed locally and decompressed on retrieval
+  if (rawCaption) {
+    captionData = undefined;
+  } else if (captionData) {
+    rawCaption = undefined;
+  }
+  let processedRawCaption: RawCaptionData = undefined;
+  if (rawCaption && rawCaption.data) {
+    processedRawCaption = { ...rawCaption };
+    processedRawCaption.data = lzCompress(rawCaption.data);
+  }
+  const response: UploadResponse = yield call(
+    [Locator.provider(), "updateCaption"],
+    {
+      captionId,
+      captionData,
+      rawCaption: processedRawCaption,
+      hasAudioDescription,
+      translatedTitle,
+    }
+  );
+  if (response.status === "error") {
+    throw new Error(response.error);
+  }
+}
+
 function* createNewCaptionSaga({
   payload,
 }: ThunkedPayloadAction<CreateNewCaption>) {
@@ -632,6 +683,11 @@ function* captionEditorSaga() {
   yield takeLatest(
     submitCaption.REQUEST,
     submitCaption.requestSaga(submitCaptionSaga)
+  );
+
+  yield takeLatest(
+    updateUploadedCaption.REQUEST,
+    updateUploadedCaption.requestSaga(updateUploadedCaptionSaga)
   );
 
   yield takeLatest(
