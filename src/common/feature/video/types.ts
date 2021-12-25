@@ -173,6 +173,15 @@ export type SubmitCaption = TabbedType & {
   video: VideoMeta;
 };
 
+export type UpdateUploadedCaption = TabbedType & {
+  file: RcFile;
+  type: string;
+  content: string;
+  captionId: string;
+  hasAudioDescription?: boolean;
+  translatedTitle?: string;
+};
+
 export type LoadServerCaption = TabbedType & {
   captionId: string;
 };

@@ -4,6 +4,7 @@ export const captionEditorActionTypes = {
   createNewCaption: `${reducerName}/createNewCaption`,
   loadLocallySavedCaption: `${reducerName}/loadLocallySavedCaption`,
   submitCaption: `${reducerName}/submitCaption`,
+  updateUploadedCaption: `${reducerName}/updateUploadedCaption`,
   updateShowEditor: `${reducerName}/updateShowEditor`,
   fetchAutoCaptionList: `${reducerName}/fetchAutoCaptionList`,
   fetchAutoCaption: `${reducerName}/fetchAutoCaption`,
