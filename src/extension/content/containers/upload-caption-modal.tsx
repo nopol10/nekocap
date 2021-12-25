@@ -2,20 +2,17 @@ import Form from "antd/lib/form";
 import message from "antd/lib/message";
 import Modal from "antd/lib/modal/Modal";
 import type { RcFile } from "antd/lib/upload";
-import Dragger from "antd/lib/upload/Dragger";
-import type { UploadRequestOption } from "rc-upload/lib/interface";
-import React from "react";
+import React, { ReactElement } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { CaptionFileFormat } from "@/common/types";
-import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import {
   MAX_CAPTION_FILE_BYTES,
   MAX_VERIFIED_CAPTION_FILE_BYTES,
+  SUPPORTED_FILE_TYPES_STRING,
+  VALID_FILE_TYPES,
 } from "@/common/feature/caption-editor/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
-import Link from "antd/lib/typography/Link";
-import { DISCORD_INVITE_URL } from "@/common/constants";
+import { UploadCaptionBlock } from "../components/upload-caption-block";
 
 interface SelectFileModalProps {
   visible: boolean;
@@ -24,24 +21,12 @@ interface SelectFileModalProps {
   afterClose: () => void;
 }
 
-const validFileTypes = [
-  CaptionFileFormat.srt,
-  CaptionFileFormat.vtt,
-  CaptionFileFormat.sbv,
-  CaptionFileFormat.ssa,
-  CaptionFileFormat.ass,
-];
-const supportedFileTypesString = validFileTypes
-  .map((fileType) => fileType.toUpperCase())
-  .join(", ");
-
 export const SelectFileModal = ({
   visible,
   onCancel,
   onDone,
   afterClose,
-}: SelectFileModalProps) => {
-  const isLoggedIn = useSelector(isLoggedInSelector);
+}: SelectFileModalProps): ReactElement => {
   const captioner = useSelector(captionerSelector);
   const [fileContent, setFileContent] = useState<string>("");
   const [file, setFile] = useState<RcFile>();
@@ -55,9 +40,9 @@ export const SelectFileModal = ({
     const extension = file.name
       .substring(file.name.lastIndexOf(".") + 1)
       .toLowerCase();
-    const isValidFileType = validFileTypes.includes(extension);
+    const isValidFileType = VALID_FILE_TYPES.includes(extension);
     if (!isValidFileType) {
-      message.error(`You can only load ${supportedFileTypesString} files!`);
+      message.error(`You can only load ${SUPPORTED_FILE_TYPES_STRING} files!`);
       return;
     }
     const isSizeValid = file.size < maxPreviewSize;
@@ -69,20 +54,7 @@ export const SelectFileModal = ({
     return isValidFileType && isSizeValid;
   };
 
-  const dummyRequest = (options: UploadRequestOption) => {
-    const { onSuccess } = options;
-    if (!file) {
-      return;
-    }
-    onSuccess(file, new XMLHttpRequest());
-    const reader = new FileReader();
-    reader.onload = (event: Event) => {
-      setFileContent((reader.result as string) || "");
-    };
-    reader.readAsText(file);
-  };
-
-  const handleSubmit = (event: React.MouseEvent) => {
+  const handleSubmit = () => {
     onDone(file, fileContent);
   };
 
@@ -96,37 +68,14 @@ export const SelectFileModal = ({
       afterClose={afterClose}
     >
       <Form>
-        <div>Supported file types: {supportedFileTypesString}</div>
-        <Dragger
-          listType="picture-card"
-          showUploadList={false}
+        <UploadCaptionBlock
           beforeUpload={beforeUpload}
-          name={"caption"}
-          customRequest={dummyRequest}
-        >
-          {file && file.name}
-          {!file && <div>Drop the caption file here!</div>}
-        </Dragger>
-        <div style={{ marginTop: 16 }}>
-          {isUserVerified && (
-            <div>Max upload size: {maxVerifiedUploadSizeMB}MB</div>
-          )}
-          {!isUserVerified && (
-            <>
-              <div>
-                Non-verified users can upload up to {maxNonVerifiedUploadSizeMB}{" "}
-                MB
-              </div>
-              <div>
-                Verified users can upload up to {maxVerifiedUploadSizeMB} MB
-              </div>
-              <div>
-                Join the <Link href={DISCORD_INVITE_URL}>Discord</Link> server
-                to get verified
-              </div>
-            </>
-          )}
-        </div>
+          file={file}
+          isUserVerified={isUserVerified}
+          maxNonVerifiedUploadSizeMB={maxNonVerifiedUploadSizeMB}
+          maxVerifiedUploadSizeMB={maxVerifiedUploadSizeMB}
+          setFileContent={setFileContent}
+        />
       </Form>
     </Modal>
   );
