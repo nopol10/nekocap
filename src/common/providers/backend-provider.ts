@@ -30,6 +30,7 @@ import {
   SubmitCaptionRequest,
   CaptionListFields,
   VideoSource,
+  UpdateCaptionRequest,
 } from "../feature/video/types";
 import { RootState } from "../store/types";
 import { ProviderType, ServerResponse, UploadResponse } from "../types";
@@ -115,6 +116,7 @@ export interface BackendProvider<T extends RootState> {
     options?: UpdateCaptionerProfileParams
   ) => Promise<PrivateCaptionerData>;
   submitCaption: (request: SubmitCaptionRequest) => Promise<UploadResponse>;
+  updateCaption: (request: UpdateCaptionRequest) => Promise<UploadResponse>;
   deleteCaption: (captionId) => Promise<ServerResponse>;
   loadLatestCaptions: () => Promise<CaptionsResponse>;
   loadLatestUserLanguageCaptions: (

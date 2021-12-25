@@ -6,6 +6,7 @@ import publicDashboardSaga from "@/common/feature/public-dashboard/sagas";
 import profileSaga from "@/common/feature/profile/sagas";
 import captionReviewSaga from "@/common/feature/caption-review/sagas";
 import searchSaga from "@/common/feature/search/sagas";
+import captionEditorSaga from "@/extension/background/feature/caption-editor/sagas";
 
 export function* rootWebSaga() {
   yield all([
@@ -16,5 +17,6 @@ export function* rootWebSaga() {
     ...profileSaga,
     ...captionReviewSaga,
     ...searchSaga,
+    ...captionEditorSaga,
   ]);
 }

@@ -9,6 +9,7 @@ import {
   setLoadedCaptionLanguage,
   setShowEditor,
   submitCaption,
+  updateUploadedCaption,
 } from "@/common/feature/caption-editor/actions";
 import {
   CaptionEditorState,
@@ -118,6 +119,7 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
   },
   (builder) => {
     submitCaption.augmentReducer(builder);
+    updateUploadedCaption.augmentReducer(builder);
     fetchAutoCaptionList.augmentReducer(builder);
     return builder
       .addCase(setEditorShortcuts, (state, action) => {

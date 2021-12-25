@@ -47,10 +47,7 @@ import {
   PageType,
   TabVideoData,
 } from "@/common/feature/video/types";
-import {
-  convertToCaptionContainer,
-  videoSourceToProcessorMap,
-} from "@/common/feature/video/utils";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import {
   CaptionFileFormat,
   ChromeMessageType,
@@ -63,61 +60,43 @@ import {
   tabVideoDataSelector,
 } from "@/common/feature/video/selectors";
 import { safe } from "@/common/redux-utils";
-import { parseCaption } from "@/common/caption-parsers";
 import {
   clearHistory,
   setEditorCaptionAfterEdit,
-  setEditorRawCaption,
   setShowEditor,
 } from "@/common/feature/caption-editor/actions";
 import { decompressFromBase64 as lzDecompress } from "lz-string";
 import { isAss } from "@/common/caption-utils";
-import { take } from "lodash";
-import { withSuccess } from "antd/lib/modal/confirm";
 import { Locator } from "@/common/locator/locator";
 import { loadFontListApi } from "@/common/feature/video/api";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
+import { getCaptionContainersFromFile } from "../caption-editor/utils";
 
 function* updateLoadedCaptionFromFileSaga({
   payload,
 }: PayloadAction<UpdateLoadedCaptionFromFile>) {
-  const { file, content, videoId, videoSource, tabId, type } = payload;
-  const format: keyof typeof CaptionFileFormat | undefined =
-    CaptionFileFormat[type];
-  let rawCaption: RawCaptionData;
-  let canAutoConvertToNekoCaption = true;
+  const { content, videoId, videoSource, tabId, type } = payload;
   let defaultRenderer: CaptionRendererType = CaptionRendererType.Default;
   let fontList = SUBSTATION_FONT_LIST;
-  if (format) {
-    rawCaption = {
-      data: content,
-      type: format,
-    };
-    if (isAss(type)) {
-      // The user has to manually initiate the conversion as a large ass will freeze the page
-      // Other file formats don't support fancy effects so we'll allow them to be auto converted
-      canAutoConvertToNekoCaption = false;
-      defaultRenderer = CaptionRendererType.AdvancedOctopus;
-      yield put(
-        setIsLoadingRawCaption({ loading: true, percentage: 0, tabId })
-      );
-      fontList = yield call(loadFontListApi);
-      yield call(storeRawCaption, tabId, rawCaption, true);
-      yield put(setShowEditor({ tabId, show: false }));
-    }
+  const { rawCaptionData, captionData } = getCaptionContainersFromFile({
+    content,
+    type,
+  });
+  if (rawCaptionData && isAss(type)) {
+    defaultRenderer = CaptionRendererType.AdvancedOctopus;
+    yield put(setIsLoadingRawCaption({ loading: true, percentage: 0, tabId }));
+    fontList = yield call(loadFontListApi);
+    yield call(storeRawCaption, tabId, rawCaptionData, true);
+    yield put(setShowEditor({ tabId, show: false }));
   }
 
-  let caption: CaptionContainer = {
-    data: { tracks: [] },
+  const caption: CaptionContainer = {
+    data: captionData,
     loadedByUser: true,
     videoId,
     videoSource,
   };
-  if (canAutoConvertToNekoCaption) {
-    const parsedCaption = parseCaption(type, content);
-    caption = convertToCaptionContainer(parsedCaption, videoId, videoSource);
-  }
 
   yield put([
     clearHistory(tabId),

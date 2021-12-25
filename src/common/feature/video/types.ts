@@ -173,6 +173,15 @@ export type SubmitCaption = TabbedType & {
   video: VideoMeta;
 };
 
+export type UpdateUploadedCaption = TabbedType & {
+  file: RcFile;
+  type: string;
+  content: string;
+  captionId: string;
+  hasAudioDescription?: boolean;
+  translatedTitle?: string;
+};
+
 export type LoadServerCaption = TabbedType & {
   captionId: string;
 };
@@ -182,6 +191,16 @@ export type SubmitCaptionRequest = {
   rawCaption?: RawCaptionData;
   hasAudioDescription: boolean;
   video: VideoMeta;
+};
+
+// Request for updating a caption
+// Only non-null values will be updated
+export type UpdateCaptionRequest = {
+  captionId: string;
+  captionData?: CaptionDataContainer;
+  rawCaption?: RawCaptionData;
+  hasAudioDescription?: boolean;
+  translatedTitle?: string;
 };
 
 export type VideoCaptionData = {

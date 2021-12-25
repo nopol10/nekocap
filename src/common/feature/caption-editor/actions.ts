@@ -18,6 +18,7 @@ import {
   SubmitCaption,
   SetRawCaption,
   VideoSource,
+  UpdateUploadedCaption,
 } from "../video/types";
 import { captionEditorActionTypes } from "./action-types";
 import {
@@ -149,6 +150,10 @@ export const loadLocallySavedCaption = csa<CreateNewCaption>(
 
 export const submitCaption = csa<SubmitCaption>(
   captionEditorActionTypes.submitCaption
+);
+
+export const updateUploadedCaption = csa<UpdateUploadedCaption>(
+  captionEditorActionTypes.updateUploadedCaption
 );
 
 export const fetchAutoCaptionList = csa<FetchAutoCaptionList>(

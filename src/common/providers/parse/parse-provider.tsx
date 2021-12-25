@@ -7,6 +7,7 @@ import {
   VideoSource,
   RawCaptionData,
   VideoFields,
+  UpdateCaptionRequest,
 } from "../../feature/video/types";
 import {
   BackendProvider,
@@ -533,6 +534,31 @@ export class ParseProvider implements BackendProvider<ParseState> {
       return {
         status: "error",
         error: submitResult.error || "",
+      };
+    }
+    return { status: "success" };
+  }
+
+  async updateCaption({
+    captionId,
+    captionData,
+    rawCaption,
+    hasAudioDescription,
+    translatedTitle,
+  }: UpdateCaptionRequest): Promise<UploadResponse> {
+    const updateResult: ServerResponse = await this.Parse.Cloud.run<
+      (p: UpdateCaptionRequest) => ServerResponse
+    >("updateCaption", {
+      captionId,
+      captionData,
+      rawCaption,
+      hasAudioDescription,
+      translatedTitle,
+    });
+    if (updateResult.status !== "success") {
+      return {
+        status: "error",
+        error: updateResult.error || "",
       };
     }
     return { status: "success" };

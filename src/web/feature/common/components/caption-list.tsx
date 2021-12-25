@@ -1,20 +1,20 @@
 import { Popconfirm, Space, Table, Tooltip, Pagination } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { CaptionListFields } from "@/common/feature/video/types";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
+import EditOutlined from "@ant-design/icons/EditOutlined";
 import { captionColumns } from "./data-columns";
 import { CaptionerFields } from "@/common/feature/captioner/types";
 import { ColumnsType } from "antd/lib/table/Table";
 import { routeNames } from "../../route-types";
-// import { webHistory } from "../../web-history";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { DEVICE } from "@/common/style-constants";
 import { MobileCaptionList } from "../../home/components/mobile-caption-list";
 import { PaginationProps } from "antd/lib/pagination";
-import { useRouter } from "next/router";
 import { useSSRMediaQuery } from "@/hooks";
+import { UpdateCaptionModal } from "@/extension/content/containers/update-caption-modal";
 
 const PAGE_SIZE = 20;
 
@@ -46,6 +46,11 @@ type CaptionListProps = {
   listContainsCurrentPageOnly?: boolean;
 };
 
+type UpdateModalDetails = {
+  open: boolean;
+  caption?: CaptionListFields;
+};
+
 export const CaptionList = ({
   captions,
   totalCount,
@@ -61,11 +66,15 @@ export const CaptionList = ({
   listContainsCurrentPageOnly = false,
 }: CaptionListProps) => {
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<
+    UpdateModalDetails
+  >({ open: false, caption: undefined });
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
   const isOwner = loggedInUser ? loggedInUser.userId === captionerId : false;
   const canDelete = isLoggedInUserAdmin || isOwner;
   const canEdit = isLoggedInUserAdmin || isLoggedInUserReviewer;
+  const canUpdate = isOwner || isLoggedInUserAdmin;
 
   const handleConfirmDelete = (caption: CaptionListFields) => {
     if (onDelete) {
@@ -75,6 +84,14 @@ export const CaptionList = ({
 
   const handleClickEditCaption = (caption: CaptionListFields) => {
     window.location.href = routeNames.caption.main.replace(":id", caption.id);
+  };
+
+  const handleClickUpdateCaption = (caption: CaptionListFields) => {
+    setIsUpdateModalOpen({ open: true, caption });
+  };
+
+  const handleCancelUpdateCaptionModal = () => {
+    setIsUpdateModalOpen({ open: false, caption: undefined });
   };
 
   const tableColumns: ColumnsType<CaptionListFields> = [
@@ -109,6 +126,13 @@ export const CaptionList = ({
               {canEdit && (
                 <Tooltip title="Review">
                   <EyeOutlined onClick={() => handleClickEditCaption(record)} />
+                </Tooltip>
+              )}
+              {canUpdate && (
+                <Tooltip title="Update">
+                  <EditOutlined
+                    onClick={() => handleClickUpdateCaption(record)}
+                  />
                 </Tooltip>
               )}
             </Space>
@@ -154,19 +178,26 @@ export const CaptionList = ({
     );
   }
   return (
-    <CaptionTable
-      columns={tableColumns}
-      dataSource={captions}
-      loading={isLoadingCaptionPage}
-      rowKey={"id"}
-      rowClassName={(record: CaptionListFields) => {
-        return record.rejected ? "rejected-caption" : "";
-      }}
-      pagination={paginationProps}
-      locale={{
-        emptyText:
-          "No captions! Visit YouTube or other supported sites to start uploading/creating your captions!",
-      }}
-    />
+    <>
+      <CaptionTable
+        columns={tableColumns}
+        dataSource={captions}
+        loading={isLoadingCaptionPage}
+        rowKey={"id"}
+        rowClassName={(record: CaptionListFields) => {
+          return record.rejected ? "rejected-caption" : "";
+        }}
+        pagination={paginationProps}
+        locale={{
+          emptyText:
+            "No captions! Visit YouTube or other supported sites to start uploading/creating your captions!",
+        }}
+      />
+      <UpdateCaptionModal
+        visible={isUpdateModalOpen.open}
+        onCancel={handleCancelUpdateCaptionModal}
+        caption={isUpdateModalOpen.caption}
+      />
+    </>
   );
 };
