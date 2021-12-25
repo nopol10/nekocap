@@ -11,6 +11,7 @@ import "antd/lib/message/style";
 import "antd/lib/dropdown/style";
 import "antd/lib/popover/style";
 import "antd/lib/popconfirm/style";
+import "antd/lib/upload/style";
 
 import "../src/web/feature/home/home.scss";
 import "../src/web/styles/index.scss";
