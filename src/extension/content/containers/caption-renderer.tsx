@@ -42,6 +42,7 @@ interface CaptionRendererProps {
 export interface CaptionRendererHandle {
   onVideoPlay: () => void;
   onVideoSeeked: () => void;
+  onVideoPause: () => void;
 }
 
 const captionWrapperElementStyle = `
@@ -576,6 +577,10 @@ const CaptionRendererInternal = React.forwardRef(
       resetCurrentCaption();
     };
 
+    const handleVideoPause = () => {
+      // do nothing
+    };
+
     const handleVideoSeeked = () => {
       resetCurrentCaption();
     };
@@ -585,6 +590,7 @@ const CaptionRendererInternal = React.forwardRef(
       () => {
         return {
           onVideoPlay: handleVideoPlay,
+          onVideoPause: handleVideoPause,
           onVideoSeeked: handleVideoSeeked,
         };
       }

@@ -196,6 +196,12 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
     }
     defaultRendererRef.current.onVideoPlay();
   };
+  const handleYoutubePause = ({ target }: { target: YouTubePlayer }) => {
+    if (!defaultRendererRef.current) {
+      return;
+    }
+    defaultRendererRef.current.onVideoPause();
+  };
 
   const embedWidth = Math.min((isClient() ? window.innerWidth : 0) - 60, 1600);
   const embedHeight = Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
@@ -218,6 +224,7 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
         videoId={caption.videoId}
         onReady={handleYoutubeReady}
         onPlay={handleYoutubePlay}
+        onPause={handleYoutubePause}
       ></YouTube>
     );
   };
@@ -342,6 +349,7 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
         )}
         {loadComplete && isUsingAdvancedRenderer && (
           <OctopusRenderer
+            ref={defaultRendererRef}
             rawCaption={rawCaption.data}
             videoElement={undefined}
             captionContainerElement={captionContainerElement}
