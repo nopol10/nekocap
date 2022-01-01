@@ -1,9 +1,10 @@
 export const waitForElement = async <T extends HTMLElement>(
-  selector: string
+  selector: string,
+  parentElement: HTMLElement = null
 ): Promise<T> => {
   return new Promise<T>((resolve) => {
     const observer = new MutationObserver(function (mutations, me) {
-      const element = document.querySelector(selector);
+      const element = (parentElement ?? document).querySelector(selector);
       if (element) {
         me.disconnect(); // stop observing
         resolve(element as T);
