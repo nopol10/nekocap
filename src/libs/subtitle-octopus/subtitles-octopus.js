@@ -12,7 +12,9 @@ var SubtitlesOctopus = function (options) {
         supportsWebAssembly =
           new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log("WASM error", e);
+  }
   console.log(
     "WebAssembly support detected: " + (supportsWebAssembly ? "yes" : "no")
   );
@@ -117,7 +119,7 @@ var SubtitlesOctopus = function (options) {
           globalThis.browser.runtime.getURL
         ? globalThis.browser.runtime.getURL("")
         : "/";
-    self.worker.postMessage({
+    self.worker.postMessage({ 
       target: "pre-init",
       browserExtensionPath: path,
     });
@@ -396,6 +398,61 @@ var SubtitlesOctopus = function (options) {
 
   self.workerActive = false;
   self.frameId = 0;
+  self.isInExtension = function () {
+    if (typeof window === "undefined") {
+      return false
+    }
+    return !!(
+      (window.chrome && window.chrome.runtime && window.chrome.runtime.id) ||
+      window.isInExtension ||
+      (globalThis.chrome &&
+        globalThis.chrome.runtime &&
+        globalThis.chrome.runtime.id) ||
+      globalThis.isInExtension
+    );
+  }
+  self.performBackgroundRequest = function (options) {
+    const {method, url, responseType} = options
+    const onLoad = (response) => {
+      self.worker.postMessage({
+        target: "request-response",
+        response: response,
+      });
+    }
+    const onError = (error) => {
+      self.worker.postMessage({
+        target: "request-response",
+        error: error,
+      });
+    }
+    if (self.isInExtension()) {
+      chrome.runtime.sendMessage(
+        { type: 8, payload: options },
+        (response) => {
+          if (response.data) {
+            onLoad(response.data)
+          } else {
+            onError(response.error)
+          }
+        }
+      )
+    } else {
+      // In the website, we must perform the request here
+      var xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.responseType = responseType;
+      xhr.onload = function () {
+        if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+          onLoad(xhr.response);
+          return;
+        }
+        onError("Invalid status or response");
+      };
+      xhr.onerror = onError;
+      xhr.send(null);
+    }
+
+  }
   self.onWorkerMessage = function (event) {
     //dump('\nclient got ' + JSON.stringify(event.data).substr(0, 150) + '\n');
     if (!self.workerActive) {
@@ -512,6 +569,11 @@ var SubtitlesOctopus = function (options) {
         break;
       }
       case "ready": {
+        break;
+      }
+      case "request": {
+        // Make a request through the background script
+        self.performBackgroundRequest(data)
         break;
       }
       default:

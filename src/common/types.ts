@@ -3,6 +3,12 @@ export type ChromeMessage = {
   payload: any;
 };
 
+export type BackgroundRequest = {
+  url: string;
+  method: string;
+  responseType: XMLHttpRequestResponseType;
+};
+
 export enum ChromeMessageType {
   Route,
   GetProviderType,
@@ -12,6 +18,7 @@ export enum ChromeMessageType {
   RawCaption,
   InfoMessage,
   GetContentScriptVariables,
+  Request, // Make a XMLHttpRequest from the background script
 }
 
 export type NotificationMessage = {

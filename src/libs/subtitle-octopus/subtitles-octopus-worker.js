@@ -2366,18 +2366,41 @@ function startWorker(message) {
         };
       }
       readAsync = function (url, onload, onerror) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = function () {
-          if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
-            onload(xhr.response);
+        // Use a message to retrieve the response
+        const onResponseReceived = (message) => {
+          const data = message.data
+          if (data.target !== "request-response") {
+            return
+          }
+          self.removeEventListener("message", onResponseReceived, false);
+          if (data.error) {
+            onerror();
+            console.log("[Worker] Request failed: " + JSON.stringify(data.error));
             return;
           }
-          onerror();
-        };
-        xhr.onerror = onerror;
-        xhr.send(null);
+          onload(data.response);
+        }
+        self.addEventListener("message", onResponseReceived, false);
+        postMessage(
+          {
+            target: "request",
+            method: "GET",
+            responseType: "arraybuffer",
+            url: url,
+          }
+        )
+        // var xhr = new XMLHttpRequest();
+        // xhr.open("GET", url, true);
+        // xhr.responseType = "arraybuffer";
+        // xhr.onload = function () {
+        //   if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+        //     onload(xhr.response);
+        //     return;
+        //   }
+        //   onerror();
+        // };
+        // xhr.onerror = onerror;
+        // xhr.send(null);
       };
       readRemoteAsync_ = function (url) {
         return new Promise((resolve, reject) => {
