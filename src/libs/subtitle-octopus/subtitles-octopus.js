@@ -41,6 +41,16 @@ var SubtitlesOctopus = function (options) {
     self.workerUrl =
       options.legacyWorkerUrl || "subtitles-octopus-worker-legacy.js"; // Link to legacy worker
   }
+  var browserPath = encodeURIComponent(
+    window.chrome && window.chrome.runtime && window.chrome.runtime.getURL
+      ? window.chrome.runtime.getURL("")
+      : globalThis &&
+        globalThis.browser &&
+        globalThis.browser.runtime &&
+        globalThis.browser.runtime.getURL
+      ? globalThis.browser.runtime.getURL("")
+      : "/");
+  self.workerUrl += "?path=" + browserPath;
   self.subUrl = options.subUrl; // Link to sub file (optional if subContent specified)
   self.subContent = options.subContent || null; // Sub content (optional if subUrl specified)
   self.onErrorEvent = options.onError; // Function called in case of critical error meaning sub wouldn't be shown and you should use alternative method (for instance it occurs if browser doesn't support web workers).

@@ -11506,6 +11506,9 @@ function startWorker(message) {
         if (Module["setImmediates"]) Module["setImmediates"].shift()();
         break;
       }
+      case "request-response":
+        // Handled elsewhere
+        break;
       default:
         throw "wha? " + message.data.target;
     }
