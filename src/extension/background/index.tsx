@@ -60,7 +60,12 @@ async function performBackgroundRequest(options: BackgroundRequest) {
     xhr.responseType = responseType;
     xhr.onload = function () {
       if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
-        resolve(xhr.response);
+        if (options.responseType === "arraybuffer") {
+          // @ts-ignore
+          resolve(JSON.stringify([...new Uint8Array(xhr.response)]));
+        } else {
+          resolve(xhr.response);
+        }
         return;
       }
       reject("[Background request] Invalid status or response");

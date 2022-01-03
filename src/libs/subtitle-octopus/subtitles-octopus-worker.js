@@ -2378,7 +2378,9 @@ function startWorker(message) {
             console.log("[Worker] Request failed: " + JSON.stringify(data.error));
             return;
           }
-          onload(data.response);
+          const jsonResponse = JSON.parse(data.response);
+          const bufferResponse = new Uint8Array(jsonResponse).buffer
+          onload(bufferResponse);
         }
         self.addEventListener("message", onResponseReceived, false);
         postMessage(
