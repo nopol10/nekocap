@@ -1,0 +1,32 @@
+diff --git a/node_modules/rc-trigger/es/Popup/PopupInner.js b/node_modules/rc-trigger/es/Popup/PopupInner.js
+index aacf97b..3d48589 100644
+--- a/node_modules/rc-trigger/es/Popup/PopupInner.js
++++ b/node_modules/rc-trigger/es/Popup/PopupInner.js
+@@ -82,9 +82,9 @@ var PopupInner = /*#__PURE__*/React.forwardRef(function (props, ref) {
+     if (status === 'align') {
+       // Repeat until not more align needed
+       if (alignedClassName !== nextAlignedClassName) {
+-        Promise.resolve().then(function () {
++        setTimeout(function () {
+           forceAlign();
+-        });
++        }, 0);
+       } else {
+         goNextStatus(function () {
+           var _prepareResolveRef$cu;
+diff --git a/node_modules/rc-trigger/lib/Popup/PopupInner.js b/node_modules/rc-trigger/lib/Popup/PopupInner.js
+index b603854..92e5773 100644
+--- a/node_modules/rc-trigger/lib/Popup/PopupInner.js
++++ b/node_modules/rc-trigger/lib/Popup/PopupInner.js
+@@ -102,9 +102,9 @@ var PopupInner = /*#__PURE__*/React.forwardRef(function (props, ref) {
+     if (status === 'align') {
+       // Repeat until not more align needed
+       if (alignedClassName !== nextAlignedClassName) {
+-        Promise.resolve().then(function () {
++        setTimeout(function () {
+           forceAlign();
+-        });
++        }, 0);
+       } else {
+         goNextStatus(function () {
+           var _prepareResolveRef$cu;
