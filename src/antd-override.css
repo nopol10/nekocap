@@ -26,3 +26,13 @@
 .ant-tooltip {
   z-index: 6000 !important;
 }
+
+.ant-dropdown,
+.ant-dropdown-menu,
+.ant-modal-root,
+.ant-select-item,
+.ant-select-dropdown {
+  font-family: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
