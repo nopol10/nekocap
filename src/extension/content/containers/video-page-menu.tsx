@@ -2,6 +2,7 @@ import message from "antd/lib/message";
 import Dropdown from "antd/lib/dropdown/dropdown";
 import Menu from "antd/lib/menu";
 import Space from "antd/lib/space";
+import { MenuClickEventHandler } from "rc-menu/lib/interface";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";
@@ -358,10 +359,7 @@ export const VideoPageMenu = ({
       editorTabData.caption.data.tracks &&
       editorTabData.caption.data.tracks.length > 0;
 
-    const handleClickEditorMenu = (e: {
-      key: string | number;
-      domEvent: React.MouseEvent<HTMLElement>;
-    }) => {
+    const handleClickEditorMenu: MenuClickEventHandler = (e) => {
       if (e.key !== AUTOSAVE_TOGGLE_KEY) {
         setEditorMenuVisible(false);
       }
@@ -453,9 +451,7 @@ export const VideoPageMenu = ({
     dispatch(loadServerCaption.request({ tabId: window.tabId, captionId }));
   };
 
-  const handleToggleAutosave = (info: {
-    domEvent: React.MouseEvent<HTMLElement>;
-  }) => {
+  const handleToggleAutosave = (info) => {
     dispatch(toggleAutosave());
   };
 
