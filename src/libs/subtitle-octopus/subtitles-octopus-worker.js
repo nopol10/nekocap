@@ -2369,7 +2369,7 @@ function startWorker(message) {
         // Use a message to retrieve the response
         const onResponseReceived = (message) => {
           const data = message.data
-          if (data.target !== "request-response") {
+          if (data.target !== "request-response" || data.url !== url) {
             return
           }
           self.removeEventListener("message", onResponseReceived, false);
@@ -2378,9 +2378,8 @@ function startWorker(message) {
             console.log("[Worker] Request failed: " + JSON.stringify(data.error));
             return;
           }
-          const jsonResponse = JSON.parse(data.response);
-          const bufferResponse = new Uint8Array(jsonResponse).buffer
-          onload(bufferResponse);
+          // Expecting an arraybuffer in onload
+          onload(data.response.slice());
         }
         self.addEventListener("message", onResponseReceived, false);
         postMessage(

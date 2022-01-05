@@ -62,7 +62,7 @@ async function performBackgroundRequest(options: BackgroundRequest) {
       if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
         if (options.responseType === "arraybuffer") {
           // @ts-ignore
-          resolve(JSON.stringify([...new Uint8Array(xhr.response)]));
+          resolve(Array.from(new Uint8Array(xhr.response)));
         } else {
           resolve(xhr.response);
         }
