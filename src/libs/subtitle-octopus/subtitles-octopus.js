@@ -12,7 +12,9 @@ var SubtitlesOctopus = function (options) {
         supportsWebAssembly =
           new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log("WASM error", e);
+  }
   console.log(
     "WebAssembly support detected: " + (supportsWebAssembly ? "yes" : "no")
   );
@@ -39,6 +41,16 @@ var SubtitlesOctopus = function (options) {
     self.workerUrl =
       options.legacyWorkerUrl || "subtitles-octopus-worker-legacy.js"; // Link to legacy worker
   }
+  var browserPath = encodeURIComponent(
+    window.chrome && window.chrome.runtime && window.chrome.runtime.getURL
+      ? window.chrome.runtime.getURL("")
+      : globalThis &&
+        globalThis.browser &&
+        globalThis.browser.runtime &&
+        globalThis.browser.runtime.getURL
+      ? globalThis.browser.runtime.getURL("")
+      : "/");
+  self.workerUrl += "?path=" + browserPath;
   self.subUrl = options.subUrl; // Link to sub file (optional if subContent specified)
   self.subContent = options.subContent || null; // Sub content (optional if subUrl specified)
   self.onErrorEvent = options.onError; // Function called in case of critical error meaning sub wouldn't be shown and you should use alternative method (for instance it occurs if browser doesn't support web workers).
@@ -117,7 +129,7 @@ var SubtitlesOctopus = function (options) {
           globalThis.browser.runtime.getURL
         ? globalThis.browser.runtime.getURL("")
         : "/";
-    self.worker.postMessage({
+    self.worker.postMessage({ 
       target: "pre-init",
       browserExtensionPath: path,
     });
@@ -396,6 +408,68 @@ var SubtitlesOctopus = function (options) {
 
   self.workerActive = false;
   self.frameId = 0;
+  self.isInExtension = function () {
+    if (typeof window === "undefined") {
+      return false
+    }
+    return !!(
+      (window.chrome && window.chrome.runtime && window.chrome.runtime.id) ||
+      window.isInExtension ||
+      (globalThis.chrome &&
+        globalThis.chrome.runtime &&
+        globalThis.chrome.runtime.id) ||
+      globalThis.isInExtension
+    );
+  }
+  self.performBackgroundRequest = function (options) {
+    const {method, url, responseType} = options
+    const onLoad = (response) => {
+      self.worker.postMessage({
+        target: "request-response",
+        url: url,
+        response: response,
+      }, [response]);
+    }
+    const onError = (error) => {
+      self.worker.postMessage({
+        target: "request-response",
+        url: url,
+        error: error,
+      });
+    }
+    const onDirectLoadError = (error) => {
+      // Attempt loading through the background script
+      if (self.isInExtension()) {
+        chrome.runtime.sendMessage(
+          { type: 8, payload: options },
+          (response) => {
+            if (response.data) {
+              const bufferResponse = new Uint8Array(response.data).buffer
+              onLoad(bufferResponse)
+            } else {
+              onError(response.error)
+            }
+          }
+        )
+      } else {
+        onError(error)
+      }
+    }
+
+    let xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.responseType = responseType;
+    xhr.onload = function () {
+      if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+        const resultBuffer = xhr.response.slice()
+        onLoad(resultBuffer);
+        return;
+      }
+      onDirectLoadError("Invalid status or response");
+    };
+    xhr.onerror = onDirectLoadError;
+    xhr.send(null);
+  }
   self.onWorkerMessage = function (event) {
     //dump('\nclient got ' + JSON.stringify(event.data).substr(0, 150) + '\n');
     if (!self.workerActive) {
@@ -512,6 +586,11 @@ var SubtitlesOctopus = function (options) {
         break;
       }
       case "ready": {
+        break;
+      }
+      case "request": {
+        // Make a request through the background script
+        self.performBackgroundRequest(data)
         break;
       }
       default:

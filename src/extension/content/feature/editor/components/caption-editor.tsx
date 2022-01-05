@@ -240,6 +240,9 @@ const RootPane = styled("div").withConfig<RootPaneType>({
   }
 
   .nekocap-caption-text {
+    font-family: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     &:not(:empty)::before {
       position: absolute;
       top: 0;

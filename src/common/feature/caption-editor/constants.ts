@@ -2,6 +2,7 @@ import { CaptionFileFormat } from "@/common/types";
 
 export const MAX_CAPTION_FILE_BYTES = 2000000; // 2 MB
 export const MAX_VERIFIED_CAPTION_FILE_BYTES = 100000000; // 100 MB
+export const MAX_VIDEO_TITLE_LENGTH = 280;
 /**
  * Prevent the editor from being used if the file is more than this length
  * The editor doesn't support files that are too large right now.

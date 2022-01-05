@@ -53,6 +53,9 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
         options: {
           lessOptions: {
             javascriptEnabled: true,
+            modifyVars: {
+              "root-entry-name": "default",
+            },
           },
         },
       },

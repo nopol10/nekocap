@@ -2366,18 +2366,42 @@ function startWorker(message) {
         };
       }
       readAsync = function (url, onload, onerror) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = function () {
-          if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
-            onload(xhr.response);
+        // Use a message to retrieve the response
+        const onResponseReceived = (message) => {
+          const data = message.data
+          if (data.target !== "request-response" || data.url !== url) {
+            return
+          }
+          self.removeEventListener("message", onResponseReceived, false);
+          if (data.error) {
+            onerror();
+            console.log("[Worker] Request failed: " + JSON.stringify(data.error));
             return;
           }
-          onerror();
-        };
-        xhr.onerror = onerror;
-        xhr.send(null);
+          // Expecting an arraybuffer in onload
+          onload(data.response.slice());
+        }
+        self.addEventListener("message", onResponseReceived, false);
+        postMessage(
+          {
+            target: "request",
+            method: "GET",
+            responseType: "arraybuffer",
+            url: url,
+          }
+        )
+        // var xhr = new XMLHttpRequest();
+        // xhr.open("GET", url, true);
+        // xhr.responseType = "arraybuffer";
+        // xhr.onload = function () {
+        //   if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+        //     onload(xhr.response);
+        //     return;
+        //   }
+        //   onerror();
+        // };
+        // xhr.onerror = onerror;
+        // xhr.send(null);
       };
       readRemoteAsync_ = function (url) {
         return new Promise((resolve, reject) => {
@@ -11483,6 +11507,9 @@ function startWorker(message) {
         if (Module["setImmediates"]) Module["setImmediates"].shift()();
         break;
       }
+      case "request-response":
+        // Handled elsewhere
+        break;
       default:
         throw "wha? " + message.data.target;
     }

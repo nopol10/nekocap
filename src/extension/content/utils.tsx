@@ -1,4 +1,7 @@
-import { VIDEO_ELEMENT_CONTAINER_ID } from "@/common/constants";
+import {
+  IN_PAGE_MENU_CONTAINER_ID,
+  VIDEO_ELEMENT_CONTAINER_ID,
+} from "@/common/constants";
 import { PageType } from "@/common/feature/video/types";
 import { getVideoElement, getVideoTitle } from "./processors/processor";
 
@@ -28,4 +31,18 @@ export const refreshVideoMeta = async () => {
     return extensionContainer;
   }
   return;
+};
+
+export const createInpageMenuPortalElement = () => {
+  if (document.getElementById(IN_PAGE_MENU_CONTAINER_ID)) {
+    return;
+  }
+  const videoUIRootStyle = `
+    display: none;
+  `;
+
+  const videoUIElement = document.createElement("div");
+  videoUIElement.id = IN_PAGE_MENU_CONTAINER_ID;
+  videoUIElement.style.cssText = videoUIRootStyle;
+  document.body.appendChild(videoUIElement);
 };

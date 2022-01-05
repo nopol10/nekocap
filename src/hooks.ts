@@ -339,7 +339,10 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
           })
         );
       });
-
+      if (!window.videoElement.parentElement) {
+        mutationObserver.current.disconnect();
+        return;
+      }
       mutationObserver.current.observe(window.videoElement.parentElement, {
         childList: true,
       });
@@ -421,6 +424,7 @@ export const processorObserveUpdates = (
         if (!removedNode["tagName"]) return;
         const element = removedNode as HTMLElement;
         if (
+          !menuNodeWasAdded &&
           observerSettings.shouldObserveMenuPlaceability &&
           element.querySelector(observerSettings.menuElementSelector)
         ) {

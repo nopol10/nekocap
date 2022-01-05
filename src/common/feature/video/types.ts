@@ -25,6 +25,7 @@ export enum VideoSource {
   BilibiliBangumi = 5,
   Netflix = 6,
   AmazonPrime = 7,
+  Twitter = 8,
 }
 
 export type CaptionContainer = {

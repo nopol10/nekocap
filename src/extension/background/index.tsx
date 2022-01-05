@@ -3,7 +3,11 @@ import { wrapStore } from "webext-redux";
 
 import { Provider, useDispatch } from "react-redux";
 import ReactDOM from "react-dom";
-import { ChromeMessage, ChromeMessageType } from "@/common/types";
+import {
+  BackgroundRequest,
+  ChromeMessage,
+  ChromeMessageType,
+} from "@/common/types";
 import { autoLogin } from "@/common/feature/login/actions";
 import debounce from "lodash/debounce";
 import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
@@ -48,12 +52,48 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 });
 
+async function performBackgroundRequest(options: BackgroundRequest) {
+  const { url, method, responseType } = options;
+  const response = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.responseType = responseType;
+    xhr.onload = function () {
+      if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+        if (options.responseType === "arraybuffer") {
+          // @ts-ignore
+          resolve(Array.from(new Uint8Array(xhr.response)));
+        } else {
+          resolve(xhr.response);
+        }
+        return;
+      }
+      reject("[Background request] Invalid status or response");
+    };
+    xhr.onerror = reject;
+    xhr.send(null);
+  });
+  return response;
+}
+
 chrome.runtime.onMessage.addListener(
   (request: ChromeMessage, sender, sendResponse) => {
     if (request.type === ChromeMessageType.GetTabId) {
       sendResponse(sender.tab?.id);
     } else if (request.type === ChromeMessageType.GetProviderType) {
       sendResponse(window.backendProvider.type());
+    } else if (request.type === ChromeMessageType.Request) {
+      const response = { data: null, error: null };
+      performBackgroundRequest(request.payload)
+        .then((data) => {
+          response.data = data;
+          sendResponse(response);
+        })
+        .catch((error) => {
+          response.error = error;
+          sendResponse(response);
+        });
+      return true;
     }
   }
 );
