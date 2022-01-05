@@ -72,6 +72,7 @@ left: 50%;
 transform: translate(-50%, 0);
 height: 100%;
 pointer-events: none;
+font-family: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 `;
 
 const DEFAULT_BOTTOM_OFFSET_FACTOR = 0.074074; // How many pixels to offset the caption from the bottom of the video (a factor of the video height)
