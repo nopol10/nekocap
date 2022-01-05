@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "NekoCap",
   "description": "__MSG_extShortDescription__",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "default_locale": "en",
   "browser_action": {
     "default_icon": "icon16.png",
@@ -25,7 +25,9 @@
         "https://*.twitter.com/*"
       ],
       "run_at": "document_end",
-      "js": ["js/content.js"]
+      "js": [
+        "js/content.js"
+      ]
     },
     {
       "matches": [
@@ -39,7 +41,9 @@
         "https://*.twitter.com/*"
       ],
       "run_at": "document_start",
-      "css": ["js/content.css"]
+      "css": [
+        "js/content.css"
+      ]
     }
   ],
   "icons": {
@@ -47,7 +51,10 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": ["storage", "webNavigation"],
+  "permissions": [
+    "storage",
+    "webNavigation"
+  ],
   "web_accessible_resources": [
     "img/*.jpg",
     "img/*.png",
