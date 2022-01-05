@@ -277,8 +277,9 @@ export const VideoHome = () => {
   const isUsingAdvancedRenderer =
     renderer === CaptionRendererType.AdvancedOctopus && isAss(rawType);
   const shouldRenderEditor =
-    !isUsingAdvancedRenderer ||
-    (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0);
+    !window.selectedProcessor.disableEditor &&
+    (!isUsingAdvancedRenderer ||
+      (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0));
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (

@@ -36,7 +36,7 @@ import {
   videoSourceToProcessorMap,
 } from "@/common/feature/video/utils";
 import * as Parse from "parse";
-import { refreshVideoMeta } from "./utils";
+import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
 
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
@@ -80,20 +80,6 @@ const createVideoUIPortalElement = () => {
 
   const videoUIElement = document.createElement("div");
   videoUIElement.id = VIDEO_ELEMENT_CONTAINER_ID;
-  videoUIElement.style.cssText = videoUIRootStyle;
-  document.body.appendChild(videoUIElement);
-};
-
-const createInpageMenuPortalElement = () => {
-  if (document.getElementById(IN_PAGE_MENU_CONTAINER_ID)) {
-    return;
-  }
-  const videoUIRootStyle = `
-    display: none;
-  `;
-
-  const videoUIElement = document.createElement("div");
-  videoUIElement.id = IN_PAGE_MENU_CONTAINER_ID;
   videoUIElement.style.cssText = videoUIRootStyle;
   document.body.appendChild(videoUIElement);
 };

@@ -3,8 +3,7 @@ import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const TWITTER_STATUS_REGEX =
-  /(http:|https:)\/\/(twitter.com)\/.*\/status\/([A-Za-z0-9]*)[/#]*(?:\?.*)?$/;
+const TWITTER_STATUS_REGEX = /(http:|https:)\/\/(twitter.com)\/.*\/status\/([A-Za-z0-9]*)[/#]*(?:\?.*)?$/;
 
 /**
  * Processor for Twitter
@@ -34,6 +33,12 @@ export const TwitterProcessor: Processor = {
     return linkElement?.parentElement?.parentElement?.parentElement;
   },
   titleSelector: "title",
+  observer: {
+    shouldObserveMenuPlaceability: true,
+    shouldObserveVideoMetaUpdate: false,
+    refreshTabDataAfterElementUpdate: false,
+    menuElementSelector: `div[aria-label="Timeline: Conversation"]`,
+  },
   editorVideoPlayerStyles: `
   video {
     width: 100% !important;
@@ -46,6 +51,9 @@ export const TwitterProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(TWITTER_STATUS_REGEX);
+    if (!matches || matches.length < 4) {
+      return "";
+    }
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {
