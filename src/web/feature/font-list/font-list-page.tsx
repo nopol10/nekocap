@@ -54,7 +54,28 @@ const Page = styled.div`
 `;
 
 export const FontListPage = (): JSX.Element => {
-  const fontList: typeof SUBSTATION_GROUPED_FONTS = SUBSTATION_GROUPED_FONTS;
+  const fontList: typeof SUBSTATION_GROUPED_FONTS = Object.keys(
+    SUBSTATION_GROUPED_FONTS
+  ).reduce((acc, groupName) => {
+    // Prepend the fonts url to the font list
+    const group = SUBSTATION_GROUPED_FONTS[groupName];
+    return {
+      ...acc,
+      [groupName]: Object.keys(group).reduce((fontsAcc, fontKey) => {
+        const fontPath = group[fontKey];
+        const newPath = fontPath.startsWith("/")
+          ? `${process.env.NEXT_PUBLIC_FONTS_URL.replace(
+              /\/+$/,
+              ""
+            )}${fontPath}`
+          : fontPath;
+        return {
+          ...fontsAcc,
+          [fontKey]: newPath,
+        };
+      }, {}),
+    };
+  }, {}) as typeof SUBSTATION_GROUPED_FONTS;
   const [searchString, setSearchString] = useState("");
   const [showPreview, setShowPreview] = useState<{ [id: string]: boolean }>(
     () => {

@@ -194,7 +194,7 @@ const flattenAndProcessFontList = (
     } else if (typeof fontObject === "string") {
       output[key] =
         (isInExtension()
-          ? process.env.NEXT_PUBLIC_WEBSITE_URL
+          ? process.env.NEXT_PUBLIC_FONTS_URL
           : websiteUrl
         ).replace(/\/+$/, "") + fontObject;
     }

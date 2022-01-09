@@ -36,5 +36,5 @@ export const isServer = () => {
 };
 
 export const getNekoCapWebsiteUrl = () => {
-  return isInExtension() ? process.env.NEXT_PUBLIC_WEBSITE_URL : "";
+  return process.env.NEXT_PUBLIC_WEBSITE_URL;
 };

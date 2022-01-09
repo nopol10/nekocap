@@ -6,11 +6,14 @@ export const loadFontListApi = async (): Promise<Record<string, string>> => {
     const response = await fetch(getNekoCapWebsiteUrl() + "fontlist.json");
     let data: Record<string, string> = await response.json();
     data = Object.keys(data).reduce((acc, key) => {
-      acc[key] =
-        (isInExtension() ? process.env.NEXT_PUBLIC_WEBSITE_URL : "").replace(
-          /\/+$/,
-          ""
-        ) + data[key];
+      const fontPath = data[key];
+      if (fontPath.startsWith("/")) {
+        acc[key] =
+          process.env.NEXT_PUBLIC_FONTS_URL.replace(/\/+$/, "") + fontPath;
+      } else {
+        acc[key] = fontPath;
+      }
+
       return acc;
     }, {});
     return data;

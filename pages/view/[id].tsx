@@ -111,7 +111,6 @@ export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideP
         const dimensions: Dimension = await processor.retrieveVideoDimensions(
           caption.videoId
         );
-
         batch(() => {
           store.dispatch(setFontList({ list: fontList }));
           store.dispatch(setLoadedCaption({ tabId, caption }));
