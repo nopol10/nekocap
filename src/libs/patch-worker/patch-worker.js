@@ -44,7 +44,6 @@ limitations under the License.
     try {
       return new Worker_(scriptURL);
     } catch (e) {
-      console.log("Worker init failed, using WorkerXHR", scriptURL);
       if (e.code === 18 /*DOMException.SECURITY_ERR*/) {
         return new WorkerXHR(scriptURL);
       } else {

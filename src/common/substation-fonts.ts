@@ -32,8 +32,10 @@ export const SUBSTATION_GROUPED_FONTS = {
     "fira sans bold": "/fonts/Fira-Sans-700.woff2",
     "gandhi sans": "/fonts/GandhiSans-Bold.woff2",
     "gandhi sans bold italic": "/fonts/GandhiSans-BoldItalic.woff2",
-    "garamond bold": "/fonts/EB-Garamond-700.woff2",
-    garamond: "/fonts/EB-Garamond-Regular.woff2",
+    "eb garamond": "/fonts/EB-Garamond-Regular.woff2",
+    "eb garamond bold": "/fonts/EB-Garamond-700.woff2",
+    garamond: "/fonts/Garamond-EB-Regular.woff2",
+    "garamond bold": "/fonts/Garamond-EB-Bold.woff2",
     grain: "/fonts/Grain-Regular.woff2",
     handgley: "/fonts/Handgley-Regular.woff2",
     "lato black": "/fonts/Lato-Black.woff2",
@@ -68,10 +70,10 @@ export const SUBSTATION_GROUPED_FONTS = {
     "tinos bold": "/fonts/Tinos-700.woff2",
     "waiting for the sunrise": "/fonts/Waiting-for-the-Sunrise-Regular.woff2",
     zerogothic: "/fonts/ZeroGothic.woff2",
-    arial: "/fonts/LiberationSans-Regular.woff2", // Arial is not free
-    "arial bold": "/fonts/LiberationSans-Bold.woff2",
-    "times new roman": "/fonts/Tinos-Regular.woff2", // Using Tinos as a Times New Roman replacement as TNR is not free
-    "times new roman bold": "/fonts/Tinos-700.woff2",
+    arial: "/fonts/Arial-Liberation.woff2", // Arial is not free
+    "arial bold": "/fonts/Arial-Liberation-Bold.woff2",
+    "times new roman": "/fonts/Times-New-Roman-Tinos.woff2", // Using Tinos as a Times New Roman replacement as TNR is not free
+    "times new roman bold": "/fonts/Times-New-Roman-Tinos-Bold.woff2",
   },
   japanese: {
     akazukipop: "/fonts/AkazukiPOP.woff2",
@@ -176,6 +178,8 @@ export const EXCLUDED_FONTS = [
   "arial bold",
   "times new roman",
   "times new roman bold",
+  "garamond",
+  "garamond bold",
 ];
 
 const flattenAndProcessFontList = (
