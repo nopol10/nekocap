@@ -315,6 +315,45 @@ function startWorker(message) {
       while ((matches = regex.exec(self.subContent))) {
         fontNames.add(matches[1]);
       }
+      // Add font variants (bold/italic/etc)
+      const fontNamesArray = Array.from(fontNames)
+      const weightVariants = [
+        "thin",
+        "extralight",
+        "ultralight",
+        "extra light",
+        "ultra light",
+        "light",
+        "medium",
+        "semibold",
+        "demibold",
+        "semi bold",
+        "demi bold",
+        "bold",
+        "extrabold",
+        "ultrabold",
+        "extra bold",
+        "ultra bold",
+        "black",
+        "heavy",
+      ]
+      const styleVariants = [
+        "",
+        "italic"
+      ]
+      // Generate weightVariants and styleVariants by flatmapping them
+      const fontVariants = weightVariants.flatMap(weight =>
+        styleVariants.map(style => `${weight} ${style}`.trim())
+      )
+      fontNamesArray.forEach(fontName =>
+        fontVariants.forEach(variant => { 
+          const fontVariantName = `${fontName} ${variant}`.toLowerCase()
+          if (self.availableFonts.hasOwnProperty(fontVariantName)) {
+            fontNames.add(fontVariantName)
+          }
+        })
+      )
+
       var chunkedFontNames = chunk(Array.from(fontNames), 4);
       postMessage({
         target: "fontsloaded",
@@ -10944,11 +10983,9 @@ function startWorker(message) {
     self.fontMap_[font] = true;
     if (!self.availableFonts.hasOwnProperty(font)) return;
     var content = await readBinaryAsync(self.availableFonts[font]);
+    var fontFileName = "/fonts/font" + self.fontId++ + "-" + self.availableFonts[font].split("/").pop()
     Module["FS"].writeFile(
-      "/fonts/font" +
-        self.fontId++ +
-        "-" +
-        self.availableFonts[font].split("/").pop(),
+      fontFileName,
       content,
       {
         encoding: "binary",
