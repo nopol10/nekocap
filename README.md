@@ -121,3 +121,9 @@ projects without which NekoCap would not have been the same:
   hotkeys (use the latest Github build and not the outdated npm one)
 - [subtitle.js](https://github.com/gsantiago/subtitle.js) - SRT and VTT parsing
 - [ass-compiler](https://github.com/weizhenye/ass-compiler) - ASS parsing
+
+Translations:
+
+- Arabic: Adnamie
+- French: Adnamie
+- Persian: Pikhosh
