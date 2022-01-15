@@ -9,7 +9,7 @@ const getCSP = (props) => {
   csp += `form-action 'self';`;
   csp += `default-src 'self';`;
   csp += `img-src * data:;`;
-  csp += `font-src 'self' https://*.nekocap.com data: https://fonts.gstatic.com;`;
+  csp += `font-src 'self' https://nekocap.com https://*.nekocap.com data: https://fonts.gstatic.com;`;
 
   const commonConnectSrc =
     "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/";
