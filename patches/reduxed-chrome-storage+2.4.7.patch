@@ -1,0 +1,15 @@
+diff --git a/node_modules/reduxed-chrome-storage/dist/index.esm.js b/node_modules/reduxed-chrome-storage/dist/index.esm.js
+index cab42df..256cb42 100644
+--- a/node_modules/reduxed-chrome-storage/dist/index.esm.js
++++ b/node_modules/reduxed-chrome-storage/dist/index.esm.js
+@@ -34,8 +34,8 @@ function isEqual(a, b) {
+ function mergeOrReplace(a, b) {
+     if (Array.isArray(b))
+         return cloneDeep(b);
+-    if (typeof a !== 'object' || Array.isArray(a) || typeof b !== 'object')
+-        return typeof b !== 'undefined' ? b : a;
++    if (typeof a !== 'object' || Array.isArray(a) || typeof b !== 'object' || a === null || b === null)
++        return (typeof b !== 'undefined' && b !== null) ? b : a;
+     return Object.keys(a).concat(Object.keys(b).filter(key => !a[key])).reduce((acc, key) => {
+         return acc[key] = mergeOrReplace(a[key], b[key]), acc;
+     }, {});
