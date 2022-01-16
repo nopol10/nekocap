@@ -3,7 +3,6 @@ import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { Switch, Router } from "react-router-dom";
 import LoginRoutes from "./feature/login/containers/routes";
-import { Store } from "webext-redux";
 import { ChromeMessage, ChromeMessageType } from "@/common/types";
 import { appHistory } from "./common/store";
 import "../../ant.less";
@@ -12,7 +11,9 @@ import {
   syncWindowVarsToPopup,
 } from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
+import "@/extension/background/common/provider";
 import { PopupProvider } from "../common/popup-context";
+import { storeInitPromise } from "@/extension/background/common/store";
 
 chrome.runtime.onMessage.addListener(
   (request: ChromeMessage, sender, sendResponse) => {
@@ -23,9 +24,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
-  const store = new Store();
-
-  store.ready().then(async () => {
+  storeInitPromise.then(async ({ store }) => {
     await requestBackgroundPageVariable(["backendProvider"]);
     await syncWindowVarsToPopup(tab[0].id);
     ReactDOM.render(

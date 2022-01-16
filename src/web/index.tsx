@@ -15,13 +15,13 @@ window.skipAutoLogin = false;
 // Firebase for auth
 initFirebase();
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const initializeProviders = () => {
     window.backendProvider = new ParseProvider(Parse);
   };
 
   initializeProviders();
-  const { store } = initStore(
+  const { store } = await initStore(
     rootWebSaga,
     window.backendProvider.getReducers(),
     window.backendProvider.getMiddlewares(),

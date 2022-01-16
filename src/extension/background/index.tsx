@@ -1,6 +1,4 @@
 import React, { ReactNode, useEffect, useRef } from "react";
-import { wrapStore } from "webext-redux";
-
 import { Provider, useDispatch } from "react-redux";
 import ReactDOM from "react-dom";
 import {
@@ -15,12 +13,11 @@ import { initFirebase } from "./firebase";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "./common/provider";
-import { store } from "./common/store";
+import { storeInitPromise } from "./common/store";
 
 window.skipAutoLogin = false;
 // Firebase for auth
 initFirebase();
-wrapStore(store);
 
 const BackgroundPage = ({ children }: { children?: ReactNode }) => {
   const dispatch = useDispatch();
@@ -39,114 +36,115 @@ const BackgroundPage = ({ children }: { children?: ReactNode }) => {
   }, []);
   return <>{children}</>;
 };
-
-document.addEventListener("DOMContentLoaded", function () {
-  const Wrapper = window.backendProvider.wrapper;
-  ReactDOM.render(
-    <Provider store={store}>
-      <Wrapper providerProps={window.backendProvider.getWrapperProps(store)}>
-        <BackgroundPage>NekoCap</BackgroundPage>
-      </Wrapper>
-    </Provider>,
-    document.getElementById("background")
-  );
-});
-
-async function performBackgroundRequest(options: BackgroundRequest) {
-  const { url, method, responseType } = options;
-  const response = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
-    xhr.responseType = responseType;
-    xhr.onload = function () {
-      if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
-        if (options.responseType === "arraybuffer") {
-          // @ts-ignore
-          resolve(Array.from(new Uint8Array(xhr.response)));
-        } else {
-          resolve(xhr.response);
-        }
-        return;
-      }
-      reject("[Background request] Invalid status or response");
-    };
-    xhr.onerror = reject;
-    xhr.send(null);
+storeInitPromise.then(({ store }) => {
+  document.addEventListener("DOMContentLoaded", function () {
+    const Wrapper = window.backendProvider.wrapper;
+    ReactDOM.render(
+      <Provider store={store}>
+        <Wrapper providerProps={window.backendProvider.getWrapperProps(store)}>
+          <BackgroundPage>NekoCap</BackgroundPage>
+        </Wrapper>
+      </Provider>,
+      document.getElementById("background")
+    );
   });
-  return response;
-}
 
-chrome.runtime.onMessage.addListener(
-  (request: ChromeMessage, sender, sendResponse) => {
-    if (request.type === ChromeMessageType.GetTabId) {
-      sendResponse(sender.tab?.id);
-    } else if (request.type === ChromeMessageType.GetProviderType) {
-      sendResponse(window.backendProvider.type());
-    } else if (request.type === ChromeMessageType.Request) {
-      const response = { data: null, error: null };
-      performBackgroundRequest(request.payload)
-        .then((data) => {
-          response.data = data;
-          sendResponse(response);
-        })
-        .catch((error) => {
-          response.error = error;
-          sendResponse(response);
-        });
-      return true;
-    }
-  }
-);
-
-chrome.tabs.onRemoved.addListener((tabId: number, removeInfo) => {
-  store.dispatch(closeTab({ tabId }));
-});
-
-// Youtube fires multiple history update events in quick succession when opening a video.
-// Throttle the updates so that multiple contents scripts will not get added
-const debouncedHistoryUpdateListener = debounce((details) => {
-  const { tabId, url } = details;
-  chrome.tabs.sendMessage(
-    tabId,
-    { type: ChromeMessageType.ContentScriptUpdate },
-    (res) => {
-      res = res || {};
-      const newPageType = res.pageType;
-      const newVideoId = res.videoId;
-      const newVideoSource = res.videoSource;
-      const currentUrlString =
-        store.getState().video?.tabData[tabId]?.currentUrl || "";
-      try {
-        // We don't want to refresh if the url is the same
-        const currentUrl = new URL(currentUrlString);
-        const newUrl = new URL(url);
-        // In case the user used a url that loads the caption directly
-        currentUrl.searchParams.delete("nekocap");
-        newUrl.searchParams.delete("nekocap");
-        if (
-          currentUrl.origin === newUrl.origin &&
-          currentUrl.pathname === newUrl.pathname &&
-          currentUrl.search === newUrl.search
-        ) {
+  async function performBackgroundRequest(options: BackgroundRequest) {
+    const { url, method, responseType } = options;
+    const response = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.responseType = responseType;
+      xhr.onload = function () {
+        if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+          if (options.responseType === "arraybuffer") {
+            // @ts-ignore
+            resolve(Array.from(new Uint8Array(xhr.response)));
+          } else {
+            resolve(xhr.response);
+          }
           return;
         }
-      } catch (e) {
-        console.log("Error parsing url", e);
-      }
+        reject("[Background request] Invalid status or response");
+      };
+      xhr.onerror = reject;
+      xhr.send(null);
+    });
+    return response;
+  }
 
-      store.dispatch(
-        requestFreshTabData({
-          tabId,
-          newVideoId,
-          newVideoSource,
-          newPageType,
-          currentUrl: url,
-        })
-      );
+  chrome.runtime.onMessage.addListener(
+    (request: ChromeMessage, sender, sendResponse) => {
+      if (request.type === ChromeMessageType.GetTabId) {
+        sendResponse(sender.tab?.id);
+      } else if (request.type === ChromeMessageType.GetProviderType) {
+        sendResponse(window.backendProvider.type());
+      } else if (request.type === ChromeMessageType.Request) {
+        const response = { data: null, error: null };
+        performBackgroundRequest(request.payload)
+          .then((data) => {
+            response.data = data;
+            sendResponse(response);
+          })
+          .catch((error) => {
+            response.error = error;
+            sendResponse(response);
+          });
+        return true;
+      }
     }
   );
-}, 1000);
 
-chrome.webNavigation.onHistoryStateUpdated.addListener(
-  debouncedHistoryUpdateListener
-);
+  chrome.tabs.onRemoved.addListener((tabId: number, removeInfo) => {
+    store.dispatch(closeTab({ tabId }));
+  });
+
+  // Youtube fires multiple history update events in quick succession when opening a video.
+  // Throttle the updates so that multiple contents scripts will not get added
+  const debouncedHistoryUpdateListener = debounce((details) => {
+    const { tabId, url } = details;
+    chrome.tabs.sendMessage(
+      tabId,
+      { type: ChromeMessageType.ContentScriptUpdate },
+      (res) => {
+        res = res || {};
+        const newPageType = res.pageType;
+        const newVideoId = res.videoId;
+        const newVideoSource = res.videoSource;
+        const currentUrlString =
+          store.getState().video?.tabData[tabId]?.currentUrl || "";
+        try {
+          // We don't want to refresh if the url is the same
+          const currentUrl = new URL(currentUrlString);
+          const newUrl = new URL(url);
+          // In case the user used a url that loads the caption directly
+          currentUrl.searchParams.delete("nekocap");
+          newUrl.searchParams.delete("nekocap");
+          if (
+            currentUrl.origin === newUrl.origin &&
+            currentUrl.pathname === newUrl.pathname &&
+            currentUrl.search === newUrl.search
+          ) {
+            return;
+          }
+        } catch (e) {
+          console.log("Error parsing url", e);
+        }
+
+        store.dispatch(
+          requestFreshTabData({
+            tabId,
+            newVideoId,
+            newVideoSource,
+            newPageType,
+            currentUrl: url,
+          })
+        );
+      }
+    );
+  }, 1000);
+
+  chrome.webNavigation.onHistoryStateUpdated.addListener(
+    debouncedHistoryUpdateListener
+  );
+});

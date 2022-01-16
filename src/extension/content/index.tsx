@@ -1,13 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { Store } from "webext-redux";
 import { message as notificationMessage } from "antd";
-import {
-  getVideoTitle,
-  getVideoElement,
-  Processor,
-} from "./processors/processor";
+import { Processor } from "./processors/processor";
 import "@/antd-override.css";
 import {
   ChromeMessage,
@@ -22,14 +17,12 @@ import "../../ant-content.less";
 import "react-virtualized/styles.css";
 import {
   EDITOR_PORTAL_ELEMENT_ID,
-  IN_PAGE_MENU_CONTAINER_ID,
   VIDEO_ELEMENT_CONTAINER_ID,
   Z_INDEX,
 } from "@/common/constants";
 import { ExportCaptionResult } from "@/common/feature/caption-editor/types";
 import { saveAs } from "file-saver";
 import "../../libs/patch-worker/patch-worker";
-import { PageType } from "@/common/feature/video/types";
 import { requestFreshTabData } from "@/common/feature/video/actions";
 import {
   processorOrder,
@@ -37,6 +30,8 @@ import {
 } from "@/common/feature/video/utils";
 import * as Parse from "parse";
 import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
+import "@/extension/background/common/provider";
+import { storeInitPromise } from "@/extension/background/common/store";
 
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
@@ -146,8 +141,7 @@ const initialize = async () => {
 
   await refreshVideoMeta();
 
-  const store = new Store();
-  await store.ready();
+  const { store } = await storeInitPromise;
 
   // Get and store the current tab id
   chrome.runtime.sendMessage(
