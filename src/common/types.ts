@@ -19,6 +19,7 @@ export enum ChromeMessageType {
   InfoMessage,
   GetContentScriptVariables,
   Request, // Make a XMLHttpRequest from the background script
+  ProviderRequest, // Run a request through the backend provider from the background script
 }
 
 export type NotificationMessage = {

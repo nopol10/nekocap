@@ -11,7 +11,6 @@ import {
   ProviderType,
 } from "@/common/types";
 import { ContentHome } from "./containers/content-home";
-import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import "../../ant-global-scoped.less";
 import "../../ant-content.less";
 import "react-virtualized/styles.css";
@@ -30,15 +29,16 @@ import {
 } from "@/common/feature/video/utils";
 import * as Parse from "parse";
 import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
-import "@/extension/background/common/provider";
+import "./provider";
 import { storeInitPromise } from "@/extension/background/common/store";
+import { PassthroughProvider } from "@/common/providers/passthrough-provider";
 
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
-); // Object.values(videoSourceToProcessorMap);
+);
 
 const providerMap = {
-  [ProviderType.Parse]: ParseProvider,
+  [ProviderType.Parse]: PassthroughProvider,
 };
 
 const createEditorPortalElement = () => {
@@ -163,6 +163,7 @@ const initialize = async () => {
   );
 
   // Initialize a content copy of the provider
+  // This is necessary to introduce introduce the right amount of delay before rendering the content
   window.backendProvider = await new Promise((resolve) => {
     chrome.runtime.sendMessage(
       { type: ChromeMessageType.GetProviderType },

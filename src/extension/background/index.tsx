@@ -14,6 +14,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "./common/provider";
 import { storeInitPromise } from "./common/store";
+import { performBackendProviderRequest } from "@/common/providers/provider-utils";
 
 // Clear reduxed
 chrome.runtime.onStartup.addListener(() => {
@@ -44,6 +45,7 @@ const BackgroundPage = ({ children }: { children?: ReactNode }) => {
   }, []);
   return <>{children}</>;
 };
+
 storeInitPromise.then(({ store }) => {
   document.addEventListener("DOMContentLoaded", function () {
     const Wrapper = window.backendProvider.wrapper;
@@ -98,6 +100,11 @@ storeInitPromise.then(({ store }) => {
             response.error = error;
             sendResponse(response);
           });
+        return true;
+      } else if (request.type === ChromeMessageType.ProviderRequest) {
+        performBackendProviderRequest(request.payload).then((response) => {
+          sendResponse(response);
+        });
         return true;
       }
     }
