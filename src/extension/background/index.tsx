@@ -15,6 +15,14 @@ import "firebase/auth";
 import "./common/provider";
 import { storeInitPromise } from "./common/store";
 
+// Clear reduxed
+chrome.runtime.onStartup.addListener(() => {
+  console.log("Extension started");
+  chrome.storage.local.remove("reduxed", () => {
+    console.log("Cleared reduxed");
+  });
+});
+
 window.skipAutoLogin = false;
 // Firebase for auth
 initFirebase();
