@@ -126,4 +126,5 @@ Translations:
 
 - Arabic: Adnamie
 - French: Adnamie
+- Japanese: rama_onehalf
 - Persian: Pikhosh
