@@ -27,6 +27,16 @@ export const isFirefoxExtension = () => {
   return location.protocol === "moz-extension:";
 };
 
+export const isFirefoxContentScript = () => {
+  if (isFirefoxExtension()) {
+    return false;
+  }
+  if (isInBackgroundScript()) {
+    return false;
+  }
+  return navigator && navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+};
+
 export const isClient = () => {
   return typeof window !== "undefined";
 };
