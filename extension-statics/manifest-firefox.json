@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "NekoCap",
   "description": "__MSG_extShortDescription__",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "default_locale": "en",
   "browser_action": {
     "default_icon": "icon16.png",
