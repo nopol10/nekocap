@@ -1,4 +1,4 @@
-import { isClient, isInBackgroundScript } from "../client-utils";
+import { isClient, isInBackgroundScript, isInExtension } from "../client-utils";
 import { BackendProvider } from "../providers/backend-provider";
 import { ParseProvider } from "../providers/parse/parse-provider";
 
@@ -10,7 +10,7 @@ export const Locator = {
   provider(): BackendProvider<RootState> {
     if (isClient()) {
       if (!window.backendProvider) {
-        if (isInBackgroundScript()) {
+        if (isInBackgroundScript() || !isInExtension()) {
           window.backendProvider = new ParseProvider(Parse);
         } else {
           window.backendProvider = new PassthroughProvider();
