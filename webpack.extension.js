@@ -153,7 +153,7 @@ module.exports = (env, argv, customEnv = {}) => {
         // The server at this port will not be used by the extension
         port: 12345,
         watchContentBase: true,
-        hot: true,
+        hot: false,
         writeToDisk: true,
         headers: {
           "Access-Control-Allow-Origin": "*",
