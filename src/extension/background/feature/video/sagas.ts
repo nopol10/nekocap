@@ -194,6 +194,23 @@ async function storeRawCaption(
       }
       globalThis.backgroundRawCaption[tabId] = rawCaption;
     }
+    // In MV3, this can only run in the popup page. When that happens,
+    // we need to send the raw caption to the content script
+    await new Promise<void>((resolve) => {
+      globalThis.chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: ChromeMessageType.RawCaption,
+          payload: {
+            isEditor,
+            rawCaption,
+          },
+        },
+        () => {
+          resolve();
+        }
+      );
+    });
   }
   if (isEditor) {
     globalThis.editorRawCaption = rawCaption;
