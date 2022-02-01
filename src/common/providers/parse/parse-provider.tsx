@@ -178,7 +178,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     // @ts-ignore
     this.Parse.serverURL = parseUrl || "http://localhost:4041/parse";
     if (isClient()) {
-      window.Parse = this.Parse;
+      globalThis.Parse = this.Parse;
     }
   }
 

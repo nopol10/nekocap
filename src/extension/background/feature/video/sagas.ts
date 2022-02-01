@@ -184,21 +184,21 @@ async function storeRawCaption(
 ): Promise<void> {
   if (isInBackgroundScript()) {
     if (isEditor) {
-      if (!window.backgroundEditorRawCaption) {
-        window.backgroundEditorRawCaption = {};
+      if (!globalThis.backgroundEditorRawCaption) {
+        globalThis.backgroundEditorRawCaption = {};
       }
-      window.backgroundEditorRawCaption[tabId] = rawCaption;
+      globalThis.backgroundEditorRawCaption[tabId] = rawCaption;
     } else {
-      if (!window.backgroundRawCaption) {
-        window.backgroundRawCaption = {};
+      if (!globalThis.backgroundRawCaption) {
+        globalThis.backgroundRawCaption = {};
       }
-      window.backgroundRawCaption[tabId] = rawCaption;
+      globalThis.backgroundRawCaption[tabId] = rawCaption;
     }
   }
   if (isEditor) {
-    window.editorRawCaption = rawCaption;
+    globalThis.editorRawCaption = rawCaption;
   } else {
-    window.rawCaption = rawCaption;
+    globalThis.rawCaption = rawCaption;
   }
   return Promise.resolve();
 }

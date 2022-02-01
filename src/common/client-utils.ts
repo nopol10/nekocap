@@ -3,8 +3,8 @@ export const isInExtension = () => {
     return false;
   }
   return !!(
-    (window.chrome && window.chrome.runtime && window.chrome.runtime.id) ||
-    window.isInExtension ||
+    isInServiceWorker() ||
+    globalThis.isInExtension ||
     (globalThis.chrome &&
       globalThis.chrome.runtime &&
       globalThis.chrome.runtime.id) ||
@@ -14,13 +14,16 @@ export const isInExtension = () => {
 
 export const isInBackgroundScript = () => {
   if (
-    !window.chrome ||
-    !window.chrome.extension ||
-    !window.chrome.extension.getBackgroundPage
+    !globalThis.chrome ||
+    !globalThis.chrome.extension ||
+    !globalThis.chrome.extension.getBackgroundPage
   ) {
     return false;
   }
-  return window.chrome.extension.getBackgroundPage() === window;
+  return (
+    globalThis.isPopupScript ||
+    globalThis.chrome.extension.getBackgroundPage() === window
+  );
 };
 
 export const isFirefoxExtension = () => {

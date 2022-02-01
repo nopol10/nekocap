@@ -6,6 +6,7 @@ import {
 export async function performBackendProviderRequest(
   request: BackendProviderRequest
 ): Promise<any> {
+  const window = globalThis;
   if (request.type === BackendProviderRequestTypes.Login) {
     return window.backendProvider.login(request.method, request.options);
   } else if (request.type === BackendProviderRequestTypes.Logout) {

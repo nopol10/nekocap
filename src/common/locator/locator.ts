@@ -11,14 +11,14 @@ export const Locator = {
     if (isClient()) {
       if (!window.backendProvider) {
         if (isInBackgroundScript() || !isInExtension()) {
-          window.backendProvider = new ParseProvider(Parse);
+          globalThis.backendProvider = new ParseProvider(Parse);
         } else {
           window.backendProvider = new PassthroughProvider();
         }
       }
-      return window.backendProvider;
+      return globalThis.backendProvider;
     } else {
-      return global.backendProvider;
+      return globalThis.backendProvider;
     }
   },
 };
