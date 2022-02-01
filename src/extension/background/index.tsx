@@ -76,14 +76,16 @@ async function initStore() {
 
 // Firebase for auth
 initFirebase();
-initStore().then(({ store }) => {
-  firebase.auth().onAuthStateChanged((user) => {
-    console.log("Firebase state changed");
-    if (user && user.uid && !globalThis.skipAutoLogin) {
-      store.dispatch(autoLogin.request());
-    }
+if (isInServiceWorker()) {
+  initStore().then(({ store }) => {
+    firebase.auth().onAuthStateChanged((user) => {
+      console.log("Firebase state changed");
+      if (user && user.uid && !globalThis.skipAutoLogin) {
+        store.dispatch(autoLogin.request());
+      }
+    });
   });
-});
+}
 // const BackgroundPage = ({ children }: { children?: ReactNode }) => {
 //   const dispatch = useDispatch();
 //   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
