@@ -68,7 +68,7 @@ export const syncWindowVarsToPopup = async (tabId: number) => {
  */
 export const getImageLink = (imageName: string | { src: string }): string => {
   if (isInExtension()) {
-    return chrome.extension.getURL(`${imageName}`);
+    return chrome.runtime.getURL(`${imageName}`);
   }
   return (imageName as { src: string }).src;
 };
