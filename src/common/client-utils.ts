@@ -42,7 +42,14 @@ export const isClient = () => {
 };
 
 export const isServer = () => {
+  if (isInServiceWorker()) {
+    return false;
+  }
   return typeof window === "undefined";
+};
+
+export const isInServiceWorker = () => {
+  return globalThis.constructor?.name.indexOf("ServiceWorker") >= 0;
 };
 
 export const getNekoCapWebsiteUrl = () => {
