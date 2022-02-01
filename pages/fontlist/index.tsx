@@ -1,6 +1,5 @@
 import Head from "next/head";
 import React from "react";
-import { batch } from "react-redux";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
@@ -40,10 +39,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps((store) => async ({ locale }) => {
     try {
       const fontList = await loadFontListApi();
-
-      batch(() => {
-        store.dispatch(setFontList({ list: fontList }));
-      });
+      store.dispatch(setFontList({ list: fontList }));
     } catch (e) {
       console.error("Error during font list page generation", e);
     }
