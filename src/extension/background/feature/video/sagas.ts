@@ -101,6 +101,7 @@ function* updateLoadedCaptionFromFileSaga({
     loadedByUser: true,
     videoId,
     videoSource,
+    modifiedTime: Date.now(),
   };
 
   yield put([
