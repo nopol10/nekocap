@@ -58,6 +58,9 @@ function* autoLoginRequestSaga() {
       },
     }
   );
+  if (status === "deferred") {
+    return;
+  }
   yield put(loginSuccess(userData));
 }
 
@@ -67,6 +70,9 @@ function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
     LoginMethod.Google,
     { background: payload.background }
   );
+  if (status === "deferred") {
+    return;
+  }
   if (status === "error") {
     yield put(loginWithGoogle.failure());
     return;
@@ -128,6 +134,9 @@ function* webAutoLoginRequestSaga() {
       },
     }
   );
+  if (status === "deferred") {
+    return;
+  }
   yield put(webLoginSuccess(userData));
 }
 
@@ -140,6 +149,9 @@ function* webLoginWithGoogleRequestSaga({
     LoginMethod.Google,
     { background }
   );
+  if (status === "deferred") {
+    return;
+  }
   // Retrieve data
   yield put(webLoginSuccess(userData));
 }

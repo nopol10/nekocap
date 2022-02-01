@@ -59,7 +59,12 @@ import type {
   PublicProfileResponse,
   BrowseResponse,
 } from "./types";
-import { isClient, isFirefoxExtension, isServer } from "@/common/client-utils";
+import {
+  isClient,
+  isFirefoxExtension,
+  isInExtension,
+  isServer,
+} from "@/common/client-utils";
 import {
   BrowseRequest,
   BrowseResults,
@@ -69,6 +74,8 @@ import {
   GetAutoCaptionListResponse,
   GetAutoCaptionListResult,
 } from "@/common/feature/caption-editor/types";
+import { initXMLHttpRequestShim } from "@/libs/xmlhttprequest-shim";
+import { ChromeStorageController } from "./chrome-storage-controller";
 
 //#region
 const loginWithGoogle = async (
@@ -93,13 +100,16 @@ const loginWithGoogle = async (
     const idToken = responseUrl.split("id_token=")[1].split("&")[0];
     const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
     await firebase.auth().signInWithCredential(credential);
+  } else if (isInExtension()) {
+    // Redirect user to NekoCap's login webpage
+    window.open(process.env.NEXT_PUBLIC_WEBSITE_URL + "sign-in-ext", "_blank");
+    return { status: "deferred" };
   } else {
     const provider = new firebase.auth.GoogleAuthProvider();
     await firebase.auth().signInWithPopup(provider);
   }
   const user = firebase.auth().currentUser;
   const idToken = await user.getIdToken();
-  user.displayName;
   if (!idToken) {
     return { status: "error" };
   }
@@ -108,7 +118,6 @@ const loginWithGoogle = async (
     username: user.displayName,
     idToken,
   };
-  userData.idToken = idToken;
 
   return { idToken, userData, status: "success" };
 };
@@ -116,24 +125,6 @@ const loginWithGoogle = async (
 //#endregion
 
 //#region Auth Providers
-const googleProvider: ParseTypeImport.AuthProvider = {
-  authenticate() {
-    /* no-content */
-  },
-
-  restoreAuthentication() {
-    return true;
-  },
-
-  getAuthType() {
-    return "google";
-  },
-
-  deauthenticate() {
-    /* no-content */
-  },
-};
-
 const firebaseProvider: Parse.AuthProvider = {
   authenticate() {
     /* no-content */
@@ -180,6 +171,14 @@ export class ParseProvider implements BackendProvider<ParseState> {
     if (isClient()) {
       globalThis.Parse = this.Parse;
     }
+    if (isInExtension()) {
+      // @ts-ignore
+      this.Parse.CoreManager.setStorageController(ChromeStorageController());
+    }
+    // @ts-ignore
+    const controller = this.Parse.CoreManager.getRESTController();
+    initXMLHttpRequestShim();
+    controller._setXHR(XMLHttpRequest);
   }
 
   getSelectors() {
@@ -222,23 +221,39 @@ export class ParseProvider implements BackendProvider<ParseState> {
     method: LoginMethod,
     options?: LoginOptions
   ): Promise<LoginResponse> {
-    // TODO: Temporary measure, log the user out before logging in to bypass the invalid session token issue on parse
-    await this.logout({
-      logoutFromAuthServer: options ? !options.background : true,
-    });
     const { background = false, userData: presetUserData } = options || {};
+    const currentUser = await this.Parse.User.currentAsync();
+    // Check if a user exists and has a valid session token
+    if (currentUser && options?.userData) {
+      const dummyQuery = new this.Parse.Query("captions").limit(0);
+      try {
+        await dummyQuery.find();
+        // The user exists, no need to do anything
+        presetUserData.sessionToken = currentUser.getSessionToken();
+        presetUserData.isNewUser = !currentUser.existed();
+        return { status: "success", userData: presetUserData };
+      } catch (e) {
+        console.warn("Encountered error when making dummy query:", e);
+      }
+      await this.logout({
+        logoutFromAuthServer: options ? !options.background : true,
+      });
+    }
     let responseStatus: ResponseStatus;
     let userData: UserData = presetUserData;
     let authData: ParseTypeImport.AuthData = {};
     if (!userData) {
       if (method === LoginMethod.Google) {
         if (isClient()) {
-          window.skipAutoLogin = true;
+          globalThis.skipAutoLogin = true;
         }
         const loginResponse = await loginWithGoogle(
           background,
           this.googleOauthClientId
         );
+        if (loginResponse.status === "deferred") {
+          return { status: "deferred" };
+        }
         responseStatus = loginResponse.status;
         userData = loginResponse.userData;
         authData = {
@@ -256,15 +271,17 @@ export class ParseProvider implements BackendProvider<ParseState> {
         access_token: userData.idToken,
       };
     }
+    userData = await this.completeDeferredLogin(method, userData, authData);
 
-    const storedData: { login: LoginStorage } | undefined = undefined;
+    return { status: responseStatus, userData };
+  }
 
-    let loginOpts: ParseTypeImport.FullOptions = undefined;
-    if (storedData && storedData.login && storedData.login.sessionToken) {
-      loginOpts = {
-        sessionToken: storedData.login.sessionToken,
-      };
-    }
+  async completeDeferredLogin(
+    method: LoginMethod,
+    userData: UserData,
+    authData: ParseTypeImport.AuthData
+  ) {
+    const loginOpts: ParseTypeImport.FullOptions = undefined;
     let authProvider;
     switch (method) {
       case LoginMethod.Google:
@@ -284,8 +301,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     if (userData.isNewUser) {
       parseUser = await parseUser.save();
     }
-
-    return { status: responseStatus, userData };
+    return userData;
   }
 
   async logout(options?: LogoutOptions) {

@@ -50,6 +50,7 @@ import {
 
 export enum BackendProviderRequestTypes {
   Login,
+  CompleteDeferredLogin,
   Logout,
   LoadCaptions,
   LoadUserCaptions,
@@ -82,6 +83,14 @@ export type BackendProviderRequest =
       type: BackendProviderRequestTypes.Login;
       method: LoginMethod;
       options?: LoginOptions;
+    }
+  | {
+      type: BackendProviderRequestTypes.CompleteDeferredLogin;
+      options: {
+        method: LoginMethod;
+        userData: UserData;
+        authData: Record<string, string>;
+      };
     }
   | {
       type: BackendProviderRequestTypes.Logout;
@@ -230,6 +239,16 @@ export class PassthroughProvider implements BackendProvider<RootState> {
       type: BackendProviderRequestTypes.Login,
       method,
       options,
+    });
+  }
+  async completeDeferredLogin(
+    method: LoginMethod,
+    userData: UserData,
+    authData: Record<string, string>
+  ): Promise<UserData> {
+    return sendBackgroundProviderRequest({
+      type: BackendProviderRequestTypes.CompleteDeferredLogin,
+      options: { method, userData, authData },
     });
   }
 

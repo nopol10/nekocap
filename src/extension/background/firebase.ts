@@ -1,11 +1,19 @@
-import { isClient, isInExtension } from "@/common/client-utils";
+import {
+  isClient,
+  isInExtension,
+  isInServiceWorker,
+} from "@/common/client-utils";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 
 export const initFirebase = () => {
+  if (firebase.apps.length > 0) {
+    return;
+  }
   if (
     (isClient() && !isInExtension() && !firebase.apps.length) ||
-    (isClient() && isInExtension())
+    (isClient() && isInExtension()) ||
+    isInServiceWorker()
   ) {
     const firebaseConfig = {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
