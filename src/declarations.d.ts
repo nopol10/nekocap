@@ -14,6 +14,7 @@ declare global {
     pageType: PageType;
     skipAutoLogin: boolean;
     isInExtension: boolean;
+    isPopupScript: boolean;
     videoId: string;
     videoSource: VideoSource;
     videoName: string;

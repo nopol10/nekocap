@@ -14,6 +14,7 @@ import "@/extension/popup/common/styles/index.scss";
 import "@/extension/background/common/provider";
 import { PopupProvider } from "../common/popup-context";
 import { storeInitPromise } from "@/extension/background/common/store";
+window.isPopupScript = true;
 
 chrome.runtime.onMessage.addListener(
   (request: ChromeMessage, sender, sendResponse) => {
