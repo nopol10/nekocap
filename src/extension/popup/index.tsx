@@ -8,7 +8,7 @@ import { appHistory } from "./common/store";
 import "../../ant.less";
 import { syncWindowVarsToPopup } from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
-import "@/extension/background/common/provider";
+import "@/extension/content/provider";
 import { PopupProvider } from "../common/popup-context";
 import { storeInitPromise } from "@/extension/background/common/store";
 import { initFirebase } from "../background/firebase";

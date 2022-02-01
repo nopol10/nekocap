@@ -63,6 +63,7 @@ import {
   isClient,
   isFirefoxExtension,
   isInExtension,
+  isInServiceWorker,
   isServer,
 } from "@/common/client-utils";
 import {
@@ -102,7 +103,12 @@ const loginWithGoogle = async (
     await firebase.auth().signInWithCredential(credential);
   } else if (isInExtension()) {
     // Redirect user to NekoCap's login webpage
-    window.open(process.env.NEXT_PUBLIC_WEBSITE_URL + "sign-in-ext", "_blank");
+    const loginUrl = process.env.NEXT_PUBLIC_WEBSITE_URL + "sign-in-ext";
+    if (isInServiceWorker()) {
+      chrome.tabs.create({ url: loginUrl });
+    } else {
+      window.open(loginUrl, "_blank");
+    }
     return { status: "deferred" };
   } else {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -177,8 +183,10 @@ export class ParseProvider implements BackendProvider<ParseState> {
     }
     // @ts-ignore
     const controller = this.Parse.CoreManager.getRESTController();
-    initXMLHttpRequestShim();
-    controller._setXHR(XMLHttpRequest);
+    if (!isServer()) {
+      initXMLHttpRequestShim();
+      controller._setXHR(XMLHttpRequest);
+    }
   }
 
   getSelectors() {
