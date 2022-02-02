@@ -1,5 +1,5 @@
-import { createWrapper, HYDRATE } from "next-redux-wrapper";
-import { configureStore, createAction } from "@reduxjs/toolkit";
+import { createWrapper } from "next-redux-wrapper";
+import { configureStore } from "@reduxjs/toolkit";
 import { createRootReducer } from "@/extension/background/common/reducer";
 import { reduxBatch } from "@manaflair/redux-batch";
 import logger from "redux-logger";
@@ -20,6 +20,7 @@ const makeStore = () => {
       sagaMiddleware,
       isServer() || process.env.NODE_ENV == "production" ? undefined : logger,
     ].filter(Boolean),
+    // @ts-ignore
     enhancers: [reduxBatch],
   });
 
