@@ -18,7 +18,6 @@ import {
   UserData,
 } from "../backend-provider";
 import { RootState } from "../../store/types";
-import { LoginStorage } from "../../feature/login/types";
 import type * as ParseTypeImport from "parse";
 import {
   ProviderType,
@@ -47,9 +46,7 @@ import {
   ReviewActionDetails,
 } from "../../feature/caption-review/types";
 import { SearchRequest, VideoSearchResults } from "../../feature/search/types";
-import * as firebase from "firebase/app";
 import nodefetch from "node-fetch";
-import "firebase/auth";
 
 import { convertBlobToBase64 } from "../../utils";
 import type {
@@ -77,6 +74,14 @@ import {
 } from "@/common/feature/caption-editor/types";
 import { initXMLHttpRequestShim } from "@/libs/xmlhttprequest-shim";
 import { ChromeStorageController } from "./chrome-storage-controller";
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+  signInWithPopup,
+  signOut,
+  User as FirebaseUser,
+} from "firebase/auth";
+import { routeNames } from "@/web/feature/route-types";
 
 //#region
 const loginWithGoogle = async (
@@ -99,11 +104,12 @@ const loginWithGoogle = async (
     });
     // Parse the response url for the id token
     const idToken = responseUrl.split("id_token=")[1].split("&")[0];
-    const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
-    await firebase.auth().signInWithCredential(credential);
+    const credential = GoogleAuthProvider.credential(idToken);
+    await signInWithCredential(globalThis.firebaseAuth, credential);
   } else if (isInExtension()) {
     // Redirect user to NekoCap's login webpage
-    const loginUrl = process.env.NEXT_PUBLIC_WEBSITE_URL + "sign-in-ext";
+    const loginUrl =
+      process.env.NEXT_PUBLIC_WEBSITE_URL + routeNames.extensionSignIn.slice(1);
     if (isInServiceWorker()) {
       chrome.tabs.create({ url: loginUrl });
     } else {
@@ -111,10 +117,10 @@ const loginWithGoogle = async (
     }
     return { status: "deferred" };
   } else {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await firebase.auth().signInWithPopup(provider);
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(globalThis.firebaseAuth, provider);
   }
-  const user = firebase.auth().currentUser;
+  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
   const idToken = await user.getIdToken();
   if (!idToken) {
     return { status: "error" };
@@ -288,7 +294,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     method: LoginMethod,
     userData: UserData,
     authData: ParseTypeImport.AuthData
-  ) {
+  ): Promise<UserData> {
     const loginOpts: ParseTypeImport.FullOptions = undefined;
     let authProvider;
     switch (method) {
@@ -315,7 +321,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async logout(options?: LogoutOptions) {
     await this.Parse.User.logOut();
     if (!options || options.logoutFromAuthServer !== false) {
-      await firebase.auth().signOut();
+      await signOut(globalThis.firebaseAuth);
     }
   }
 

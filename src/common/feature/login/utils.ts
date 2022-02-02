@@ -1,6 +1,5 @@
-import * as firebase from "firebase/app";
-import "firebase/auth";
+import { signOut } from "firebase/auth";
 
 export const webGoogleLogout = async (): Promise<void> => {
-  await firebase.auth().signOut();
+  await signOut(globalThis.firebaseAuth);
 };

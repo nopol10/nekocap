@@ -1,3 +1,5 @@
+import type { FirebaseApp } from "firebase/app";
+import type { Auth } from "firebase/auth";
 import { Action } from "redux";
 import { PutEffect } from "redux-saga/effects";
 import {
@@ -28,6 +30,8 @@ declare global {
     editorRawCaption: RawCaptionData | null;
     backgroundRawCaption: { [id: string]: RawCaptionData } | null;
     backgroundEditorRawCaption: { [id: string]: RawCaptionData } | null;
+    firebaseApp: FirebaseApp;
+    firebaseAuth: Auth;
   }
 
   namespace NodeJS {

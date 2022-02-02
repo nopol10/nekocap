@@ -37,7 +37,6 @@ import {
   ReasonedCaptionAction,
 } from "../feature/caption-review/types";
 import { SearchRequest, VideoSearchResults } from "../feature/search/types";
-import "firebase/auth";
 
 import {
   BrowseRequest,

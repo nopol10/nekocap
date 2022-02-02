@@ -8,14 +8,17 @@ import { autoLogin, loginSuccess } from "@/common/feature/login/actions";
 import debounce from "lodash/debounce";
 import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
 import { initFirebase } from "./firebase";
-import * as firebase from "firebase/app";
-import "firebase/auth";
 import "./common/provider";
 import { storeInitPromise } from "./common/store";
 import { performBackendProviderRequest } from "@/common/providers/provider-utils";
-import { LoginMethod } from "@/common/providers/backend-provider";
+import { LoginMethod, UserData } from "@/common/providers/backend-provider";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
 import { isInServiceWorker } from "@/common/client-utils";
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithCredential,
+} from "firebase/auth";
 
 // Clear reduxed
 chrome.runtime.onStartup.addListener(() => {
@@ -26,8 +29,20 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 if (typeof self !== undefined && isInServiceWorker()) {
-  self.addEventListener("activate", (event) => {
+  self.addEventListener("activate", () => {
     console.log("Extension service worker activated");
+  });
+}
+
+// Firebase for auth
+const { auth } = initFirebase();
+if (isInServiceWorker()) {
+  initStore().then(({ store }) => {
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.uid && !globalThis.skipAutoLogin) {
+        store.dispatch(autoLogin.request());
+      }
+    });
   });
 }
 
@@ -41,29 +56,24 @@ chrome.runtime.onMessageExternal.addListener(
         idToken,
         name,
       } = message.payload as FirebaseLoggedInUser;
-      const credential = firebase.auth.GoogleAuthProvider.credential(
-        credentialIdToken
-      );
-      firebase
-        .auth()
-        .signInWithCredential(credential)
-        .then(async () => {
-          const { store } = await storeInitPromise;
-          const userData = await globalThis.backendProvider.completeDeferredLogin(
-            LoginMethod.Google,
-            {
-              id,
-              username: name,
-              idToken: idToken,
-            },
-            {
-              id,
-              access_token: idToken,
-            }
-          );
-          store.dispatch(loginSuccess(userData));
-        });
-      sendResponse();
+      const credential = GoogleAuthProvider.credential(credentialIdToken);
+      signInWithCredential(auth, credential).then(async () => {
+        const { store } = await storeInitPromise;
+        const userData: UserData = await globalThis.backendProvider.completeDeferredLogin(
+          LoginMethod.Google,
+          {
+            id,
+            username: name,
+            idToken: idToken,
+          },
+          {
+            id,
+            access_token: idToken,
+          }
+        );
+        store.dispatch(loginSuccess(userData));
+        sendResponse(userData);
+      });
       return true;
     }
     return false;
@@ -74,18 +84,6 @@ async function initStore() {
   return storeInitPromise;
 }
 
-// Firebase for auth
-initFirebase();
-if (isInServiceWorker()) {
-  initStore().then(({ store }) => {
-    firebase.auth().onAuthStateChanged((user) => {
-      console.log("Firebase state changed");
-      if (user && user.uid && !globalThis.skipAutoLogin) {
-        store.dispatch(autoLogin.request());
-      }
-    });
-  });
-}
 // const BackgroundPage = ({ children }: { children?: ReactNode }) => {
 //   const dispatch = useDispatch();
 //   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login

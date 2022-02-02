@@ -11,7 +11,6 @@ import { NewProfile } from "./profile/containers/new-profile";
 import { webHistory } from "./web-history";
 import { CaptionerProfile } from "./profile/containers/captioner-profile";
 import { BrowseCaptionPage } from "./browse/containers/browse-caption-page";
-import { ViewerPage } from "./viewer/viewer-page";
 
 export const Routes = () => {
   return (

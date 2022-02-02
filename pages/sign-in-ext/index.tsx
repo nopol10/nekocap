@@ -1,6 +1,5 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
-import * as firebase from "firebase/app";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
@@ -12,40 +11,62 @@ import Title from "antd/lib/typography/Title";
 import Text from "antd/lib/typography/Text";
 import { ChromeExternalMessageType } from "@/common/types";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
+import {
+  getRedirectResult,
+  GoogleAuthProvider,
+  signInWithRedirect,
+} from "firebase/auth";
+import type { UserData } from "@/common/providers/backend-provider";
+import { useSelector } from "react-redux";
+import { profileSelector } from "@/common/feature/profile/selectors";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 
 const TRANSLATION_NAMESPACES = ["common"];
+
+enum LoginState {
+  Redirecting,
+  Authed, // Authed with provider (google) but not with our backend
+  Completed,
+}
 
 export default function ExtensionSignInPage(): JSX.Element {
   const metaTitle = "NekoCap - Extension Sign In";
   const metaDescription = STRING_CONSTANTS.metaDescription;
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loginState, setLogInState] = useState<LoginState>(
+    LoginState.Redirecting
+  );
+  const [isNewParseUser, setIsNewParseUser] = useState(false);
+  const captionerData = useSelector(captionerSelector);
 
   useEffect(() => {
     (async () => {
-      initFirebase();
+      const { auth } = initFirebase();
       try {
-        const authResult = await firebase.auth().getRedirectResult();
+        const authResult = await getRedirectResult(auth);
         if (authResult && authResult.user) {
-          const idToken = await firebase.auth().currentUser.getIdToken();
+          setLogInState(LoginState.Authed);
+          const idToken = await auth.currentUser.getIdToken();
           const loggedInUserData: FirebaseLoggedInUser = {
             id: authResult.user.uid,
             credentialIdToken:
               // @ts-ignore
-              authResult.credential.idToken ||
+              authResult._tokenResponse?.oauthIdToken ||
               // @ts-ignore
-              authResult.credential.oauthIdToken,
+              authResult.credential?.idToken ||
+              // @ts-ignore
+              authResult.credential?.oauthIdToken,
             idToken,
             name: authResult.user.displayName,
           };
-          setLoggedIn(true);
           chrome.runtime.sendMessage(
             process.env.NEXT_PUBLIC_EXTENSION_ID,
             {
               type: ChromeExternalMessageType.GoogleAuthCredentials,
               payload: loggedInUserData,
             },
-            (response) => {
-              console.log("Response", response);
+            (response: UserData) => {
+              setLogInState(LoginState.Completed);
+              setIsNewParseUser(!!response.isNewUser);
             }
           );
           return;
@@ -54,10 +75,31 @@ export default function ExtensionSignInPage(): JSX.Element {
         console.log("Error getting auth result", error);
       }
 
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithRedirect(provider);
+      const provider = new GoogleAuthProvider();
+      signInWithRedirect(auth, provider);
     })();
   }, []);
+  const needsProfileSetup = isNewParseUser || !captionerData?.captioner?.name;
+
+  let title = "",
+    description = "";
+  switch (loginState) {
+    case LoginState.Authed:
+      title = "Logging in...";
+      description = "Please wait...";
+      break;
+    case LoginState.Completed:
+      title = "Sign in complete";
+      description = needsProfileSetup
+        ? "Before you proceed, open the extension again to fill in your profile! You can close this page afterwards."
+        : "You can close this page now.";
+      break;
+    case LoginState.Redirecting:
+    default:
+      title = "Redirecting to sign-in page";
+      description = "Please wait...";
+      break;
+  }
 
   return (
     <>
@@ -71,7 +113,7 @@ export default function ExtensionSignInPage(): JSX.Element {
           <meta name="twitter:site" content="@NekoCaption"></meta>
         </>
       </Head>
-      {loggedIn && (
+      {
         <Main>
           <div
             style={{
@@ -80,11 +122,11 @@ export default function ExtensionSignInPage(): JSX.Element {
               overflowX: "hidden",
             }}
           >
-            <Title>Sign in complete</Title>
-            <Text>You can close this page now</Text>
+            <Title>{title}</Title>
+            <Text>{description}</Text>
           </div>
         </Main>
-      )}
+      }
     </>
   );
 }
