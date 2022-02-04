@@ -8,7 +8,6 @@ import {
   setReviewData,
   verifyCaption,
 } from "./actions";
-import { CaptionContainer } from "../video/types";
 import {
   LoadCaptionForReviewResult,
   ReasonedCaptionAction,

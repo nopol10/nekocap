@@ -1,56 +1,111 @@
-import React, { ReactNode, useEffect, useRef } from "react";
-import { wrapStore } from "webext-redux";
-
-import { Provider, useDispatch } from "react-redux";
-import ReactDOM from "react-dom";
 import {
   BackgroundRequest,
+  ChromeExternalMessageType,
   ChromeMessage,
   ChromeMessageType,
 } from "@/common/types";
-import { autoLogin } from "@/common/feature/login/actions";
+import { autoLogin, loginSuccess } from "@/common/feature/login/actions";
 import debounce from "lodash/debounce";
 import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
 import { initFirebase } from "./firebase";
-import * as firebase from "firebase/app";
-import "firebase/auth";
 import "./common/provider";
-import { store } from "./common/store";
+import { storeInitPromise } from "./common/store";
+import { performBackendProviderRequest } from "@/common/providers/provider-utils";
+import { LoginMethod, UserData } from "@/common/providers/backend-provider";
+import { FirebaseLoggedInUser } from "@/common/feature/login/types";
+import { isInServiceWorker } from "@/common/client-utils";
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithCredential,
+} from "firebase/auth";
 
-window.skipAutoLogin = false;
+// Clear reduxed
+chrome.runtime.onStartup.addListener(() => {
+  console.log("Extension started");
+  chrome.storage.local.remove("reduxed", () => {
+    console.log("Cleared reduxed");
+  });
+});
+
+if (typeof self !== undefined && isInServiceWorker()) {
+  self.addEventListener("activate", () => {
+    console.log("Extension service worker activated");
+  });
+}
+
 // Firebase for auth
-initFirebase();
-wrapStore(store);
-
-const BackgroundPage = ({ children }: { children?: ReactNode }) => {
-  const dispatch = useDispatch();
-  // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
-  const autoLoggedIn = useRef<boolean>(false);
-  useEffect(() => {
-    // Perform auto login if a user exists
-    // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
-    // even if the auth process completed before the addition of this callback
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user && user.uid && !autoLoggedIn.current && !window.skipAutoLogin) {
-        autoLoggedIn.current = true;
-        dispatch(autoLogin.request());
+const { auth } = initFirebase();
+if (isInServiceWorker()) {
+  initStore().then(({ store }) => {
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.uid && !globalThis.skipAutoLogin) {
+        store.dispatch(autoLogin.request());
       }
     });
-  }, []);
-  return <>{children}</>;
-};
+  });
+}
 
-document.addEventListener("DOMContentLoaded", function () {
-  const Wrapper = window.backendProvider.wrapper;
-  ReactDOM.render(
-    <Provider store={store}>
-      <Wrapper providerProps={window.backendProvider.getWrapperProps(store)}>
-        <BackgroundPage>NekoCap</BackgroundPage>
-      </Wrapper>
-    </Provider>,
-    document.getElementById("background")
-  );
-});
+chrome.runtime.onMessageExternal.addListener(
+  (message, sender, sendResponse) => {
+    if (message.type === ChromeExternalMessageType.GoogleAuthCredentials) {
+      // Complete the rest of the sign in process
+      const {
+        id,
+        credentialIdToken,
+        idToken,
+        name,
+      } = message.payload as FirebaseLoggedInUser;
+      const credential = GoogleAuthProvider.credential(credentialIdToken);
+      signInWithCredential(auth, credential).then(async () => {
+        const { store } = await storeInitPromise;
+        const userData: UserData = await globalThis.backendProvider.completeDeferredLogin(
+          LoginMethod.Google,
+          {
+            id,
+            username: name,
+            idToken: idToken,
+          },
+          {
+            id,
+            access_token: idToken,
+          }
+        );
+        store.dispatch(loginSuccess(userData));
+        sendResponse(userData);
+      });
+      return true;
+    }
+    return false;
+  }
+);
+
+async function initStore() {
+  return storeInitPromise;
+}
+
+// const BackgroundPage = ({ children }: { children?: ReactNode }) => {
+//   const dispatch = useDispatch();
+//   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
+//   const autoLoggedIn = useRef<boolean>(false);
+//   useEffect(() => {
+//     // Perform auto login if a user exists
+//     // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
+//     // even if the auth process completed before the addition of this callback
+//     firebase.auth().onAuthStateChanged((user) => {
+//       if (
+//         user &&
+//         user.uid &&
+//         !autoLoggedIn.current &&
+//         !globalThis.skipAutoLogin
+//       ) {
+//         autoLoggedIn.current = true;
+//         dispatch(autoLogin.request());
+//       }
+//     });
+//   }, []);
+//   return <>{children}</>;
+// };
 
 async function performBackgroundRequest(options: BackgroundRequest) {
   const { url, method, responseType } = options;
@@ -81,7 +136,7 @@ chrome.runtime.onMessage.addListener(
     if (request.type === ChromeMessageType.GetTabId) {
       sendResponse(sender.tab?.id);
     } else if (request.type === ChromeMessageType.GetProviderType) {
-      sendResponse(window.backendProvider.type());
+      sendResponse(globalThis.backendProvider.type());
     } else if (request.type === ChromeMessageType.Request) {
       const response = { data: null, error: null };
       performBackgroundRequest(request.payload)
@@ -94,17 +149,24 @@ chrome.runtime.onMessage.addListener(
           sendResponse(response);
         });
       return true;
+    } else if (request.type === ChromeMessageType.ProviderRequest) {
+      performBackendProviderRequest(request.payload).then((response) => {
+        sendResponse(response);
+      });
+      return true;
     }
   }
 );
 
-chrome.tabs.onRemoved.addListener((tabId: number, removeInfo) => {
+chrome.tabs.onRemoved.addListener(async (tabId: number) => {
+  const { store } = await initStore();
   store.dispatch(closeTab({ tabId }));
 });
 
 // Youtube fires multiple history update events in quick succession when opening a video.
 // Throttle the updates so that multiple contents scripts will not get added
-const debouncedHistoryUpdateListener = debounce((details) => {
+const debouncedHistoryUpdateListener = debounce(async (details) => {
+  const { store } = await initStore();
   const { tabId, url } = details;
   chrome.tabs.sendMessage(
     tabId,
@@ -150,3 +212,17 @@ const debouncedHistoryUpdateListener = debounce((details) => {
 chrome.webNavigation.onHistoryStateUpdated.addListener(
   debouncedHistoryUpdateListener
 );
+
+// storeInitPromise.then(({ store }) => {
+//   document.addEventListener("DOMContentLoaded", function () {
+//     const Wrapper = window.backendProvider.wrapper;
+//     ReactDOM.render(
+//       <Provider store={store}>
+//         <Wrapper providerProps={window.backendProvider.getWrapperProps(store)}>
+//           <BackgroundPage>NekoCap</BackgroundPage>
+//         </Wrapper>
+//       </Provider>,
+//       document.getElementById("background")
+//     );
+//   });
+// });

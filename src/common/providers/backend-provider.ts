@@ -93,6 +93,11 @@ export interface BackendProvider<T extends RootState> {
     method: LoginMethod,
     options?: LoginOptions
   ) => Promise<LoginResponse>;
+  completeDeferredLogin: (
+    method: LoginMethod,
+    userData: UserData,
+    authData: Record<string, string>
+  ) => Promise<UserData>;
   logout: (options?: LogoutOptions) => Promise<void>;
   // Load the list of captions for a video without the contents
   loadCaptions: (props: {

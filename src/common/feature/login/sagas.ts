@@ -30,17 +30,16 @@ import {
   UserData,
 } from "@/common/providers/backend-provider";
 import { captionerSelector } from "../captioner/selectors";
-import * as firebase from "firebase/app";
-import "firebase/auth";
 import { routeNames } from "@/web/feature/route-types";
 import { webHistory } from "@/web/feature/web-history";
 import { Locator } from "@/common/locator/locator";
+import type { User as FirebaseUser } from "firebase/auth";
 
 function* autoLoginRequestSaga() {
   if (!isInExtension()) {
     return;
   }
-  const user = firebase.auth().currentUser;
+  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
   if (!user) {
     // This saga shouldn't have been run without a user
     return;
@@ -58,6 +57,9 @@ function* autoLoginRequestSaga() {
       },
     }
   );
+  if (status === "deferred") {
+    return;
+  }
   yield put(loginSuccess(userData));
 }
 
@@ -67,6 +69,9 @@ function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
     LoginMethod.Google,
     { background: payload.background }
   );
+  if (status === "deferred") {
+    return;
+  }
   if (status === "error") {
     yield put(loginWithGoogle.failure());
     return;
@@ -110,7 +115,7 @@ function* logoutSuccessSaga() {
 
 // #region Web Login
 function* webAutoLoginRequestSaga() {
-  const user = firebase.auth().currentUser;
+  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
   if (!user) {
     // This saga shouldn't have been run without a user
     return;
@@ -128,6 +133,9 @@ function* webAutoLoginRequestSaga() {
       },
     }
   );
+  if (status === "deferred") {
+    return;
+  }
   yield put(webLoginSuccess(userData));
 }
 
@@ -140,6 +148,9 @@ function* webLoginWithGoogleRequestSaga({
     LoginMethod.Google,
     { background }
   );
+  if (status === "deferred") {
+    return;
+  }
   // Retrieve data
   yield put(webLoginSuccess(userData));
 }
@@ -164,7 +175,11 @@ function* webLoginSuccessSaga({ payload: userData }: PayloadAction<UserData>) {
   yield put(loadPrivateCaptionerData.request({ withCaptions: true }));
   yield take(setCaptionerPrivateData.type);
   const captioner: CaptionerState = yield select(captionerSelector);
-  if (userData.isNewUser || !captioner.captioner?.name) {
+  if (
+    (userData.isNewUser || !captioner.captioner?.name) &&
+    typeof location !== "undefined" &&
+    location.pathname !== routeNames.extensionSignIn
+  ) {
     if (webHistory) {
       yield call([webHistory, "push"], routeNames.profile.new);
     }

@@ -1,11 +1,21 @@
-import { isClient, isInExtension } from "@/common/client-utils";
-import * as firebase from "firebase/app";
-import "firebase/auth";
+import {
+  isClient,
+  isInExtension,
+  isInServiceWorker,
+} from "@/common/client-utils";
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { Auth, getAuth } from "firebase/auth";
 
-export const initFirebase = () => {
+export const initFirebase = (): { auth: Auth; firebaseApp: FirebaseApp } => {
+  const firebaseApps = getApps();
+  if (firebaseApps.length > 0) {
+    const firebaseApp = firebaseApps[0];
+    return { auth: getAuth(firebaseApp), firebaseApp: firebaseApp };
+  }
   if (
-    (isClient() && !isInExtension() && !firebase.apps.length) ||
-    (isClient() && isInExtension())
+    (isClient() && !isInExtension()) ||
+    (isClient() && isInExtension()) ||
+    isInServiceWorker()
   ) {
     const firebaseConfig = {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,7 +27,10 @@ export const initFirebase = () => {
       appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
       measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
     };
-
-    firebase.initializeApp(firebaseConfig);
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth = getAuth(firebaseApp);
+    globalThis.firebaseApp = firebaseApp;
+    globalThis.firebaseAuth = auth;
+    return { auth, firebaseApp };
   }
 };

@@ -1,16 +1,15 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "NekoCap",
   "description": "__MSG_extShortDescription__",
   "version": "0.9.3",
   "default_locale": "en",
-  "browser_action": {
+  "action": {
     "default_icon": "icon16.png",
     "default_popup": "popup.html"
   },
   "background": {
-    "page": "background.html",
-    "persistent": false
+    "service_worker": "js/background.js"
   },
   "content_scripts": [
     {
@@ -25,9 +24,7 @@
         "https://*.twitter.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -41,9 +38,7 @@
         "https://*.twitter.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -51,17 +46,33 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation"
-  ],
+  "permissions": ["storage", "webNavigation"],
   "web_accessible_resources": [
-    "img/*.jpg",
-    "img/*.png",
-    "img/*.gif",
-    "img/*.svg",
-    "sub-assets/*.*",
-    "js/subtitle-octopus/*.*"
+    {
+      "resources": [
+        "img/*.jpg",
+        "img/*.png",
+        "img/*.gif",
+        "img/*.svg",
+        "sub-assets/*.*",
+        "js/subtitle-octopus/*.*"
+      ],
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.tver.jp/*",
+        "https://*.nicovideo.jp/*",
+        "https://*.vimeo.com/*",
+        "https://*.bilibili.com/*",
+        "https://*.netflix.com/*",
+        "https://*.primevideo.com/*",
+        "https://*.twitter.com/*"
+      ]
+    }
   ],
-  "content_security_policy": "script-src 'self' https://*.google.com; object-src 'self'"
+  "externally_connectable": {
+    "matches": ["http://localhost:12341/*", "https://*.nekocap.com/*"]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

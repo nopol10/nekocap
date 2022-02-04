@@ -54,10 +54,10 @@ export const tabEditorRawDataSelector = (tabId: number) => (
   const background = isInBackgroundScript();
   const tabRawData =
     background &&
-    window.backgroundEditorRawCaption &&
-    window.backgroundEditorRawCaption[tabId]
-      ? window.backgroundEditorRawCaption[tabId]
-      : window.editorRawCaption; // state.captionEditor.tabRawData;
+    globalThis.backgroundEditorRawCaption &&
+    globalThis.backgroundEditorRawCaption[tabId]
+      ? globalThis.backgroundEditorRawCaption[tabId]
+      : globalThis.editorRawCaption; // state.captionEditor.tabRawData;
   // if (!tabRawData || !tabRawData[tabId]) {
   if (!tabRawData) {
     return undefined;

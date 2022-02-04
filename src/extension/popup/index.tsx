@@ -3,30 +3,27 @@ import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { Switch, Router } from "react-router-dom";
 import LoginRoutes from "./feature/login/containers/routes";
-import { Store } from "webext-redux";
 import { ChromeMessage, ChromeMessageType } from "@/common/types";
 import { appHistory } from "./common/store";
 import "../../ant.less";
-import {
-  requestBackgroundPageVariable,
-  syncWindowVarsToPopup,
-} from "@/common/chrome-utils";
+import { syncWindowVarsToPopup } from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
+import "@/extension/content/provider";
 import { PopupProvider } from "../common/popup-context";
+import { storeInitPromise } from "@/extension/background/common/store";
+import { initFirebase } from "../background/firebase";
+window.isPopupScript = true;
 
-chrome.runtime.onMessage.addListener(
-  (request: ChromeMessage, sender, sendResponse) => {
-    if (request.type === ChromeMessageType.Route) {
-      appHistory.push(request.payload);
-    }
+initFirebase();
+
+chrome.runtime.onMessage.addListener((request: ChromeMessage) => {
+  if (request.type === ChromeMessageType.Route) {
+    appHistory.push(request.payload);
   }
-);
+});
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
-  const store = new Store();
-
-  store.ready().then(async () => {
-    await requestBackgroundPageVariable(["backendProvider"]);
+  storeInitPromise.then(async ({ store }) => {
     await syncWindowVarsToPopup(tab[0].id);
     ReactDOM.render(
       <Provider store={store}>

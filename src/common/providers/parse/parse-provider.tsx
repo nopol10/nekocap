@@ -18,7 +18,6 @@ import {
   UserData,
 } from "../backend-provider";
 import { RootState } from "../../store/types";
-import { LoginStorage } from "../../feature/login/types";
 import type * as ParseTypeImport from "parse";
 import {
   ProviderType,
@@ -47,9 +46,7 @@ import {
   ReviewActionDetails,
 } from "../../feature/caption-review/types";
 import { SearchRequest, VideoSearchResults } from "../../feature/search/types";
-import * as firebase from "firebase/app";
 import nodefetch from "node-fetch";
-import "firebase/auth";
 
 import { convertBlobToBase64 } from "../../utils";
 import type {
@@ -59,7 +56,13 @@ import type {
   PublicProfileResponse,
   BrowseResponse,
 } from "./types";
-import { isClient, isFirefoxExtension, isServer } from "@/common/client-utils";
+import {
+  isClient,
+  isFirefoxExtension,
+  isInExtension,
+  isInServiceWorker,
+  isServer,
+} from "@/common/client-utils";
 import {
   BrowseRequest,
   BrowseResults,
@@ -69,6 +72,16 @@ import {
   GetAutoCaptionListResponse,
   GetAutoCaptionListResult,
 } from "@/common/feature/caption-editor/types";
+import { initXMLHttpRequestShim } from "@/libs/xmlhttprequest-shim";
+import { ChromeStorageController } from "./chrome-storage-controller";
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+  signInWithPopup,
+  signOut,
+  User as FirebaseUser,
+} from "firebase/auth";
+import { routeNames } from "@/web/feature/route-types";
 
 //#region
 const loginWithGoogle = async (
@@ -91,15 +104,24 @@ const loginWithGoogle = async (
     });
     // Parse the response url for the id token
     const idToken = responseUrl.split("id_token=")[1].split("&")[0];
-    const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
-    await firebase.auth().signInWithCredential(credential);
+    const credential = GoogleAuthProvider.credential(idToken);
+    await signInWithCredential(globalThis.firebaseAuth, credential);
+  } else if (isInExtension()) {
+    // Redirect user to NekoCap's login webpage
+    const loginUrl =
+      process.env.NEXT_PUBLIC_WEBSITE_URL + routeNames.extensionSignIn.slice(1);
+    if (isInServiceWorker()) {
+      chrome.tabs.create({ url: loginUrl });
+    } else {
+      window.open(loginUrl, "_blank");
+    }
+    return { status: "deferred" };
   } else {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await firebase.auth().signInWithPopup(provider);
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(globalThis.firebaseAuth, provider);
   }
-  const user = firebase.auth().currentUser;
+  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
   const idToken = await user.getIdToken();
-  user.displayName;
   if (!idToken) {
     return { status: "error" };
   }
@@ -108,7 +130,6 @@ const loginWithGoogle = async (
     username: user.displayName,
     idToken,
   };
-  userData.idToken = idToken;
 
   return { idToken, userData, status: "success" };
 };
@@ -116,24 +137,6 @@ const loginWithGoogle = async (
 //#endregion
 
 //#region Auth Providers
-const googleProvider: ParseTypeImport.AuthProvider = {
-  authenticate() {
-    /* no-content */
-  },
-
-  restoreAuthentication() {
-    return true;
-  },
-
-  getAuthType() {
-    return "google";
-  },
-
-  deauthenticate() {
-    /* no-content */
-  },
-};
-
 const firebaseProvider: Parse.AuthProvider = {
   authenticate() {
     /* no-content */
@@ -178,7 +181,17 @@ export class ParseProvider implements BackendProvider<ParseState> {
     // @ts-ignore
     this.Parse.serverURL = parseUrl || "http://localhost:4041/parse";
     if (isClient()) {
-      window.Parse = this.Parse;
+      globalThis.Parse = this.Parse;
+    }
+    if (isInExtension()) {
+      // @ts-ignore
+      this.Parse.CoreManager.setStorageController(ChromeStorageController());
+    }
+    // @ts-ignore
+    const controller = this.Parse.CoreManager.getRESTController();
+    if (!isServer()) {
+      initXMLHttpRequestShim();
+      controller._setXHR(XMLHttpRequest);
     }
   }
 
@@ -222,23 +235,39 @@ export class ParseProvider implements BackendProvider<ParseState> {
     method: LoginMethod,
     options?: LoginOptions
   ): Promise<LoginResponse> {
-    // TODO: Temporary measure, log the user out before logging in to bypass the invalid session token issue on parse
-    await this.logout({
-      logoutFromAuthServer: options ? !options.background : true,
-    });
     const { background = false, userData: presetUserData } = options || {};
+    const currentUser = await this.Parse.User.currentAsync();
+    // Check if a user exists and has a valid session token
+    if (currentUser && options?.userData) {
+      const dummyQuery = new this.Parse.Query("captions").limit(0);
+      try {
+        await dummyQuery.find();
+        // The user exists, no need to do anything
+        presetUserData.sessionToken = currentUser.getSessionToken();
+        presetUserData.isNewUser = !currentUser.existed();
+        return { status: "success", userData: presetUserData };
+      } catch (e) {
+        console.warn("Encountered error when making dummy query:", e);
+      }
+      await this.logout({
+        logoutFromAuthServer: options ? !options.background : true,
+      });
+    }
     let responseStatus: ResponseStatus;
     let userData: UserData = presetUserData;
     let authData: ParseTypeImport.AuthData = {};
     if (!userData) {
       if (method === LoginMethod.Google) {
         if (isClient()) {
-          window.skipAutoLogin = true;
+          globalThis.skipAutoLogin = true;
         }
         const loginResponse = await loginWithGoogle(
           background,
           this.googleOauthClientId
         );
+        if (loginResponse.status === "deferred") {
+          return { status: "deferred" };
+        }
         responseStatus = loginResponse.status;
         userData = loginResponse.userData;
         authData = {
@@ -256,15 +285,17 @@ export class ParseProvider implements BackendProvider<ParseState> {
         access_token: userData.idToken,
       };
     }
+    userData = await this.completeDeferredLogin(method, userData, authData);
 
-    const storedData: { login: LoginStorage } | undefined = undefined;
+    return { status: responseStatus, userData };
+  }
 
-    let loginOpts: ParseTypeImport.FullOptions = undefined;
-    if (storedData && storedData.login && storedData.login.sessionToken) {
-      loginOpts = {
-        sessionToken: storedData.login.sessionToken,
-      };
-    }
+  async completeDeferredLogin(
+    method: LoginMethod,
+    userData: UserData,
+    authData: ParseTypeImport.AuthData
+  ): Promise<UserData> {
+    const loginOpts: ParseTypeImport.FullOptions = undefined;
     let authProvider;
     switch (method) {
       case LoginMethod.Google:
@@ -284,14 +315,13 @@ export class ParseProvider implements BackendProvider<ParseState> {
     if (userData.isNewUser) {
       parseUser = await parseUser.save();
     }
-
-    return { status: responseStatus, userData };
+    return userData;
   }
 
   async logout(options?: LogoutOptions) {
     await this.Parse.User.logOut();
     if (!options || options.logoutFromAuthServer !== false) {
-      await firebase.auth().signOut();
+      await signOut(globalThis.firebaseAuth);
     }
   }
 

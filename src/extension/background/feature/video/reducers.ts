@@ -164,12 +164,12 @@ export const videoReducer = createReducer<VideoState>(
         const { tabId } = payload;
         if (
           isInBackgroundScript() &&
-          window.backgroundRawCaption &&
-          !!window.backgroundRawCaption[tabId]
+          globalThis.backgroundRawCaption &&
+          !!globalThis.backgroundRawCaption[tabId]
         ) {
-          delete window.backgroundRawCaption[tabId];
+          delete globalThis.backgroundRawCaption[tabId];
         } else {
-          window.rawCaption = null;
+          globalThis.rawCaption = null;
         }
         return {
           ...state,
@@ -196,12 +196,12 @@ export const videoReducer = createReducer<VideoState>(
         delete newTabMeta[tabId];
         if (
           isInBackgroundScript() &&
-          window.backgroundRawCaption &&
-          !!window.backgroundRawCaption[tabId]
+          globalThis.backgroundRawCaption &&
+          !!globalThis.backgroundRawCaption[tabId]
         ) {
-          delete window.backgroundRawCaption[tabId];
+          delete globalThis.backgroundRawCaption[tabId];
         } else {
-          window.rawCaption = null;
+          globalThis.rawCaption = null;
         }
         return {
           ...state,

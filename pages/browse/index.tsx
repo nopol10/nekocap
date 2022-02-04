@@ -1,6 +1,5 @@
 import Head from "next/head";
 import React from "react";
-import { batch } from "react-redux";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
@@ -56,16 +55,14 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
       const pageNumber = 1;
       const append = false;
 
-      batch(() => {
-        store.dispatch(
-          setBrowseResults({
-            hasMoreResults,
-            currentResultPage: pageNumber,
-            captions,
-            append,
-          })
-        );
-      });
+      store.dispatch(
+        setBrowseResults({
+          hasMoreResults,
+          currentResultPage: pageNumber,
+          captions,
+          append,
+        })
+      );
     } catch (e) {
       console.error("Error during browse caption page generation", e);
     }

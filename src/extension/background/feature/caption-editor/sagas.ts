@@ -464,8 +464,12 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
   let { caption: updatedCaption }: TabEditorData = yield select(
     tabEditorDataSelector(tabId)
   );
+  // Due to the way reduxed-chrome-storage works,
+  // selecting the data immediately will not work, so we need to construct it
+  // manually here
   updatedCaption = {
     ...updatedCaption,
+    languageCode,
     translatedTitle,
   };
   const rawCaption = yield select(tabEditorRawDataSelector(tabId));

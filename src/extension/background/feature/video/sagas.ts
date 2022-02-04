@@ -6,6 +6,7 @@ import {
   select,
   takeEvery,
 } from "redux-saga/effects";
+import { message as notificationMessage } from "antd";
 import {
   loadCaptions,
   setLoadedCaption,
@@ -70,7 +71,11 @@ import { isAss } from "@/common/caption-utils";
 import { Locator } from "@/common/locator/locator";
 import { loadFontListApi } from "@/common/feature/video/api";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
-import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
+import {
+  isFirefoxExtension,
+  isInBackgroundScript,
+  isInExtension,
+} from "@/common/client-utils";
 import { getCaptionContainersFromFile } from "../caption-editor/utils";
 
 function* updateLoadedCaptionFromFileSaga({
@@ -96,6 +101,7 @@ function* updateLoadedCaptionFromFileSaga({
     loadedByUser: true,
     videoId,
     videoSource,
+    modifiedTime: Date.now(),
   };
 
   yield put([
@@ -124,10 +130,15 @@ function* closeMenuBarSaga({ payload }: PayloadAction<TabbedType>) {
       "You can open the menu again by clicking the NekoCap icon in the extensions toolbar",
     duration: 4,
   };
-  chrome.tabs.sendMessage(tabId, {
-    type: ChromeMessageType.InfoMessage,
-    payload: infoMessage,
-  });
+  if (isInExtension() && isInBackgroundScript()) {
+    chrome.tabs.sendMessage(tabId, {
+      type: ChromeMessageType.InfoMessage,
+      payload: infoMessage,
+    });
+  } else {
+    notificationMessage.info(infoMessage.message, infoMessage.duration || 4);
+  }
+
   yield put(setMenuHidden({ tabId, hidden: true }));
 }
 
@@ -172,44 +183,42 @@ async function storeRawCaption(
   rawCaption: RawCaptionData,
   isEditor
 ): Promise<void> {
-  if (!isInExtension()) {
-    if (isEditor) {
-      window.editorRawCaption = rawCaption;
-    } else {
-      window.rawCaption = rawCaption;
-    }
-    return Promise.resolve();
-  }
   if (isInBackgroundScript()) {
     if (isEditor) {
-      if (!window.backgroundEditorRawCaption) {
-        window.backgroundEditorRawCaption = {};
+      if (!globalThis.backgroundEditorRawCaption) {
+        globalThis.backgroundEditorRawCaption = {};
       }
-      window.backgroundEditorRawCaption[tabId] = rawCaption;
+      globalThis.backgroundEditorRawCaption[tabId] = rawCaption;
     } else {
-      if (!window.backgroundRawCaption) {
-        window.backgroundRawCaption = {};
+      if (!globalThis.backgroundRawCaption) {
+        globalThis.backgroundRawCaption = {};
       }
-      window.backgroundRawCaption[tabId] = rawCaption;
+      globalThis.backgroundRawCaption[tabId] = rawCaption;
     }
-  }
-  return new Promise<void>((resolve, reject) => {
-    chrome.tabs.sendMessage(
-      tabId,
-      {
-        type: ChromeMessageType.RawCaption,
-        payload: { isEditor, rawCaption },
-      },
-      (response) => {
-        console.log("Received response after sending caption", response);
-        if (response) {
+    // In MV3, this can only run in the popup page. When that happens,
+    // we need to send the raw caption to the content script
+    await new Promise<void>((resolve) => {
+      globalThis.chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: ChromeMessageType.RawCaption,
+          payload: {
+            isEditor,
+            rawCaption,
+          },
+        },
+        () => {
           resolve();
-          return;
         }
-        reject();
-      }
-    );
-  });
+      );
+    });
+  }
+  if (isEditor) {
+    globalThis.editorRawCaption = rawCaption;
+  } else {
+    globalThis.rawCaption = rawCaption;
+  }
+  return Promise.resolve();
 }
 
 /**

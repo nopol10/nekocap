@@ -15,7 +15,7 @@ export const shouldHideVideoPageMenuSelector = (tabId: number) =>
   createSelector(
     userExtensionPreferenceSelector,
     tabVideoDataSelector(tabId),
-    loadCaptions.isLoading(window.tabId),
+    loadCaptions.isLoading(globalThis.tabId),
     (
       userExtensionPreference: UserExtensionPreferenceState,
       tabData: TabVideoData,

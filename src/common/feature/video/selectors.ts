@@ -31,10 +31,10 @@ export const availableRenderersSelector = (tabId: number) => (
   const background = isInBackgroundScript();
   const editorTabRawData =
     background &&
-    window.backgroundEditorRawCaption &&
-    window.backgroundEditorRawCaption[tabId]
-      ? window.backgroundEditorRawCaption[tabId]
-      : window.editorRawCaption; //state.captionEditor.tabRawData;
+    globalThis.backgroundEditorRawCaption &&
+    globalThis.backgroundEditorRawCaption[tabId]
+      ? globalThis.backgroundEditorRawCaption[tabId]
+      : globalThis.editorRawCaption; //state.captionEditor.tabRawData;
   if (!videoTabData && !editorTabData && !editorTabRawData) {
     return [];
   }
@@ -45,10 +45,10 @@ export const availableRenderersSelector = (tabId: number) => (
   const rawCaptionInUse = editorTabRawData
     ? editorTabRawData
     : background &&
-      window.backgroundRawCaption &&
-      window.backgroundRawCaption[tabId]
-    ? window.backgroundRawCaption[tabId]
-    : window.rawCaption;
+      globalThis.backgroundRawCaption &&
+      globalThis.backgroundRawCaption[tabId]
+    ? globalThis.backgroundRawCaption[tabId]
+    : globalThis.rawCaption;
   const isValidCaption = captionInUse && captionInUse.data?.tracks?.length > 0;
   if (!isValidCaption && !rawCaptionInUse) {
     return [];

@@ -1,6 +1,7 @@
 export const routeNames = {
   home: "/",
   search: "/search/:title?",
+  extensionSignIn: "/sign-in-ext",
   captioner: {
     dashboard: "/dashboard",
   },

@@ -44,6 +44,7 @@ export type CaptionContainer = {
   userLike?: boolean;
   userDislike?: boolean;
   tags?: string[];
+  modifiedTime?: number; // This is used to trigger a refresh when loading raw captions consecutively since they are not stored in the redux store
 };
 
 /**

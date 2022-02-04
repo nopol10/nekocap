@@ -16,10 +16,13 @@ type Catch = {
   catch: (...params: any) => void;
 };
 
-export const createSignalActionInState = (
-  stateKey: string,
-  tabbed = false
-) => <R = void, S = void, F = void>(actionType: string) => {
+export const createSignalActionInState = (stateKey: string, tabbed = false) => <
+  R = void,
+  S = void,
+  F = void
+>(
+  actionType: string
+) => {
   return createSignalAction<R, S, F>(actionType, stateKey, tabbed);
 };
 

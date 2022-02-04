@@ -14,10 +14,22 @@ const {
   resolvePlugins,
 } = require("./config/common");
 
-const addKeyToManifest = (manifestPath) => {
+const updateManifest = (manifestPath, isChrome) => {
+  if (!isChrome) {
+    return "";
+  }
   const originalManifestString = fs.readFileSync(manifestPath);
   const manifest = JSON.parse(originalManifestString);
   manifest.key = process.env.EXTENSION_KEY || envFile.EXTENSION_KEY || "";
+  // Remove localhost from externally_connectable
+  if (
+    manifest["externally_connectable"] &&
+    manifest["externally_connectable"]["matches"]
+  ) {
+    let matches = manifest["externally_connectable"]["matches"];
+    matches = matches.filter((match) => !match.includes("localhost"));
+    manifest["externally_connectable"]["matches"] = matches;
+  }
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2));
   return originalManifestString;
 };
@@ -28,8 +40,9 @@ module.exports = (env, argv, customEnv = {}) => {
   const isChrome = targetBrowser === "chrome";
   const isFirefox = targetBrowser === "firefox";
   const analyze = argv.analyze === "true";
-  const envFile = dotenv.config(devMode ? undefined : { path: "./.env.prod" })
-    .parsed;
+  const envFile = dotenv.config(
+    devMode ? undefined : { path: "./.env.prod" }
+  ).parsed;
 
   const envKeys = Object.keys(envFile).reduce((prev, next) => {
     prev[`process.env.${next}`] = JSON.stringify(envFile[next]);
@@ -44,7 +57,7 @@ module.exports = (env, argv, customEnv = {}) => {
   );
   // Update manifest.json with key for build, remove it afterwards
   if (!devMode && isChrome) {
-    originalManifestString = addKeyToManifest(manifestPath);
+    originalManifestString = updateManifest(manifestPath, isChrome);
   }
 
   return {
@@ -53,7 +66,9 @@ module.exports = (env, argv, customEnv = {}) => {
       "js/popup": path.join(__dirname, "src/extension/popup/index.tsx"),
       "js/background": path.join(
         __dirname,
-        "src/extension/background/index.tsx"
+        isChrome
+          ? "src/extension/background/index.tsx"
+          : "src/extension/background/index-page.tsx"
       ),
       "js/content": path.join(__dirname, "src/extension/content/index.tsx"),
     },
@@ -153,7 +168,7 @@ module.exports = (env, argv, customEnv = {}) => {
         // The server at this port will not be used by the extension
         port: 12345,
         watchContentBase: true,
-        hot: true,
+        hot: false,
         writeToDisk: true,
         headers: {
           "Access-Control-Allow-Origin": "*",

@@ -134,12 +134,12 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
         const { tabId } = action.payload;
         if (
           isInBackgroundScript() &&
-          window.backgroundEditorRawCaption &&
-          !!window.backgroundEditorRawCaption[tabId]
+          globalThis.backgroundEditorRawCaption &&
+          !!globalThis.backgroundEditorRawCaption[tabId]
         ) {
-          delete window.backgroundEditorRawCaption[tabId];
+          delete globalThis.backgroundEditorRawCaption[tabId];
         } else {
-          window.editorRawCaption = null;
+          globalThis.editorRawCaption = null;
         }
         return {
           ...state,
@@ -164,12 +164,12 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
         delete newTabMeta[tabId];
         if (
           isInBackgroundScript() &&
-          window.backgroundEditorRawCaption &&
-          !!window.backgroundEditorRawCaption[tabId]
+          globalThis.backgroundEditorRawCaption &&
+          !!globalThis.backgroundEditorRawCaption[tabId]
         ) {
-          delete window.backgroundEditorRawCaption[tabId];
+          delete globalThis.backgroundEditorRawCaption[tabId];
         } else {
-          window.editorRawCaption = null;
+          globalThis.editorRawCaption = null;
         }
         return {
           ...state,

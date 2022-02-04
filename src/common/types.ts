@@ -19,6 +19,11 @@ export enum ChromeMessageType {
   InfoMessage,
   GetContentScriptVariables,
   Request, // Make a XMLHttpRequest from the background script
+  ProviderRequest, // Run a request through the backend provider from the background script
+}
+
+export enum ChromeExternalMessageType {
+  GoogleAuthCredentials,
 }
 
 export type NotificationMessage = {
@@ -35,7 +40,7 @@ export enum ProviderType {
   Firebase,
 }
 
-export type ResponseStatus = "success" | "error";
+export type ResponseStatus = "success" | "error" | "deferred";
 
 export type ServerResponse = {
   status: ResponseStatus;

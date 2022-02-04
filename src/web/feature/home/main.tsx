@@ -1,23 +1,14 @@
 import Layout from "antd/lib/layout";
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { WSHeader } from "@/common/components/ws-header";
 import { WSLayout } from "@/common/components/ws-layout";
 import { WebHeader } from "./web-header";
-import * as firebase from "firebase/app";
-import "firebase/auth";
-
 import { webAutoLogin } from "@/common/feature/login/actions";
 import { useScrolledPastY } from "@/hooks";
 import { initFirebase } from "@/extension/background/firebase";
 import { AutoLoginContext } from "../common/contexts/auto-login-context";
+import { onAuthStateChanged } from "firebase/auth";
 
 const { Content } = Layout;
 
@@ -36,8 +27,8 @@ export const Main = ({ children }: MainProps): JSX.Element => {
     // Perform auto login if a user exists
     // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
     // even if the auth process completed before the addition of this callback
-    initFirebase();
-    firebase.auth().onAuthStateChanged((user) => {
+    const { auth } = initFirebase();
+    onAuthStateChanged(auth, (user) => {
       if (user && user.uid && !autoLoggedIn.current && !window.skipAutoLogin) {
         dispatch(webAutoLogin.request());
       }
