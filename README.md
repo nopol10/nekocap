@@ -128,3 +128,4 @@ Translations:
 - French: Adnamie
 - Japanese: rama_onehalf
 - Persian: Pikhosh
+- Vietnamese: Golđén
