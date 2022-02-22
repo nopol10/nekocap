@@ -21,7 +21,7 @@ const getCSP = (props) => {
     csp += `style-src 'self' https://fonts.googleapis.com 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
-    csp += `connect-src 'self' http://localhost:* ${commonConnectSrc};`;
+    csp += `connect-src 'self' http://localhost:* https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
     csp += `frame-src 'self' http://www.youtube.com/ ${commonFrameSrc};`;
   } else {
     csp += `script-src 'self'${

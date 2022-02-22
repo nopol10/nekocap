@@ -315,6 +315,42 @@ function startWorker(message) {
       while ((matches = regex.exec(self.subContent))) {
         fontNames.add(matches[1]);
       }
+      // Add font variants (bold/italic/etc)
+      const fontNamesArray = Array.from(fontNames);
+      const weightVariants = [
+        "thin",
+        "extralight",
+        "ultralight",
+        "extra light",
+        "ultra light",
+        "light",
+        "medium",
+        "semibold",
+        "demibold",
+        "semi bold",
+        "demi bold",
+        "bold",
+        "extrabold",
+        "ultrabold",
+        "extra bold",
+        "ultra bold",
+        "black",
+        "heavy",
+      ];
+      const styleVariants = ["", "italic"];
+      // Generate weightVariants and styleVariants by flatmapping them
+      const fontVariants = weightVariants.flatMap((weight) =>
+        styleVariants.map((style) => `${weight} ${style}`.trim())
+      );
+      fontNamesArray.forEach((fontName) =>
+        fontVariants.forEach((variant) => {
+          const fontVariantName = `${fontName} ${variant}`.toLowerCase();
+          if (self.availableFonts.hasOwnProperty(fontVariantName)) {
+            fontNames.add(fontVariantName);
+          }
+        })
+      );
+
       var chunkedFontNames = chunk(Array.from(fontNames), 4);
       postMessage({
         target: "fontsloaded",
@@ -2366,18 +2402,30 @@ function startWorker(message) {
         };
       }
       readAsync = function (url, onload, onerror) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = function () {
-          if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
-            onload(xhr.response);
+        // Use a message to retrieve the response
+        const onResponseReceived = (message) => {
+          const data = message.data;
+          if (data.target !== "request-response" || data.url !== url) {
             return;
           }
-          onerror();
+          self.removeEventListener("message", onResponseReceived, false);
+          if (data.error) {
+            onerror();
+            console.log(
+              "[Worker] Request failed: " + JSON.stringify(data.error)
+            );
+            return;
+          }
+          // Expecting an arraybuffer in onload
+          onload(data.response.slice());
         };
-        xhr.onerror = onerror;
-        xhr.send(null);
+        self.addEventListener("message", onResponseReceived, false);
+        postMessage({
+          target: "request",
+          method: "GET",
+          responseType: "arraybuffer",
+          url: url,
+        });
       };
       readRemoteAsync_ = function (url) {
         return new Promise((resolve, reject) => {
@@ -10920,16 +10968,14 @@ function startWorker(message) {
     self.fontMap_[font] = true;
     if (!self.availableFonts.hasOwnProperty(font)) return;
     var content = await readBinaryAsync(self.availableFonts[font]);
-    Module["FS"].writeFile(
+    var fontFileName =
       "/fonts/font" +
-        self.fontId++ +
-        "-" +
-        self.availableFonts[font].split("/").pop(),
-      content,
-      {
-        encoding: "binary",
-      }
-    );
+      self.fontId++ +
+      "-" +
+      self.availableFonts[font].split("/").pop();
+    Module["FS"].writeFile(fontFileName, content, {
+      encoding: "binary",
+    });
   };
   self.writeAvailableFontsToFS = function (content) {
     if (!self.availableFonts) return;
@@ -11483,6 +11529,9 @@ function startWorker(message) {
         if (Module["setImmediates"]) Module["setImmediates"].shift()();
         break;
       }
+      case "request-response":
+        // Handled elsewhere
+        break;
       default:
         throw "wha? " + message.data.target;
     }
