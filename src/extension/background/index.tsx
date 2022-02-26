@@ -19,12 +19,26 @@ import {
   onAuthStateChanged,
   signInWithCredential,
 } from "firebase/auth";
+import { chromeProm } from "@/common/chrome-utils";
+import type { RootState } from "@/common/store/types";
+import { UserExtensionPreferenceState } from "./feature/user-extension-preference/types";
 
-// Clear reduxed
-chrome.runtime.onStartup.addListener(() => {
+// Clear redux but keep user preferences
+chrome.runtime.onStartup.addListener(async () => {
   console.log("Extension started");
+  const savedState = await chromeProm.storage.local.get(["reduxed"]);
+  let storedPreferences: UserExtensionPreferenceState | null = null;
+  if (savedState && savedState.reduxed) {
+    const state: RootState = savedState.reduxed;
+    storedPreferences = state.userExtensionPreference;
+  }
   chrome.storage.local.remove("reduxed", () => {
-    console.log("Cleared reduxed");
+    // Restore preferences
+    if (storedPreferences) {
+      chrome.storage.local.set({
+        reduxed: { userExtensionPreference: storedPreferences },
+      });
+    }
   });
 });
 

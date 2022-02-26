@@ -3,6 +3,7 @@ import { isInExtension } from "./client-utils";
 export const SUBSTATION_GROUPED_FONTS = {
   latin: {
     "#44 font": "/fonts/44Font.woff2",
+    acme: "/fonts/Acme-Regular.woff2",
     "adam warren 0.2": "/fonts/adamwarren02.woff2",
     akazukipop: "/fonts/AkazukiPOP.woff2",
     aller: "/fonts/Aller.woff2",
