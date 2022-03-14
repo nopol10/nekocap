@@ -1,10 +1,15 @@
 import { OffsetRequest, PagedType, ServerResponse } from "@/common/types";
-import { CaptionListFields, VideoFields } from "../video/types";
+import {
+  CaptionListFields,
+  LoadCaptionsResult,
+  VideoFields,
+  VideoSource,
+} from "../video/types";
 
 export type SearchState = {
   currentResultPage: number;
   totalResults: number;
-  captions: CaptionListFields[];
+  captions: LoadCaptionsResult[];
   videos: VideoFields[];
   hasMoreResults: boolean;
 };
@@ -19,6 +24,11 @@ export type SearchParams = PagedType &
   SearchFields & {
     append?: boolean; // whether the results should be appended
   };
+
+export type LoadSearchResultVideoCaptions = {
+  videoId: string;
+  videoSource: VideoSource;
+};
 
 export type SearchRequest = OffsetRequest & SearchFields;
 
@@ -36,4 +46,8 @@ export type SetVideoSearchResults = {
   hasMoreResults: boolean;
   currentResultPage: number;
   append: boolean;
+};
+
+export type SetSearchResultVideoCaptions = {
+  captions: LoadCaptionsResult[];
 };

@@ -105,6 +105,7 @@ export type LoadCaptions = TabbedType & {
 
 export type LoadCaptionsResult = {
   id: string;
+  captionerId: string;
   captionerName: string;
   languageCode: string;
   verified: boolean;
