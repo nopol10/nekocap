@@ -17,12 +17,17 @@ import {
   Divider,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { searchSelector } from "@/common/feature/search/selectors";
-import { search } from "@/common/feature/search/actions";
+import {
+  searchSelector,
+  searchVideoCaptionResultsSelector,
+} from "@/common/feature/search/selectors";
+import {
+  loadSearchResultVideoCaptions,
+  search,
+} from "@/common/feature/search/actions";
 import { InfiniteList } from "../common/components/infinite-table";
 import { videoColumns } from "../common/components/data-columns";
-import { VideoFields } from "@/common/feature/video/types";
-import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { VideoFields, VideoSource } from "@/common/feature/video/types";
 import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
 import { languages } from "@/common/languages";
 import { Controller, useForm } from "react-hook-form";
@@ -31,6 +36,8 @@ import Title from "antd/lib/typography/Title";
 import { languageOptions } from "@/common/language-utils";
 import { DEVICE } from "@/common/style-constants";
 import emptyVideoImage from "@/assets/images/empty-video.jpg";
+import { useOpenClose } from "@/hooks";
+import { VideoCaptionModal } from "./video-caption-modal";
 
 const PAGE_SIZE = 20;
 
@@ -218,6 +225,20 @@ export const SearchCaptions = ({
     searchSelector
   );
   const isSearching = useSelector(search.isLoading(null));
+  const videoCaptions = useSelector(searchVideoCaptionResultsSelector);
+  const [
+    isCaptionModalOpened,
+    openCaptionModal,
+    closeCaptionModal,
+  ] = useOpenClose();
+  const isLoadingCaptions = useSelector(
+    loadSearchResultVideoCaptions.isLoading(null)
+  );
+  const [selectedVideo, setSelectedVideo] = useState<{
+    videoId: string;
+    videoSource: VideoSource;
+  }>({ videoId: "", videoSource: VideoSource.Youtube });
+
   const resultContainer = useRef<HTMLDivElement>(null);
 
   const handleChangeResultPage = (page: number, pageSize?: number) => {
@@ -232,6 +253,7 @@ export const SearchCaptions = ({
   };
 
   const columns = [videoColumns.videoName, videoColumns.captionCount];
+
   const renderVideo = (video: VideoFields | "loading") => {
     if (video === "loading") {
       return (
@@ -253,26 +275,30 @@ export const SearchCaptions = ({
       source,
       thumbnailUrl,
     } = video;
-    const processor = videoSourceToProcessorMap[parseInt(source)];
     const languageList = Object.keys(captions).filter(
       (language) => captions[language] > 0
     );
+
+    const handleClickVideo = () => {
+      const videoSource = parseInt(source);
+      dispatch(
+        loadSearchResultVideoCaptions.request({
+          videoId: video.sourceId,
+          videoSource,
+        })
+      );
+      setSelectedVideo({ videoId: video.sourceId, videoSource });
+      openCaptionModal();
+    };
     return (
       <List.Item key={sourceId}>
         <ResultCard title={name}>
           <Space direction={"vertical"} style={{ width: "100%" }}>
-            <div>
-              <a
-                href={processor.generateVideoLink(sourceId)}
-                target="_blank"
-                rel="noreferrer"
+            <div onClick={handleClickVideo}>
+              <img
                 style={{ width: "100%" }}
-              >
-                <img
-                  style={{ width: "100%" }}
-                  src={thumbnailUrl || emptyVideoImage.src}
-                />
-              </a>
+                src={thumbnailUrl || emptyVideoImage.src}
+              />
             </div>
             <div>
               <Popover
@@ -337,6 +363,14 @@ export const SearchCaptions = ({
           }}
         />
       </ResultsList>
+      <VideoCaptionModal
+        videoId={selectedVideo.videoId}
+        videoSource={selectedVideo.videoSource}
+        visible={isCaptionModalOpened}
+        isLoading={isLoadingCaptions}
+        onCancel={closeCaptionModal}
+        captions={videoCaptions}
+      ></VideoCaptionModal>
     </Wrapper>
   );
 };
