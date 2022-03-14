@@ -21,6 +21,7 @@ import {
   TIME,
   VIDEO_ELEMENT_CONTAINER_ID,
 } from "./common/constants";
+import { DEVICE } from "./common/style-constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { PopupContext } from "./extension/common/popup-context";
@@ -611,7 +612,7 @@ export const useSSRMediaQuery = (
   callback?: (matches: boolean) => void
 ) => {
   if (isServer()) {
-    return false;
+    return settings.query === DEVICE.desktop;
   }
   const [isInClient, setIsInClient] = useState(false);
 

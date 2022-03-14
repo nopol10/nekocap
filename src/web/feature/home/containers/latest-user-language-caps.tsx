@@ -1,5 +1,5 @@
 import Table from "antd/lib/table/Table";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadLatestUserLanguageCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
@@ -15,14 +15,17 @@ const { Title } = Typography;
 
 export const LatestUserLanguageCaptions = () => {
   const dispatch = useDispatch();
-  const { latestUserLanguageCaptions: latestUserLanguageCaptions } =
-    useSelector(publicDashboardSelector);
+  const {
+    latestUserLanguageCaptions: latestUserLanguageCaptions,
+  } = useSelector(publicDashboardSelector);
   const isLoading = useSelector(loadLatestUserLanguageCaptions.isLoading(null));
+  const [baseLanguageName, setBaseLanguageName] = useState("");
   useEffect(() => {
     if (latestUserLanguageCaptions.length > 0) {
       return;
     }
     dispatch(loadLatestUserLanguageCaptions.request(navigator.language));
+    setBaseLanguageName(getBaseLanguageName(navigator.language));
   }, []);
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
 
@@ -38,9 +41,7 @@ export const LatestUserLanguageCaptions = () => {
   return (
     <>
       {isDesktop && (
-        <DataCard
-          title={`Latest ${getBaseLanguageName(navigator.language)} captions`}
-        >
+        <DataCard title={`Latest ${baseLanguageName} captions`}>
           <Table
             columns={tableColumns}
             dataSource={latestUserLanguageCaptions}

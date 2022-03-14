@@ -23,6 +23,7 @@ import {
   VALID_FILE_TYPES,
 } from "@/common/feature/caption-editor/constants";
 import { hasTag } from "@/common/caption-utils";
+import { isServer } from "@/common/client-utils";
 
 interface UpdateCaptionModalProps {
   caption?: CaptionListFields;
@@ -41,6 +42,9 @@ export const UpdateCaptionModal = ({
   visible,
   onCancel,
 }: UpdateCaptionModalProps): ReactElement => {
+  if (isServer()) {
+    return null;
+  }
   window.tabId = 0;
   const dispatch = useDispatch();
   const isPendingSubmission = useSelector(
