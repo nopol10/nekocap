@@ -31,13 +31,20 @@ import { populateVideoDetails } from "./api";
 import { Locator } from "@/common/locator/locator";
 
 function* searchRequestSaga(action: PayloadAction<SearchParams>) {
-  const { pageSize, pageNumber, append = false, ...rest } = action.payload;
+  const {
+    pageSize,
+    pageNumber,
+    append = false,
+    title,
+    ...rest
+  } = action.payload;
   const { hasMoreResults: originalHasMoreResults } = yield select(
     searchSelector
   );
   if (!originalHasMoreResults && append) {
     return;
   }
+  const cleanedTitle = encodeURIComponent(title);
   const {
     status,
     error,
@@ -45,6 +52,7 @@ function* searchRequestSaga(action: PayloadAction<SearchParams>) {
     hasMoreResults,
   }: VideoSearchResults = yield call([Locator.provider(), "search"], {
     ...getLimitOffsetFromPagination(pageSize, pageNumber),
+    title: cleanedTitle,
     ...rest,
   });
   if (status === "error") {
@@ -91,6 +99,7 @@ function* loadSearchResultVideoCaptionsRequestSaga({
 }
 
 function* searchFromBasicBarSaga({ payload: title }: PayloadAction<string>) {
+  title = encodeURIComponent(title);
   window.location.href = routeNames.search.replace(":title?", title);
   yield;
 }
