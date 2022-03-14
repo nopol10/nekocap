@@ -46,7 +46,7 @@ export const languages = {
   bs_BA: "Bosnian (Bosnia and Herzegovina)",
   bg_BG: "Bulgarian (Bulgaria)",
   my_MM: "Burmese (Myanmar [Burma])",
-  yue_Hant_HK: "Cantonese (Traditional, Hong Kong SAR China)",
+  yue_Hant_HK: "Cantonese (Hong Kong)",
   ca_ES: "Catalan (Spain)",
   tzm: "Central Morocco Tamazight",
   tzm_Latn: "Central Morocco Tamazight (Latin)",

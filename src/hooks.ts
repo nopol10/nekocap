@@ -21,6 +21,7 @@ import {
   TIME,
   VIDEO_ELEMENT_CONTAINER_ID,
 } from "./common/constants";
+import { DEVICE } from "./common/style-constants";
 import { Coords, Dimension } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { PopupContext } from "./extension/common/popup-context";
@@ -229,9 +230,8 @@ export const useVideoPlayPause = (
 export const useVideoDurationChange = (
   videoElement: HTMLVideoElement
 ): [number, MutableRefObject<number>] => {
-  const [videoDuration, setVideoDuration, videoDurationRef] = useStateAutoRef(
-    0
-  );
+  const [videoDuration, setVideoDuration, videoDurationRef] =
+    useStateAutoRef(0);
   useEffect(() => {
     const handleDurationChange = () => {
       setVideoDuration(videoElement.duration * TIME.SECONDS_TO_MS);
@@ -611,7 +611,7 @@ export const useSSRMediaQuery = (
   callback?: (matches: boolean) => void
 ) => {
   if (isServer()) {
-    return false;
+    return settings.query === DEVICE.desktop;
   }
   const [isInClient, setIsInClient] = useState(false);
 
@@ -626,4 +626,17 @@ export const useSSRMediaQuery = (
 
 export const useIsInPopup = (): boolean => {
   return !!useContext(PopupContext);
+};
+
+export const useOpenClose = (
+  initialState = false
+): [boolean, () => void, () => void] => {
+  const [isOpened, setIsOpened] = useState(initialState);
+  const handleOpenList = () => {
+    setIsOpened(true);
+  };
+  const handleCloseList = () => {
+    setIsOpened(false);
+  };
+  return [isOpened, handleOpenList, handleCloseList];
 };

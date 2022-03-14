@@ -4,6 +4,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import React from "react";
 import {
   CaptionListFields,
+  LoadCaptionsResult,
   VideoFields,
   VideoSource,
 } from "@/common/feature/video/types";
@@ -177,6 +178,78 @@ export const captionColumns = {
     },
   },
 };
+
+export const videoCaptionColumns = (
+  videoId: string,
+  videoSource: VideoSource
+) => ({
+  language: {
+    title: "Caption Language",
+    dataIndex: "languageCode",
+    key: "languageCode",
+    render: function render(text, record: LoadCaptionsResult) {
+      const processor: Processor = videoSourceToProcessorMap[videoSource];
+      if (!processor) {
+        return null;
+      }
+      const language = languages[record.languageCode];
+      const link = getDirectCaptionLoadLink(processor, videoId, record.id);
+      return (
+        <>
+          <div style={{ marginBottom: "8px", fontWeight: 700 }}>
+            {language}{" "}
+            {hasTag(record.tags, captionTags.audioDescribed) && (
+              <AudioDescribedTag />
+            )}
+          </div>
+
+          <div>
+            {processor.canWatchInNekoCapSite && (
+              <div style={{ marginBottom: "8px" }}>
+                <Tooltip title="Watch here">
+                  <Link
+                    href={`${routeNames.caption.view.replace(
+                      ":id",
+                      record.id
+                    )}`}
+                    target="_blank"
+                  >
+                    <EyeOutlined />
+                    &nbsp;
+                    <span>Watch here</span>
+                  </Link>
+                </Tooltip>
+              </div>
+            )}
+            <div>
+              <Tooltip title={`Watch on ${processor.name}`}>
+                <Link href={link} target="_blank" rel="noreferrer">
+                  <PlayCircleOutlined />
+                  &nbsp;
+                  <span>Watch on {processor.name}</span>
+                </Link>
+              </Tooltip>
+            </div>
+          </div>
+        </>
+      );
+    },
+  },
+  captioner: {
+    title: "Captioner",
+    key: "captionerName",
+    render: function render(text, record: LoadCaptionsResult) {
+      return (
+        <Link
+          target="_blank"
+          href={`${routeNames.profile.main.replace(":id", record.captionerId)}`}
+        >
+          {record.captionerName}
+        </Link>
+      );
+    },
+  },
+});
 
 export const videoColumns = {
   videoName: {
