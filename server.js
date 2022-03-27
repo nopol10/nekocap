@@ -23,7 +23,7 @@ const options = {
 };
 
 const server = express();
-server.use(helmet({ contentSecurityPolicy: false }));
+server.use(helmet({ contentSecurityPolicy: false, frameguard: false }));
 server.use(cors());
 server.use(compression());
 

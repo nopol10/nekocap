@@ -1,4 +1,4 @@
-import { Button, Skeleton, Space, Typography } from "antd";
+import { Button, message, Skeleton, Space, Tooltip, Typography } from "antd";
 import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -6,6 +6,8 @@ import styled from "styled-components";
 import YouTube from "react-youtube";
 import { YouTubePlayer } from "youtube-player/dist/types";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { faCode } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
 import {
   fontListSelector,
@@ -33,7 +35,6 @@ import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { isClient, isServer } from "@/common/client-utils";
-import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 import { WSText } from "@/common/components/ws-text";
 
 const { Title, Text, Link } = Typography;
@@ -44,7 +45,7 @@ const YOUTUBE_IFRAME_ID = "youtube-iframe";
 const MAX_HEIGHT = 600;
 
 const Wrapper = styled.div`
-  padding: 20px;
+  padding: 0px;
 `;
 
 const VideoWrapper = styled.div`
@@ -82,6 +83,8 @@ const DetailsWrapper = styledNoPass<{ width?: number }>("div")`
     ${({ width }) => (width !== undefined ? `width: ${width}px` : "")};
     margin-left: auto;
     margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
 
     h1.ant-typography {
       margin-top: 0.3em;
@@ -131,7 +134,7 @@ const ExtensionMessage = styled.div`
 
 const FullScreenButton = styled(Button)`
   position: fixed;
-  bottom: 20px;
+  bottom: 46px;
   right: 20px;
   z-index: 10;
 `;
@@ -139,9 +142,13 @@ const FullScreenButton = styled(Button)`
 export type ViewerPageProps = {
   captionId: string;
   rawCaption?: RawCaptionData;
+  isEmbed: boolean;
 };
 
-export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
+export const ViewerPage = ({
+  rawCaption,
+  isEmbed,
+}: ViewerPageProps): JSX.Element => {
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
   const [captionContainerElement, captionContainerElementRef] = useStateRef<
@@ -203,8 +210,23 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
     defaultRendererRef.current.onVideoPause();
   };
 
+  const handleClickCopyEmbedLink = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.append("embed", "true");
+    if (navigator && navigator.clipboard) {
+      navigator.clipboard.writeText(
+        `<iframe src="${url.toString()}" allowfullscreen="true" width="560" height="340" frameborder="0"></iframe>`
+      );
+    }
+    message.success("Copied embed code to clipboard!");
+  };
+
   const embedWidth = Math.min((isClient() ? window.innerWidth : 0) - 60, 1600);
-  const embedHeight = Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
+  const embedHeight = isEmbed
+    ? isClient()
+      ? window.innerHeight
+      : 0
+    : Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
 
   const renderYoutubeVideo = () => {
     if (isServer()) {
@@ -282,7 +304,12 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
     : undefined;
 
   return (
-    <Wrapper>
+    <Wrapper
+      style={{
+        overflowY: isEmbed ? "hidden" : null,
+        height: isEmbed ? "100%" : null,
+      }}
+    >
       <Skeleton active={true} loading={isLoading}>
         {renderNoDataMessage()}
         <FullScreenButton onClick={fullScreenHandle.enter}>
@@ -293,13 +320,18 @@ export const ViewerPage = ({ rawCaption }: ViewerPageProps): JSX.Element => {
             {renderVideo()}
           </VideoWrapper>
         </FullScreen>
-        {caption && (
+        {caption && !isEmbed && (
           <DetailsWrapper>
             <ViewerTitle>
               <span dir="auto">{caption.originalTitle}</span>
             </ViewerTitle>
             <TranslatedTitle level={2}>
-              <span dir="auto">{caption.translatedTitle}</span>
+              <span dir="auto">{caption.translatedTitle}</span>{" "}
+              <Tooltip title="Copy embed code">
+                <Link onClick={handleClickCopyEmbedLink}>
+                  <FontAwesomeIcon icon={faCode} />
+                </Link>
+              </Tooltip>
             </TranslatedTitle>
             <CaptionerMessage>
               Caption submitted by{" "}

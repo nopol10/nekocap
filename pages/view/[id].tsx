@@ -34,6 +34,7 @@ type ViewCaptionPageProps = {
 export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
   const router = useRouter();
   const captionId = router.query.id as string;
+  const isEmbed = router.query.embed === "true";
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const hasCaption = () => {
     return tabData && tabData.caption;
@@ -65,6 +66,14 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
       : "https://nekocap.com";
   })();
 
+  const viewerPage = (
+    <ViewerPage
+      captionId={captionId}
+      rawCaption={rawCaption}
+      isEmbed={isEmbed}
+    />
+  );
+
   return (
     <>
       <Head>
@@ -81,9 +90,8 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
           <meta name="twitter:site" content="@NekoCaption"></meta>
         </>
       </Head>
-      <Main>
-        <ViewerPage captionId={captionId} rawCaption={rawCaption} />
-      </Main>
+      {isEmbed && viewerPage}
+      {!isEmbed && <Main>{viewerPage}</Main>}
     </>
   );
 }
