@@ -79,6 +79,7 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
       <Head>
         <>
           <title>{metaTitle}</title>
+          <meta name="referrer" content="strict-origin-when-cross-origin" />
           <meta property="og:title" content={metaTitle} />
           <meta property="og:description" content={metaDescription} />
           <meta property="og:image" content={metaImage} />
