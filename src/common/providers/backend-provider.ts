@@ -85,7 +85,6 @@ export type LogoutOptions = {
 
 export interface BackendProvider<T extends RootState> {
   type: () => ProviderType;
-  wrapper: React.FC<ProviderElementProps>;
   getWrapperProps: (store: Store) => any;
   getReducers: () => ReducersMapObject;
   getMiddlewares: () => Middleware[];

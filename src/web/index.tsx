@@ -28,12 +28,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     false
   );
 
-  const Wrapper = window.backendProvider.wrapper;
   ReactDOM.render(
     <Provider store={store}>
-      <Wrapper providerProps={window.backendProvider.getWrapperProps(store)}>
-        <Main />
-      </Wrapper>
+      <Main />
     </Provider>,
     document.getElementById("root")
   );

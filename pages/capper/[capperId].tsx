@@ -48,7 +48,9 @@ export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideP
       try {
         const { capperId } = params;
         const profile = await loadCaptionerProfileApi(capperId);
-        store.dispatch(setProfile(profile));
+        if (profile.captioner) {
+          store.dispatch(setProfile(profile));
+        }
       } catch (e) {
         console.error("Error during profile page generation", e);
       }

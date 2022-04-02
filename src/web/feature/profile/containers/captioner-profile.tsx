@@ -19,6 +19,7 @@ import {
   handleBanCaptioner,
   handleVerifyCaptioner,
 } from "../admin-utils";
+import Title from "antd/lib/typography/Title";
 
 export const CaptionerProfile = () => {
   const dispatch = useDispatch();
@@ -36,7 +37,9 @@ export const CaptionerProfile = () => {
     captions,
     captioner = EMPTY_PROFILE,
   } = profileData;
-
+  if (!captioner) {
+    return <Title style={{ padding: "0 50px" }}>User not found!</Title>;
+  }
   const { userId: captionerId } = captioner;
 
   const { captioner: loggedInUserPublicProfile } = captionerState;

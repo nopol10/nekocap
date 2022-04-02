@@ -220,16 +220,6 @@ export class PassthroughProvider implements BackendProvider<RootState> {
     return {};
   }
 
-  wrapper({
-    children,
-    providerProps,
-  }: {
-    children: ReactNode;
-    providerProps: any;
-  }) {
-    return <>{children}</>;
-  }
-
   async login(
     method: LoginMethod,
     options?: LoginOptions

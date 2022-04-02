@@ -1,4 +1,3 @@
-import React, { ReactNode } from "react";
 import {
   LoadSingleCaptionResult,
   SubmitCaptionRequest,
@@ -62,17 +61,17 @@ import {
   isInExtension,
   isInServiceWorker,
   isServer,
-} from "@/common/client-utils";
-import {
+} from "../../../common/client-utils";
+import type {
   BrowseRequest,
   BrowseResults,
 } from "@/common/feature/public-dashboard/types";
-import {
+import type {
   GetAutoCaptionListParams,
   GetAutoCaptionListResponse,
   GetAutoCaptionListResult,
 } from "@/common/feature/caption-editor/types";
-import { initXMLHttpRequestShim } from "@/libs/xmlhttprequest-shim";
+import { initXMLHttpRequestShim } from "../../../libs/xmlhttprequest-shim";
 import { ChromeStorageController } from "./chrome-storage-controller";
 import {
   GoogleAuthProvider,
@@ -81,7 +80,7 @@ import {
   signOut,
   User as FirebaseUser,
 } from "firebase/auth";
-import { routeNames } from "@/web/feature/route-types";
+import { routeNames } from "../../../web/feature/route-types";
 
 //#region
 const loginWithGoogle = async (
@@ -173,13 +172,23 @@ export class ParseProvider implements BackendProvider<ParseState> {
     newParse: ParseType,
     parseAppId: string = process.env.NEXT_PUBLIC_PARSE_APP_ID,
     parseUrl: string = process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
-    googleOauthClientId: string = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
+    googleOauthClientId: string = process.env
+      .NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
+    masterKey?: string
   ) {
     this.Parse = newParse;
     this.googleOauthClientId = googleOauthClientId;
-    this.Parse.initialize(parseAppId);
-    // @ts-ignore
-    this.Parse.serverURL = parseUrl || "http://localhost:4041/parse";
+    if (masterKey) {
+      this.Parse.initialize(parseAppId, "", masterKey);
+    } else {
+      this.Parse.initialize(parseAppId);
+    }
+    try {
+      // @ts-ignore
+      this.Parse.serverURL = parseUrl || "http://localhost:4041/parse";
+    } catch (e) {
+      console.log("Could not set Parse serverURL");
+    }
     if (isClient()) {
       globalThis.Parse = this.Parse;
     }
@@ -219,16 +228,6 @@ export class ParseProvider implements BackendProvider<ParseState> {
 
   getWrapperProps() {
     return {};
-  }
-
-  wrapper({
-    children,
-    providerProps,
-  }: {
-    children: ReactNode;
-    providerProps: any;
-  }) {
-    return <>{children}</>;
   }
 
   async login(
