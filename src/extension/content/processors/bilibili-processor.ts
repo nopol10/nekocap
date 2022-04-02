@@ -3,6 +3,7 @@ import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
+const PART_SEPARATOR = "|";
 const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
 /**
  * Processor for Bilibili
@@ -14,7 +15,24 @@ export const BilibiliProcessor: Processor = {
   videoSelector: ".bilibili-player-video video",
   captionContainerSelector: ".bilibili-player-video",
   videoPageUISelector: ".player-wrap",
-  titleSelector: ".video-title span",
+  updateTitleOnSubmission: true,
+  titleSelector: async () => {
+    const mainTitle = (document.querySelector(
+      ".video-title span"
+    ) as HTMLElement)?.innerText;
+    if (!document.querySelector("#multi_page")) {
+      return mainTitle;
+    }
+    const matches = window.location.href.match(videoMatchingRegex);
+    const mainId = matches[3];
+    const url = new URL(window.location.href);
+    const partId = url.searchParams.get("p") || "1";
+    const partTitleElement: HTMLElement | undefined = document.querySelector(
+      `a[href="/video/${mainId}?p=${partId}"] .part`
+    ) as HTMLElement;
+    const partTitle = partTitleElement?.innerText || "";
+    return [mainTitle, partTitle].join(" ");
+  },
   editorVideoPlayerStyles: `
   .bilibili-player-video {
     position: relative;
@@ -39,10 +57,17 @@ export const BilibiliProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
-    return matches[3];
+    const url = new URL(window.location.href);
+    const partId = url.searchParams.get("p");
+    let suffix = "";
+    if (!!partId && partId != "1") {
+      suffix = `${PART_SEPARATOR}${partId}`;
+    }
+    return matches[3] + suffix;
   },
   generateVideoLink: (videoId: string) => {
-    return `https://www.bilibili.com/video/${videoId}`;
+    const finalId = videoId.split(PART_SEPARATOR).join("?p=");
+    return `https://www.bilibili.com/video/${finalId}`;
   },
   generateThumbnailLink: async function (videoId: string) {
     return "";
