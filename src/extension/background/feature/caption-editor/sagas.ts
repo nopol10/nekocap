@@ -1,17 +1,14 @@
 import { fork, takeLatest, put, call, select } from "redux-saga/effects";
 import {
   PayloadAction,
-  isAllOf,
   AnyAction,
   PayloadActionCreator,
 } from "@reduxjs/toolkit";
 import {
-  SetCaption,
   SubmitCaption,
   CaptionContainer,
   SetShowEditorIfPossible,
   CaptionRendererType,
-  VideoSource,
   UpdateUploadedCaption,
   RawCaptionData,
 } from "@/common/feature/video/types";
@@ -96,7 +93,7 @@ import { loadCaptions, setRenderer } from "@/common/feature/video/actions";
 import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
 import { EDITOR_CUTOFF_BYTES } from "@/common/feature/caption-editor/constants";
 import { chromeProm } from "@/common/chrome-utils";
-import { isInExtension } from "@/common/client-utils";
+import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
 import { parseCaption, stringifyCaption } from "@/common/caption-parsers";
 import {
   convertToCaptionContainer,
@@ -108,6 +105,7 @@ import { CaptionMutators } from "@/extension/content/feature/editor/utils";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
 import { Locator } from "@/common/locator/locator";
 import { getCaptionContainersFromFile } from "./utils";
+import { saveCaptionToDisk } from "@/extension/common/saver";
 
 const isActionType = <T>(
   action: AnyAction,
@@ -424,10 +422,14 @@ function* loadLocallySavedCaptionSaga({
 }
 
 const sendSaveFileMesssage = (tabId: number, data: ExportCaptionResult) => {
-  chrome.tabs.sendMessage(tabId, {
-    type: ChromeMessageType.SaveFile,
-    payload: data,
-  });
+  if (isInExtension() && isInBackgroundScript()) {
+    chrome.tabs.sendMessage(tabId, {
+      type: ChromeMessageType.SaveFile,
+      payload: data,
+    });
+  } else {
+    saveCaptionToDisk(data);
+  }
 };
 
 function* exportCaptionSaga({ payload }: ThunkedPayloadAction<ExportCaption>) {

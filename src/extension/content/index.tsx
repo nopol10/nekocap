@@ -19,8 +19,6 @@ import {
   VIDEO_ELEMENT_CONTAINER_ID,
   Z_INDEX,
 } from "@/common/constants";
-import { ExportCaptionResult } from "@/common/feature/caption-editor/types";
-import { saveAs } from "file-saver";
 import "../../libs/patch-worker/patch-worker";
 import { requestFreshTabData } from "@/common/feature/video/actions";
 import {
@@ -32,6 +30,7 @@ import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
 import "./provider";
 import { storeInitPromise } from "@/extension/background/common/store";
 import { PassthroughProvider } from "@/common/providers/passthrough-provider";
+import { saveCaptionToDisk } from "../common/saver";
 
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
@@ -91,14 +90,7 @@ const initialize = async () => {
         if (!message.payload) {
           return;
         }
-        const {
-          captionString,
-          filename,
-        } = message.payload as ExportCaptionResult;
-        const blob = new Blob([captionString], {
-          type: "text/plain;charset=utf-8",
-        });
-        saveAs(blob, filename);
+        saveCaptionToDisk(message.payload);
       } else if (message.type === ChromeMessageType.ContentScriptUpdate) {
         refreshVideoMeta().then(() => {
           sendResponse({
