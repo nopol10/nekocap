@@ -61,6 +61,7 @@ const VideoWrapper = styled.div`
     }
   }
   iframe {
+    display: block;
     width: 100%;
     :not(.fullscreen-enabled) & {
       max-height: ${MAX_HEIGHT}px;
@@ -306,7 +307,6 @@ export const ViewerPage = ({
   return (
     <Wrapper
       style={{
-        overflowY: isEmbed ? "hidden" : null,
         height: isEmbed ? "100%" : null,
       }}
     >
