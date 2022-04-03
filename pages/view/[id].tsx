@@ -66,6 +66,8 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
       : "https://nekocap.com";
   })();
 
+  const embedUrl = metaUrl + "?embed=true";
+
   const viewerPage = (
     <ViewerPage
       captionId={captionId}
@@ -80,15 +82,25 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
         <>
           <title>{metaTitle}</title>
           <meta name="referrer" content="strict-origin-when-cross-origin" />
+          <meta property="og:site_name" content="NekoCap" />
           <meta property="og:title" content={metaTitle} />
           <meta property="og:description" content={metaDescription} />
           <meta property="og:image" content={metaImage} />
           <meta property="og:url" content={metaUrl} />
+          <meta property="og:video:type" content="text/html" />
+          <meta property="og:video:url" content={embedUrl} />
+          <meta property="og:video:secure_url" content={embedUrl} />
+          <meta property="og:video:height" content="720" />
+          <meta property="og:video:width" content="1280" />
+          <meta property="og:type" content="video.other" />
           <meta name="twitter:title" content={metaTitle} />
           <meta name="twitter:description" content={metaDescription} />
           <meta name="twitter:image" content={metaImage} />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:site" content="@NekoCaption"></meta>
+          <meta name="twitter:player" content={embedUrl} />
+          <meta name="twitter:card" content="player" />
+          <meta name="twitter:site" content="@NekoCaption" />
+          <meta name="twitter:player:width" content="640" />
+          <meta name="twitter:player:height" content="360" />
         </>
       </Head>
       {isEmbed && viewerPage}
