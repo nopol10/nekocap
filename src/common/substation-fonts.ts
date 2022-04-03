@@ -126,6 +126,7 @@ export const SUBSTATION_GROUPED_FONTS = {
     "kanit light": "/fonts/Kanit-300.woff2",
     "kanit semibold": "/fonts/Kanit-600.woff2",
     "kanit bold": "/fonts/Kanit-700.woff2",
+    "layiji mahaniyom v1.61": "/fonts/LayijiMaHaNiYomV161.woff2",
     "noto sans thai": "/fonts/Noto-Sans-Thai-Regular.woff2",
     "noto sans thai light": "/fonts/Noto-Sans-Thai-300.woff2",
     "noto sans thai bold": "/fonts/Noto-Sans-Thai-700.woff2",
