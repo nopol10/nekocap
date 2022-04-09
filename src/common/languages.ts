@@ -363,6 +363,7 @@ export const languages = {
   yo_NG: "Yoruba (Nigeria)",
   za: "Zhuang",
   zu_ZA: "Zulu (South Africa)",
+  unk: "Unknown",
 };
 
 export const baseLanguages: { [id: string]: string } = {
@@ -513,6 +514,7 @@ export const baseLanguages: { [id: string]: string } = {
   yo: "Yoruba",
   za: "Zhuang",
   zu: "Zulu",
+  unk: "Unknown",
 };
 
 export const getBaseLanguageCode = (languageCode: string) =>

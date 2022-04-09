@@ -2,6 +2,7 @@ export const captionTags = {
   audioDescribed: "audioDescribed",
   hasEmail: "hasEmail", // email addresses detected inside caption data. For use in future if caption content scanning is done to prevent spam
   hasUrl: "hasUrl", // urls detected inside caption data
+  ytExCC: "ytExCC", // captions imported from YoutubeExternalCC
 };
 
 export const Z_INDEX = {

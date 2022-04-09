@@ -61,7 +61,7 @@ import {
   isInExtension,
   isInServiceWorker,
   isServer,
-} from "../../../common/client-utils";
+} from "../../client-utils";
 import type {
   BrowseRequest,
   BrowseResults,
@@ -159,6 +159,10 @@ const firebaseProvider: Parse.AuthProvider = {
 type ParseState = RootState;
 
 type ParseType = typeof ParseTypeImport;
+
+type LoadCaptionForReviewResponseType = ({
+  captionId: string,
+}) => LoadCaptionForReviewResponse;
 
 export class ParseProvider implements BackendProvider<ParseState> {
   private Parse: ParseType = null;
@@ -496,7 +500,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     captionId: string;
   }): Promise<LoadCaptionForReviewResult> {
     const response = await this.Parse.Cloud.run<
-      ({ captionId: string }) => LoadCaptionForReviewResponse
+      LoadCaptionForReviewResponseType
     >("loadCaptionForReview", { captionId });
     const {
       status,
