@@ -38,6 +38,7 @@ import { DEVICE } from "@/common/style-constants";
 import emptyVideoImage from "@/assets/images/empty-video.jpg";
 import { useOpenClose } from "@/hooks";
 import { VideoCaptionModal } from "./video-caption-modal";
+import { useRouter } from "next/router";
 
 const PAGE_SIZE = 20;
 
@@ -78,8 +79,21 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
   const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const isSearching = useSelector(search.isLoading(null));
+  const router = useRouter();
 
   const onSearch = (form: SearchForm) => {
+    const url = new URL(
+      `/search/${encodeURIComponent(form.title)}`,
+      window.location.origin
+    );
+
+    if (showAdvanced && form.videoLanguageCode) {
+      url.searchParams.append("vl", form.videoLanguageCode);
+    }
+    if (showAdvanced && form.captionLanguageCode) {
+      url.searchParams.append("cl", form.captionLanguageCode);
+    }
+    router.push(url.pathname + url.search);
     dispatch(
       search.request({
         title: form.title,
@@ -221,9 +235,13 @@ export const SearchCaptions = ({
   title = "",
 }: SearchCaptionsProps): JSX.Element => {
   const dispatch = useDispatch();
-  const { currentResultPage, videos = [], hasMoreResults } = useSelector(
-    searchSelector
-  );
+  const {
+    currentResultPage,
+    videos = [],
+    hasMoreResults,
+    captionLanguageCode,
+    videoLanguageCode,
+  } = useSelector(searchSelector);
   const isSearching = useSelector(search.isLoading(null));
   const videoCaptions = useSelector(searchVideoCaptionResultsSelector);
   const [
@@ -245,6 +263,8 @@ export const SearchCaptions = ({
     dispatch(
       search.request({
         title,
+        videoLanguageCode,
+        captionLanguageCode,
         pageNumber: page,
         pageSize: pageSize,
         append: true,

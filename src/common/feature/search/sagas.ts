@@ -14,7 +14,7 @@ import {
   loadSearchResultVideoCaptions,
   search,
   searchFromBasicBar,
-  setSearchNoMoreResults as setNoMoreSearchResults,
+  setNoMoreSearchResults,
   setSearchResults,
   setSearchResultVideoCaptions,
 } from "./actions";
@@ -36,11 +36,16 @@ function* searchRequestSaga(action: PayloadAction<SearchParams>) {
     pageNumber,
     append = false,
     title,
+    videoLanguageCode,
+    captionLanguageCode,
     ...rest
   } = action.payload;
-  const { hasMoreResults: originalHasMoreResults } = yield select(
-    searchSelector
-  );
+  const {
+    hasMoreResults: originalHasMoreResults,
+    searchString: currentSearchString,
+    videoLanguageCode: currentVideoLanguageCode,
+    captionLanguageCode: currentCaptionLanguageCode,
+  } = yield select(searchSelector);
   if (!originalHasMoreResults && append) {
     return;
   }
@@ -53,12 +58,19 @@ function* searchRequestSaga(action: PayloadAction<SearchParams>) {
   }: VideoSearchResults = yield call([Locator.provider(), "search"], {
     ...getLimitOffsetFromPagination(pageSize, pageNumber),
     title: cleanedTitle,
+    videoLanguageCode,
+    captionLanguageCode,
     ...rest,
   });
   if (status === "error") {
     throw new Error(error);
   }
-  if (videos.length <= 0) {
+  if (
+    videos.length <= 0 &&
+    currentSearchString === cleanedTitle &&
+    currentVideoLanguageCode === videoLanguageCode &&
+    currentCaptionLanguageCode === captionLanguageCode
+  ) {
     yield put(setNoMoreSearchResults());
     return;
   }
@@ -70,6 +82,9 @@ function* searchRequestSaga(action: PayloadAction<SearchParams>) {
 
   yield put(
     search.success({
+      searchString: cleanedTitle,
+      videoLanguageCode: videoLanguageCode,
+      captionLanguageCode: captionLanguageCode,
       hasMoreResults,
       currentResultPage: pageNumber,
       videos: videosWithDetails,

@@ -26,8 +26,8 @@ export const setSearchResults = createAction<SetVideoSearchResults>(
   searchActionTypes.setSearchResults
 );
 
-export const setSearchNoMoreResults = createAction(
-  searchActionTypes.setSearchNoMoreResults
+export const setNoMoreSearchResults = createAction(
+  searchActionTypes.setNoMoreSearchResults
 );
 
 export const setSearchResultVideoCaptions = createAction<

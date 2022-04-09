@@ -5,6 +5,6 @@ export const searchActionTypes = {
   loadSearchResultVideoCaptions: `${reducerName}/loadSearchResultVideoCaptions`,
   searchFromBasicBar: `${reducerName}/searchFromBasicBar`,
   setSearchResults: `${reducerName}/setSearchResults`,
-  setSearchNoMoreResults: `${reducerName}/setSearchNoMoreResults`,
+  setNoMoreSearchResults: `${reducerName}/setNoMoreSearchResults`,
   setSearchResultVideoCaptions: `${reducerName}/setSearchResultVideoCaptions`,
 };

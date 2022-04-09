@@ -1,6 +1,5 @@
 import Head from "next/head";
 import React from "react";
-import { batch, useSelector } from "react-redux";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
@@ -58,14 +57,19 @@ export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideP
     (store) => async ({
       locale,
       params,
+      query,
     }: GetServerSidePropsContext<PageParams>) => {
       const { title } = params;
+      const videoLanguageCode = (query.vl as string) || null;
+      const captionLanguageCode = (query.cl as string) || null;
       try {
         const PAGE_NUMBER = 1;
         const { videos, hasMoreResults } = await searchCaptionsApi(
           title,
           20,
-          PAGE_NUMBER
+          PAGE_NUMBER,
+          videoLanguageCode,
+          captionLanguageCode
         );
 
         const videosWithDetails: VideoFields[] = await populateVideoDetails(
@@ -74,6 +78,9 @@ export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideP
 
         store.dispatch(
           setSearchResults({
+            searchString: title,
+            videoLanguageCode,
+            captionLanguageCode,
             hasMoreResults,
             currentResultPage: PAGE_NUMBER,
             videos: videosWithDetails,

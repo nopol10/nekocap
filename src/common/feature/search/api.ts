@@ -3,9 +3,17 @@ import { getLimitOffsetFromPagination } from "@/common/utils";
 import { VideoFields } from "../video/types";
 import { videoSourceToProcessorMap } from "../video/utils";
 
-export async function searchCaptionsApi(title: string, pageSize, pageNumber) {
+export async function searchCaptionsApi(
+  title: string,
+  pageSize,
+  pageNumber,
+  videoLanguageCode: string,
+  captionLanguageCode: string
+) {
   return Locator.provider().search({
     title,
+    videoLanguageCode,
+    captionLanguageCode,
     ...getLimitOffsetFromPagination(pageSize, pageNumber),
   });
 }

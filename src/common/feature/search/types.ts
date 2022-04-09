@@ -9,6 +9,9 @@ import {
 export type SearchState = {
   currentResultPage: number;
   totalResults: number;
+  searchString: string | null;
+  videoLanguageCode: string | null;
+  captionLanguageCode: string | null;
   captions: LoadCaptionsResult[];
   videos: VideoFields[];
   hasMoreResults: boolean;
@@ -42,6 +45,9 @@ export type VideoSearchResults = ServerResponse & {
 };
 
 export type SetVideoSearchResults = {
+  searchString: string;
+  videoLanguageCode?: string;
+  captionLanguageCode?: string;
   videos: VideoFields[];
   hasMoreResults: boolean;
   currentResultPage: number;

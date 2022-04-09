@@ -3,7 +3,7 @@ import { createReducer } from "@reduxjs/toolkit";
 import {
   loadSearchResultVideoCaptions,
   search,
-  setSearchNoMoreResults,
+  setNoMoreSearchResults,
   setSearchResults,
   setSearchResultVideoCaptions,
 } from "./actions";
@@ -12,6 +12,9 @@ import { SearchState } from "./types";
 const initialState: SearchState = {
   currentResultPage: 1,
   totalResults: 0,
+  searchString: null,
+  videoLanguageCode: null,
+  captionLanguageCode: null,
   hasMoreResults: false,
   captions: [],
   videos: [],
@@ -25,6 +28,9 @@ export const searchReducer = createReducer<SearchState>(
     return builder
       .addCase(setSearchResults, (state, action) => {
         const {
+          searchString,
+          videoLanguageCode,
+          captionLanguageCode,
           videos,
           currentResultPage,
           append,
@@ -32,12 +38,15 @@ export const searchReducer = createReducer<SearchState>(
         } = action.payload;
         return {
           ...state,
+          searchString,
+          videoLanguageCode,
+          captionLanguageCode,
           videos: append ? [...state.videos, ...videos] : videos,
           hasMoreResults,
           currentResultPage,
         };
       })
-      .addCase(setSearchNoMoreResults, (state, action) => {
+      .addCase(setNoMoreSearchResults, (state, action) => {
         return {
           ...state,
           hasMoreResults: false,
