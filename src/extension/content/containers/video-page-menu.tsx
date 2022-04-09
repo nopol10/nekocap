@@ -40,7 +40,7 @@ import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import { colors } from "@/common/colors";
 import { Expandable } from "@/common/components/expandable";
 import { captionTags } from "@/common/constants";
-import { AudioDescribedTag } from "@/common/components/ws-tag";
+import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
 import {
   isUserCaptionLoadedSelector,
   showEditorIfPossibleSelector,
@@ -125,12 +125,14 @@ const captionOptionCreator = ({
   const language = languages[languageCode];
   const label = `${language} by ${captionerName || "Unknown"}`;
   const audioDescribed = tags.includes(captionTags.audioDescribed);
+  const fromYTExCC = tags.includes(captionTags.ytExCC);
   return (
     <Select.Option value={id} label={label} key={`cap-${id}`}>
       <Space>
         <span>{label}</span>
         <Space>
           {audioDescribed && <AudioDescribedTag />}
+          {fromYTExCC && <YTExternalCCTag />}
           <div>
             <LikeTwoTone
               twoToneColor={colors.like}

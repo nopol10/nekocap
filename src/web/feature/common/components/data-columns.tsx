@@ -21,7 +21,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { hasTag } from "@/common/caption-utils";
 import { captionTags } from "@/common/constants";
-import { AudioDescribedTag } from "@/common/components/ws-tag";
+import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
 import { routeNames } from "../../route-types";
 import { Processor } from "@/extension/content/processors/processor";
 const { Link } = Typography;
@@ -66,6 +66,7 @@ export const captionColumns = {
           {hasTag(record.tags, captionTags.audioDescribed) && (
             <AudioDescribedTag />
           )}
+          {hasTag(record.tags, captionTags.ytExCC) && <YTExternalCCTag />}
           <div>
             <Space>
               {processor.canWatchInNekoCapSite && (
@@ -201,6 +202,7 @@ export const videoCaptionColumns = (
             {hasTag(record.tags, captionTags.audioDescribed) && (
               <AudioDescribedTag />
             )}
+            {hasTag(record.tags, captionTags.ytExCC) && <YTExternalCCTag />}
           </div>
 
           <div>

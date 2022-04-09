@@ -3,6 +3,7 @@ import React from "react";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
+import ytexccImage from "@/assets/images/ytexcc-tag.jpg";
 import { getImageLink } from "../chrome-utils";
 
 export const MediumTag = styled.img`
@@ -29,5 +30,12 @@ export const WSTag = ({ size = "small", ...rest }: WSTagProps) => {
 };
 
 export const AudioDescribedTag = () => (
-  <WSTag src={getImageLink(audioDescriptionImage)} />
+  <WSTag title="Audio described" src={getImageLink(audioDescriptionImage)} />
+);
+
+export const YTExternalCCTag = () => (
+  <WSTag
+    title="Originally from Youtube External CC"
+    src={getImageLink(ytexccImage)}
+  />
 );
