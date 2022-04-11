@@ -94,6 +94,8 @@ function* updateLoadedCaptionFromFileSaga({
     fontList = yield call(loadFontListApi);
     yield call(storeRawCaption, tabId, rawCaptionData, true);
     yield put(setShowEditor({ tabId, show: false }));
+  } else {
+    yield call(clearRawCaption, tabId, true);
   }
 
   const caption: CaptionContainer = {
@@ -217,6 +219,45 @@ async function storeRawCaption(
     globalThis.editorRawCaption = rawCaption;
   } else {
     globalThis.rawCaption = rawCaption;
+  }
+  return Promise.resolve();
+}
+
+async function clearRawCaption(tabId: number, isEditor): Promise<void> {
+  if (isInBackgroundScript()) {
+    if (isEditor) {
+      if (!globalThis.backgroundEditorRawCaption) {
+        globalThis.backgroundEditorRawCaption = {};
+      }
+      delete globalThis.backgroundEditorRawCaption[tabId];
+    } else {
+      if (!globalThis.backgroundRawCaption) {
+        globalThis.backgroundRawCaption = {};
+      }
+      delete globalThis.backgroundRawCaption[tabId];
+    }
+    // In MV3, this can only run in the popup page. When that happens,
+    // we need to send the raw caption to the content script
+    await new Promise<void>((resolve) => {
+      globalThis.chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: ChromeMessageType.RawCaption,
+          payload: {
+            isEditor,
+            rawCaption: undefined,
+          },
+        },
+        () => {
+          resolve();
+        }
+      );
+    });
+  }
+  if (isEditor) {
+    globalThis.editorRawCaption = undefined;
+  } else {
+    globalThis.rawCaption = undefined;
   }
   return Promise.resolve();
 }
