@@ -71,6 +71,11 @@ export const BilibiliBangumiProcessor: Processor = {
     await waitForElement(
       ".bpx-player-dm-wrap, .bilibili-player-video-inputbar-wrap"
     );
+    // Some framework called Jinkela might be used. We need to wait for it to complete loading before we can add NekoCap to the page.
+    // Otherwise it will remove the entire video container
+    if (document.querySelectorAll(`script[src*="jinkela"]`).length > 0) {
+      await waitForElement(`iframe[src*="jinkela"]`);
+    }
     return;
   },
 };

@@ -12,8 +12,8 @@ export const BilibiliProcessor: Processor = {
   type: VideoSource.Bilibili,
   name: "bilibili",
   urlRegex: /bilibili\.com/,
-  videoSelector: ".bilibili-player-video video",
-  captionContainerSelector: ".bilibili-player-video",
+  videoSelector: ".bilibili-player-video video, .bpx-player-video-wrap video",
+  captionContainerSelector: ".bpx-player-video-wrap, .bilibili-player-video",
   videoPageUISelector: ".player-wrap",
   updateTitleOnSubmission: true,
   titleSelector: async () => {
@@ -34,7 +34,7 @@ export const BilibiliProcessor: Processor = {
     return [mainTitle, partTitle].join(" ");
   },
   editorVideoPlayerStyles: `
-  .bilibili-player-video {
+  .bilibili-player-video, .bpx-player-video-wrap {
     position: relative;
     width: 100%;
     height: 100%;
@@ -52,6 +52,9 @@ export const BilibiliProcessor: Processor = {
   globalStyles: `
     .libassjs-canvas-parent {
       position: static !important;
+      canvas {
+        top: 0 !important;
+      }
     }
   `,
   supportAutoCaptions: () => false,
@@ -93,7 +96,14 @@ export const BilibiliProcessor: Processor = {
     // Bilibili refreshes the page content shortly after the initial load so any
     // ui elements added to the body will be removed. We have to wait for the load
     // to finish before adding stuff in
-    await waitForElement(".bilibili-player-video-inputbar-wrap");
+    await waitForElement(
+      ".bilibili-player-video-inputbar-wrap, .bpx-player-dm-wrap"
+    );
+    // Some framework called Jinkela might be used. We need to wait for it to complete loading before we can add NekoCap to the page.
+    // Otherwise it will remove the entire video container
+    if (document.querySelectorAll(`script[src*="jinkela"]`).length > 0) {
+      await waitForElement(`iframe[src*="jinkela"]`);
+    }
     return;
   },
 };
