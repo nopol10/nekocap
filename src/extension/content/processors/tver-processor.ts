@@ -2,6 +2,7 @@ import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
+const TVER_URL_REGEX = /(http:|https:|)\/\/(tver.jp)\/((episodes?|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/;
 /**
  * Processor for TVer.jp
  * Ads do not seem to play in the same player as the main video
@@ -10,10 +11,10 @@ export const TVerProcessor: Processor = {
   type: VideoSource.TVer,
   name: "TVer",
   urlRegex: /tver\.jp/,
-  videoSelector: ".playvideo video",
-  captionContainerSelector: "#playerWrapper div#abcPlayer",
-  videoPageUISelector: ".video-section .title .inner > p",
-  titleSelector: ".video-section .title",
+  videoSelector: "video.vjs-tech",
+  captionContainerSelector: "",
+  videoPageUISelector: "div[class^=episode-info_flex]",
+  titleSelector: "span[class^=titles_seriesTitle]",
   editorVideoPlayerStyles: `
   #playerWrapper {
     width: 100% !important;
@@ -33,9 +34,7 @@ export const TVerProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(
-      /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/
-    );
+    const matches = window.location.href.match(TVER_URL_REGEX);
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {
@@ -56,11 +55,7 @@ export const TVerProcessor: Processor = {
     /* no content */
   },
   getPageType: (url: string) => {
-    if (
-      url.match(
-        /(http:|https:|)\/\/(tver.jp)\/((episode|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/
-      )
-    ) {
+    if (url.match(TVER_URL_REGEX)) {
       return PageType.Video;
     }
     return PageType.SearchResults;

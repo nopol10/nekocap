@@ -22,15 +22,6 @@ export const getVideoElement = async (
   return processor.videoSelector();
 };
 
-export const getCaptionContainerElement = async (
-  processor: Processor
-): Promise<HTMLElement> => {
-  if (typeof processor.captionContainerSelector === "string") {
-    return waitForElement(processor.captionContainerSelector);
-  }
-  return processor.captionContainerSelector();
-};
-
 export const getVideoTitle = async (processor: Processor): Promise<string> => {
   if (typeof processor.titleSelector === "string") {
     return (await waitForElement(processor.titleSelector)).innerText;
