@@ -49,6 +49,7 @@ const TimeIndicator = styled.div`
   transform: translate(-50%, -50%);
   pointer-events: none;
   user-select: none;
+  white-space: nowrap;
   z-index: 100;
 `;
 
