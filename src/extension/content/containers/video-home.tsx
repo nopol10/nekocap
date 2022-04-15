@@ -51,6 +51,7 @@ type InlineMenuWrapperProps = {
 };
 
 const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">("div")`
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;

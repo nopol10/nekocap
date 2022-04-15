@@ -28,6 +28,7 @@ export enum VideoSource {
   Twitter = 8,
   Wetv = 9,
   TikTok = 10,
+  iQiyi = 11,
 }
 
 export type CaptionContainer = {

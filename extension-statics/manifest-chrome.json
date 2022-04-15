@@ -23,7 +23,8 @@
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
         "https://*.wetv.vip/*",
-        "https://*.tiktok.com/*"
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*"
       ],
       "run_at": "document_end",
       "js": ["js/content.js"]
@@ -39,7 +40,8 @@
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
         "https://*.wetv.vip/*",
-        "https://*.tiktok.com/*"
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*"
       ],
       "run_at": "document_start",
       "css": ["js/content.css"]
@@ -71,7 +73,8 @@
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
         "https://*.wetv.vip/*",
-        "https://*.tiktok.com/*"
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*"
       ]
     }
   ],
