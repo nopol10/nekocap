@@ -78,6 +78,17 @@ import {
 } from "@/common/client-utils";
 import { getCaptionContainersFromFile } from "../caption-editor/utils";
 
+function sendInfoMessage(tabId: number, message: NotificationMessage) {
+  if (isInExtension() && isInBackgroundScript()) {
+    chrome.tabs.sendMessage(tabId, {
+      type: ChromeMessageType.InfoMessage,
+      payload: message,
+    });
+  } else {
+    notificationMessage.info(message.message, message.duration || 4);
+  }
+}
+
 function* updateLoadedCaptionFromFileSaga({
   payload,
 }: PayloadAction<UpdateLoadedCaptionFromFile>) {
@@ -89,6 +100,14 @@ function* updateLoadedCaptionFromFileSaga({
     type,
   });
   if (rawCaptionData && isAss(type)) {
+    const processor = videoSourceToProcessorMap[videoSource];
+    if (processor.disableAdvancedCaptions === true) {
+      sendInfoMessage(tabId, {
+        message: "Sorry, advanced captions are not supported for this website!",
+        duration: 5,
+      });
+      return;
+    }
     defaultRenderer = CaptionRendererType.AdvancedOctopus;
     yield put(setIsLoadingRawCaption({ loading: true, percentage: 0, tabId }));
     fontList = yield call(loadFontListApi);
@@ -127,19 +146,11 @@ function* updateRendererSaga({ payload }: PayloadAction<SetRenderer>) {
 
 function* closeMenuBarSaga({ payload }: PayloadAction<TabbedType>) {
   const { tabId } = payload;
-  const infoMessage: NotificationMessage = {
+  sendInfoMessage(tabId, {
     message:
       "You can open the menu again by clicking the NekoCap icon in the extensions toolbar",
     duration: 4,
-  };
-  if (isInExtension() && isInBackgroundScript()) {
-    chrome.tabs.sendMessage(tabId, {
-      type: ChromeMessageType.InfoMessage,
-      payload: infoMessage,
-    });
-  } else {
-    notificationMessage.info(infoMessage.message, infoMessage.duration || 4);
-  }
+  });
 
   yield put(setMenuHidden({ tabId, hidden: true }));
 }

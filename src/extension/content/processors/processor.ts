@@ -89,6 +89,7 @@ export interface Processor {
     refreshTabDataAfterElementUpdate: boolean;
   };
   disableEditor?: boolean;
+  disableAdvancedCaptions?: boolean;
   updateTitleOnSubmission?: boolean;
   inlineMenu?: {
     insertPosition: "before" | "after";

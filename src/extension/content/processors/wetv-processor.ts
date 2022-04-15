@@ -12,7 +12,7 @@ export const WetvProcessor: Processor = {
   type: VideoSource.Wetv,
   name: "WeTV",
   urlRegex: /wetv\.vip/,
-  videoSelector: "video",
+  videoSelector: ".player video",
   captionContainerSelector: ".bpx-player-video-wrap, .bilibili-player-video",
   videoPageUISelector: ".player--playback",
   updateTitleOnSubmission: true,

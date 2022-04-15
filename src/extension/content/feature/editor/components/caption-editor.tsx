@@ -91,6 +91,7 @@ dayjs.extend(duration);
 const VideoPane = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-evenly;
   width: 100%;
   height: 100%;
 `;
@@ -169,6 +170,7 @@ const EditorVideoContainer = styled(
 )`
   width: 100%;
   height: 100%;
+  position: relative;
 
   ${({ playerStyles }) => {
     return playerStyles;

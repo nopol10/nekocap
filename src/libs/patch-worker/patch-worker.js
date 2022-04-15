@@ -34,9 +34,15 @@ limitations under the License.
   // Note: Blob constructor is supported since Chrome 20, but since
   // some of the used Chrome APIs are only supported as of Chrome 20,
   //  I don't bother adding a BlobBuilder fallback.
-  var dummyWorker = new Worker_(
-    URL.createObjectURL(new Blob([], { type: "text/javascript" }))
-  );
+  var dummyWorker = undefined;
+  try {
+    dummyWorker = new Worker_(
+      URL.createObjectURL(new Blob([], { type: "text/javascript" }))
+    );
+  } catch (e) {
+    console.log("Failed to create dummy worker for validation:", e);
+  }
+  console.log("Continuing to patch worker!");
   window.Worker = function Worker(scriptURL) {
     if (arguments.length === 0) {
       throw new TypeError("Not enough arguments");
@@ -108,7 +114,9 @@ limitations under the License.
         this.Worker.postMessage.apply(this.Worker, arguments);
       } else {
         // Trigger validation:
-        dummyWorker.postMessage(message);
+        if (typeof dummyWorker != "undefined") {
+          dummyWorker.postMessage(message);
+        }
         // Alright, push the valid message to the queue.
         this._messageQueue.push(arguments);
       }

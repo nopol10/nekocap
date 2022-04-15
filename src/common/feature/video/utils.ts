@@ -14,6 +14,7 @@ import { NetflixProcessor } from "@/extension/content/processors/netflix-process
 import { AmazonPrimeProcessor } from "@/extension/content/processors/amazon-prime-processor";
 import { TwitterProcessor } from "@/extension/content/processors/twitter-processor";
 import { WetvProcessor } from "@/extension/content/processors/wetv-processor";
+import { TikTokProcessor } from "@/extension/content/processors/tiktok-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -87,6 +88,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.AmazonPrime]: AmazonPrimeProcessor,
   [VideoSource.Twitter]: TwitterProcessor,
   [VideoSource.Wetv]: WetvProcessor,
+  [VideoSource.TikTok]: TikTokProcessor,
 };
 
 export const processorOrder = [
@@ -100,4 +102,5 @@ export const processorOrder = [
   VideoSource.AmazonPrime,
   VideoSource.Twitter,
   VideoSource.Wetv,
+  VideoSource.TikTok,
 ];
