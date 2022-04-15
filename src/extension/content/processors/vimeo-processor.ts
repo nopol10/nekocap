@@ -11,7 +11,6 @@ export const VimeoProcessor: Processor = {
   name: "Vimeo",
   urlRegex: /vimeo\.com/,
   videoSelector: ".vp-video-wrapper video",
-  captionContainerSelector: ".vp-telecine",
   videoPageUISelector: "main h1",
   titleSelector: "main h1 > span:first-child",
   editorVideoPlayerStyles: `

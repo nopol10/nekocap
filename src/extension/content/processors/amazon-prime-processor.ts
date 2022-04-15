@@ -11,7 +11,6 @@ export const AmazonPrimeProcessor: Processor = {
   name: "Amazon Prime",
   urlRegex: /primevideo\.com/,
   videoSelector: ".webPlayerElement video",
-  captionContainerSelector: ".rendererContainer",
   videoPageUISelector: ".atvwebplayersdk-timeindicator-text",
   updateTitleOnSubmission: true,
   titleSelector: async () => {

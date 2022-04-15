@@ -11,7 +11,6 @@ export const NetflixProcessor: Processor = {
   name: "Netflix",
   urlRegex: /netflix\.com/,
   videoSelector: ".watch-video video",
-  captionContainerSelector: ".player-timedtext",
   videoPageUISelector: async () => {
     const controlsWrapper = await waitForElement(
       `.watch-video--bottom-controls-container button[data-uia="control-audio-subtitle"]`

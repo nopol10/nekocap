@@ -12,7 +12,6 @@ export const BilibiliBangumiProcessor: Processor = {
   name: "bilibili (bangumi)",
   urlRegex: /bilibili\.com\/bangumi/,
   videoSelector: ".bpx-player-video-wrap video, .bilibili-player-video video",
-  captionContainerSelector: ".bpx-player-video-wrap, .bilibili-player-video",
   videoPageUISelector: ".player-module",
   titleSelector: ".bpx-player-top-title div, .bilibili-player-video-top-title",
   editorVideoPlayerStyles: `

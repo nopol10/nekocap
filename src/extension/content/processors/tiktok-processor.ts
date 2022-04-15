@@ -13,7 +13,6 @@ export const TikTokProcessor: Processor = {
   name: "TikTok",
   urlRegex: /tiktok\.com/,
   videoSelector: `*[data-e2e="browse-video"] video`,
-  captionContainerSelector: "",
   videoPageUISelector: `*[data-e2e="browse-music"]`,
   updateTitleOnSubmission: true,
   titleSelector: async () => {

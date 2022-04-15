@@ -12,7 +12,6 @@ export const TVerProcessor: Processor = {
   name: "TVer",
   urlRegex: /tver\.jp/,
   videoSelector: "video.vjs-tech",
-  captionContainerSelector: "",
   videoPageUISelector: "div[class^=episode-info_flex]",
   titleSelector: "span[class^=titles_seriesTitle]",
   editorVideoPlayerStyles: `

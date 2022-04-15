@@ -61,13 +61,6 @@ export interface Processor {
   urlRegex: RegExp;
   videoSelector: string | (() => Promise<HTMLVideoElement>);
   videoPageUISelector: string | (() => Promise<HTMLElement>);
-  /**
-   * NO LONGER NECESSARY: This is no longer necessary and the video element's parent will be used and checks will be made
-   * to update it when a caption is loaded/created to maintain its correct position.
-   * The container for the caption. The parent needs to be the direct parent of the video element
-   * so that the container sits beside the video element (as a sibling).
-   */
-  captionContainerSelector: string | (() => Promise<HTMLElement>);
   // Used to identify when an inaccurate title was detected. For sites where the title is not always retrievable
   // at any time. If any of the titles in this list are found, the title should be updated to the correct one.
   inaccurateTitles?: [string];

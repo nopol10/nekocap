@@ -22,10 +22,6 @@ export const TwitterProcessor: Processor = {
     const video: HTMLVideoElement = await waitForElement("video", videoParent);
     return video;
   },
-  captionContainerSelector: async function () {
-    const video = await this.videoSelector();
-    return video?.parentElement;
-  },
   videoPageUISelector: async function () {
     const linkElement = await waitForElement(
       `a[href$="/status/${this.getVideoId()}"]`

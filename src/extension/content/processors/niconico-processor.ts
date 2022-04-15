@@ -12,7 +12,6 @@ export const NicoNicoProcessor: Processor = {
   name: "Niconico",
   urlRegex: /nicovideo\.jp/,
   videoSelector: "#MainVideoPlayer video",
-  captionContainerSelector: "#VideoPlayer",
   videoPageUISelector: ".MainContainer",
   titleSelector: ".VideoTitle",
   editorVideoPlayerStyles: `

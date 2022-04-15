@@ -13,7 +13,6 @@ export const BilibiliProcessor: Processor = {
   name: "bilibili",
   urlRegex: /bilibili\.com/,
   videoSelector: ".bilibili-player-video video, .bpx-player-video-wrap video",
-  captionContainerSelector: ".bpx-player-video-wrap, .bilibili-player-video",
   videoPageUISelector: ".player-wrap",
   updateTitleOnSubmission: true,
   titleSelector: async () => {

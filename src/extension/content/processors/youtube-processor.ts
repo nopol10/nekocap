@@ -45,7 +45,6 @@ export const YoutubeProcessor: Processor = {
   canWatchInNekoCapSite: true,
   urlRegex: /youtube.com/,
   videoSelector: "#ytd-player #container video",
-  captionContainerSelector: "#ytd-player .html5-video-container",
   videoPageUISelector:
     "ytd-video-primary-info-renderer h1.ytd-video-primary-info-renderer",
   titleSelector: "#info-contents h1.title yt-formatted-string",
