@@ -111,6 +111,25 @@ export const useResize = (
   }, [element, ...dependencies]);
 };
 
+export const useWindowResize = (
+  callback?: () => void,
+  dependencies: DependencyList = []
+) => {
+  const [_, setDummy] = useState(0);
+  useEffect(() => {
+    const onResize = () => {
+      setDummy(Math.random());
+      if (callback) {
+        callback();
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, [...dependencies]);
+};
+
 export const useDrag = (
   element: HTMLElement,
   onStart: (x: number, y: number) => { x: number; y: number }, // Callback on start of drag that returns a corrected start coordinates
@@ -230,8 +249,9 @@ export const useVideoPlayPause = (
 export const useVideoDurationChange = (
   videoElement: HTMLVideoElement
 ): [number, MutableRefObject<number>] => {
-  const [videoDuration, setVideoDuration, videoDurationRef] =
-    useStateAutoRef(0);
+  const [videoDuration, setVideoDuration, videoDurationRef] = useStateAutoRef(
+    0
+  );
   useEffect(() => {
     const handleDurationChange = () => {
       setVideoDuration(videoElement.duration * TIME.SECONDS_TO_MS);

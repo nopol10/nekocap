@@ -24,7 +24,7 @@ import {
   CaptionRendererHandle,
 } from "@/extension/content/containers/caption-renderer";
 import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
-import { useSSRMediaQuery, useStateRef } from "@/hooks";
+import { useSSRMediaQuery, useStateRef, useWindowResize } from "@/hooks";
 import { isAss } from "@/common/caption-utils";
 import { styledNoPass } from "@/common/style-utils";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
@@ -161,6 +161,7 @@ export const ViewerPage = ({
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
   const fullScreenHandle = useFullScreenHandle();
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
+  useWindowResize();
 
   useEffect(() => {
     // This is a website, no tabId is required
