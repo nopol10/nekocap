@@ -169,7 +169,7 @@
     "react-router-dom": "^5.2.0",
     "react-split-pane": "^2.0.3",
     "react-virtualized": "^9.22.2",
-    "react-youtube": "^7.13.1",
+    "react-youtube": "8.2.1",
     "redux": "^4.0.5",
     "redux-devtools": "^3.6.1",
     "redux-firestore": "^0.13.0",
