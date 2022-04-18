@@ -38,6 +38,22 @@ const SUPPORTED_SITES: SupportedSite[] = [
     url: "https://www.netflix.com/",
     name: "Netflix",
   },
+  {
+    url: "https://www.twitter.com/",
+    name: "Twitter",
+  },
+  {
+    url: "https://www.wetv.vip/",
+    name: "WeTV",
+  },
+  {
+    url: "https://www.tiktok.com/",
+    name: "TikTok",
+  },
+  {
+    url: "https://iq.com/",
+    name: "iQiyi",
+  },
 ];
 
 export const SupportedSites = () => {
@@ -46,6 +62,7 @@ export const SupportedSites = () => {
       style={{
         paddingInlineStart: 0,
         display: "inline-flex",
+        flexWrap: "wrap",
         columnGap: "8px",
       }}
     >
