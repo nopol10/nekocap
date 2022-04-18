@@ -11,6 +11,7 @@ import { findClosestCaption } from "@/common/feature/video/utils";
 import type {
   CaptionContainer,
   IFrameProps,
+  VideoPlayerPreferences,
 } from "@/common/feature/video/types";
 import {
   CaptionAlignment,
@@ -38,6 +39,7 @@ interface CaptionRendererProps {
   isIframe?: boolean;
   iframeProps?: IFrameProps;
   showCaption: boolean;
+  preferences?: VideoPlayerPreferences;
 }
 export interface CaptionRendererHandle {
   onVideoPlay: () => void;
@@ -180,6 +182,9 @@ const CaptionRendererInternal = React.forwardRef(
       showCaption,
       isIframe = false,
       iframeProps,
+      preferences = {
+        fontSizeMultiplier: 1,
+      },
     }: CaptionRendererProps,
     ref: MutableRefObject<CaptionRendererHandle>
   ) => {
@@ -389,7 +394,9 @@ const CaptionRendererInternal = React.forwardRef(
       }
       // Set text styles
       currentTextElement.style.fontSize = `${
-        DEFAULT_FONT_SIZE_FACTOR * containerDimensions.current.height
+        DEFAULT_FONT_SIZE_FACTOR *
+        preferences.fontSizeMultiplier *
+        containerDimensions.current.height
       }px`;
       const alignment = activeLayout?.alignment;
       switch (alignment) {
@@ -540,7 +547,7 @@ const CaptionRendererInternal = React.forwardRef(
     // Effect to force rerendering of the caption when the caption data is changed
     useEffect(() => {
       handleTimeUpdate(0, true);
-    }, [caption]);
+    }, [caption, preferences]);
 
     // Update display
     useEffect(() => {
@@ -609,6 +616,7 @@ export const CaptionRenderer = React.memo(
       prevProps.captionContainerElement === nextProps.captionContainerElement &&
       prevProps.showCaption === nextProps.showCaption &&
       prevProps.isIframe === nextProps.isIframe &&
+      isEqual(prevProps.preferences, nextProps.preferences) &&
       isEqual(prevProps.caption, nextProps.caption) &&
       isEqual(prevProps.iframeProps, nextProps.iframeProps)
     );

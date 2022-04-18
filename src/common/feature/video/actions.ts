@@ -19,6 +19,7 @@ import type {
   SetVideoDimensions,
   SetFontList,
   SetIsLoadingRawCaption,
+  SetPlayerFontSizeMultiplier,
 } from "./types";
 
 const csa = createSignalActionInState("video", true);
@@ -103,6 +104,10 @@ export const setRenderer = createAction<SetRenderer>(
 export const setVideoDimensions = createAction<SetVideoDimensions>(
   videoActionTypes.setVideoDimensions
 );
+
+export const setPlayerFontSizeMultiplier = createAction<
+  SetPlayerFontSizeMultiplier
+>(videoActionTypes.setPlayerFontSizeMultiplier);
 
 export const setMenuHidden = createAction<SetMenuHidden>(
   videoActionTypes.setMenuHidden

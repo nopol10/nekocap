@@ -63,6 +63,10 @@ export enum PageType {
   Video,
 }
 
+export type VideoPlayerPreferences = {
+  fontSizeMultiplier: number;
+};
+
 export type TabVideoData = {
   caption?: CaptionContainer;
   showCaption: boolean;
@@ -75,6 +79,7 @@ export type TabVideoData = {
   isLoadingRawCaption: boolean;
   rawLoadPercentage?: number;
   currentUrl?: string;
+  preferences: VideoPlayerPreferences;
 };
 
 export type VideoState = {
@@ -170,6 +175,10 @@ export type SetMenuHidden = TabbedType & {
 
 export type SetVideoDimensions = TabbedType & {
   dimensions: Dimension;
+};
+
+export type SetPlayerFontSizeMultiplier = TabbedType & {
+  multiplier: number;
 };
 
 export type SubmitCaption = TabbedType & {

@@ -1,6 +1,6 @@
-import { Button, message, Skeleton, Space, Tooltip, Typography } from "antd";
+import { message, Skeleton, Space, Tooltip, Typography } from "antd";
 import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import YouTube from "react-youtube";
@@ -8,7 +8,11 @@ import { YouTubePlayer } from "youtube-player/dist/types";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { faCode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { loadWebsiteViewerCaption } from "@/common/feature/video/actions";
+import "antd/lib/slider/style";
+import {
+  loadWebsiteViewerCaption,
+  setPlayerFontSizeMultiplier,
+} from "@/common/feature/video/actions";
 import {
   fontListSelector,
   tabVideoDataSelector,
@@ -17,6 +21,7 @@ import { routeNames } from "@/web/feature/route-types";
 import {
   CaptionRendererType,
   RawCaptionData,
+  VideoPlayerPreferences,
   VideoSource,
 } from "@/common/feature/video/types";
 import {
@@ -24,7 +29,7 @@ import {
   CaptionRendererHandle,
 } from "@/extension/content/containers/caption-renderer";
 import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
-import { useSSRMediaQuery, useStateRef, useWindowResize } from "@/hooks";
+import { useRerenderOnResize, useSSRMediaQuery, useStateRef } from "@/hooks";
 import { isAss } from "@/common/caption-utils";
 import { styledNoPass } from "@/common/style-utils";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
@@ -36,27 +41,44 @@ import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { isClient, isServer } from "@/common/client-utils";
 import { WSText } from "@/common/components/ws-text";
+import { CaptionControl } from "@/common/feature/video/components/caption-control";
+import { colors } from "@/common/colors";
 
 const { Title, Text, Link } = Typography;
 
 const TAB_ID = 0;
 const YOUTUBE_IFRAME_ID = "youtube-iframe";
+const NEKOCAP_EMBED_CLASSNAME = "nekocap-embed";
 
 const MAX_HEIGHT = 600;
 
 const Wrapper = styled.div`
   padding: 0px;
+  &.${NEKOCAP_EMBED_CLASSNAME} > .fullscreen {
+    height: 100%;
+  }
+`;
+
+const FullScreenWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  .fullscreen-enabled &,
+  .${NEKOCAP_EMBED_CLASSNAME} & {
+    height: 100%;
+  }
 `;
 
 const VideoWrapper = styled.div`
   position: relative;
   text-align: center;
-  .fullscreen-enabled & {
+  .fullscreen-enabled &,
+  .${NEKOCAP_EMBED_CLASSNAME} & {
     height: 100%;
   }
   & > div:not([class]),
   & > div[class=""] {
-    .fullscreen-enabled & {
+    .fullscreen-enabled &,
+    .${NEKOCAP_EMBED_CLASSNAME} & {
       height: 100%;
     }
   }
@@ -66,7 +88,8 @@ const VideoWrapper = styled.div`
     :not(.fullscreen-enabled) & {
       max-height: ${MAX_HEIGHT}px;
     }
-    .fullscreen-enabled & {
+    .fullscreen-enabled &,
+    .${NEKOCAP_EMBED_CLASSNAME} & {
       height: 100%;
     }
   }
@@ -133,11 +156,9 @@ const ExtensionMessage = styled.div`
   }
 `;
 
-const FullScreenButton = styled(Button)`
-  position: fixed;
-  bottom: 46px;
-  right: 20px;
-  z-index: 10;
+const FullScreenButton = styled.div`
+  padding: 0px 20px;
+  color: ${colors.white};
 `;
 
 export type ViewerPageProps = {
@@ -145,6 +166,20 @@ export type ViewerPageProps = {
   rawCaption?: RawCaptionData;
   isEmbed: boolean;
 };
+
+function videoPreferencesReducer(
+  state: VideoPlayerPreferences,
+  action: ReturnType<typeof setPlayerFontSizeMultiplier>
+): VideoPlayerPreferences {
+  switch (action.type) {
+    case setPlayerFontSizeMultiplier.type:
+      return {
+        ...state,
+        fontSizeMultiplier: action.payload.multiplier,
+      };
+  }
+  return state;
+}
 
 export const ViewerPage = ({
   rawCaption,
@@ -161,8 +196,12 @@ export const ViewerPage = ({
   const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
   const fullScreenHandle = useFullScreenHandle();
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
-  useWindowResize();
-
+  const [videoPlayerPreferences, dispatchVideoPreference] = useReducer<
+    typeof videoPreferencesReducer
+  >(videoPreferencesReducer, {
+    fontSizeMultiplier: 1,
+  });
+  useRerenderOnResize(captionContainerElement);
   useEffect(() => {
     // This is a website, no tabId is required
     window.tabId = TAB_ID;
@@ -270,7 +309,7 @@ export const ViewerPage = ({
   let iframeHeight = 0;
   if (isLandscape) {
     const currentEmbedHeight = fullScreenHandle.active
-      ? window.innerHeight
+      ? captionContainerElement.offsetHeight
       : embedHeight;
     iframeWidth = Math.ceil(
       videoDimensions
@@ -305,21 +344,47 @@ export const ViewerPage = ({
     ? videoSourceToProcessorMap[caption.videoSource]
     : undefined;
 
+  const handleSetFontSizeMultiplier = (multiplier: number) => {
+    dispatchVideoPreference(
+      setPlayerFontSizeMultiplier({ multiplier, tabId: globalThis.tabId })
+    );
+  };
+
+  const toggleFullScreen = () => {
+    if (fullScreenHandle.active) {
+      fullScreenHandle.exit();
+    } else {
+      fullScreenHandle.enter();
+    }
+  };
+
+  const fullScreenButton = (
+    <FullScreenButton onClick={toggleFullScreen}>
+      <FullscreenOutlined />
+    </FullScreenButton>
+  );
+
   return (
     <Wrapper
       style={{
         height: isEmbed ? "100%" : null,
       }}
+      className={isEmbed ? NEKOCAP_EMBED_CLASSNAME : ""}
     >
       <Skeleton active={true} loading={isLoading}>
         {renderNoDataMessage()}
-        <FullScreenButton onClick={fullScreenHandle.enter}>
-          <FullscreenOutlined />
-        </FullScreenButton>
         <FullScreen handle={fullScreenHandle}>
-          <VideoWrapper ref={captionContainerElementRef}>
-            {renderVideo()}
-          </VideoWrapper>
+          <FullScreenWrapper>
+            <VideoWrapper ref={captionContainerElementRef}>
+              {renderVideo()}
+            </VideoWrapper>
+            <CaptionControl
+              preferences={videoPlayerPreferences}
+              setFontSizeMultiplier={handleSetFontSizeMultiplier}
+              rightContainer={fullScreenButton}
+              fullScreen={fullScreenHandle.active || isEmbed}
+            />
+          </FullScreenWrapper>
         </FullScreen>
         {caption && !isEmbed && (
           <DetailsWrapper>
@@ -378,6 +443,7 @@ export const ViewerPage = ({
             showCaption={true}
             isIframe={true}
             iframeProps={iframeProps}
+            preferences={videoPlayerPreferences}
           />
         )}
         {loadComplete && isUsingAdvancedRenderer && (

@@ -111,7 +111,26 @@ export const useResize = (
   }, [element, ...dependencies]);
 };
 
-export const useWindowResize = (
+export const useRerenderOnResize = (
+  element: HTMLElement,
+  dependencies: DependencyList = []
+) => {
+  const [_, setDummy] = useState(0);
+  useEffect(() => {
+    if (!element) {
+      return;
+    }
+    const ro = new ResizeObserver((entries) => {
+      setDummy(Math.random());
+    });
+    ro.observe(element);
+    return () => {
+      ro.disconnect();
+    };
+  }, [element, ...dependencies]);
+};
+
+export const useRerenderOnWindowResize = (
   callback?: () => void,
   dependencies: DependencyList = []
 ) => {
@@ -659,4 +678,9 @@ export const useOpenClose = (
     setIsOpened(false);
   };
   return [isOpened, handleOpenList, handleCloseList];
+};
+
+export const useToggle = (initialState: boolean): [boolean, () => void] => {
+  const [active, setIsActive] = useState(initialState);
+  return [active, () => setIsActive(!active)];
 };

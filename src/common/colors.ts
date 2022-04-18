@@ -25,4 +25,7 @@ export const colors = {
   cueItemText: "#dcdcdc",
   trackSelected: "#ffa62b",
   trackHover: "#e4e4e4",
+  // Caption control
+  captionControlBackground: "#363636",
+  captionControlBorder: "#818181",
 };
