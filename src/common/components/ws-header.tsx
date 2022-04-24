@@ -9,7 +9,8 @@ export type WSHeaderProps = {
 };
 
 export const WSHeader = styledNoPass<WSHeaderProps, typeof Layout.Header>(
-  Layout.Header
+  Layout.Header,
+  "WSHeader"
 )`
   &.ant-layout-header {
     position: fixed;

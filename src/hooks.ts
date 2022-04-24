@@ -10,11 +10,6 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  MediaQueryAllQueryable,
-  MediaQueryMatchers,
-  useMediaQuery,
-} from "react-responsive";
 import { isClient, isServer } from "./common/client-utils";
 import {
   IN_PAGE_MENU_CONTAINER_ID,
@@ -562,6 +557,9 @@ const getScrollPosition = ({
   element?: HTMLElement | null;
   useWindow: boolean;
 }): Coords => {
+  if (isServer()) {
+    return { x: 0, y: 0 };
+  }
   if (useWindow) {
     return { x: window.scrollX, y: window.scrollY };
   }
@@ -586,9 +584,6 @@ export const useScrollPosition = (
   useWindow = false,
   wait?: number
 ): void => {
-  if (isServer()) {
-    return;
-  }
   const position = useRef(getScrollPosition({ useWindow }));
 
   let throttleTimeout = -1;
@@ -599,6 +594,10 @@ export const useScrollPosition = (
     position.current = currPos;
     throttleTimeout = -1;
   };
+
+  if (isServer()) {
+    return;
+  }
 
   useLayoutEffect(() => {
     const handleScroll = () => {
@@ -625,9 +624,6 @@ export const useScrolledPastY = (
   yBreakpoint: number,
   throttleDuration = 100
 ) => {
-  if (isServer()) {
-    return false;
-  }
   const [hasScrolledPast, setHasScrolledPast] = useState(false);
   useScrollPosition(
     ({ prevPos, currPos }) => {
@@ -641,27 +637,30 @@ export const useScrolledPastY = (
     !element,
     throttleDuration
   );
+  if (isServer()) {
+    return false;
+  }
   return hasScrolledPast;
 };
 
-export const useSSRMediaQuery = (
-  settings: Partial<MediaQueryAllQueryable & { query?: string }>,
-  device?: MediaQueryMatchers,
-  callback?: (matches: boolean) => void
-) => {
-  if (isServer()) {
-    return settings.query === DEVICE.desktop;
-  }
-  const [isInClient, setIsInClient] = useState(false);
+export function useSSRMediaQuery(settings: { query?: string }) {
+  const { query } = settings;
+  const [matches, setMatches] = useState(false);
 
-  const isMatch = useMediaQuery(settings, device, callback);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => {
+      setMatches(media.matches);
+    };
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
 
-  useLayoutEffect(() => {
-    if (isClient()) setIsInClient(true);
-  }, []);
-
-  return isInClient ? isMatch : false;
-};
+  return matches;
+}
 
 export const useIsInPopup = (): boolean => {
   return !!useContext(PopupContext);
@@ -683,4 +682,12 @@ export const useOpenClose = (
 export const useToggle = (initialState: boolean): [boolean, () => void] => {
   const [active, setIsActive] = useState(initialState);
   return [active, () => setIsActive(!active)];
+};
+
+export const useIsClient = (): boolean => {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  return isClient;
 };

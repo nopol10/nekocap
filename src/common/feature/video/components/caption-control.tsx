@@ -9,7 +9,10 @@ import CaretUpOutlined from "@ant-design/icons/lib/icons/CaretUpOutlined";
 import CaretDownOutlined from "@ant-design/icons/lib/icons/CaretDownOutlined";
 import { useToggle } from "@/hooks";
 
-const Wrapper = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>("div")`
+const Wrapper = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
+  "div",
+  "Wrapper"
+)`
   display: ${({ isHidden, fullScreen }) =>
     isHidden && fullScreen ? "none" : "flex"};
   flex-direction: row;
@@ -20,7 +23,10 @@ const Wrapper = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>("div")`
   border-top: 1px solid ${colors.captionControlBorder};
 `;
 
-const Hider = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>("div")`
+const Hider = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
+  "div",
+  "Hider"
+)`
   position: absolute;
   display: flex;
   justify-content: center;

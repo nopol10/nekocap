@@ -11,7 +11,7 @@ import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 
 const { Link } = Typography;
 
-export const MobileCaptionWrapper = styled.a`
+export const MobileCaptionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
@@ -62,8 +62,13 @@ export type MobileCaptionListProps = {
 };
 
 export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
+  const handleCaptionerLinkClick: React.MouseEventHandler<HTMLAnchorElement> = (
+    event
+  ) => {
+    event.stopPropagation();
+  };
   return (
-    <>
+    <div>
       {captions.map((caption) => {
         const fromLanguage = languages[caption.videoLanguage];
         const toLanguage = languages[caption.language];
@@ -79,13 +84,14 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
             message.warn(
               "Viewing this caption via the browser is unsupported. Download the extension instead!"
             );
+            return;
           }
+          window.open(url, "_blank");
         };
 
         return (
           <MobileCaptionWrapper
             key={`mobile-caption-${caption.id}`}
-            href={url}
             onClick={handleClickCaption}
           >
             <MobileCaptionOverlay>
@@ -100,6 +106,7 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
                 captioned by{" "}
                 <b>
                   <Link
+                    onClick={handleCaptionerLinkClick}
                     href={`${routeNames.profile.main.replace(
                       ":id",
                       caption.creatorId
@@ -116,6 +123,6 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
           </MobileCaptionWrapper>
         );
       })}
-    </>
+    </div>
   );
 };

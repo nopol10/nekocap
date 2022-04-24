@@ -89,7 +89,7 @@ const MenuRow = styled.div`
   align-items: center;
 `;
 
-const LikeText = styledNoPass<LikeTextProps, "span">("span")`
+const LikeText = styledNoPass<LikeTextProps, "span">("span", "LikeText")`
   color: ${({ activated }: LikeTextProps) =>
     activated ? colors.like : undefined};
   ${darkModeSelector(css`
@@ -98,7 +98,7 @@ const LikeText = styledNoPass<LikeTextProps, "span">("span")`
   `)}
 `;
 
-const DislikeText = styledNoPass<LikeTextProps, "span">("span")`
+const DislikeText = styledNoPass<LikeTextProps, "span">("span", "DislikeText")`
   color: ${({ activated }: LikeTextProps) =>
     activated ? colors.dislike : undefined};
   ${darkModeSelector(css`

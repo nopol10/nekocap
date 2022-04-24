@@ -103,7 +103,10 @@ const VideoWrapper = styled.div`
   }
 `;
 
-const DetailsWrapper = styledNoPass<{ width?: number }>("div")`
+const DetailsWrapper = styledNoPass<{ width?: number }>(
+  "div",
+  "DetailsWrapper"
+)`
     ${({ width }) => (width !== undefined ? `width: ${width}px` : "")};
     margin-left: auto;
     margin-right: auto;

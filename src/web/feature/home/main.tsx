@@ -5,7 +5,7 @@ import { WSHeader } from "@/common/components/ws-header";
 import { WSLayout } from "@/common/components/ws-layout";
 import { WebHeader } from "./web-header";
 import { webAutoLogin } from "@/common/feature/login/actions";
-import { useScrolledPastY } from "@/hooks";
+import { useIsClient, useScrolledPastY } from "@/hooks";
 import { initFirebase } from "@/extension/background/firebase";
 import { AutoLoginContext } from "../common/contexts/auto-login-context";
 import { onAuthStateChanged } from "firebase/auth";
@@ -44,6 +44,7 @@ export const Main = ({
   }, []);
 
   const scrolled = useScrolledPastY(undefined, 174);
+  const isClient = useIsClient();
 
   return (
     <div
@@ -58,9 +59,11 @@ export const Main = ({
         }}
       >
         <WSLayout>
-          <WSHeader scrolled={scrolled}>
-            <WebHeader />
-          </WSHeader>
+          {isClient && (
+            <WSHeader scrolled={scrolled}>
+              <WebHeader />
+            </WSHeader>
+          )}
           <Content
             style={{
               display: "flex",

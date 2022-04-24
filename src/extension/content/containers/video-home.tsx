@@ -50,7 +50,10 @@ type InlineMenuWrapperProps = {
   isInline: boolean;
 };
 
-const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">("div")`
+const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">(
+  "div",
+  "InlineMenuWrapper"
+)`
   box-sizing: border-box;
   display: flex;
   flex-direction: row;

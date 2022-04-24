@@ -10,7 +10,7 @@ type SearchRowProps = {
   opened?: boolean;
 };
 
-const SearchRow = styledNoPass<SearchRowProps>("div")`
+const SearchRow = styledNoPass<SearchRowProps>("div", "SearchRow")`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;

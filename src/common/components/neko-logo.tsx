@@ -1,7 +1,6 @@
 import React from "react";
-import styled from "styled-components";
 import NekoLogoSvg from "-!react-svg-loader!@/assets/images/nekocap.svg";
-import { styledNoPass } from "../style-utils";
+import styled from "styled-components";
 
 type NekoLogoProps = {
   width?: string;
@@ -9,7 +8,9 @@ type NekoLogoProps = {
   style?: React.CSSProperties;
 };
 
-const NekoTitle = styledNoPass<NekoLogoProps>("div")`
+const NekoTitle = styled("div").withConfig<NekoLogoProps>({
+  shouldForwardProp: (prop, defPropValFn) => defPropValFn(prop),
+})`
   width: ${({ width, height }) => {
     if (width !== undefined) {
       return width;

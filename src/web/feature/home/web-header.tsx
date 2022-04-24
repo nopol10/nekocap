@@ -39,7 +39,7 @@ const Socials = styled.div`
   }
 `;
 
-const MobileMenu = styledNoPass<{ open: boolean }>("div")`
+const MobileMenu = styledNoPass<{ open: boolean }>("div", "MobileMenu")`
   display: flex;
   flex-direction: column;
   position: fixed;

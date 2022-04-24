@@ -46,7 +46,8 @@ const Timebar = styled.div`
 `;
 
 const TimebarCanvas = styledNoPass<{ actualWidth: string | number }, "canvas">(
-  "canvas"
+  "canvas",
+  "TimebarCanvas"
 )`
   width: ${(props) => props.actualWidth}px;
   height: 100%;
