@@ -113,6 +113,8 @@ export const SUBSTATION_GROUPED_FONTS = {
     "noto sans kr bold": "/fonts/Noto-Sans-KR-700.woff2",
     gaegu: "/fonts/Gaegu-Regular.woff2",
     "gaegu bold": "/fonts/Gaegu-700.woff2",
+    "maplestory bold": "/fonts/MaplestoryBold.woff2",
+    "maplestory light": "/fonts/MaplestoryLight.woff2",
   },
   arabic: {
     cairo: "/fonts/Cairo-Regular.woff2",
