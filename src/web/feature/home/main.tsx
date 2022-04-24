@@ -14,9 +14,13 @@ const { Content } = Layout;
 
 type MainProps = {
   children?: ReactNode;
+  withLoggedInUserCaptions?: boolean;
 };
 
-export const Main = ({ children }: MainProps): JSX.Element => {
+export const Main = ({
+  children,
+  withLoggedInUserCaptions = false,
+}: MainProps): JSX.Element => {
   const dispatch = useDispatch();
   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
   const autoLoggedIn = useRef<boolean>(false);
@@ -30,7 +34,9 @@ export const Main = ({ children }: MainProps): JSX.Element => {
     const { auth } = initFirebase();
     onAuthStateChanged(auth, (user) => {
       if (user && user.uid && !autoLoggedIn.current && !window.skipAutoLogin) {
-        dispatch(webAutoLogin.request());
+        dispatch(
+          webAutoLogin.request({ withCaptions: withLoggedInUserCaptions })
+        );
       }
       autoLoggedIn.current = true;
       setHasAttemptedAutoLogin(true);

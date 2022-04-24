@@ -32,7 +32,7 @@ export default function DashboardPage(): JSX.Element {
           <meta name="twitter:site" content="@NekoCaption"></meta>
         </>
       </Head>
-      <Main>
+      <Main withLoggedInUserCaptions={true}>
         <ProtectedNextComponent>
           <OwnProfile />
         </ProtectedNextComponent>

@@ -41,7 +41,9 @@ export const Login = () => {
     setTimeout(() => {
       setIsLoggingIn(false);
     }, 5000);
-    dispatch(loginWithGoogle.request({ background: false }));
+    dispatch(
+      loginWithGoogle.request({ background: false, withCaptions: false })
+    );
   };
 
   if (isLoggedIn && captionerData.captioner && captionerData.captioner.name) {

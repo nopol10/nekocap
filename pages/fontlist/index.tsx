@@ -48,7 +48,6 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
       props: {
         ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
       },
-      revalidate: 60,
     };
   })
 );

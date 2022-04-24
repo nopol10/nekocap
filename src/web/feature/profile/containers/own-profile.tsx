@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,7 +21,6 @@ import {
   handleBanCaptioner,
   handleVerifyCaptioner,
 } from "../admin-utils";
-import { isLoggedInSelector } from "@/common/feature/login/selectors";
 
 export const OwnProfile = () => {
   const captionerState = useSelector(captionerSelector);

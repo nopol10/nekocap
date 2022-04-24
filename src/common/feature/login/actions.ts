@@ -4,7 +4,7 @@ import {
   createSignalActionInState,
 } from "@/common/store/action";
 import { loginActionTypes } from "./action-types";
-import { LoginRequest } from "./types";
+import { LoginRequest, WebAutoLoginRequest, WebLoginSuccess } from "./types";
 import { UserData } from "@/common/providers/backend-provider";
 
 const csa = createSignalActionInState("login");
@@ -21,13 +21,15 @@ export const loginSuccess = createAction<UserData>(
 
 export const logout = csa(loginActionTypes.logout);
 
-export const webAutoLogin = csa(loginActionTypes.webAutoLogin);
+export const webAutoLogin = csa<WebAutoLoginRequest>(
+  loginActionTypes.webAutoLogin
+);
 
 export const webLoginWithGoogle = csa<LoginRequest, UserData>(
   loginActionTypes.webLoginWithGoogle
 );
 
-export const webLoginSuccess = createAction<UserData>(
+export const webLoginSuccess = createAction<WebLoginSuccess>(
   loginActionTypes.webLoginSuccess
 );
 

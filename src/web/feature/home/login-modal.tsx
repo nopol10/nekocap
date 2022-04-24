@@ -12,7 +12,9 @@ type LoginModalProps = {
 export const LoginModal = ({ modalProps }: LoginModalProps) => {
   const dispatch = useDispatch();
   const handleClickGoogleLogin = () => {
-    dispatch(webLoginWithGoogle.request({ background: false }));
+    dispatch(
+      webLoginWithGoogle.request({ background: false, withCaptions: false })
+    );
   };
 
   return (

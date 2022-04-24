@@ -8,6 +8,11 @@ export type LoginState = {
 
 export type LoginRequest = {
   background: boolean;
+  withCaptions: boolean;
+};
+
+export type WebAutoLoginRequest = {
+  withCaptions: boolean;
 };
 
 export type LoginStorage = {
@@ -20,4 +25,9 @@ export type FirebaseLoggedInUser = {
   credentialIdToken: string; // For use with GoogleAuthProvider.credential
   idToken: string; // For use with parse-firebase user auth
   name: string;
+};
+
+export type WebLoginSuccess = {
+  userData: UserData;
+  withCaptions: boolean;
 };

@@ -14,7 +14,7 @@ import {
 import { loginRoutes } from "./routes";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { safe } from "@/common/redux-utils";
-import { LoginRequest } from "./types";
+import { LoginRequest, WebAutoLoginRequest, WebLoginSuccess } from "./types";
 import { userDataSelector } from "./selectors";
 import { webGoogleLogout } from "./utils";
 import {
@@ -114,7 +114,9 @@ function* logoutSuccessSaga() {
 }
 
 // #region Web Login
-function* webAutoLoginRequestSaga() {
+function* webAutoLoginRequestSaga({
+  payload: { withCaptions },
+}: PayloadAction<WebAutoLoginRequest>) {
   const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
   if (!user) {
     // This saga shouldn't have been run without a user
@@ -136,13 +138,13 @@ function* webAutoLoginRequestSaga() {
   if (status === "deferred") {
     return;
   }
-  yield put(webLoginSuccess(userData));
+  yield put(webLoginSuccess({ userData, withCaptions }));
 }
 
 function* webLoginWithGoogleRequestSaga({
   payload,
 }: PayloadAction<LoginRequest>) {
-  const { background } = payload;
+  const { background, withCaptions } = payload;
   const { status, userData }: LoginResponse = yield call(
     [Locator.provider(), "login"],
     LoginMethod.Google,
@@ -152,7 +154,7 @@ function* webLoginWithGoogleRequestSaga({
     return;
   }
   // Retrieve data
-  yield put(webLoginSuccess(userData));
+  yield put(webLoginSuccess({ userData, withCaptions }));
 }
 
 function* webLogoutRequestSaga() {
@@ -169,10 +171,12 @@ function* webLogoutSuccessSaga() {
   yield put(setLoggedIn(false));
 }
 
-function* webLoginSuccessSaga({ payload: userData }: PayloadAction<UserData>) {
+function* webLoginSuccessSaga({
+  payload: { userData, withCaptions },
+}: PayloadAction<WebLoginSuccess>) {
   yield put([setUserData(userData), setLoggedIn(true)]);
   // Load private data
-  yield put(loadPrivateCaptionerData.request({ withCaptions: true }));
+  yield put(loadPrivateCaptionerData.request({ withCaptions }));
   yield take(setCaptionerPrivateData.type);
   const captioner: CaptionerState = yield select(captionerSelector);
   if (
