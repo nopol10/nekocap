@@ -1,5 +1,5 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
-import React, { ReactNode } from "react";
+import React from "react";
 import { ServerStyleSheet } from "styled-components";
 import { createHash } from "crypto";
 
@@ -83,6 +83,10 @@ export default class MyDocument extends Document {
           <meta
             name="keywords"
             content="free,open source,community captions,chrome extension,firefox extension,browser extension,extension,youtube,niconico,vimeo,bilibili,tver,video,subtitle,subtitles,caption,captions,caption uploader,subtitles uploader,upload,editor,import,export,srt,sbv,vtt,ass,substation alpha,ssa,advanced substation alpha,advanced subtitles,aegisub,subtitleedit,amara"
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Rambla:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+            rel="stylesheet"
           />
         </Head>
         <body>
