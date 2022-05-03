@@ -9,9 +9,10 @@ import { CaptionListFields } from "@/common/feature/video/types";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { loadAllCaptions } from "@/common/feature/public-dashboard/actions";
 import { CaptionList } from "../../common/components/caption-list";
+import { useRouter } from "next/router";
 
 const { Title } = Typography;
-const PAGE_SIZE = 20;
+export const BROWSE_PAGE_SIZE = 20;
 
 const ResultsList = styled.div`
   .ant-list {
@@ -32,6 +33,7 @@ export const BrowseCaptionPage = () => {
   const isSearching = useSelector(search.isLoading(null));
   const isLoading = useSelector(loadAllCaptions.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (browseResults.length > 0) {
@@ -40,7 +42,7 @@ export const BrowseCaptionPage = () => {
     dispatch(
       loadAllCaptions.request({
         pageNumber: 0,
-        pageSize: PAGE_SIZE,
+        pageSize: BROWSE_PAGE_SIZE,
         append: false,
       })
     );
@@ -49,9 +51,10 @@ export const BrowseCaptionPage = () => {
   const { captioner: loggedInUserPublicProfile } = captionerState;
   // Add one to the caption count if more results are available
   const totalCaptionCount = browseResults.length + (hasMoreResults ? 1 : 0);
-  const totalPages = Math.ceil(totalCaptionCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCaptionCount / BROWSE_PAGE_SIZE);
 
   const handleChangeResultPage = (page: number, pageSize?: number) => {
+    router.push(`${page}`, null, { shallow: true });
     dispatch(
       loadAllCaptions.request({
         pageNumber: page,
@@ -94,6 +97,10 @@ export const BrowseCaptionPage = () => {
         <CaptionList
           loggedInUser={loggedInUserPublicProfile}
           captions={browseResults}
+          // The following warning will occur:
+          // "`dataSource` length is less than `pagination.total` but large than `pagination.pageSize`.
+          // Please make sure your config correct data with async mode."
+          // This is intentional to allow the "More" button to be rendered
           totalCount={browseResults.length + (hasMoreResults ? 1 : 0)}
           isLoadingCaptionPage={isLoading}
           currentPage={currentResultPage}

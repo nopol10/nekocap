@@ -57,14 +57,23 @@ export const publicDashboardReducer = createReducer<PublicDashboardState>(
         const {
           captions,
           currentResultPage,
+          pageSize,
           append,
           hasMoreResults,
         } = action.payload;
+        let newCaptions = captions;
+        if (append) {
+          // Append/splice the new captions to the existing ones
+          newCaptions = [...state.browseResults];
+          newCaptions.splice(
+            pageSize * Math.max(0, currentResultPage - 1),
+            pageSize,
+            ...captions
+          );
+        }
         return {
           ...state,
-          browseResults: append
-            ? [...state.browseResults, ...captions]
-            : captions,
+          browseResults: newCaptions,
           hasMoreResults,
           currentResultPage,
         };

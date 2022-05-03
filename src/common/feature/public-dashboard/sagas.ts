@@ -15,7 +15,12 @@ import {
 import { CaptionListFields } from "../video/types";
 import { CaptionsResponse } from "../captioner/types";
 import { videoSourceToProcessorMap } from "../video/utils";
-import { BrowseParams, BrowseResults, SetBrowseResults } from "./types";
+import {
+  BrowseParams,
+  BrowseResults,
+  PublicDashboardState,
+  SetBrowseResults,
+} from "./types";
 import { getLimitOffsetFromPagination } from "@/common/utils";
 import { publicDashboardSelector } from "./selectors";
 import { Locator } from "@/common/locator/locator";
@@ -65,11 +70,7 @@ function* loadLatestCaptionsSuccessSaga({
 function* loadLatestUserLanguageCaptionsRequestSaga({
   payload: languageCode,
 }: PayloadAction<string>) {
-  const {
-    captions: captions,
-    status,
-    error,
-  }: CaptionsResponse = yield call(
+  const { captions: captions, status, error }: CaptionsResponse = yield call(
     [Locator.provider(), "loadLatestUserLanguageCaptions"],
     languageCode
   );
@@ -107,12 +108,19 @@ function* loadPopularCaptionsSuccessSaga({
 
 function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
   const { pageSize, pageNumber, append = false, ...rest } = action.payload;
-  const { browseResults = [], hasMoreResults: originalHasMoreResults } =
-    yield select(publicDashboardSelector);
+  const {
+    browseResults = [],
+    hasMoreResults: originalHasMoreResults,
+  }: PublicDashboardState = yield select(publicDashboardSelector);
   const displayedCaptionCount =
     browseResults.length + (originalHasMoreResults ? 1 : 0);
-
+  const listStartIndex = (pageNumber - 1) * pageSize;
+  const listEndIndex = listStartIndex + pageSize;
+  const hasUnloadedCaption = browseResults
+    .slice((pageNumber - 1) * pageSize, listEndIndex)
+    .some((caption) => !caption);
   if (
+    !hasUnloadedCaption &&
     append &&
     (pageNumber !== Math.ceil(displayedCaptionCount / pageSize) ||
       !originalHasMoreResults)
@@ -122,6 +130,7 @@ function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
       loadAllCaptions.success({
         hasMoreResults: originalHasMoreResults,
         currentResultPage: pageNumber,
+        pageSize,
         captions: browseResults,
         append: false,
       })
@@ -143,6 +152,7 @@ function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
     loadAllCaptions.success({
       hasMoreResults,
       currentResultPage: pageNumber,
+      pageSize,
       captions,
       append,
     })

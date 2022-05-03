@@ -38,6 +38,7 @@ export type VideoSearchResponse = ServerResponse & {
 export type BrowseResponse = ServerResponse & {
   captions: CaptionListFields[];
   hasMoreResults: boolean;
+  totalCount?: number;
 };
 
 export type LoadCaptionForReviewResponse = ServerResponse & {

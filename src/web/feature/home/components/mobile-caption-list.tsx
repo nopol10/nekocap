@@ -70,6 +70,9 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
   return (
     <div>
       {captions.map((caption) => {
+        if (!caption) {
+          return null;
+        }
         const fromLanguage = languages[caption.videoLanguage];
         const toLanguage = languages[caption.language];
         const canWatchInWebsite =

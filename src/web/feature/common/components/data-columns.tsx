@@ -40,6 +40,9 @@ export const captionColumns = {
     dataIndex: "videoName",
     key: "videoName",
     render: function render(text, record: CaptionListFields) {
+      if (!record) {
+        return null;
+      }
       const processor: Processor =
         videoSourceToProcessorMap[record.videoSource];
       if (!processor) {
@@ -97,6 +100,9 @@ export const captionColumns = {
     title: "",
     key: "thumbnail",
     render: function render(text, record: CaptionListFields) {
+      if (!record) {
+        return null;
+      }
       return <img style={{ maxWidth: "64px" }} src={record.thumbnailUrl} />;
     },
   },
@@ -106,6 +112,9 @@ export const captionColumns = {
     key: "videoSource",
     align: "center",
     render: function render(_, record: CaptionListFields) {
+      if (!record) {
+        return null;
+      }
       const processor: Processor =
         videoSourceToProcessorMap[record.videoSource];
       return <span>{processor?.name || ""}</span>;
@@ -124,6 +133,9 @@ export const captionColumns = {
     dataIndex: "videoLanguage",
     key: "videoLanguage",
     render: (text, record, index) => {
+      if (!record) {
+        return null;
+      }
       return languages[record.videoLanguage];
     },
   },
@@ -131,14 +143,20 @@ export const captionColumns = {
     title: "Caption Language",
     dataIndex: "language",
     key: "language",
-    render: (text, record, index) => {
+    render: (text, record) => {
+      if (!record) {
+        return null;
+      }
       return languages[record.language];
     },
   },
   fromToLanguage: {
     title: "Language",
     key: "language",
-    render: function render(text, record, index) {
+    render: function render(text, record) {
+      if (!record) {
+        return null;
+      }
       const fromLanguage = languages[record.videoLanguage];
       const toLanguage = languages[record.language];
       return (
@@ -152,7 +170,7 @@ export const captionColumns = {
     title: "Updated",
     dataIndex: "updatedDate",
     key: "updatedDate",
-    render: (text, record, index) => {
+    render: (text) => {
       return getTooltippedDate(text);
     },
   },
@@ -160,7 +178,10 @@ export const captionColumns = {
     title: "Captioner",
     dataIndex: "creatorName",
     key: "creatorName",
-    render: function render(text, record, index) {
+    render: function render(text, record) {
+      if (!record) {
+        return null;
+      }
       return (
         <Link
           href={`${routeNames.profile.main.replace(":id", record.creatorId)}`}
@@ -174,7 +195,7 @@ export const captionColumns = {
     title: "Views",
     dataIndex: "views",
     key: "views",
-    render: function render(text, record, index) {
+    render: function render(text) {
       return <span>{text}</span>;
     },
   },

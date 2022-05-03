@@ -64,7 +64,7 @@ export const CaptionList = ({
   renderPagination,
   renderTotal,
   listContainsCurrentPageOnly = false,
-}: CaptionListProps) => {
+}: CaptionListProps): React.ReactElement => {
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<
     UpdateModalDetails
@@ -185,7 +185,7 @@ export const CaptionList = ({
         loading={isLoadingCaptionPage}
         rowKey={"id"}
         rowClassName={(record: CaptionListFields) => {
-          return record.rejected ? "rejected-caption" : "";
+          return record?.rejected ? "rejected-caption" : "";
         }}
         pagination={paginationProps}
         locale={{

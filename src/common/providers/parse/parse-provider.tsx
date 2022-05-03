@@ -681,6 +681,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       hasMoreResults: response.hasMoreResults,
       error: response.error,
       captions: response.captions,
+      totalCount: response.totalCount,
     };
     return results;
   }

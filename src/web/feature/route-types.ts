@@ -10,7 +10,7 @@ export const routeNames = {
     new: "/new-capper",
   },
   caption: {
-    browse: "/browse",
+    browse: "/browse/1",
     view: "/view/:id",
     main: "/caption/:id",
   },
