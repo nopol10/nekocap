@@ -54,6 +54,10 @@ const SUPPORTED_SITES: SupportedSite[] = [
     url: "https://iq.com/",
     name: "iQiyi",
   },
+  {
+    url: "https://nogidoga.com/",
+    name: "NogiDoga",
+  },
 ];
 
 export const SupportedSites = () => {

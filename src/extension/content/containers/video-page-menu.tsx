@@ -254,7 +254,7 @@ export const VideoPageMenu = ({
   const showCaption = tabData ? tabData.showCaption : true;
   const caption = editorTabData ? editorTabData.caption : tabData?.caption;
   const selectedRenderer = tabData?.renderer;
-  const editorEnabled = !window.selectedProcessor.disableEditor;
+  const editorEnabled = !window.selectedProcessor?.disableEditor;
 
   const handleClickFromFile = () => {
     setIsSelectFileOpen(true);

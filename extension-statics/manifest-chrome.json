@@ -24,12 +24,11 @@
         "https://*.twitter.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
-        "https://*.iq.com/*"
+        "https://*.iq.com/*",
+        "https://*.nogidoga.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -43,12 +42,11 @@
         "https://*.twitter.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
-        "https://*.iq.com/*"
+        "https://*.iq.com/*",
+        "https://*.nogidoga.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -56,10 +54,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation"
-  ],
+  "permissions": ["storage", "webNavigation"],
   "web_accessible_resources": [
     {
       "resources": [
@@ -81,15 +76,13 @@
         "https://*.twitter.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
-        "https://*.iq.com/*"
+        "https://*.iq.com/*",
+        "https://*.nogidoga.com/*"
       ]
     }
   ],
   "externally_connectable": {
-    "matches": [
-      "http://localhost:12341/*",
-      "https://*.nekocap.com/*"
-    ]
+    "matches": ["http://localhost:12341/*", "https://*.nekocap.com/*"]
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

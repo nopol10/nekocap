@@ -40,3 +40,7 @@
 .ant-checkbox-wrapper {
   align-items: center;
 }
+
+*[class^="ant-"] input {
+  font-family: Arial, Helvetica, sans-serif;
+}
