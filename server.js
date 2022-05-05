@@ -13,7 +13,7 @@ const dotenv = require("dotenv");
 
 const PORT = 443;
 const env = dotenv.config({ path: "./.env" }).parsed;
-const app = next({ dev: false });
+const app = next({ dev: false, hostname: env.NEXT_HOSTNAME, port: PORT });
 const handle = app.getRequestHandler();
 
 const options = {
