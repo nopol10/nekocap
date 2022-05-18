@@ -486,6 +486,10 @@ const CaptionRendererInternal = React.forwardRef(
               console.warn(`Caption ${i} is undefined!`);
               continue;
             }
+            if (currentCaption.end < currentCaption.start) {
+              // Invalid caption. This can happen for some captions imported from 3rd party services
+              continue;
+            }
 
             const wrapper =
               captionWrapperElements.current[
