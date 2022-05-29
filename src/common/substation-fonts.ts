@@ -89,6 +89,7 @@ export const SUBSTATION_GROUPED_FONTS = {
     "noto sans jp": "/fonts/Noto-Sans-JP-Regular.woff2",
     "noto sans jp bold": "/fonts/Noto-Sans-JP-700.woff2",
     "fot-tsukugo pro h": "/fonts/TsukuGoPro-H-AlphaNum.woff2",
+    "setofont-sp": "/fonts/SetoFont-SP.woff2",
     umeboshi: "/fonts/umeboshi.woff2",
     zerogothic: "/fonts/ZeroGothic.woff2",
   },
