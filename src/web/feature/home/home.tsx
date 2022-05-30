@@ -23,6 +23,7 @@ import { routeNames } from "../route-types";
 import { WSButton } from "@/common/components/ws-button";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
+import { Trans, useTranslation } from "next-i18next";
 
 const { Content } = Layout;
 
@@ -142,15 +143,20 @@ export const Home = () => {
         <Content style={{ padding: "0 40px", overflowX: "hidden" }}>
           <WaveDivider />
           <WSTitle level={2} textAlign={"center"}>
-            <em>View</em>, <em>create</em> and <em>share</em> your captions
-            <br />
-            with this{" "}
-            <em>
-              <a target="_blank" rel="noreferrer" href={GITHUB_URL}>
-                open source
-              </a>
-            </em>{" "}
-            browser extension
+            <Trans
+              i18nKey={"home.summary"}
+              components={{
+                bold: <em />,
+                open: (
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={GITHUB_URL}
+                    style={{ fontWeight: "bold" }}
+                  />
+                ),
+              }}
+            ></Trans>
           </WSTitle>
           <Badges>
             <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>

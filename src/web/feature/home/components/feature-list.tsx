@@ -5,6 +5,8 @@ import { Col, Row } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import Title from "antd/lib/typography/Title";
 import { SupportedSites } from "@/common/components/supported-sites";
+import { Trans, useTranslation } from "next-i18next";
+import { Translation } from "react-i18next";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -47,7 +49,7 @@ const SupportSiteList = () => {
 
 const features: Feature[] = [
   {
-    title: "Easy to use",
+    title: "home.feature.easyToUse.title",
     description: function description() {
       const [listOpened, setListOpened] = useState(false);
       const handleOpenList = () => {
@@ -58,14 +60,19 @@ const features: Feature[] = [
       };
       return (
         <span>
-          View captions without leaving{" "}
-          <a target="_blank" rel="noreferrer" href="https://www.youtube.com">
-            Youtube
-          </a>{" "}
-          and other supported{" "}
-          <a href="#" onClick={handleOpenList}>
-            video sites
-          </a>
+          <Trans
+            i18nKey={"home.feature.easyToUse.description"}
+            components={{
+              youtube: (
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://www.youtube.com"
+                />
+              ),
+              videosites: <a href="#" onClick={handleOpenList} />,
+            }}
+          ></Trans>
           <Modal visible={listOpened} onCancel={handleCloseList} footer={null}>
             <SupportSiteList />
           </Modal>
@@ -74,65 +81,63 @@ const features: Feature[] = [
     },
   },
   {
-    title: "Advanced effects (experimental)",
+    title: "home.feature.advancedEffects.title",
     description: function description() {
       return (
         <span>
-          View complex captions made in Substation Alpha formats (SSA, ASS)
-          using the advanced renderer made possible by{" "}
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href="https://github.com/Dador/JavascriptSubtitlesOctopus"
-          >
-            Subtitle Octopus
-          </a>
+          <Trans
+            i18nKey={"home.feature.advancedEffects.description"}
+            components={{
+              octopus: (
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://github.com/Dador/JavascriptSubtitlesOctopus"
+                />
+              ),
+            }}
+          ></Trans>
           <br />
-          <a href="/fontlist">View supported custom fonts</a>
+          <a href="/fontlist">
+            <Translation>
+              {(t) => t("home.feature.advancedEffects.viewSupportedFonts")}
+            </Translation>
+          </a>
         </span>
       );
     },
   },
   {
-    title: "Convenient editor",
+    title: "home.feature.convenientEditor.title",
     description: (
       <span>
-        Create captions with the built-in editor directly in a video&apos;s page
-        with the extension.
-        <br />
-        Manual caption positioning, keyboard shortcuts are supported.
-        <br />
-        More features to come!
+        <Trans i18nKey={"home.feature.convenientEditor.description"} />
       </span>
     ),
   },
   {
-    title: "Import existing captions",
+    title: "home.feature.import.title",
     description: (
       <span>
-        Use tools such as Aegisub or SubtitleEdit to create captions before
-        uploading them through NekoCap. <b>SSA</b>, <b>ASS</b>, <b>SRT</b>,{" "}
-        <b>VTT</b>, <b>SBV</b> formats are supported
+        <Trans
+          i18nKey={"home.feature.import.description"}
+          components={{ bold: <b /> }}
+        />
       </span>
     ),
   },
   {
-    title: "Community moderation",
+    title: "home.feature.community.title",
     description: (
       <span>
-        NekoCap&apos;s website comes with tools to let community moderators
-        verify or reject submitted captions.
-        <br />
-        However, we need volunteers who are fluent in different languages to
-        help moderate submitted captions.
-        <br />
-        If you want to help, join the Discord and give us a ping!
+        <Trans i18nKey={"home.feature.community.description"} />
       </span>
     ),
   },
 ];
 
 export const FeatureList = () => {
+  const { t } = useTranslation("common");
   return (
     <Wrapper>
       <Row gutter={[16, 16]} justify="center">
@@ -140,7 +145,7 @@ export const FeatureList = () => {
           return (
             <FeatureItem key={index} lg={8} md={16} xs={24}>
               <div>
-                <header>{feature.title}</header>
+                <header>{t(feature.title)}</header>
                 <main>
                   {typeof feature.description !== "function" &&
                     feature.description}
