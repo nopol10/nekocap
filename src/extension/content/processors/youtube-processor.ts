@@ -46,7 +46,7 @@ export const YoutubeProcessor: Processor = {
   urlRegex: /youtube.com/,
   videoSelector: "#ytd-player #container video",
   videoPageUISelector:
-    "ytd-video-primary-info-renderer h1.ytd-video-primary-info-renderer",
+    "h1.ytd-watch-metadata,ytd-video-primary-info-renderer h1.ytd-video-primary-info-renderer",
   titleSelector: "#info-contents h1.title yt-formatted-string",
   editorVideoPlayerStyles: `
   .html5-video-container {
