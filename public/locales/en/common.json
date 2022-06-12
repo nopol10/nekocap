@@ -66,6 +66,9 @@
         "videoName": "Video Name",
         "captionCount": "Caption count"
       }
+    },
+    "browseCaptions": {
+      "title": "Browse all captions"
     }
   }
 }
