@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
@@ -123,7 +123,8 @@ const CaptionDigestGrid = () => {
   );
 };
 
-export const Home = () => {
+export const Home = (): ReactElement => {
+  const { t } = useTranslation("common");
   return (
     <div
       style={{
@@ -174,7 +175,7 @@ export const Home = () => {
           <FeatureList />
           <Instructions />
           <BrowseCaptionButton size={"large"} href={routeNames.caption.browse}>
-            Browse all captions
+            {t("home.browseAllCaptions")}
           </BrowseCaptionButton>
           <CaptionDigestGrid />
         </Content>

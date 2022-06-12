@@ -40,6 +40,7 @@
         "step3": "Browse to the page containing the video you want to add a caption for",
         "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
       }
-    }
+    },
+    "browseAllCaptions": "Browse all captions"
   }
 }
