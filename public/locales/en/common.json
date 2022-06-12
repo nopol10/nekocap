@@ -41,6 +41,31 @@
         "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
       }
     },
-    "browseAllCaptions": "Browse all captions"
+    "browseAllCaptions": "Browse all captions",
+    "latestCaptions": "Latest captions",
+    "latestLanguageCaption": "Latest {{language}} captions",
+    "noCaptions": "No captions! You can contribute captions with the extension!",
+    "viewingCaptionInWebNotSupported": "Viewing this caption via the browser is unsupported. Download the extension instead!",
+    "captionList": {
+      "columns": {
+        "videoName": "Video Name",
+        "captioner": "Captioner",
+        "language": "Language",
+        "source": "Source",
+        "uploaded": "Uploaded",
+        "videoLanguage": "Video Language",
+        "captionLanguage": "Caption Language",
+        "updated": "Updated",
+        "actions": "Actions",
+        "views": "Views",
+        "captionCount": "Views"
+      }
+    },
+    "videoList": {
+      "columns": {
+        "videoName": "Video Name",
+        "captionCount": "Caption count"
+      }
+    }
   }
 }
