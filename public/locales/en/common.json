@@ -69,6 +69,19 @@
     },
     "browseCaptions": {
       "title": "Browse all captions"
+    },
+    "search": {
+      "inputPlaceholder": "Search for a video",
+      "advancedSearchLabel": "Advanced",
+      "videoLanguage": "Video language",
+      "captionLanguage": "Caption language",
+      "anyLanguage": "Any",
+      "loading": "Loading...",
+      "captionLanguageListTitle": "Captions",
+      "captionCount": "{{count}} caption(s)",
+      "noVideosFound": "No videos found :(",
+      "availableCaptions": "Available captions",
+      "noCaptionsFoundForVideo": "No captions found for this video :("
     }
   }
 }

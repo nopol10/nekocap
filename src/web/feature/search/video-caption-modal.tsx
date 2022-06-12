@@ -4,6 +4,7 @@ import { ColumnsType } from "antd/lib/table/Table";
 import { isServer } from "@/common/client-utils";
 import { LoadCaptionsResult, VideoSource } from "@/common/feature/video/types";
 import { videoCaptionColumns } from "../common/components/data-columns";
+import { useTranslation } from "next-i18next";
 
 interface VideoCaptionModalProps {
   captions: LoadCaptionsResult[];
@@ -22,6 +23,8 @@ export const VideoCaptionModal = ({
   isLoading,
   onCancel,
 }: VideoCaptionModalProps): ReactElement => {
+  const { t } = useTranslation("common");
+
   if (isServer()) {
     return null;
   }
@@ -35,7 +38,7 @@ export const VideoCaptionModal = ({
     <Modal
       visible={visible}
       onCancel={onCancel}
-      title={"Available captions"}
+      title={t("home.search.availableCaptions")}
       footer={null}
       bodyStyle={{ padding: 0 }}
     >
@@ -46,7 +49,7 @@ export const VideoCaptionModal = ({
         rowKey={"id"}
         pagination={{ style: { paddingRight: "6px" } }}
         locale={{
-          emptyText: "No captions found for this video :(",
+          emptyText: t("home.search.noCaptionsFoundForVideo"),
         }}
       />
     </Modal>
