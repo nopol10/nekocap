@@ -25,6 +25,21 @@
         "title": "Community moderation",
         "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
       }
+    },
+    "instructions": {
+      "view": {
+        "title": "How to view captions",
+        "step1": "Download the extension for <chrome>Chrome</chrome>",
+        "step2": "Watch videos on one of the supported video sites as usual",
+        "step3": "If there are captions for the video, select them from the dropdown!"
+      },
+      "create": {
+        "title": "How to create captions",
+        "step1": "Download the extension for <chrome>Chrome</chrome>",
+        "step2": "Create an account with Nekocap",
+        "step3": "Browse to the page containing the video you want to add a caption for",
+        "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
+      }
     }
   }
 }

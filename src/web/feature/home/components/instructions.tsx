@@ -1,5 +1,5 @@
 import { colors } from "@/common/colors";
-import React from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import captionSelectImage from "@/assets/images/instructions/caption-dropdown.jpg";
 import downloadExtensionImage from "@/assets/images/instructions/download-extension.jpg";
@@ -10,6 +10,7 @@ import noCaptionImage from "@/assets/images/instructions/no-caption-page.jpg";
 import { getImageLink } from "@/common/chrome-utils";
 import { Col, Collapse, Row } from "antd";
 import { CHROME_DOWNLOAD_URL } from "@/common/constants";
+import { Trans, useTranslation } from "next-i18next";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -51,24 +52,29 @@ const Step = styled(Col)`
   }
 `;
 
-export const Instructions = () => {
+export const Instructions = (): ReactElement => {
+  const { t } = useTranslation("common");
   return (
     <Wrapper>
       <Collapse defaultActiveKey={["1"]}>
-        <Panel header="How to view captions" key="1">
+        <Panel header={t("home.instructions.view.title")} key="1">
           <Row justify={"space-around"} gutter={[10, 10]}>
             <Step>
               <div>
                 <StepNumber>1</StepNumber>
                 <span>
-                  Download the extension for{" "}
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={CHROME_DOWNLOAD_URL}
-                  >
-                    Chrome
-                  </a>
+                  <Trans
+                    i18nKey={"home.instructions.view.step1"}
+                    components={{
+                      chrome: (
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          href={CHROME_DOWNLOAD_URL}
+                        />
+                      ),
+                    }}
+                  ></Trans>
                 </span>
               </div>
               <img src={getImageLink(downloadExtensionImage)} />
@@ -76,38 +82,45 @@ export const Instructions = () => {
             <Step>
               <div>
                 <StepNumber>2</StepNumber>
-                <span>
-                  Watch videos on one of the supported video sites as usual
-                </span>
+                <span>{t("home.instructions.view.step2")}</span>
               </div>
               <img src={getImageLink(browseVideoImage)} />
             </Step>
             <Step>
               <div>
                 <StepNumber>3</StepNumber>
-                <span>
-                  If there are captions for the video, select them from the
-                  dropdown!
-                </span>
+                <span>{t("home.instructions.view.step3")}</span>
               </div>
               <img src={getImageLink(captionSelectImage)} />
             </Step>
           </Row>
         </Panel>
-        <Panel header="How to create captions" key="2">
+        <Panel header={t("home.instructions.create.title")} key="2">
           <Row justify={"space-around"} gutter={[10, 10]}>
             <Step>
               <div>
                 <StepNumber>1</StepNumber>
                 <span>
-                  Download the extension for{" "}
+                  <Trans
+                    i18nKey={"home.instructions.create.step1"}
+                    components={{
+                      chrome: (
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          href={CHROME_DOWNLOAD_URL}
+                        />
+                      ),
+                    }}
+                  ></Trans>
+                  {/* Download the extension for{" "}
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={CHROME_DOWNLOAD_URL}
                   >
                     Chrome
-                  </a>
+                  </a> */}
                 </span>
               </div>
               <img src={getImageLink(downloadExtensionImage)} />
@@ -115,27 +128,21 @@ export const Instructions = () => {
             <Step>
               <div>
                 <StepNumber>2</StepNumber>
-                <span>Create an account with Nekocap</span>
+                <span>{t("home.instructions.create.step2")}</span>
               </div>
               <img src={getImageLink(loginToNekocapImage)} />
             </Step>
             <Step>
               <div>
                 <StepNumber>3</StepNumber>{" "}
-                <span>
-                  Browse to the page containing the video you want to add a
-                  caption for
-                </span>
+                <span>{t("home.instructions.create.step3")}</span>
               </div>
               <img src={getImageLink(noCaptionImage)} />
             </Step>
             <Step>
               <div>
                 <StepNumber>4</StepNumber>
-                <span>
-                  Use the Nekocap editor to create a new caption or upload an
-                  existing caption file without leaving the video page!
-                </span>
+                <span>{t("home.instructions.create.step4")}</span>
               </div>
               <img src={getImageLink(useEditorImage)} />
             </Step>
