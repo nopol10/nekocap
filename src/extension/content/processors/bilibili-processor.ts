@@ -17,7 +17,7 @@ export const BilibiliProcessor: Processor = {
   updateTitleOnSubmission: true,
   titleSelector: async () => {
     const mainTitle = (document.querySelector(
-      ".video-title span"
+      ".video-title span, .video-title"
     ) as HTMLElement)?.innerText;
     if (!document.querySelector("#multi_page")) {
       return mainTitle;
