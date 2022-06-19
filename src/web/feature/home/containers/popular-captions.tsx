@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loadPopularCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { captionColumns } from "../../common/components/data-columns";
+import { useTranslation } from "next-i18next";
 
 export const PopularCaptions = () => {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ export const PopularCaptions = () => {
     }
     dispatch(loadPopularCaptions.request());
   }, []);
+  const { t } = useTranslation("common");
 
   const tableColumns = [
     captionColumns.thumbnail,
@@ -33,8 +35,7 @@ export const PopularCaptions = () => {
         pagination={false}
         loading={isLoading}
         locale={{
-          emptyText:
-            "No captions! You can contribute captions with the extension!",
+          emptyText: t("home.noCaptions"),
         }}
       />
     </>
