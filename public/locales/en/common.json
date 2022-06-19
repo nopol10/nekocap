@@ -85,7 +85,12 @@
       "noCaptionsFoundForVideo": "No captions found for this video :("
     },
     "watchHere": "Watch here",
-    "watchOnService": "Watch on {{service}}"
+    "watchOnService": "Watch on {{service}}",
+    "navigation": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "logout": "Logout"
+    }
   },
   "review": {
     "deleteCaptionConfirmMessage": "Are you sure you want to delete this caption?",
@@ -102,6 +107,9 @@
     "previewAllFonts": "Preview all fonts",
     "largeFontDownloadWarning": "Warning! This will download many megabytes of large font files!",
     "searchFont": "Search font"
+  },
+  "login": {
+    "loginModalTitle": "Log in to access your dashboard"
   },
   "common": {
     "loading": "Loading..."

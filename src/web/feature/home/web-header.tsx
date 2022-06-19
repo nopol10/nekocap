@@ -1,10 +1,9 @@
-import Space from "antd/lib/space";
 import Spin from "antd/lib/spin";
 import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
 import GithubOutlined from "@ant-design/icons/GithubOutlined";
 import MenuOutlined from "@ant-design/icons/MenuOutlined";
 import CloseOutlined from "@ant-design/icons/CloseOutlined";
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import ReactDOM from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { WSButton } from "@/common/components/ws-button";
@@ -21,6 +20,7 @@ import { styledNoPass } from "@/common/style-utils";
 import { Divider, Typography } from "antd";
 import { isClient } from "@/common/client-utils";
 import { useSSRMediaQuery } from "@/hooks";
+import { useTranslation } from "next-i18next";
 
 const { Link } = Typography;
 
@@ -68,13 +68,14 @@ const HorizontalSpace = styled.div`
   grid-column-gap: 8px;
 `;
 
-export const WebHeader = () => {
+export const WebHeader = (): ReactElement => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(isLoggedInSelector);
   const isLoggingOut = useSelector(webLogout.isLoading(undefined));
   const [showLogin, setShowLogin] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const isTablet = useSSRMediaQuery({ query: DEVICE.tablet });
+  const { t } = useTranslation("common");
 
   const handleClickLogin = () => {
     setShowLogin(true);
@@ -106,14 +107,18 @@ export const WebHeader = () => {
         <Spin spinning={isLoggingOut}>
           <HorizontalSpace>
             <BasicSearchBar />
-            <WSButton onClick={handleClickHome}>Home</WSButton>
+            <WSButton onClick={handleClickHome}>
+              {t("home.navigation.home")}
+            </WSButton>
             <WSButton
               onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
             >
-              Dashboard
+              {t("home.navigation.dashboard")}
             </WSButton>
             {isLoggedIn && (
-              <WSButton onClick={handleClickLogout}>Logout</WSButton>
+              <WSButton onClick={handleClickLogout}>
+                {t("home.navigation.logout")}
+              </WSButton>
             )}
           </HorizontalSpace>
         </Spin>
