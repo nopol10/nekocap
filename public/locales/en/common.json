@@ -92,5 +92,18 @@
     "delete": "Delete",
     "review": "Review",
     "update": "Update"
+  },
+  "fontlist": {
+    "hidePreview": "Hide preview",
+    "preview": "Preview",
+    "noFonts": "No fonts!",
+    "availableFonts": "Available fonts",
+    "hideAllFontPreviews": "Hide all font previews",
+    "previewAllFonts": "Preview all fonts",
+    "largeFontDownloadWarning": "Warning! This will download many megabytes of large font files!",
+    "searchFont": "Search font"
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }
