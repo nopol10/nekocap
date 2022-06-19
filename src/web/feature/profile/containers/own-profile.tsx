@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useState } from "react";
 import { message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,8 +21,9 @@ import {
   handleBanCaptioner,
   handleVerifyCaptioner,
 } from "../admin-utils";
+import { useTranslation } from "next-i18next";
 
-export const OwnProfile = () => {
+export const OwnProfile = (): ReactElement => {
   const captionerState = useSelector(captionerSelector);
 
   const isLoadingProfile = useSelector(
@@ -39,6 +40,7 @@ export const OwnProfile = () => {
 
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
+  const { t } = useTranslation("common");
 
   const {
     currentCaptionPage: currentCaptionPage,
@@ -67,21 +69,21 @@ export const OwnProfile = () => {
   const handleConfirmDelete = (caption: CaptionListFields) => {
     dispatch(deleteServerCaption.request(caption.id))
       .then(() => {
-        message.success("Caption deleted! :(");
+        message.success(t("profile.captionDeleted"));
       })
       .catch((error) => {
-        message.error(`Failed to delete caption: ${error}`);
+        message.error(t("profile.captionDeletionFailed", { error: error }));
       });
   };
 
   const handleSubmitEdit = (form: EditProfileFields) => {
     dispatch(updateProfile.request(form))
       .then(() => {
-        message.success("Profile updated!");
+        message.success(t("profile.profileUpdated"));
         setIsEditing(false);
       })
       .catch((error) => {
-        message.error(`Failed to update profile: ${error}`);
+        message.error(t("profile.profileUpdateFailed", { error: error }));
       });
   };
 

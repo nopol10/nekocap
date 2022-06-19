@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import Layout from "antd/lib/layout";
@@ -18,6 +18,7 @@ import { languageOptions } from "@/common/language-utils";
 import { languages } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
 import { useSSRMediaQuery } from "@/hooks";
+import { useTranslation } from "next-i18next";
 
 const { Title, Text, Link } = Typography;
 const { Sider } = Layout;
@@ -45,7 +46,6 @@ const ProfileField = styled.div`
 
 export const ProfileSidebar = ({
   captioner,
-  privateData,
   loggedInUser,
   isEditing,
   isLoading,
@@ -67,7 +67,7 @@ export const ProfileSidebar = ({
   onAssignReviewer: () => void;
   onVerifyCaptioner: () => void;
   onBanCaptioner: () => void;
-}) => {
+}): ReactElement => {
   const { handleSubmit, control } = useForm<EditProfileFields>();
   const {
     profileMessage,
@@ -82,6 +82,7 @@ export const ProfileSidebar = ({
     : false;
   const isAdmin = loggedInUser ? loggedInUser.isAdmin : false;
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
+  const { t } = useTranslation("common");
 
   const renderAdminBar = () => {
     if (!isReviewerManager && !isAdmin) {
@@ -97,14 +98,14 @@ export const ProfileSidebar = ({
 
     return (
       <>
-        <Title level={4}>Admin tools</Title>
+        <Title level={4}>{t("profile.admin.sectionTitle")}</Title>
         <Space direction={"vertical"}>
           {canAssignReviewerManager && (
             <div>
               <Button onClick={onAssignReviewerManager}>
                 {isProfileUserReviewerManager
-                  ? "Remove Reviewer Manager Role"
-                  : "Assign Reviewer Manager Role"}
+                  ? t("profile.admin.removeReviewerManagerRoleButton")
+                  : t("profile.admin.assignReviewerManagerRoleButton")}
               </Button>
             </div>
           )}
@@ -112,22 +113,26 @@ export const ProfileSidebar = ({
             <div>
               <Button onClick={onAssignReviewer}>
                 {isProfileUserReviewer
-                  ? "Remove Reviewer Role"
-                  : "Assign Reviewer Role"}
+                  ? t("profile.admin.removeReviewerRoleButton")
+                  : t("profile.admin.assignReviewerRoleButton")}
               </Button>
             </div>
           )}
           {canVerify && (
             <div>
               <Button onClick={onVerifyCaptioner}>
-                {captioner.verified ? "Unverify" : "Verify"}
+                {captioner.verified
+                  ? t("profile.admin.unverify")
+                  : t("profile.admin.verify")}
               </Button>
             </div>
           )}
           {canBan && (
             <div>
               <Button onClick={onBanCaptioner}>
-                {captioner.banned ? "Unban" : "Ban"}
+                {captioner.banned
+                  ? t("profile.admin.unban")
+                  : t("profile.admin.ban")}
               </Button>
             </div>
           )}
@@ -142,7 +147,7 @@ export const ProfileSidebar = ({
         <Skeleton loading={isLoading}>
           <ProfileField>
             <Title level={3}>
-              About{" "}
+              {t("profile.about")}{" "}
               {isEditing && (
                 <Text style={{ fontSize: "0.5em" }}>
                   <Link
@@ -150,7 +155,7 @@ export const ProfileSidebar = ({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    (Formatting in Markdown is supported)
+                    {t("profile.markdownInfo")}
                   </Link>
                 </Text>
               )}
@@ -175,7 +180,7 @@ export const ProfileSidebar = ({
           <ProfileField>
             {(isEditing ||
               (!isEditing && languageCodes && languageCodes.length > 0)) && (
-              <Title level={3}>Proficient languages</Title>
+              <Title level={3}>{t("profile.proficientLanguages")}</Title>
             )}
             {!isEditing && (
               <ul>
@@ -193,7 +198,7 @@ export const ProfileSidebar = ({
                 showSearch
                 size={"large"}
                 style={{ width: "100%" }}
-                placeholder={"You can select more than 1!"}
+                placeholder={t("profile.languageSelectionPlaceholder")}
                 defaultValue={languageCodes}
                 disabled={!isEditing}
                 filterOption={(input, option) =>
@@ -214,7 +219,8 @@ export const ProfileSidebar = ({
           <ProfileField>
             {(isEditing || (!isEditing && donationLink)) && (
               <Title level={3}>
-                Donate <FontAwesomeIcon icon={faHandHoldingUsd} />
+                {t("profile.donate")}{" "}
+                <FontAwesomeIcon icon={faHandHoldingUsd} />
               </Title>
             )}
             {!isEditing && (
@@ -245,10 +251,10 @@ export const ProfileSidebar = ({
             <div style={{ textAlign: "right" }}>
               <Space style={{ marginTop: "20px" }}>
                 <WSButton onClick={onCancel} loading={isLoading}>
-                  Cancel
+                  {t("common.cancel")}
                 </WSButton>
                 <WSButton loading={isLoading} htmlType="submit" type="primary">
-                  Save
+                  {t("common.save")}
                 </WSButton>
               </Space>
             </div>

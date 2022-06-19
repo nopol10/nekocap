@@ -20,6 +20,7 @@ import {
   handleVerifyCaptioner,
 } from "../admin-utils";
 import Title from "antd/lib/typography/Title";
+import { useTranslation } from "next-i18next";
 
 export const CaptionerProfile = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ export const CaptionerProfile = () => {
   const isAssigningReviewerManager = useSelector(
     assignReviewerManager.isLoading(null)
   );
+  const { t } = useTranslation("common");
 
   const {
     currentCaptionPage,
@@ -60,10 +62,10 @@ export const CaptionerProfile = () => {
   const handleConfirmDelete = (caption: CaptionListFields) => {
     dispatch(deleteServerCaption.request(caption.id))
       .then(() => {
-        message.success("Caption deleted! :(");
+        message.success(t("profile.captionDeleted"));
       })
       .catch((error) => {
-        message.error(`Failed to delete caption: ${error}`);
+        message.error(t("profile.captionDeletionFailed", { error: error }));
       });
   };
 

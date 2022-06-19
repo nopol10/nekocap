@@ -111,7 +111,41 @@
   "login": {
     "loginModalTitle": "Log in to access your dashboard"
   },
+  "profile": {
+    "admin": {
+      "sectionTitle": "Admin tools",
+      "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
+      "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
+      "removeReviewerRoleButton": "Remove Reviewer Role",
+      "assignReviewerRoleButton": "Assign Reviewer Role",
+      "verify": "Verify",
+      "unverify": "Unverify",
+      "ban": "Ban",
+      "unban": "Unban"
+    },
+    "about": "About",
+    "donate": "Donate",
+    "markdownInfo": "(Formatting in Markdown is supported)",
+    "proficientLanguages": "Proficient languages",
+    "contributedCaptions": "Contributed captions",
+    "languageSelectionPlaceholder": "You can select more than 1!",
+    "copyProfileLink": "Copy profile link",
+    "profileLinkCopiedMessage": "Profile link copied to clipboard!",
+    "captionDeleted": "Caption deleted! :(",
+    "captionDeletionFailed": "Failed to delete caption: {{error}}",
+    "profileUpdated": "Profile updated!",
+    "profileUpdateFailed": "Failed to update profile: {{error}}",
+    "roleAssignmentSuccess": "Updated!",
+    "roleAssignmentFailure": "Failed to update: {{error}}"
+  },
   "common": {
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "banned": "Banned",
+    "verified": "Verified",
+    "reviewerManager": "Reviewer Manager",
+    "reviewer": "Reviewer"
   }
 }

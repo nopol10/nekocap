@@ -6,6 +6,7 @@ import {
 } from "@/common/feature/profile/actions";
 import { Dispatch } from "redux";
 import { message } from "antd";
+import { i18n } from "next-i18next";
 
 export const handleAssignReviewerManager = (
   captionerId: string,
@@ -13,10 +14,10 @@ export const handleAssignReviewerManager = (
 ) => () => {
   dispatch(assignReviewerManager.request(captionerId))
     .then(() => {
-      message.success("Updated!");
+      message.success(i18n.t("profile.roleAssignmentSuccess"));
     })
     .catch((error) => {
-      message.error(`Failed to update: ${error}`);
+      message.error(i18n.t("profile.roleAssignmentFailure", { error: error }));
     });
 };
 
@@ -26,10 +27,10 @@ export const handleAssignReviewer = (
 ) => () => {
   dispatch(assignReviewer.request(captionerId))
     .then(() => {
-      message.success("Updated!");
+      message.success(i18n.t("profile.roleAssignmentSuccess"));
     })
     .catch((error) => {
-      message.error(`Failed to update: ${error}`);
+      message.error(i18n.t("profile.roleAssignmentFailure", { error: error }));
     });
 };
 
@@ -39,10 +40,10 @@ export const handleVerifyCaptioner = (
 ) => () => {
   dispatch(verifyCaptioner.request(captionerId))
     .then(() => {
-      message.success("Updated!");
+      message.success(i18n.t("profile.roleAssignmentSuccess"));
     })
     .catch((error) => {
-      message.error(`Failed to update: ${error}`);
+      message.error(i18n.t("profile.roleAssignmentFailure", { error: error }));
     });
 };
 
@@ -52,9 +53,9 @@ export const handleBanCaptioner = (
 ) => () => {
   dispatch(banCaptioner.request(captionerId))
     .then(() => {
-      message.success("Updated!");
+      message.success(i18n.t("profile.roleAssignmentSuccess"));
     })
     .catch((error) => {
-      message.error(`Failed to update: ${error}`);
+      message.error(i18n.t("profile.roleAssignmentFailure", { error: error }));
     });
 };
