@@ -58,7 +58,8 @@
         "updated": "Updated",
         "actions": "Actions",
         "views": "Views",
-        "captionCount": "Views"
+        "captionCount": "Views",
+        "time": "Time"
       }
     },
     "videoList": {
@@ -82,6 +83,14 @@
       "noVideosFound": "No videos found :(",
       "availableCaptions": "Available captions",
       "noCaptionsFoundForVideo": "No captions found for this video :("
-    }
+    },
+    "watchHere": "Watch here",
+    "watchOnService": "Watch on {{service}}"
+  },
+  "review": {
+    "deleteCaptionConfirmMessage": "Are you sure you want to delete this caption?",
+    "delete": "Delete",
+    "review": "Review",
+    "update": "Update"
   }
 }

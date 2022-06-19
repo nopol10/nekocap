@@ -1,5 +1,5 @@
 import { Popconfirm, Space, Table, Tooltip, Pagination } from "antd";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { CaptionListFields } from "@/common/feature/video/types";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
@@ -15,6 +15,7 @@ import { MobileCaptionList } from "../../home/components/mobile-caption-list";
 import { PaginationProps } from "antd/lib/pagination";
 import { useSSRMediaQuery } from "@/hooks";
 import { UpdateCaptionModal } from "@/extension/content/containers/update-caption-modal";
+import { i18n, useTranslation } from "next-i18next";
 
 const PAGE_SIZE = 20;
 
@@ -69,6 +70,8 @@ export const CaptionList = ({
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<
     UpdateModalDetails
   >({ open: false, caption: undefined });
+  const { t } = useTranslation("common");
+
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
   const isOwner = loggedInUser ? loggedInUser.userId === captionerId : false;
@@ -107,7 +110,9 @@ export const CaptionList = ({
 
   if (canEdit || canDelete) {
     tableColumns.push({
-      title: "Actions",
+      title: (): ReactNode => {
+        return i18n.t("home.captionList.columns.actions");
+      },
       key: "actions",
       render: function render(text, record, index) {
         return (
@@ -115,21 +120,21 @@ export const CaptionList = ({
             <Space>
               {canDelete && (
                 <Popconfirm
-                  title={"Are you sure you want to delete this caption?"}
+                  title={t("review.deleteCaptionConfirmMessage")}
                   onConfirm={() => handleConfirmDelete(record)}
                 >
-                  <Tooltip title="Delete">
+                  <Tooltip title={t("review.delete")}>
                     <DeleteOutlined />
                   </Tooltip>
                 </Popconfirm>
               )}
               {canEdit && (
-                <Tooltip title="Review">
+                <Tooltip title={t("review.review")}>
                   <EyeOutlined onClick={() => handleClickEditCaption(record)} />
                 </Tooltip>
               )}
               {canUpdate && (
-                <Tooltip title="Update">
+                <Tooltip title={t("review.update")}>
                   <EditOutlined
                     onClick={() => handleClickUpdateCaption(record)}
                   />
@@ -189,8 +194,7 @@ export const CaptionList = ({
         }}
         pagination={paginationProps}
         locale={{
-          emptyText:
-            "No captions! Visit YouTube or other supported sites to start uploading/creating your captions!",
+          emptyText: t("home.noCaptions"),
         }}
       />
       <UpdateCaptionModal

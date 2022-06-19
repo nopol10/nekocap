@@ -272,6 +272,10 @@ export const CaptionReview = () => {
     );
   };
 
+  const getTableRowKey = (record: NekoCaption) => {
+    return `${record.start}_${record.end}`;
+  };
+
   return (
     <>
       <ReviewModal
@@ -326,6 +330,7 @@ export const CaptionReview = () => {
           <Content>
             <CaptionContent
               columns={tableColumns}
+              rowKey={getTableRowKey}
               dataSource={captionTextList}
               pagination={false}
               loading={isLoadingCaption}

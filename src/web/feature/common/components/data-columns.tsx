@@ -234,6 +234,7 @@ export const videoCaptionColumns = (
     dataIndex: "languageCode",
     key: "languageCode",
     render: function render(text, record: LoadCaptionsResult) {
+      const { t } = useTranslation("common");
       const processor: Processor = videoSourceToProcessorMap[videoSource];
       if (!processor) {
         return null;
@@ -253,7 +254,7 @@ export const videoCaptionColumns = (
           <div>
             {processor.canWatchInNekoCapSite && (
               <div style={{ marginBottom: "8px" }}>
-                <Tooltip title="Watch here">
+                <Tooltip title={t("home.watchHere")}>
                   <Link
                     href={`${routeNames.caption.view.replace(
                       ":id",
@@ -263,17 +264,21 @@ export const videoCaptionColumns = (
                   >
                     <EyeOutlined />
                     &nbsp;
-                    <span>Watch here</span>
+                    <span>{t("home.watchHere")}</span>
                   </Link>
                 </Tooltip>
               </div>
             )}
             <div>
-              <Tooltip title={`Watch on ${processor.name}`}>
+              <Tooltip
+                title={t("home.watchOnService", { service: processor.name })}
+              >
                 <Link href={link} target="_blank" rel="noreferrer">
                   <PlayCircleOutlined />
                   &nbsp;
-                  <span>Watch on {processor.name}</span>
+                  <span>
+                    {t("home.watchOnService", { service: processor.name })}
+                  </span>
                 </Link>
               </Tooltip>
             </div>
