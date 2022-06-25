@@ -25,6 +25,7 @@ import {
 } from "react-virtualized";
 import "react-virtualized/styles.css";
 import { FontItem, FontItemType } from "./font-item";
+import { useTranslation } from "next-i18next";
 
 const MAX_CONCURRENT_FONT_DOWNLOADS = 3;
 
@@ -76,6 +77,7 @@ export const FontListPage = (): JSX.Element => {
       }, {}),
     };
   }, {}) as typeof SUBSTATION_GROUPED_FONTS;
+  const { t } = useTranslation("common");
   const [searchString, setSearchString] = useState("");
   const [showPreview, setShowPreview] = useState<{ [id: string]: boolean }>(
     () => {
@@ -261,7 +263,7 @@ export const FontListPage = (): JSX.Element => {
   const noTextRowRenderer = () => {
     return (
       <div>
-        <div>No fonts!</div>
+        <div>{t("fontlist.noFonts")}</div>
       </div>
     );
   };
@@ -312,7 +314,7 @@ export const FontListPage = (): JSX.Element => {
 
   return (
     <Page>
-      <Title level={2}>Available fonts</Title>
+      <Title level={2}>{t("fontlist.availableFonts")}</Title>
       <div
         style={{
           padding: "20px",
@@ -325,10 +327,11 @@ export const FontListPage = (): JSX.Element => {
       >
         <FontPreviewControl>
           <Link onClick={handleToggleAllPreviews}>
-            {allShown ? "Hide all font previews" : "Preview all fonts"}
+            {allShown
+              ? t("fontlist.hideAllFontPreviews")
+              : t("fontlist.previewAllFonts")}
           </Link>
-          {!allShown &&
-            "Warning! This will download many megabytes of large font files!"}
+          {!allShown && t("fontlist.largeFontDownloadWarning")}
         </FontPreviewControl>
         <div
           style={{
@@ -339,7 +342,7 @@ export const FontListPage = (): JSX.Element => {
         >
           <div style={{ marginRight: 20 }}>
             <Input
-              placeholder={"Search font"}
+              placeholder={t("fontlist.searchFont")}
               allowClear
               onChange={onChangeSearch}
             ></Input>

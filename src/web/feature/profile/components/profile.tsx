@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import { colors } from "@/common/colors";
 import Layout from "antd/lib/layout";
 import { message, Space, Tooltip, Typography } from "antd";
@@ -21,6 +21,7 @@ import { EditProfileFields } from "@/common/feature/profile/types";
 import styled from "styled-components";
 import { ProfileSidebar } from "./profile-sidebar";
 import { DEVICE } from "@/common/style-constants";
+import { useTranslation } from "next-i18next";
 const { Title } = Typography;
 const { Content, Header } = Layout;
 
@@ -137,7 +138,8 @@ export const Profile = ({
   onBanCaptioner = () => {
     /*do nothing*/
   },
-}: ProfileProps) => {
+}: ProfileProps): ReactElement => {
+  const { t } = useTranslation("common");
   const {
     captionCount,
     userId: captionerId,
@@ -159,7 +161,7 @@ export const Profile = ({
         }`
       );
     }
-    message.info("Profile link copied to clipboard!");
+    message.info(t("profile.profileLinkCopiedMessage"));
   };
 
   return (
@@ -168,7 +170,7 @@ export const Profile = ({
         <ProfileHeader style={{ textAlign: "left", paddingLeft: "20px" }}>
           <div>
             <Username>
-              {isLoading && <span>Loading...</span>}
+              {isLoading && <span>{t("common.loading")}</span>}
               {!isLoading && (
                 <>
                   {name}
@@ -177,7 +179,7 @@ export const Profile = ({
               )}
               <Space>
                 {!isEditing && canEdit && (
-                  <Tooltip title={"Edit"}>
+                  <Tooltip title={t("common.edit")}>
                     <EditOutlined
                       onClick={() => onSetEditing(true)}
                       style={{
@@ -188,7 +190,7 @@ export const Profile = ({
                   </Tooltip>
                 )}
                 {banned && (
-                  <Tooltip title="Banned">
+                  <Tooltip title={t("common.banned")}>
                     <FontAwesomeIcon
                       icon={faBan}
                       color={colors.dislike}
@@ -197,7 +199,7 @@ export const Profile = ({
                   </Tooltip>
                 )}
                 {!banned && verified && (
-                  <Tooltip title="Verified">
+                  <Tooltip title={t("common.verified")}>
                     <FontAwesomeIcon
                       icon={faCheck}
                       color={colors.like}
@@ -206,7 +208,7 @@ export const Profile = ({
                   </Tooltip>
                 )}
                 {isProfileReviewerManager && (
-                  <Tooltip title="Reviewer Manager">
+                  <Tooltip title={t("common.reviewerManager")}>
                     <FontAwesomeIcon
                       icon={faUsers}
                       color={colors.like}
@@ -215,7 +217,7 @@ export const Profile = ({
                   </Tooltip>
                 )}
                 {isProfileReviewer && (
-                  <Tooltip title="Reviewer">
+                  <Tooltip title={t("common.reviewer")}>
                     <FontAwesomeIcon
                       icon={faUserCheck}
                       color={colors.like}
@@ -224,7 +226,7 @@ export const Profile = ({
                   </Tooltip>
                 )}
                 {isOwnProfile && (
-                  <Tooltip title="Copy profile link">
+                  <Tooltip title={t("profile.copyProfileLink")}>
                     <CopyOutlined
                       style={{ fontSize: "20px" }}
                       onClick={handleCopyProfileLink}
@@ -252,7 +254,7 @@ export const Profile = ({
             />
             <Content style={{ width: "auto" }}>
               <div style={{ padding: "40px 40px" }}>
-                <Title level={3}>Contributed captions</Title>
+                <Title level={3}>{t("profile.contributedCaptions")}</Title>
                 <CaptionList
                   loggedInUser={loggedInUser}
                   captions={captions}

@@ -1,7 +1,10 @@
 import Typography from "antd/lib/typography";
 import * as dayjs from "dayjs";
+import "dayjs/locale/ja";
 import relativeTime from "dayjs/plugin/relativeTime";
-import React from "react";
+import React, { ReactElement, ReactNode } from "react";
+import { useRouter } from "next/router";
+import { i18n, useTranslation } from "next-i18next";
 import {
   CaptionListFields,
   LoadCaptionsResult,
@@ -14,11 +17,7 @@ import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
 import PlayCircleOutlined from "@ant-design/icons/PlayCircleOutlined";
 import { Space, Tooltip } from "antd";
-import {
-  getDirectCaptionLoadLink,
-  getVideoSourceIcon,
-} from "@/common/processor-utils";
-import { Link as RouterLink } from "react-router-dom";
+import { getDirectCaptionLoadLink } from "@/common/processor-utils";
 import { hasTag } from "@/common/caption-utils";
 import { captionTags } from "@/common/constants";
 import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
@@ -27,19 +26,24 @@ import { Processor } from "@/extension/content/processors/processor";
 const { Link } = Typography;
 dayjs.extend(relativeTime);
 
-export const getTooltippedDate = (unixSeconds: number) => {
+export const getTooltippedDate = (
+  unixSeconds: number,
+  locale = "en"
+): ReactElement => {
   const dayjsDate = dayjs.unix(unixSeconds);
-  const date = dayjsDate.format("YYYY-MM-DD HH:mm:ss");
-  const display = dayjsDate.fromNow();
+  const date = dayjsDate.locale(locale).format("YYYY-MM-DD HH:mm:ss");
+  const display = dayjsDate.locale(locale).fromNow();
   return <Tooltip title={date}>{display}</Tooltip>;
 };
 
 export const captionColumns = {
   videoName: {
-    title: "Video Name",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.videoName");
+    },
     dataIndex: "videoName",
     key: "videoName",
-    render: function render(text, record: CaptionListFields) {
+    render: function render(text, record: CaptionListFields): ReactElement {
       if (!record) {
         return null;
       }
@@ -107,7 +111,9 @@ export const captionColumns = {
     },
   },
   videoSource: {
-    title: "Source",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.source");
+    },
     dataIndex: "videoSource",
     key: "videoSource",
     align: "center",
@@ -121,15 +127,20 @@ export const captionColumns = {
     },
   },
   createdDate: {
-    title: "Uploaded",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.uploaded");
+    },
     dataIndex: "createdDate",
     key: "createdDate",
     render: (text) => {
-      return getTooltippedDate(text);
+      const router = useRouter();
+      return getTooltippedDate(text, router.locale);
     },
   },
   videoLanguage: {
-    title: "Video Language",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.videoLanguage");
+    },
     dataIndex: "videoLanguage",
     key: "videoLanguage",
     render: (text, record, index) => {
@@ -140,7 +151,9 @@ export const captionColumns = {
     },
   },
   captionLanguage: {
-    title: "Caption Language",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.captionLanguage");
+    },
     dataIndex: "language",
     key: "language",
     render: (text, record) => {
@@ -151,9 +164,11 @@ export const captionColumns = {
     },
   },
   fromToLanguage: {
-    title: "Language",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.language");
+    },
     key: "language",
-    render: function render(text, record) {
+    render: function render(text, record): ReactElement {
       if (!record) {
         return null;
       }
@@ -167,15 +182,20 @@ export const captionColumns = {
     },
   },
   updatedDate: {
-    title: "Updated",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.updated");
+    },
     dataIndex: "updatedDate",
     key: "updatedDate",
-    render: (text) => {
-      return getTooltippedDate(text);
+    render: (value: number): ReactElement => {
+      const router = useRouter();
+      return getTooltippedDate(value, router.locale);
     },
   },
   captioner: {
-    title: "Captioner",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.captioner");
+    },
     dataIndex: "creatorName",
     key: "creatorName",
     render: function render(text, record) {
@@ -192,7 +212,9 @@ export const captionColumns = {
     },
   },
   views: {
-    title: "Views",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.views");
+    },
     dataIndex: "views",
     key: "views",
     render: function render(text) {
@@ -206,10 +228,13 @@ export const videoCaptionColumns = (
   videoSource: VideoSource
 ) => ({
   language: {
-    title: "Caption Language",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.captionLanguage");
+    },
     dataIndex: "languageCode",
     key: "languageCode",
     render: function render(text, record: LoadCaptionsResult) {
+      const { t } = useTranslation("common");
       const processor: Processor = videoSourceToProcessorMap[videoSource];
       if (!processor) {
         return null;
@@ -229,7 +254,7 @@ export const videoCaptionColumns = (
           <div>
             {processor.canWatchInNekoCapSite && (
               <div style={{ marginBottom: "8px" }}>
-                <Tooltip title="Watch here">
+                <Tooltip title={t("home.watchHere")}>
                   <Link
                     href={`${routeNames.caption.view.replace(
                       ":id",
@@ -239,17 +264,21 @@ export const videoCaptionColumns = (
                   >
                     <EyeOutlined />
                     &nbsp;
-                    <span>Watch here</span>
+                    <span>{t("home.watchHere")}</span>
                   </Link>
                 </Tooltip>
               </div>
             )}
             <div>
-              <Tooltip title={`Watch on ${processor.name}`}>
+              <Tooltip
+                title={t("home.watchOnService", { service: processor.name })}
+              >
                 <Link href={link} target="_blank" rel="noreferrer">
                   <PlayCircleOutlined />
                   &nbsp;
-                  <span>Watch on {processor.name}</span>
+                  <span>
+                    {t("home.watchOnService", { service: processor.name })}
+                  </span>
                 </Link>
               </Tooltip>
             </div>
@@ -259,7 +288,9 @@ export const videoCaptionColumns = (
     },
   },
   captioner: {
-    title: "Captioner",
+    title: (): ReactNode => {
+      return i18n.t("home.captionList.columns.captioner");
+    },
     key: "captionerName",
     render: function render(text, record: LoadCaptionsResult) {
       return (
@@ -276,10 +307,12 @@ export const videoCaptionColumns = (
 
 export const videoColumns = {
   videoName: {
-    title: "Video Name",
+    title: (): ReactNode => {
+      return i18n.t("home.videoList.columns.videoName");
+    },
     dataIndex: "name",
     key: "name",
-    render: function render(text, record: VideoFields, index) {
+    render: function render(text, record: VideoFields, index): ReactElement {
       const processor = videoSourceToProcessorMap[record.source];
       if (!processor) {
         return text;
@@ -295,10 +328,12 @@ export const videoColumns = {
     },
   },
   captionCount: {
-    title: "Caption count",
+    title: (): ReactNode => {
+      return i18n.t("home.videoList.columns.captionCount");
+    },
     dataIndex: "captionCount",
     key: "captionCount",
-    render: function render(text, record: VideoFields, index) {
+    render: function render(text, record: VideoFields, index): ReactElement {
       const processor = videoSourceToProcessorMap[record.source];
       if (!processor) {
         return text;

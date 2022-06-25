@@ -1,5 +1,5 @@
 import { message, Typography } from "antd";
-import React from "react";
+import React, { ReactElement } from "react";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import { CaptionListFields } from "@/common/feature/video/types";
 import styled from "styled-components";
@@ -8,6 +8,7 @@ import { colors } from "@/common/colors";
 import { languages } from "@/common/languages";
 import emptyVideoImage from "@/assets/images/empty-video.jpg";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { useTranslation } from "next-i18next";
 
 const { Link } = Typography;
 
@@ -61,7 +62,10 @@ export type MobileCaptionListProps = {
   captions: CaptionListFields[];
 };
 
-export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
+export const MobileCaptionList = ({
+  captions,
+}: MobileCaptionListProps): ReactElement => {
+  const { t } = useTranslation("common");
   const handleCaptionerLinkClick: React.MouseEventHandler<HTMLAnchorElement> = (
     event
   ) => {
@@ -84,9 +88,7 @@ export const MobileCaptionList = ({ captions }: MobileCaptionListProps) => {
 
         const handleClickCaption = () => {
           if (!canWatchInWebsite) {
-            message.warn(
-              "Viewing this caption via the browser is unsupported. Download the extension instead!"
-            );
+            message.warn(t("home.viewingCaptionInWebNotSupported"));
             return;
           }
           window.open(url, "_blank");

@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { searchFromBasicBar } from "@/common/feature/search/actions";
 import SearchOutlined from "@ant-design/icons/SearchOutlined";
 import { styledNoPass } from "@/common/style-utils";
+import { useTranslation } from "next-i18next";
 
 type SearchRowProps = {
   opened?: boolean;
@@ -42,6 +43,7 @@ export const BasicSearchBar = ({
   const { control, handleSubmit } = useForm<BasicSearchForm>();
   const dispatch = useDispatch();
   const [opened, setOpened] = useState(false);
+  const { t } = useTranslation("common");
 
   const onSearch = (form: BasicSearchForm) => {
     if (onSearchExternal) {
@@ -70,7 +72,7 @@ export const BasicSearchBar = ({
               control={control}
               name="title"
               defaultValue={""}
-              placeholder={"Search for a video"}
+              placeholder={t("home.search.inputPlaceholder")}
               style={{ fontSize: "15px" }}
               rules={{
                 required: true,

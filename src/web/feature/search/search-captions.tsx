@@ -39,6 +39,7 @@ import emptyVideoImage from "@/assets/images/empty-video.jpg";
 import { useOpenClose } from "@/hooks";
 import { VideoCaptionModal } from "./video-caption-modal";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 const PAGE_SIZE = 20;
 
@@ -80,6 +81,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const isSearching = useSelector(search.isLoading(null));
   const router = useRouter();
+  const { t } = useTranslation("common");
 
   const onSearch = (form: SearchForm) => {
     const url = new URL(
@@ -128,7 +130,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                   control={control}
                   name="title"
                   defaultValue={""}
-                  placeholder={"Search for a video"}
+                  placeholder={t("home.search.inputPlaceholder")}
                   style={{ fontSize: "20px" }}
                   rules={{
                     required: true,
@@ -141,7 +143,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                 onClick={handleClickAdvanced}
                 style={{ width: "100%", height: "100%" }}
               >
-                Advanced
+                {t("home.search.advancedSearchLabel")}
               </Button>
             </Col>
             <Col span={24} md={4}>
@@ -160,7 +162,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
               <Row gutter={24}>
                 <Col span={24} md={8}>
                   <Form.Item
-                    label="Video language"
+                    label={t("home.search.videoLanguage")}
                     labelCol={{ xs: { span: 24, offset: 0 } }}
                     labelAlign={"left"}
                   >
@@ -182,7 +184,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                       }
                     >
                       <Select.Option key={"any"} value={"any"}>
-                        Any
+                        {t("home.search.anyLanguage")}
                       </Select.Option>
                       {languageOptions}
                     </Controller>
@@ -190,7 +192,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                 </Col>
                 <Col span={24} md={8}>
                   <Form.Item
-                    label="Caption language"
+                    label={t("home.search.captionLanguage")}
                     labelCol={{ xs: { span: 24, offset: 0 } }}
                     labelAlign={"left"}
                   >
@@ -212,7 +214,7 @@ const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
                       }
                     >
                       <Select.Option key={"any"} value={"any"}>
-                        Any
+                        {t("home.search.anyLanguage")}
                       </Select.Option>
                       {languageOptions}
                     </Controller>
@@ -258,6 +260,7 @@ export const SearchCaptions = ({
   }>({ videoId: "", videoSource: VideoSource.Youtube });
 
   const resultContainer = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation("common");
 
   const handleChangeResultPage = (page: number, pageSize?: number) => {
     dispatch(
@@ -281,7 +284,7 @@ export const SearchCaptions = ({
           <Card style={{ textAlign: "center" }}>
             <Space direction={"vertical"}>
               <Spin spinning={true} />
-              <Title level={4}>Loading...</Title>
+              <Title level={4}>{t("home.search.loading")}</Title>
             </Space>
           </Card>
         </List.Item>
@@ -322,7 +325,7 @@ export const SearchCaptions = ({
             </div>
             <div>
               <Popover
-                title={"Captions"}
+                title={t("home.search.captionLanguageListTitle")}
                 content={
                   <ul>
                     {languageList.map((language) => {
@@ -336,7 +339,9 @@ export const SearchCaptions = ({
                 }
               >
                 <b>
-                  {captionCount} caption <InfoCircleOutlined />
+                  {t("home.search.captionCount", { count: captionCount })}
+                  &nbsp;&nbsp;
+                  <InfoCircleOutlined style={{ verticalAlign: "middle" }} />
                 </b>
               </Popover>
             </div>
@@ -378,7 +383,7 @@ export const SearchCaptions = ({
               xxl: 4,
             },
             locale: {
-              emptyText: "No videos found :(",
+              emptyText: t("home.search.noVideosFound"),
             },
           }}
         />

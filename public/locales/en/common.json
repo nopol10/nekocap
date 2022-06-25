@@ -1,4 +1,160 @@
 {
   "title": "NekoCap",
-  "tagline": "Meow"
+  "tagline": "Meow",
+  "home": {
+    "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
+    "feature": {
+      "easyToUse": {
+        "title": "Easy to use",
+        "description": "View captions without leaving <youtube>Youtube</youtube> and other supported <videosites>video sites</videosites>"
+      },
+      "advancedEffects": {
+        "title": "Advanced effects",
+        "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
+        "viewSupportedFonts": "View supported custom fonts"
+      },
+      "convenientEditor": {
+        "title": "Convenient editor",
+        "description": "Create captions with the built-in editor directly in a video&apos;s page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
+      },
+      "import": {
+        "title": "Import existing captions",
+        "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
+      },
+      "community": {
+        "title": "Community moderation",
+        "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
+      }
+    },
+    "instructions": {
+      "view": {
+        "title": "How to view captions",
+        "step1": "Download the extension for <chrome>Chrome</chrome>",
+        "step2": "Watch videos on one of the supported video sites as usual",
+        "step3": "If there are captions for the video, select them from the dropdown!"
+      },
+      "create": {
+        "title": "How to create captions",
+        "step1": "Download the extension for <chrome>Chrome</chrome>",
+        "step2": "Create an account with Nekocap",
+        "step3": "Browse to the page containing the video you want to add a caption for",
+        "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
+      }
+    },
+    "browseAllCaptions": "Browse all captions",
+    "latestCaptions": "Latest captions",
+    "latestLanguageCaption": "Latest {{language}} captions",
+    "noCaptions": "No captions! You can contribute captions with the extension!",
+    "viewingCaptionInWebNotSupported": "Viewing this caption via the browser is unsupported. Download the extension instead!",
+    "captionList": {
+      "columns": {
+        "videoName": "Video Name",
+        "captioner": "Captioner",
+        "language": "Language",
+        "source": "Source",
+        "uploaded": "Uploaded",
+        "videoLanguage": "Video Language",
+        "captionLanguage": "Caption Language",
+        "updated": "Updated",
+        "actions": "Actions",
+        "views": "Views",
+        "captionCount": "Views",
+        "time": "Time"
+      }
+    },
+    "videoList": {
+      "columns": {
+        "videoName": "Video Name",
+        "captionCount": "Caption count"
+      }
+    },
+    "browseCaptions": {
+      "title": "Browse all captions"
+    },
+    "search": {
+      "inputPlaceholder": "Search for a video",
+      "advancedSearchLabel": "Advanced",
+      "videoLanguage": "Video language",
+      "captionLanguage": "Caption language",
+      "anyLanguage": "Any",
+      "loading": "Loading...",
+      "captionLanguageListTitle": "Captions",
+      "captionCount": "{{count}} caption(s)",
+      "noVideosFound": "No videos found :(",
+      "availableCaptions": "Available captions",
+      "noCaptionsFoundForVideo": "No captions found for this video :("
+    },
+    "watchHere": "Watch here",
+    "watchOnService": "Watch on {{service}}",
+    "navigation": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "logout": "Logout"
+    }
+  },
+  "review": {
+    "deleteCaptionConfirmMessage": "Are you sure you want to delete this caption?",
+    "delete": "Delete",
+    "review": "Review",
+    "update": "Update"
+  },
+  "fontlist": {
+    "hidePreview": "Hide preview",
+    "preview": "Preview",
+    "noFonts": "No fonts!",
+    "availableFonts": "Available fonts",
+    "hideAllFontPreviews": "Hide all font previews",
+    "previewAllFonts": "Preview all fonts",
+    "largeFontDownloadWarning": "Warning! This will download many megabytes of large font files!",
+    "searchFont": "Search font"
+  },
+  "login": {
+    "loginModalTitle": "Log in to access your dashboard"
+  },
+  "profile": {
+    "admin": {
+      "sectionTitle": "Admin tools",
+      "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
+      "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
+      "removeReviewerRoleButton": "Remove Reviewer Role",
+      "assignReviewerRoleButton": "Assign Reviewer Role",
+      "verify": "Verify",
+      "unverify": "Unverify",
+      "ban": "Ban",
+      "unban": "Unban"
+    },
+    "about": "About",
+    "donate": "Donate",
+    "markdownInfo": "(Formatting in Markdown is supported)",
+    "proficientLanguages": "Proficient languages",
+    "contributedCaptions": "Contributed captions",
+    "languageSelectionPlaceholder": "You can select more than 1!",
+    "copyProfileLink": "Copy profile link",
+    "profileLinkCopiedMessage": "Profile link copied to clipboard!",
+    "captionDeleted": "Caption deleted! :(",
+    "captionDeletionFailed": "Failed to delete caption: {{error}}",
+    "profileUpdated": "Profile updated!",
+    "profileUpdateFailed": "Failed to update profile: {{error}}",
+    "roleAssignmentSuccess": "Updated!",
+    "roleAssignmentFailure": "Failed to update: {{error}}"
+  },
+  "viewer": {
+    "browseOtherCaptions": "Browse other captions",
+    "failedToFindCaption": "Sorry, we could not find this caption!",
+    "copyEmbedCode": "Copy embed code",
+    "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
+    "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
+    "captionRenderError": "There was an error rendering this caption. Sorry!"
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "banned": "Banned",
+    "verified": "Verified",
+    "reviewerManager": "Reviewer Manager",
+    "reviewer": "Reviewer"
+  }
 }

@@ -10,6 +10,7 @@ import { publicDashboardSelector } from "@/common/feature/public-dashboard/selec
 import { loadAllCaptions } from "@/common/feature/public-dashboard/actions";
 import { CaptionList } from "../../common/components/caption-list";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 
 const { Title } = Typography;
 export const BROWSE_PAGE_SIZE = 20;
@@ -34,6 +35,7 @@ export const BrowseCaptionPage = () => {
   const isLoading = useSelector(loadAllCaptions.isLoading(null));
   const resultContainer = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     if (browseResults.length > 0) {
@@ -92,7 +94,7 @@ export const BrowseCaptionPage = () => {
       style={{ marginTop: "40px", padding: "0px 40px", overflowX: "hidden" }}
       ref={resultContainer}
     >
-      <Title>Browse all captions</Title>
+      <Title>{t("home.browseCaptions.title")}</Title>
       <ResultsList>
         <CaptionList
           loggedInUser={loggedInUserPublicProfile}
