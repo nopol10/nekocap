@@ -43,6 +43,7 @@ import { isClient, isServer } from "@/common/client-utils";
 import { WSText } from "@/common/components/ws-text";
 import { CaptionControl } from "@/common/feature/video/components/caption-control";
 import { colors } from "@/common/colors";
+import { Trans, useTranslation } from "next-i18next";
 
 const { Title, Text, Link } = Typography;
 
@@ -210,6 +211,7 @@ export const ViewerPage = ({
     window.tabId = TAB_ID;
     setLoadComplete(true);
   }, []);
+  const { t } = useTranslation("common");
 
   const noData =
     loadComplete && (!tabData || (!tabData.caption && !rawCaption));
@@ -220,9 +222,11 @@ export const ViewerPage = ({
     }
     return (
       <div>
-        <Title>Sorry, we could not find this caption!</Title>
+        <Title>{t("viewer.failedToFindCaption")}</Title>
         <Title level={2}>
-          <Link href={routeNames.caption.browse}>Browse other captions</Link>
+          <Link href={routeNames.caption.browse}>
+            {t("viewer.browseOtherCaptions")}
+          </Link>
         </Title>
       </div>
     );
@@ -262,7 +266,7 @@ export const ViewerPage = ({
         `<iframe src="${url.toString()}" allowfullscreen="true" width="560" height="340" frameborder="0"></iframe>`
       );
     }
-    message.success("Copied embed code to clipboard!");
+    message.success(t("viewer.copyEmbedCodeSuccess"));
   };
 
   const embedWidth = Math.min((isClient() ? window.innerWidth : 0) - 60, 1600);
@@ -396,25 +400,33 @@ export const ViewerPage = ({
             </ViewerTitle>
             <TranslatedTitle level={2}>
               <span dir="auto">{caption.translatedTitle}</span>{" "}
-              <Tooltip title="Copy embed code">
+              <Tooltip title={t("viewer.copyEmbedCode")}>
                 <Link onClick={handleClickCopyEmbedLink}>
                   <FontAwesomeIcon icon={faCode} />
                 </Link>
               </Tooltip>
             </TranslatedTitle>
             <CaptionerMessage>
-              Caption submitted by{" "}
-              <Link
-                href={routeNames.profile.main.replace(":id", caption.creator)}
-              >
-                {caption.creatorName}
-              </Link>
+              <Trans
+                i18nKey={"viewer.captionSubmittedBy"}
+                components={{
+                  captioner: (
+                    <Link
+                      href={routeNames.profile.main.replace(
+                        ":id",
+                        caption.creator
+                      )}
+                    ></Link>
+                  ),
+                }}
+                values={{ creatorName: caption.creatorName }}
+              ></Trans>
             </CaptionerMessage>
             <ExtensionMessage>
               <WSText>
-                For the best caption viewing &amp; creating experience, download
-                the NekoCap extension and view captions directly in{" "}
-                {processor ? processor.name : "YouTube"}.
+                {t("viewer.downloadNekocapMessage", {
+                  site: processor ? processor.name : "YouTube",
+                })}
               </WSText>
               <Badges style={{ justifyContent: "left" }}>
                 <Space direction={isDesktop ? "horizontal" : "vertical"}>

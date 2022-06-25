@@ -11,8 +11,11 @@ import { NewProfile } from "./profile/containers/new-profile";
 import { webHistory } from "./web-history";
 import { CaptionerProfile } from "./profile/containers/captioner-profile";
 import { BrowseCaptionPage } from "./browse/containers/browse-caption-page";
+import { useTranslation } from "next-i18next";
 
 export const Routes = () => {
+  const { t } = useTranslation("common");
+
   return (
     <>
       <Router history={webHistory}>
@@ -40,7 +43,7 @@ export const Routes = () => {
         <ProtectedRoute path={routeNames.caption.main} exact={true}>
           <ErrorBoundary
             FallbackComponent={() => (
-              <div>There was an error rendering this caption. Sorry!</div>
+              <div>{t("viewer.captionRenderError")}</div>
             )}
           >
             <CaptionReview />

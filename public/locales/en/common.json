@@ -138,6 +138,15 @@
     "roleAssignmentSuccess": "Updated!",
     "roleAssignmentFailure": "Failed to update: {{error}}"
   },
+  "viewer": {
+    "browseOtherCaptions": "Browse other captions",
+    "failedToFindCaption": "Sorry, we could not find this caption!",
+    "copyEmbedCode": "Copy embed code",
+    "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
+    "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
+    "captionRenderError": "There was an error rendering this caption. Sorry!"
+  },
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
