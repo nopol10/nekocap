@@ -48,7 +48,7 @@
     "viewingCaptionInWebNotSupported": "Viewing this caption via the browser is unsupported. Download the extension instead!",
     "captionList": {
       "columns": {
-        "videoName": "Video Name",
+        "videoName": "Tên Video",
         "captioner": "Captioner",
         "language": "Language",
         "source": "Source",
@@ -80,7 +80,7 @@
       "loading": "Loading...",
       "captionLanguageListTitle": "Captions",
       "captionCount": "{{count}} caption(s)",
-      "noVideosFound": "No videos found :(",
+      "noVideosFound": "Không tìm thấy video :(",
       "availableCaptions": "Available captions",
       "noCaptionsFoundForVideo": "No captions found for this video :("
     },
