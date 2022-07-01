@@ -17,6 +17,7 @@ import { WetvProcessor } from "@/extension/content/processors/wetv-processor";
 import { TikTokProcessor } from "@/extension/content/processors/tiktok-processor";
 import { iQiyiProcessor } from "@/extension/content/processors/iqiyi-processor";
 import { NogiDogaProcessor } from "@/extension/content/processors/nogidoga-processor";
+import { AbemaProcessor } from "@/extension/content/processors/abema-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -93,6 +94,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.TikTok]: TikTokProcessor,
   [VideoSource.iQiyi]: iQiyiProcessor,
   [VideoSource.NogiDoga]: NogiDogaProcessor,
+  [VideoSource.Abema]: AbemaProcessor,
 };
 
 export const processorOrder = [
@@ -109,4 +111,5 @@ export const processorOrder = [
   VideoSource.TikTok,
   VideoSource.iQiyi,
   VideoSource.NogiDoga,
+  VideoSource.Abema,
 ];
