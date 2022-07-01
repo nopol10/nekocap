@@ -55,6 +55,10 @@ const SUPPORTED_SITES: SupportedSite[] = [
     name: "iQiyi",
   },
   {
+    url: "https://abema.tv/",
+    name: "Abema",
+  },
+  {
     url: "https://nogidoga.com/",
     name: "NogiDoga",
   },
