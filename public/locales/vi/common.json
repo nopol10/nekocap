@@ -18,25 +18,25 @@
         "description": "Create captions with the built-in editor directly in a video&apos;s page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
       },
       "import": {
-        "title": "Import existing captions",
+        "title": "Nhập phụ đề hiện có",
         "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
       },
       "community": {
-        "title": "Community moderation",
+        "title": "Kiểm duyệt cộng đồng",
         "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
       }
     },
     "instructions": {
       "view": {
-        "title": "How to view captions",
-        "step1": "Download the extension for <chrome>Chrome</chrome>",
-        "step2": "Watch videos on one of the supported video sites as usual",
-        "step3": "If there are captions for the video, select them from the dropdown!"
+        "title": "Xem phụ đề như nào",
+        "step1": "Tải về tiện ích mở rộng cho <chrome>Chrome</chrome>",
+        "step2": "Xem video trên trang web video được hỗ trợ bình thường",
+        "step3": "Nếu đã có phụ đề cho video, hãy chọn chúng từ menu thả xuống!"
       },
       "create": {
         "title": "Làm phụ đề như thế nào",
-        "step1": "Download the extension for <chrome>Chrome</chrome>",
-        "step2": "Create an account with Nekocap",
+        "step1": "Tải về tiện ích mở rộng cho <chrome>Chrome</chrome>",
+        "step2": "Tạo tài khoản bằng Nekocap",
         "step3": "Browse to the page containing the video you want to add a caption for",
         "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
       }
@@ -143,8 +143,8 @@
     "failedToFindCaption": "Sorry, we could not find this caption!",
     "copyEmbedCode": "Copy embed code",
     "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
-    "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
-    "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
+    "captionSubmittedBy": "Phụ đề tạo bởi <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "Để trải nghiệm xem và tạo phụ đề tốt nhất, hãy tải xuống tiện ích mở rộng NekoCap và xem phụ đề trực tiếp trong {{site}}.",
     "captionRenderError": "Tôi thấy phụ đề này có vấn đề là có lỗi. Thứ lỗi!"
   },
   "common": {
