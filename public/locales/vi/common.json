@@ -37,11 +37,11 @@
         "title": "Làm phụ đề như thế nào",
         "step1": "Tải về tiện ích mở rộng cho <chrome>Chrome</chrome>",
         "step2": "Tạo tài khoản bằng Nekocap",
-        "step3": "Browse to the page containing the video you want to add a caption for",
-        "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
+        "step3": "Duyệt đến trang chứa video mà bạn muốn thêm phụ đề",
+        "step4": "Sử dụng trình chỉnh sửa Nekocap để tạo phụ đề mới hoặc tải lên tệp phụ đề hiện có mà không cần rời khỏi trang video!"
       }
     },
-    "browseAllCaptions": "Browse all captions",
+    "browseAllCaptions": "Duyệt qua tất cả phụ đề",
     "latestCaptions": "Câu vừa ghi",
     "latestLanguageCaption": "Câu {{language}} vừa ghi",
     "noCaptions": "Không có phụ đề! Bạn có thể đóng góp phụ đề bằng tiện ích mở rộng!",
@@ -78,31 +78,31 @@
       "captionLanguage": "Ngôn ngữ phụ đề",
       "anyLanguage": "Bất kì",
       "loading": "Đang tải...",
-      "captionLanguageListTitle": "Captions",
-      "captionCount": "{{count}} caption(s)",
+      "captionLanguageListTitle": "Phụ đề",
+      "captionCount": "{{count}} phụ đề",
       "noVideosFound": "Không tìm thấy video :(",
-      "availableCaptions": "Available captions",
-      "noCaptionsFoundForVideo": "No captions found for this video :("
+      "availableCaptions": "Phụ đề có sẵn",
+      "noCaptionsFoundForVideo": "Chả thấy phụ đề nào cho video này :("
     },
     "watchHere": "Xem ở đây",
     "watchOnService": "Xem trên {{service}}",
     "navigation": {
       "home": "Trang chủ",
-      "dashboard": "Dashboard",
+      "dashboard": "Trang tổng quan",
       "logout": "Đăng xuất"
     }
   },
   "review": {
-    "deleteCaptionConfirmMessage": "Are you sure you want to delete this caption?",
+    "deleteCaptionConfirmMessage": "Có chắc là muốn xóa phụ đề này không?",
     "delete": "Xóa",
-    "review": "Review",
+    "review": "Xem lại",
     "update": "Cật nhật"
   },
   "fontlist": {
     "hidePreview": "Ẩn xem trước",
     "preview": "Xem trước",
     "noFonts": "Không có phông chữ!",
-    "availableFonts": "Available fonts",
+    "availableFonts": "Phông chữ sẵn có",
     "hideAllFontPreviews": "Hide all font previews",
     "previewAllFonts": "Xem trước hết phông chữ",
     "largeFontDownloadWarning": "Cảnh báo! Thứ này sẽ tải xuống nhiều megabyte tệp phông chữ lớn!",
