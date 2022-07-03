@@ -145,7 +145,7 @@
     "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
     "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
     "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
-    "captionRenderError": "There was an error rendering this caption. Sorry!"
+    "captionRenderError": "Tôi thấy phụ đề này có vấn đề là có lỗi. Thứ lỗi!"
   },
   "common": {
     "loading": "Đang tải...",
