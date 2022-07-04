@@ -29,6 +29,7 @@ export const SUBSTATION_GROUPED_FONTS = {
     "caveat semibold": "/fonts/Caveat-600.woff2",
     "caveat bold": "/fonts/Caveat-700.woff2",
     "cc astronautsintrouble": "/fonts/CCAstronautsInTrouble-Regular.woff2",
+    chango: "/fonts/Chango-Regular.woff2",
     "clubtypemercurius-medium": "/fonts/ClubTypeMercurius-Medium.woff2",
     eraserdust: "/fonts/EraserDust.woff2",
     "fira sans": "/fonts/Fira-Sans-Regular.woff2",
