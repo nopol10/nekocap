@@ -1,6 +1,11 @@
 import { createReducer } from "@reduxjs/toolkit";
-import { UserExtensionPreferenceState } from "./types";
-import { toggleAutosave, setHideToolbarIfNoCaptions } from "./actions";
+import { AutoloadMethod, UserExtensionPreferenceState } from "./types";
+import {
+  toggleAutosave,
+  setHideToolbarIfNoCaptions,
+  setPreferredLanguage,
+  setAutoloadMethod,
+} from "./actions";
 
 export const userExtensionPreferenceReducer = createReducer<
   UserExtensionPreferenceState
@@ -8,6 +13,8 @@ export const userExtensionPreferenceReducer = createReducer<
   {
     hideToolbarIfNoCaptions: false,
     autosave: true,
+    preferredLanguage: "en",
+    autoloadMethod: AutoloadMethod.NoAutoload,
   },
   (builder) => {
     return builder
@@ -15,6 +22,18 @@ export const userExtensionPreferenceReducer = createReducer<
         return {
           ...state,
           hideToolbarIfNoCaptions: action.payload,
+        };
+      })
+      .addCase(setAutoloadMethod, (state, action) => {
+        return {
+          ...state,
+          autoloadMethod: action.payload,
+        };
+      })
+      .addCase(setPreferredLanguage, (state, action) => {
+        return {
+          ...state,
+          preferredLanguage: action.payload,
         };
       })
       .addCase(toggleAutosave, (state) => {
