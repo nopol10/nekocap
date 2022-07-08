@@ -5,6 +5,7 @@ import {
   put,
   select,
   takeEvery,
+  take,
 } from "redux-saga/effects";
 import { message as notificationMessage } from "antd";
 import {
@@ -32,7 +33,7 @@ import {
   setIsLoadingRawCaption,
 } from "@/common/feature/video/actions";
 import { videoActionTypes } from "@/common/feature/video/action-types";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { Action, PayloadAction } from "@reduxjs/toolkit";
 import {
   LoadServerCaption,
   LoadSingleCaptionResult,
@@ -47,6 +48,7 @@ import {
   CaptionRendererType,
   PageType,
   TabVideoData,
+  SetServerCaptions,
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import {
@@ -77,6 +79,11 @@ import {
   isInExtension,
 } from "@/common/client-utils";
 import { getCaptionContainersFromFile } from "../caption-editor/utils";
+import { userExtensionPreferenceSelector } from "../user-extension-preference/selectors";
+import {
+  AutoloadMethod,
+  UserExtensionPreferenceState,
+} from "../user-extension-preference/types";
 
 function sendInfoMessage(tabId: number, message: NotificationMessage) {
   if (isInExtension() && isInBackgroundScript()) {
@@ -394,7 +401,10 @@ function* requestFreshTabDataSaga({
    * Prevents caption loading from finishing before clearTabData, which would erase loaded captions immediately
    */
   yield select(tabVideoDataSelector(tabId));
-  if (newPageType === PageType.Video && newVideoId) {
+  if (newPageType !== PageType.Video) {
+    return;
+  }
+  if (newVideoId) {
     yield put(
       loadCaptions.request({
         videoId: newVideoId,
@@ -403,9 +413,48 @@ function* requestFreshTabDataSaga({
       })
     );
   }
-  if (newPageType === PageType.Video && newCaptionId) {
+  const {
+    autoloadMethod,
+    preferredLanguage,
+  }: UserExtensionPreferenceState = yield select(
+    userExtensionPreferenceSelector
+  );
+  if (newCaptionId) {
+    // Load the caption specified in the URL
     yield put(loadServerCaption.request({ captionId: newCaptionId, tabId }));
+    return;
   }
+  if (autoloadMethod === AutoloadMethod.NoAutoload) {
+    return;
+  }
+  // Autoload caption
+  const {
+    payload: serverCaptionAction,
+  }: PayloadAction<SetServerCaptions> = yield take(setServerCaptions);
+  const serverCaptionList = serverCaptionAction.captions;
+  if (serverCaptionList.length <= 0) {
+    return;
+  }
+  const preferredLanguageCaption =
+    serverCaptionList.find(({ languageCode }) => {
+      return (
+        languageCode === preferredLanguage ||
+        languageCode.startsWith(preferredLanguage)
+      );
+    }) ||
+    (autoloadMethod === AutoloadMethod.AutoloadPreferredOrFirst &&
+      serverCaptionList[0]);
+
+  if (preferredLanguageCaption) {
+    yield put(
+      loadServerCaption.request({
+        captionId: preferredLanguageCaption.id,
+        tabId,
+      })
+    );
+  }
+
+  yield;
 }
 
 function* closeTabSaga({ payload }: PayloadAction<TabbedType>) {
