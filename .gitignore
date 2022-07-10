@@ -17,3 +17,4 @@ Dockerfile
 .eslintcache
 *.zip
 .next/
+.sentryclirc

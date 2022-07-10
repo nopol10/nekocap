@@ -12,7 +12,7 @@ const getCSP = (props) => {
   csp += `font-src 'self' https://nekocap.com https://*.nekocap.com data: https://fonts.gstatic.com;`;
 
   const commonConnectSrc =
-    "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/";
+    "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.sentry.io/";
   const commonScriptSrc = "https://*.google.com/";
   const commonFrameSrc = "https://nekocap-42.firebaseapp.com";
   const isViewer = props.url?.startsWith("/view/");
