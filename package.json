@@ -131,6 +131,7 @@
     "@fortawesome/react-fontawesome": "^0.1.11",
     "@manaflair/redux-batch": "^1.0.0",
     "@reduxjs/toolkit": "1.7.1",
+    "@sentry/nextjs": "^7.6.0",
     "antd": "4.15.5",
     "ass-compiler": "^0.1.4",
     "compression": "^1.7.4",
