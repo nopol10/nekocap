@@ -12,11 +12,12 @@ const getCSP = (props) => {
   csp += `font-src 'self' https://nekocap.com https://*.nekocap.com data: https://fonts.gstatic.com;`;
 
   const commonConnectSrc =
-    "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.sentry.io/";
-  const commonScriptSrc = "https://*.google.com/ https://*.ko-fi.com";
+    "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.sentry.io/ https://vimeo.com/";
+  const commonScriptSrc =
+    "https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com";
   const commonStyleSrc = "https://*.ko-fi.com";
   const commonFrameSrc =
-    "https://nekocap-42.firebaseapp.com https://ko-fi.com/";
+    "https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/";
   const isViewer = props.url?.startsWith("/view/");
 
   if (process.env.NODE_ENV !== "production") {

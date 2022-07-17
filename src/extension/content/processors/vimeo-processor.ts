@@ -9,6 +9,7 @@ const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(vimeo.com)\/([A-Za-z0-9
 export const VimeoProcessor: Processor = {
   type: VideoSource.Vimeo,
   name: "Vimeo",
+  canWatchInNekoCapSite: true,
   urlRegex: /vimeo\.com/,
   videoSelector: ".vp-video-wrapper video",
   videoPageUISelector: "main h1",

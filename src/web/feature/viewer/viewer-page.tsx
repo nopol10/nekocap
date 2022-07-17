@@ -44,6 +44,7 @@ import { CaptionControl } from "@/common/feature/video/components/caption-contro
 import { colors } from "@/common/colors";
 import { Trans, useTranslation } from "next-i18next";
 import { YoutubeViewer } from "./container/youtube-viewer";
+import { VimeoViewer } from "./container/vimeo-viewer";
 
 const { Title, Text, Link } = Typography;
 
@@ -194,6 +195,7 @@ export const ViewerPage = ({
     HTMLDivElement
   >(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
+  const currentTimeGetter = useRef<() => number>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());
   const youtubePlayerRef = useRef<YouTubePlayer>(null);
@@ -234,8 +236,8 @@ export const ViewerPage = ({
   const { caption, videoDimensions, renderer } = tabData || {};
 
   const getCurrentTime = (): number => {
-    if (youtubePlayerRef.current) {
-      return youtubePlayerRef.current.getCurrentTime();
+    if (currentTimeGetter.current) {
+      return currentTimeGetter.current();
     }
     return 0;
   };
@@ -266,6 +268,19 @@ export const ViewerPage = ({
         caption={caption}
         defaultRendererRef={defaultRendererRef}
         youtubePlayerRef={youtubePlayerRef}
+        currentTimeGetter={currentTimeGetter}
+      />
+    );
+  };
+
+  const renderVimeoVideo = () => {
+    return (
+      <VimeoViewer
+        embedHeight={embedHeight}
+        embedWidth={embedWidth}
+        caption={caption}
+        defaultRendererRef={defaultRendererRef}
+        currentTimeGetter={currentTimeGetter}
       />
     );
   };
@@ -279,6 +294,8 @@ export const ViewerPage = ({
     }
     if (caption.videoSource === VideoSource.Youtube) {
       return renderYoutubeVideo();
+    } else if (caption.videoSource === VideoSource.Vimeo) {
+      return renderVimeoVideo();
     }
     return;
   };

@@ -14,9 +14,13 @@ export const YoutubeViewer = ({
   caption,
   defaultRendererRef,
   youtubePlayerRef,
+  currentTimeGetter,
 }: YoutubeViewerProps): ReactElement => {
   const handleYoutubeReady = ({ target }: { target: YouTubePlayer }) => {
     youtubePlayerRef.current = target;
+    currentTimeGetter.current = () => {
+      return target.getCurrentTime();
+    };
   };
 
   const handleYoutubePlay = () => {

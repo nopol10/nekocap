@@ -6,4 +6,5 @@ export type ViewerProps = {
   embedHeight: number;
   caption: CaptionContainer;
   defaultRendererRef: React.MutableRefObject<CaptionRendererHandle>;
+  currentTimeGetter: React.MutableRefObject<() => number>;
 };

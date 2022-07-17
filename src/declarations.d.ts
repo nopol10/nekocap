@@ -9,6 +9,7 @@ import {
 } from "./common/feature/video/types";
 import { BackendProvider } from "./common/providers/backend-provider";
 import { Processor } from "./extension/content/processors/processor";
+import type * as Vimeo from "vimeo__player";
 
 declare global {
   interface Window {
@@ -35,6 +36,7 @@ declare global {
     kofiWidgetOverlay: {
       draw: (name: string, options: Record<string, string>) => void;
     };
+    Vimeo: typeof Vimeo;
   }
 
   namespace NodeJS {
