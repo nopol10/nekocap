@@ -7,13 +7,18 @@ import { createGlobalStyle } from "styled-components";
 
 const KofiCSSOverride = createGlobalStyle`
   div[id^="kofi-widget-overlay-"] {
-    .floatingchat-container-wrap {
+    .floatingchat-container-wrap, .floatingchat-container-wrap-mobi {
       right: 16px;
       left: unset;
     }
-    .floating-chat-kofi-popup-iframe {
+    .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi {
       right: 16px;
       left: unset;
+    }
+    .floatingchat-container-mobi {
+      right: 0;
+      left: unset;
+      width: 176px;
     }
   }
 `;
