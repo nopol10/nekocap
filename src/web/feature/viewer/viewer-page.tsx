@@ -3,8 +3,7 @@ import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import YouTube from "react-youtube";
-import { YouTubePlayer } from "youtube-player/dist/types";
+import type { YouTubePlayer } from "youtube-player/dist/types";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { faCode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -44,11 +43,11 @@ import { WSText } from "@/common/components/ws-text";
 import { CaptionControl } from "@/common/feature/video/components/caption-control";
 import { colors } from "@/common/colors";
 import { Trans, useTranslation } from "next-i18next";
+import { YoutubeViewer } from "./container/youtube-viewer";
 
 const { Title, Text, Link } = Typography;
 
 const TAB_ID = 0;
-const YOUTUBE_IFRAME_ID = "youtube-iframe";
 const NEKOCAP_EMBED_CLASSNAME = "nekocap-embed";
 
 const MAX_HEIGHT = 600;
@@ -197,7 +196,7 @@ export const ViewerPage = ({
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());
-  const [youtubePlayer, setYouTubePlayer] = useState<YouTubePlayer>(null);
+  const youtubePlayerRef = useRef<YouTubePlayer>(null);
   const fullScreenHandle = useFullScreenHandle();
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [videoPlayerPreferences, dispatchVideoPreference] = useReducer<
@@ -235,27 +234,10 @@ export const ViewerPage = ({
   const { caption, videoDimensions, renderer } = tabData || {};
 
   const getCurrentTime = (): number => {
-    if (youtubePlayer) {
-      return youtubePlayer.getCurrentTime();
+    if (youtubePlayerRef.current) {
+      return youtubePlayerRef.current.getCurrentTime();
     }
     return 0;
-  };
-
-  const handleYoutubeReady = ({ target }: { target: YouTubePlayer }) => {
-    setYouTubePlayer(target);
-  };
-
-  const handleYoutubePlay = ({ target }: { target: YouTubePlayer }) => {
-    if (!defaultRendererRef.current) {
-      return;
-    }
-    defaultRendererRef.current.onVideoPlay();
-  };
-  const handleYoutubePause = ({ target }: { target: YouTubePlayer }) => {
-    if (!defaultRendererRef.current) {
-      return;
-    }
-    defaultRendererRef.current.onVideoPause();
   };
 
   const handleClickCopyEmbedLink = () => {
@@ -277,29 +259,21 @@ export const ViewerPage = ({
     : Math.min((9 / 16) * embedWidth, MAX_HEIGHT);
 
   const renderYoutubeVideo = () => {
-    if (isServer()) {
-      return null;
-    }
-
     return (
-      <YouTube
-        opts={{
-          width: embedWidth.toString(),
-          height: embedHeight.toString(),
-          playerVars: {
-            fs: 0,
-          },
-        }}
-        id={YOUTUBE_IFRAME_ID}
-        videoId={caption.videoId}
-        onReady={handleYoutubeReady}
-        onPlay={handleYoutubePlay}
-        onPause={handleYoutubePause}
-      ></YouTube>
+      <YoutubeViewer
+        embedHeight={embedHeight}
+        embedWidth={embedWidth}
+        caption={caption}
+        defaultRendererRef={defaultRendererRef}
+        youtubePlayerRef={youtubePlayerRef}
+      />
     );
   };
 
   const renderVideo = () => {
+    if (isServer()) {
+      return null;
+    }
     if (!loadComplete || noData) {
       return;
     }
