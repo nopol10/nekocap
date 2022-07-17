@@ -32,6 +32,9 @@ declare global {
     backgroundEditorRawCaption: { [id: string]: RawCaptionData } | null;
     firebaseApp: FirebaseApp;
     firebaseAuth: Auth;
+    kofiWidgetOverlay: {
+      draw: (name: string, options: Record<string, string>) => void;
+    };
   }
 
   namespace NodeJS {

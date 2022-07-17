@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
@@ -24,6 +24,7 @@ import { WSButton } from "@/common/components/ws-button";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { Trans, useTranslation } from "next-i18next";
+import { KofiWidget } from "../common/containers/kofi-widget";
 
 const { Content } = Layout;
 
@@ -126,60 +127,66 @@ const CaptionDigestGrid = () => {
 export const Home = (): ReactElement => {
   const { t } = useTranslation("common");
   return (
-    <div
-      style={{
-        flex: "1",
-        display: "flex",
-        flexDirection: "column",
-        marginTop: "-64px",
-      }}
-    >
-      <div style={{ textAlign: "center" }}>
-        <MainLogo>
-          <NekoLogo />
-          <div>(alpha)</div>
-        </MainLogo>
+    <>
+      <KofiWidget />
+      <div
+        style={{
+          flex: "1",
+          display: "flex",
+          flexDirection: "column",
+          marginTop: "-64px",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <MainLogo>
+            <NekoLogo />
+            <div>(alpha)</div>
+          </MainLogo>
+        </div>
+        <WSLayout style={{ height: "100%", paddingBottom: 20 }}>
+          <Content style={{ padding: "0 40px", overflowX: "hidden" }}>
+            <WaveDivider />
+            <WSTitle level={2} textAlign={"center"}>
+              <Trans
+                i18nKey={"home.summary"}
+                components={{
+                  bold: <em />,
+                  open: (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={GITHUB_URL}
+                      style={{ fontWeight: "bold" }}
+                    />
+                  ),
+                }}
+              ></Trans>
+            </WSTitle>
+            <Badges>
+              <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
+                <img id="chrome-badge" src={chromeLogo.src} />
+              </a>
+              <a target="_blank" rel="noreferrer" href={FIREFOX_DOWNLOAD_URL}>
+                <img id="firefox-badge" src={firefoxLogo.src} />
+              </a>
+            </Badges>
+            <Badges>
+              <a target="_blank" rel="noreferrer" href={DISCORD_INVITE_URL}>
+                <img id="discord-badge" src={discordLogo.src} />
+              </a>
+            </Badges>
+            <FeatureList />
+            <Instructions />
+            <BrowseCaptionButton
+              size={"large"}
+              href={routeNames.caption.browse}
+            >
+              {t("home.browseAllCaptions")}
+            </BrowseCaptionButton>
+            <CaptionDigestGrid />
+          </Content>
+        </WSLayout>
       </div>
-      <WSLayout style={{ height: "100%" }}>
-        <Content style={{ padding: "0 40px", overflowX: "hidden" }}>
-          <WaveDivider />
-          <WSTitle level={2} textAlign={"center"}>
-            <Trans
-              i18nKey={"home.summary"}
-              components={{
-                bold: <em />,
-                open: (
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={GITHUB_URL}
-                    style={{ fontWeight: "bold" }}
-                  />
-                ),
-              }}
-            ></Trans>
-          </WSTitle>
-          <Badges>
-            <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
-              <img id="chrome-badge" src={chromeLogo.src} />
-            </a>
-            <a target="_blank" rel="noreferrer" href={FIREFOX_DOWNLOAD_URL}>
-              <img id="firefox-badge" src={firefoxLogo.src} />
-            </a>
-          </Badges>
-          <Badges>
-            <a target="_blank" rel="noreferrer" href={DISCORD_INVITE_URL}>
-              <img id="discord-badge" src={discordLogo.src} />
-            </a>
-          </Badges>
-          <FeatureList />
-          <Instructions />
-          <BrowseCaptionButton size={"large"} href={routeNames.caption.browse}>
-            {t("home.browseAllCaptions")}
-          </BrowseCaptionButton>
-          <CaptionDigestGrid />
-        </Content>
-      </WSLayout>
-    </div>
+    </>
   );
 };

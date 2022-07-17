@@ -152,3 +152,15 @@ export const isRTLString = (str: string): boolean => {
   const rtlDirCheck = new RegExp("^[^" + ltrChars + "]*[" + rtlChars + "]");
   return rtlDirCheck.test(str);
 };
+
+export const delay = (milliseconds: number): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+};
+
+export const waitUntil = async (predicate: () => boolean): Promise<void> => {
+  while (!predicate()) {
+    await delay(500);
+  }
+};
