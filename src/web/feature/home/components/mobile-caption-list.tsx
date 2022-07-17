@@ -29,6 +29,7 @@ const MobileTranslatedTitle = styled.div`
 
 const LanguageLabel = styled.div`
   font-size: 12px;
+  color: ${colors.alternate};
 `;
 
 const MobileCaptionCreator = styled.div`
