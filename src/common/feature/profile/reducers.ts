@@ -5,6 +5,7 @@ import {
   assignReviewer,
   assignReviewerManager,
   loadProfile,
+  loadUserCaptions,
   setListedCaptions,
   setProfile,
   updateProfile,
@@ -21,6 +22,7 @@ export const profileReducer = createReducer<ProfileState>(
   initialState,
   (builder) => {
     loadProfile.augmentReducer(builder);
+    loadUserCaptions.augmentReducer(builder);
     updateProfile.augmentReducer(builder);
     assignReviewer.augmentReducer(builder);
     assignReviewerManager.augmentReducer(builder);
