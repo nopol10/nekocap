@@ -7,11 +7,14 @@ import createSagaMiddleware from "redux-saga";
 import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
 import { isClient, isServer } from "@/common/client-utils";
 import { rootWebSaga } from "./saga";
+import { statsReducer } from "@/common/feature/stats/slice";
 
 const makeStore = () => {
   const sagaMiddleware = isClient() ? createSagaMiddleware() : undefined;
   const store = configureStore({
-    reducer: createRootReducer(),
+    reducer: createRootReducer({
+      stats: statsReducer,
+    }),
     devTools: {
       trace: true,
     },

@@ -7,6 +7,7 @@ import { CaptionReviewState } from "../feature/caption-review/types";
 import { SearchState } from "../feature/search/types";
 import { CaptionEditorState } from "../feature/caption-editor/types";
 import { UserExtensionPreferenceState } from "../../extension/background/feature/user-extension-preference/types";
+import { StatsState } from "../feature/stats/types";
 
 export type RootState = {
   login: LoginState;
@@ -18,4 +19,5 @@ export type RootState = {
   search: SearchState;
   captionEditor: CaptionEditorState;
   userExtensionPreference: UserExtensionPreferenceState;
+  stats: StatsState;
 };
