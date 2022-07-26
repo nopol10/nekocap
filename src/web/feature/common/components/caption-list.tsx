@@ -45,6 +45,7 @@ type CaptionListProps = {
   ) => React.ReactNode;
   renderTotal?: (total: number, range: number[]) => string;
   listContainsCurrentPageOnly?: boolean;
+  hideActions?: boolean;
 };
 
 type UpdateModalDetails = {
@@ -65,6 +66,7 @@ export const CaptionList = ({
   renderPagination,
   renderTotal,
   listContainsCurrentPageOnly = false,
+  hideActions = false,
 }: CaptionListProps): React.ReactElement => {
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<
@@ -108,7 +110,7 @@ export const CaptionList = ({
     captionColumns.updatedDate,
   ].filter(Boolean);
 
-  if (canEdit || canDelete) {
+  if ((canEdit || canDelete) && !hideActions) {
     tableColumns.push({
       title: (): ReactNode => {
         return i18n.t("home.captionList.columns.actions");
