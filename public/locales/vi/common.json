@@ -2,7 +2,7 @@
   "title": "NekoCap",
   "tagline": "Meow",
   "home": {
-    "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
+    "summary": "<bold>Xem</bold>, <bold>tạo</bold> và <bold>khoe</bold> phụ đề bạn làm<br />với<open>tiện ích trình duyệt</open> mã nguồn mở này",
     "feature": {
       "easyToUse": {
         "title": "Dùng dễ thôi",
@@ -103,17 +103,17 @@
     "preview": "Xem trước",
     "noFonts": "Không có phông chữ!",
     "availableFonts": "Phông chữ sẵn có",
-    "hideAllFontPreviews": "Hide all font previews",
+    "hideAllFontPreviews": "Ẩn tất cả xem trước phông chữ",
     "previewAllFonts": "Xem trước hết phông chữ",
     "largeFontDownloadWarning": "Cảnh báo! Thứ này sẽ tải xuống nhiều megabyte tệp phông chữ lớn!",
     "searchFont": "Tìm phông chữ"
   },
   "login": {
-    "loginModalTitle": "Log in to access your dashboard"
+    "loginModalTitle": "Đăng nhập để xem trang tổng quan của bạn"
   },
   "profile": {
     "admin": {
-      "sectionTitle": "Admin tools",
+      "sectionTitle": "Công cụ Admin",
       "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
       "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
       "removeReviewerRoleButton": "Remove Reviewer Role",
@@ -129,9 +129,9 @@
     "proficientLanguages": "Proficient languages",
     "contributedCaptions": "Contributed captions",
     "languageSelectionPlaceholder": "You can select more than 1!",
-    "copyProfileLink": "Copy profile link",
+    "copyProfileLink": "Sao chép link hồ sơ",
     "profileLinkCopiedMessage": "Profile link copied to clipboard!",
-    "captionDeleted": "Caption deleted! :(",
+    "captionDeleted": "Đã xóa phụ đề! :((",
     "captionDeletionFailed": "Failed to delete caption: {{error}}",
     "profileUpdated": "Profile updated!",
     "profileUpdateFailed": "Failed to update profile: {{error}}",
