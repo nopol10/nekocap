@@ -42,6 +42,7 @@ import {
   GetAutoCaptionListParams,
   GetAutoCaptionListResult,
 } from "../feature/caption-editor/types";
+import { StatsResponse } from "../feature/stats/types";
 
 export enum LoginMethod {
   Google,
@@ -139,4 +140,5 @@ export interface BackendProvider<T extends RootState> {
   getAutoCaptionList: (
     params: GetAutoCaptionListParams
   ) => Promise<GetAutoCaptionListResult>;
+  getGlobalStats: () => Promise<StatsResponse>;
 }

@@ -46,6 +46,7 @@ import {
   GetAutoCaptionListParams,
   GetAutoCaptionListResult,
 } from "@/common/feature/caption-editor/types";
+import { StatsResponse } from "../feature/stats/types";
 
 export enum BackendProviderRequestTypes {
   Login,
@@ -75,6 +76,7 @@ export enum BackendProviderRequestTypes {
   Search,
   Browse,
   GetAutoCaptionList,
+  GetGlobalStats,
 }
 
 export type BackendProviderRequest =
@@ -174,6 +176,9 @@ export type BackendProviderRequest =
   | {
       type: BackendProviderRequestTypes.GetAutoCaptionList;
       params: GetAutoCaptionListParams;
+    }
+  | {
+      type: BackendProviderRequestTypes.GetGlobalStats;
     };
 
 function sendBackgroundProviderRequest(
@@ -435,6 +440,11 @@ export class PassthroughProvider implements BackendProvider<RootState> {
     return sendBackgroundProviderRequest({
       type: BackendProviderRequestTypes.GetAutoCaptionList,
       params,
+    });
+  }
+  async getGlobalStats(): Promise<StatsResponse> {
+    return sendBackgroundProviderRequest({
+      type: BackendProviderRequestTypes.GetGlobalStats,
     });
   }
 }

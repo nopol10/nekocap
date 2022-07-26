@@ -244,6 +244,7 @@ export type CaptionFields = {
   likes: number;
   dislikes: number;
   tags: string[];
+  views?: number;
 };
 
 export type CaptionListFields = CaptionFields & {

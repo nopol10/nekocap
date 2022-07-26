@@ -81,6 +81,7 @@ import {
   User as FirebaseUser,
 } from "firebase/auth";
 import { routeNames } from "../../../web/feature/route-types";
+import { StatsResponse } from "@/common/feature/stats/types";
 
 //#region
 const loginWithGoogle = async (
@@ -692,6 +693,13 @@ export class ParseProvider implements BackendProvider<ParseState> {
       "getAutoCaptionList",
       params
     );
+    if (response.status !== "success") {
+      throw new Error(response.error);
+    }
+    return response;
+  }
+  async getGlobalStats(): Promise<StatsResponse> {
+    const response: StatsResponse = await this.Parse.Cloud.run("globalStats");
     if (response.status !== "success") {
       throw new Error(response.error);
     }
