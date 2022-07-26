@@ -12,7 +12,9 @@ const moduleExports = {
 
 const sentryWebpackPluginOptions = {};
 
-module.exports = withSentryConfig(
-  withAntdLess(moduleExports),
-  sentryWebpackPluginOptions
-);
+const sentrylessConfig = withAntdLess(moduleExports);
+
+module.exports =
+  process.env.NODE_ENV === "production"
+    ? withSentryConfig(sentrylessConfig, sentryWebpackPluginOptions)
+    : sentrylessConfig;
