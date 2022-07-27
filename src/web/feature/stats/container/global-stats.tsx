@@ -1,5 +1,4 @@
-import Table from "antd/lib/table/Table";
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { Card, Col, Row } from "antd";
 import styled from "styled-components";
@@ -17,7 +16,7 @@ import { globalStatsSelector } from "@/common/feature/stats/selectors";
 import { languages } from "@/common/languages";
 import { CaptionList } from "../../common/components/caption-list";
 import { CaptionerFields } from "@/common/feature/captioner/types";
-import Text from "antd/lib/typography/Text";
+import { colors } from "@/common/colors";
 
 const StatsPage = styled.div`
   margin-top: 40px;
@@ -28,7 +27,19 @@ const StatsPage = styled.div`
 `;
 
 const ViewText = styled.div`
-  font-size: 40px;
+  font-size: 28px;
+`;
+
+const Spacer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+  justify-content: space-between;
+  .ant-card {
+    height: 100%;
+  }
 `;
 
 const CustomViewTooltip = ({
@@ -67,32 +78,60 @@ const GlobalStats = () => {
     isAdmin: true,
   };
 
+  const totalViewsTitle = (
+    <>
+      <span>Views per language </span>
+      <ViewText>Total: {globalStats.totalViews.toLocaleString()}</ViewText>
+    </>
+  );
+
+  const totalCaptionsTitle = (
+    <>
+      <span>Captions per language </span>
+      <ViewText>Total: {globalStats.totalCaptions.toLocaleString()}</ViewText>
+    </>
+  );
+
   return (
     <StatsPage>
       <Row gutter={16}>
-        <Col span={6}>
-          <Card title="Total views">
-            <ViewText>{globalStats.totalViews.toLocaleString()}</ViewText>
-          </Card>
-        </Col>
-        <Col span={18}>
-          <Card title="Total views">
-            <ResponsiveContainer width={"100%"} height={300}>
-              <BarChart
-                data={globalStats.totalViewsPerLanguage}
-                margin={{
-                  top: 5,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="languageCode" />
-                <YAxis dataKey={"views"} />
-                <Tooltip content={<CustomViewTooltip />} />
-                <Bar dataKey={"views"}></Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
+        <Col span={24}>
+          <Spacer>
+            <Card title={totalViewsTitle}>
+              <ResponsiveContainer width={"100%"} height={200}>
+                <BarChart
+                  data={globalStats.totalViewsPerLanguage}
+                  margin={{
+                    top: 5,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="languageCode" />
+                  <YAxis dataKey={"views"} />
+                  <Tooltip content={<CustomViewTooltip />} />
+                  <Bar dataKey={"views"}></Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card title={totalCaptionsTitle}>
+              <ResponsiveContainer width={"100%"} height={200}>
+                <BarChart
+                  data={globalStats.totalCaptionsPerLanguage}
+                  margin={{
+                    top: 5,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="languageCode" />
+                  <YAxis dataKey={"count"} />
+                  <Tooltip content={<CustomViewTooltip />} />
+                  <Bar dataKey={"count"} fill={colors.base}></Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </Spacer>
         </Col>
       </Row>
       <Row gutter={16}>

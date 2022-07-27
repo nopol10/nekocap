@@ -3,7 +3,9 @@ import { CaptionListFields } from "../video/types";
 
 export type GlobalStats = {
   totalViews: number;
+  totalCaptions: number;
   totalViewsPerLanguage: { languageCode: string; views: number }[];
+  totalCaptionsPerLanguage: { languageCode: string; count: number }[];
   topCaptionsAllTime: CaptionListFields[];
   topCaptionsUploadedThisMonth: CaptionListFields[];
 };

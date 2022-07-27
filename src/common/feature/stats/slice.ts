@@ -4,6 +4,8 @@ import { hydrate } from "@/web/store/action";
 
 const initialState: StatsState = {
   globalStats: {
+    totalCaptions: 0,
+    totalCaptionsPerLanguage: [],
     topCaptionsAllTime: [],
     topCaptionsUploadedThisMonth: [],
     totalViews: 0,
