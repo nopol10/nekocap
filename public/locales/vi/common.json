@@ -10,20 +10,20 @@
       },
       "advancedEffects": {
         "title": "Hiệu ứng nâng cao",
-        "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
+        "description": "Xem các phụ đề phức tạp được tạo ở các định dạng Substation Alpha (SSA, ASS) bằng trình kết xuất nâng cao được tạo bởi <octopus>Subtitle Octopus</octopus>",
         "viewSupportedFonts": "Xem các phông chữ được dùng"
       },
       "convenientEditor": {
         "title": "Trình chỉnh sửa tiện lợi",
-        "description": "Create captions with the built-in editor directly in a video's page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
+        "description": "Tạo phụ đề bằng trình chỉnh sửa tích hợp trực tiếp trong trang của video có tiện ích mở rộng.<br />Định vị phụ đề thủ công, phím tắt được hỗ trợ.<br />Nhiều tính năng mới sẽ sớm có!"
       },
       "import": {
         "title": "Nhập phụ đề hiện có",
-        "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
+        "description": "Sử dụng các công cụ như Aegisub hoặc SubtitleEdit để tạo phụ đề trước khi tải chúng lên thông qua NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> đều được hỗ trợ"
       },
       "community": {
         "title": "Kiểm duyệt cộng đồng",
-        "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
+        "description": "Trang web NekoCap đi kèm với các công cụ cho phép người kiểm duyệt cộng đồng xác minh hay từ chối phụ đề đã gửi. <br /> Tuy nhiên, chúng mình cần những tình nguyện viên thông thạo các ngôn ngữ khác nhau để giúp kiểm duyệt phụ đề đã gửi. <br />Nếu bạn muốn giúp đỡ, hãy tham gia Discord và ping chúng mình!"
       }
     },
     "instructions": {
@@ -114,10 +114,10 @@
   "profile": {
     "admin": {
       "sectionTitle": "Công cụ Admin",
-      "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
-      "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
-      "removeReviewerRoleButton": "Remove Reviewer Role",
-      "assignReviewerRoleButton": "Assign Reviewer Role",
+      "removeReviewerManagerRoleButton": "Xóa vai trò Manager Reviewer",
+      "assignReviewerManagerRoleButton": "Chỉ định vai trò Manager Reviewer",
+      "removeReviewerRoleButton": "Xóa vai trò Reviewer",
+      "assignReviewerRoleButton": "Chỉ định vai trò Reviewer",
       "verify": "Xác minh",
       "unverify": "Bỏ xác minh",
       "ban": "Cấm",
@@ -125,9 +125,9 @@
     },
     "about": "Về",
     "donate": "Ủng hộ",
-    "markdownInfo": "(Formatting in Markdown is supported)",
-    "proficientLanguages": "Proficient languages",
-    "contributedCaptions": "Contributed captions",
+    "markdownInfo": "(Định dạng trong Markdown được hỗ trợ)",
+    "proficientLanguages": "Ngôn ngữ thành thạo",
+    "contributedCaptions": "Phụ đề đã đóng góp",
     "languageSelectionPlaceholder": "Bạn có thể chọn nhiều hơn 1!",
     "copyProfileLink": "Sao chép link hồ sơ",
     "profileLinkCopiedMessage": "Đã copy link hồ sơ vào clipboard!",
