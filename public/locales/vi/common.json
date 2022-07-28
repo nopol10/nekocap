@@ -1,0 +1,161 @@
+{
+  "title": "NekoCap",
+  "tagline": "Meow",
+  "home": {
+    "summary": "<bold>Xem</bold>, <bold>tạo</bold> và <bold>khoe</bold> phụ đề bạn làm<br />với<open>tiện ích trình duyệt</open> mã nguồn mở này",
+    "feature": {
+      "easyToUse": {
+        "title": "Dùng dễ thôi",
+        "description": "Xem phụ đề mà không cần thoái khỏi <youtube>Youtube</youtube> hay các trang video khác <videosites>khi đã được hỗ trợ</videosites>"
+      },
+      "advancedEffects": {
+        "title": "Hiệu ứng nâng cao",
+        "description": "Xem các phụ đề phức tạp được tạo ở các định dạng Substation Alpha (SSA, ASS) bằng trình kết xuất nâng cao được tạo bởi <octopus>Subtitle Octopus</octopus>",
+        "viewSupportedFonts": "Xem các phông chữ được dùng"
+      },
+      "convenientEditor": {
+        "title": "Trình chỉnh sửa tiện lợi",
+        "description": "Tạo phụ đề bằng trình chỉnh sửa tích hợp trực tiếp trong trang của video có tiện ích mở rộng.<br />Định vị phụ đề thủ công, phím tắt được hỗ trợ.<br />Nhiều tính năng mới sẽ sớm có!"
+      },
+      "import": {
+        "title": "Nhập phụ đề hiện có",
+        "description": "Sử dụng các công cụ như Aegisub hoặc SubtitleEdit để tạo phụ đề trước khi tải chúng lên thông qua NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> đều được hỗ trợ"
+      },
+      "community": {
+        "title": "Kiểm duyệt cộng đồng",
+        "description": "Trang web NekoCap đi kèm với các công cụ cho phép người kiểm duyệt cộng đồng xác minh hay từ chối phụ đề đã gửi. <br /> Tuy nhiên, chúng mình cần những tình nguyện viên thông thạo các ngôn ngữ khác nhau để giúp kiểm duyệt phụ đề đã gửi. <br />Nếu bạn muốn giúp đỡ, hãy tham gia Discord và ping chúng mình!"
+      }
+    },
+    "instructions": {
+      "view": {
+        "title": "Xem phụ đề như nào",
+        "step1": "Tải về tiện ích mở rộng cho <chrome>Chrome</chrome>",
+        "step2": "Xem video trên trang web video được hỗ trợ bình thường",
+        "step3": "Nếu đã có phụ đề cho video, hãy chọn chúng từ menu thả xuống!"
+      },
+      "create": {
+        "title": "Làm phụ đề như thế nào",
+        "step1": "Tải về tiện ích mở rộng cho <chrome>Chrome</chrome>",
+        "step2": "Tạo tài khoản bằng Nekocap",
+        "step3": "Duyệt đến trang chứa video mà bạn muốn thêm phụ đề",
+        "step4": "Sử dụng trình chỉnh sửa Nekocap để tạo phụ đề mới hoặc tải lên tệp phụ đề hiện có mà không cần rời khỏi trang video!"
+      }
+    },
+    "browseAllCaptions": "Duyệt qua tất cả phụ đề",
+    "latestCaptions": "Câu vừa ghi",
+    "latestLanguageCaption": "Câu {{language}} vừa ghi",
+    "noCaptions": "Không có phụ đề! Bạn có thể đóng góp phụ đề bằng tiện ích mở rộng!",
+    "viewingCaptionInWebNotSupported": "Xem chú thích này qua trình duyệt không được hỗ trợ. Tải xuống tiện ích mở rộng thay thế!",
+    "captionList": {
+      "columns": {
+        "videoName": "Tên Video",
+        "captioner": "Anh hùng bàn phím",
+        "language": "Ngôn ngữ",
+        "source": "Nguồn",
+        "uploaded": "Đã cật nhật",
+        "videoLanguage": "Ngôn ngữ Video",
+        "captionLanguage": "Ngôn ngữ phụ đề",
+        "updated": "Cật nhật",
+        "actions": "Hành động",
+        "views": "Xem",
+        "captionCount": "Xem",
+        "time": "T.gian"
+      }
+    },
+    "videoList": {
+      "columns": {
+        "videoName": "Tên Video",
+        "captionCount": "Số lượng câu"
+      }
+    },
+    "browseCaptions": {
+      "title": "Duyệt các phụ đề khác"
+    },
+    "search": {
+      "inputPlaceholder": "Tìm kiếm video",
+      "advancedSearchLabel": "Nâng cao",
+      "videoLanguage": "Ngôn ngữ Video",
+      "captionLanguage": "Ngôn ngữ phụ đề",
+      "anyLanguage": "Bất kì",
+      "loading": "Đang tải...",
+      "captionLanguageListTitle": "Phụ đề",
+      "captionCount": "{{count}} phụ đề",
+      "noVideosFound": "Không tìm thấy video :(",
+      "availableCaptions": "Phụ đề có sẵn",
+      "noCaptionsFoundForVideo": "Chả thấy phụ đề nào cho video này :("
+    },
+    "watchHere": "Xem ở đây",
+    "watchOnService": "Xem trên {{service}}",
+    "navigation": {
+      "home": "Trang chủ",
+      "dashboard": "Trang tổng quan",
+      "logout": "Đăng xuất"
+    }
+  },
+  "review": {
+    "deleteCaptionConfirmMessage": "Có chắc là muốn xóa phụ đề này không?",
+    "delete": "Xóa",
+    "review": "Xem lại",
+    "update": "Cật nhật"
+  },
+  "fontlist": {
+    "hidePreview": "Ẩn xem trước",
+    "preview": "Xem trước",
+    "noFonts": "Không có phông chữ!",
+    "availableFonts": "Phông chữ sẵn có",
+    "hideAllFontPreviews": "Ẩn tất cả xem trước phông chữ",
+    "previewAllFonts": "Xem trước hết phông chữ",
+    "largeFontDownloadWarning": "Cảnh báo! Thứ này sẽ tải xuống nhiều megabyte tệp phông chữ lớn!",
+    "searchFont": "Tìm phông chữ"
+  },
+  "login": {
+    "loginModalTitle": "Đăng nhập để xem trang tổng quan của bạn"
+  },
+  "profile": {
+    "admin": {
+      "sectionTitle": "Công cụ Admin",
+      "removeReviewerManagerRoleButton": "Xóa vai trò Manager Reviewer",
+      "assignReviewerManagerRoleButton": "Chỉ định vai trò Manager Reviewer",
+      "removeReviewerRoleButton": "Xóa vai trò Reviewer",
+      "assignReviewerRoleButton": "Chỉ định vai trò Reviewer",
+      "verify": "Xác minh",
+      "unverify": "Bỏ xác minh",
+      "ban": "Cấm",
+      "unban": "Bỏ cấm"
+    },
+    "about": "Về",
+    "donate": "Ủng hộ",
+    "markdownInfo": "(Định dạng trong Markdown được hỗ trợ)",
+    "proficientLanguages": "Ngôn ngữ thành thạo",
+    "contributedCaptions": "Phụ đề đã đóng góp",
+    "languageSelectionPlaceholder": "Bạn có thể chọn nhiều hơn 1!",
+    "copyProfileLink": "Sao chép link hồ sơ",
+    "profileLinkCopiedMessage": "Đã copy link hồ sơ vào clipboard!",
+    "captionDeleted": "Đã xóa phụ đề! :((",
+    "captionDeletionFailed": "Không thể xóa phụ đề: {{error}}",
+    "profileUpdated": "Hồ sơ đã cật nhật!",
+    "profileUpdateFailed": "Không thể cật nhật hồ sơ: {{error}}",
+    "roleAssignmentSuccess": "Đã cật nhật!",
+    "roleAssignmentFailure": "Cật nhật thất bại: {{error}}"
+  },
+  "viewer": {
+    "browseOtherCaptions": "Duyệt các phụ đề khác",
+    "failedToFindCaption": "Thứ lỗi, chúng tôi không tìm được phụ đề này!",
+    "copyEmbedCode": "Copy mã nhúng",
+    "copyEmbedCodeSuccess": "Đã copy mã nhúng vào clipboard!",
+    "captionSubmittedBy": "Phụ đề tạo bởi <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "Để trải nghiệm xem và tạo phụ đề tốt nhất, hãy tải xuống tiện ích mở rộng NekoCap và xem phụ đề trực tiếp trong {{site}}.",
+    "captionRenderError": "Tôi thấy phụ đề này có vấn đề là có lỗi. Thứ lỗi!"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "edit": "Chỉnh sửa",
+    "banned": "Bị cấm",
+    "verified": "Đã xác minh",
+    "reviewerManager": "Reviewer Manager",
+    "reviewer": "Reviewer",
+    "kofiSupportMe": "Hỗ trợ mình"
+  }
+}
