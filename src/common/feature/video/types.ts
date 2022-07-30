@@ -31,6 +31,7 @@ export enum VideoSource {
   iQiyi = 11,
   NogiDoga = 12,
   Abema = 13,
+  Dailymotion = 14,
 }
 
 export type CaptionContainer = {
