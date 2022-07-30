@@ -31,6 +31,10 @@ import "./provider";
 import { storeInitPromise } from "@/extension/background/common/store";
 import { PassthroughProvider } from "@/common/providers/passthrough-provider";
 import { saveCaptionToDisk } from "../common/saver";
+import {
+  getEditorRawCaptionStorageKey,
+  getRawCaptionStorageKey,
+} from "../common/raw-caption-keys";
 
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
@@ -110,8 +114,16 @@ const initialize = async () => {
       } else if (message.type === ChromeMessageType.RawCaption) {
         if (message.payload.isEditor) {
           window.editorRawCaption = message.payload.rawCaption;
+          chrome.storage.local.set({
+            [getEditorRawCaptionStorageKey(
+              window.tabId
+            )]: window.editorRawCaption,
+          });
         } else {
           window.rawCaption = message.payload.rawCaption;
+          chrome.storage.local.set({
+            [getRawCaptionStorageKey(window.tabId)]: window.rawCaption,
+          });
         }
         sendResponse(true);
       } else if (message.type === ChromeMessageType.GetContentScriptVariables) {

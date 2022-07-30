@@ -22,11 +22,13 @@ import {
 import { chromeProm } from "@/common/chrome-utils";
 import type { RootState } from "@/common/store/types";
 import { UserExtensionPreferenceState } from "./feature/user-extension-preference/types";
+import { removeAllTemporaryRawCaptions } from "./remove-temporary-raw-caption";
 
 // Clear redux but keep user preferences
 chrome.runtime.onStartup.addListener(async () => {
   console.log("Extension started");
   const savedState = await chromeProm.storage.local.get(["reduxed"]);
+  removeAllTemporaryRawCaptions();
   let storedPreferences: UserExtensionPreferenceState | null = null;
   if (savedState && savedState.reduxed) {
     const state: RootState = savedState.reduxed;
