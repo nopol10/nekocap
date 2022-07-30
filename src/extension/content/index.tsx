@@ -31,6 +31,7 @@ import "./provider";
 import { storeInitPromise } from "@/extension/background/common/store";
 import { PassthroughProvider } from "@/common/providers/passthrough-provider";
 import { saveCaptionToDisk } from "../common/saver";
+import { PageType } from "@/common/feature/video/types";
 import {
   getEditorRawCaptionStorageKey,
   getRawCaptionStorageKey,
@@ -146,6 +147,7 @@ const initialize = async () => {
   await refreshVideoMeta();
 
   const { store } = await storeInitPromise;
+  const pageType = window.selectedProcessor.getPageType(location.href);
 
   // Get and store the current tab id
   chrome.runtime.sendMessage(
@@ -153,16 +155,18 @@ const initialize = async () => {
     (response) => {
       window.tabId = response;
       // Initialize the tab data once we have the id
-      store.dispatch(
-        requestFreshTabData({
-          tabId: window.tabId,
-          newVideoId: window.videoId,
-          newVideoSource: window.videoSource,
-          newPageType: window.pageType,
-          newCaptionId: autoLoadCaptionId,
-          currentUrl: location.href,
-        })
-      );
+      if (pageType !== PageType.VideoIframe) {
+        store.dispatch(
+          requestFreshTabData({
+            tabId: window.tabId,
+            newVideoId: window.videoId,
+            newVideoSource: window.videoSource,
+            newPageType: window.pageType,
+            newCaptionId: autoLoadCaptionId,
+            currentUrl: location.href,
+          })
+        );
+      }
     }
   );
 

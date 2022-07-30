@@ -20,6 +20,8 @@ export enum ChromeMessageType {
   GetContentScriptVariables,
   Request, // Make a XMLHttpRequest from the background script
   ProviderRequest, // Run a request through the backend provider from the background script
+  VideoIframeToBackground, // Message sent from a video page's inner iframe containing the video element to the parent page
+  VideoIframeToContent, // Message sent from a video page's inner iframe containing the video element to the parent page
 }
 
 export enum ChromeExternalMessageType {

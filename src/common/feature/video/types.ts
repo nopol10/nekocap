@@ -63,6 +63,7 @@ export type RawCaptionData = {
 export enum PageType {
   SearchResults,
   Video,
+  VideoIframe,
 }
 
 export type VideoPlayerPreferences = {

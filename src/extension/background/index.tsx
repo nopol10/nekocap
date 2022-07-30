@@ -170,6 +170,11 @@ chrome.runtime.onMessage.addListener(
         sendResponse(response);
       });
       return true;
+    } else if (request.type === ChromeMessageType.VideoIframeToBackground) {
+      chrome.tabs.sendMessage(sender.tab?.id, {
+        ...request,
+        type: ChromeMessageType.VideoIframeToContent,
+      });
     }
   }
 );
