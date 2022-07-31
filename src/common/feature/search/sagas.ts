@@ -29,6 +29,7 @@ import { LoadCaptionsResult, VideoFields } from "../video/types";
 import { searchSelector } from "./selectors";
 import { populateVideoDetails } from "./api";
 import { Locator } from "@/common/locator/locator";
+import Router from "next/router";
 
 function* searchRequestSaga(action: PayloadAction<SearchParams>) {
   const {
@@ -115,7 +116,7 @@ function* loadSearchResultVideoCaptionsRequestSaga({
 
 function* searchFromBasicBarSaga({ payload: title }: PayloadAction<string>) {
   title = encodeURIComponent(title);
-  window.location.href = routeNames.search.replace(":title?", title);
+  Router.push(routeNames.search.replace(":title?", title));
   yield;
 }
 

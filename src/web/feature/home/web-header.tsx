@@ -21,8 +21,10 @@ import { Divider, Typography } from "antd";
 import { isClient } from "@/common/client-utils";
 import { useSSRMediaQuery } from "@/hooks";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
-const { Link } = Typography;
+const { Link: AntdLink } = Typography;
 
 const Socials = styled.div`
   display: inline-block;
@@ -76,6 +78,7 @@ export const WebHeader = (): ReactElement => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const isTablet = useSSRMediaQuery({ query: DEVICE.tablet });
   const { t } = useTranslation("common");
+  const router = useRouter();
 
   const handleClickLogin = () => {
     setShowLogin(true);
@@ -87,7 +90,7 @@ export const WebHeader = (): ReactElement => {
 
   const handleClickDashboard = () => {
     setShowMobileMenu(false);
-    window.location.href = routeNames.captioner.dashboard;
+    router.push(routeNames.captioner.dashboard);
   };
 
   const handleClickLogout = (event: React.MouseEvent) => {
@@ -98,7 +101,7 @@ export const WebHeader = (): ReactElement => {
 
   const handleClickHome = (event: React.MouseEvent) => {
     setShowMobileMenu(false);
-    window.location.href = routeNames.home;
+    router.push(routeNames.home);
   };
 
   const renderButtons = () => {
@@ -171,16 +174,16 @@ export const WebHeader = (): ReactElement => {
                     <CloseOutlined />
                   </CloseButton>
                 </div>
-                <Link onClick={handleClickHome} href="#">
+                <AntdLink onClick={handleClickHome} href="#">
                   Home
-                </Link>
+                </AntdLink>
                 <Divider />
-                <Link
+                <AntdLink
                   onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
                   href="#"
                 >
                   Dashboard
-                </Link>
+                </AntdLink>
                 <Divider />
                 <BasicSearchBar forceOpen={true} onSearch={handleOnSearch} />
                 <Divider />

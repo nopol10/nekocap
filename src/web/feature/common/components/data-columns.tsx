@@ -23,7 +23,8 @@ import { captionTags } from "@/common/constants";
 import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
 import { routeNames } from "../../route-types";
 import { Processor } from "@/extension/content/processors/processor";
-const { Link } = Typography;
+import Link from "next/link";
+const { Link: AntdLink } = Typography;
 dayjs.extend(relativeTime);
 
 export const getTooltippedDate = (
@@ -83,16 +84,18 @@ export const captionColumns = {
                       ":id",
                       record.id
                     )}`}
-                    target="_blank"
+                    passHref
                   >
-                    <EyeOutlined />
+                    <AntdLink target="_blank">
+                      <EyeOutlined />
+                    </AntdLink>
                   </Link>
                 </Tooltip>
               )}
               <Tooltip title={`Watch on ${processor.name}`}>
-                <Link href={link} target="_blank" rel="noreferrer">
+                <AntdLink href={link} target="_blank" rel="noreferrer">
                   <PlayCircleOutlined />
-                </Link>
+                </AntdLink>
               </Tooltip>
             </Space>
           </div>
@@ -205,8 +208,9 @@ export const captionColumns = {
       return (
         <Link
           href={`${routeNames.profile.main.replace(":id", record.creatorId)}`}
+          passHref
         >
-          {text}
+          <AntdLink>{text}</AntdLink>
         </Link>
       );
     },
@@ -255,7 +259,7 @@ export const videoCaptionColumns = (
             {processor.canWatchInNekoCapSite && (
               <div style={{ marginBottom: "8px" }}>
                 <Tooltip title={t("home.watchHere")}>
-                  <Link
+                  <AntdLink
                     href={`${routeNames.caption.view.replace(
                       ":id",
                       record.id
@@ -265,7 +269,7 @@ export const videoCaptionColumns = (
                     <EyeOutlined />
                     &nbsp;
                     <span>{t("home.watchHere")}</span>
-                  </Link>
+                  </AntdLink>
                 </Tooltip>
               </div>
             )}
@@ -273,13 +277,13 @@ export const videoCaptionColumns = (
               <Tooltip
                 title={t("home.watchOnService", { service: processor.name })}
               >
-                <Link href={link} target="_blank" rel="noreferrer">
+                <AntdLink href={link} target="_blank" rel="noreferrer">
                   <PlayCircleOutlined />
                   &nbsp;
                   <span>
                     {t("home.watchOnService", { service: processor.name })}
                   </span>
-                </Link>
+                </AntdLink>
               </Tooltip>
             </div>
           </div>
@@ -294,12 +298,12 @@ export const videoCaptionColumns = (
     key: "captionerName",
     render: function render(text, record: LoadCaptionsResult) {
       return (
-        <Link
+        <AntdLink
           target="_blank"
           href={`${routeNames.profile.main.replace(":id", record.captionerId)}`}
         >
           {record.captionerName}
-        </Link>
+        </AntdLink>
       );
     },
   },
@@ -320,9 +324,9 @@ export const videoColumns = {
       const link = processor.generateVideoLink(record.sourceId);
       return (
         <>
-          <Link href={link} target="_blank" rel="noreferrer">
+          <AntdLink href={link} target="_blank" rel="noreferrer">
             {text}
-          </Link>
+          </AntdLink>
         </>
       );
     },
@@ -341,9 +345,9 @@ export const videoColumns = {
       const link = processor.generateVideoLink(record.sourceId);
       return (
         <>
-          <Link href={link} target="_blank" rel="noreferrer">
+          <AntdLink href={link} target="_blank" rel="noreferrer">
             {text}
-          </Link>
+          </AntdLink>
         </>
       );
     },

@@ -15,6 +15,7 @@ import "antd/lib/upload/style";
 
 import "../src/web/feature/home/home.scss";
 import "../src/web/styles/index.scss";
+import nextI18NextConfig from "../next-i18next.config.js";
 
 function NekoCapApp({ Component, pageProps }: AppProps) {
   return (
@@ -24,4 +25,6 @@ function NekoCapApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default wrapper.withRedux(appWithTranslation(NekoCapApp));
+export default wrapper.withRedux(
+  appWithTranslation(NekoCapApp, nextI18NextConfig)
+);

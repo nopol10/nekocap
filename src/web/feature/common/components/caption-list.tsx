@@ -16,6 +16,7 @@ import { PaginationProps } from "antd/lib/pagination";
 import { useSSRMediaQuery } from "@/hooks";
 import { UpdateCaptionModal } from "@/extension/content/containers/update-caption-modal";
 import { i18n, useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
 
 const PAGE_SIZE = 20;
 
@@ -73,6 +74,7 @@ export const CaptionList = ({
     UpdateModalDetails
   >({ open: false, caption: undefined });
   const { t } = useTranslation("common");
+  const router = useRouter();
 
   const { isAdmin: isLoggedInUserAdmin, isReviewer: isLoggedInUserReviewer } =
     loggedInUser || {};
@@ -87,8 +89,8 @@ export const CaptionList = ({
     }
   };
 
-  const handleClickEditCaption = (caption: CaptionListFields) => {
-    window.location.href = routeNames.caption.main.replace(":id", caption.id);
+  const handleClickReviewCaption = (caption: CaptionListFields) => {
+    router.push(routeNames.caption.main.replace(":id", caption.id));
   };
 
   const handleClickUpdateCaption = (caption: CaptionListFields) => {
@@ -132,7 +134,9 @@ export const CaptionList = ({
               )}
               {canEdit && (
                 <Tooltip title={t("review.review")}>
-                  <EyeOutlined onClick={() => handleClickEditCaption(record)} />
+                  <EyeOutlined
+                    onClick={() => handleClickReviewCaption(record)}
+                  />
                 </Tooltip>
               )}
               {canUpdate && (

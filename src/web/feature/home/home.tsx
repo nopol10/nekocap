@@ -25,6 +25,8 @@ import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { Trans, useTranslation } from "next-i18next";
 import { KofiWidget } from "../common/containers/kofi-widget";
+import Link from "next/link";
+import { WSLinkButton } from "@/common/components/ws-link-button";
 
 const { Content } = Layout;
 
@@ -93,7 +95,7 @@ const WaveDivider = () => {
   );
 };
 
-const BrowseCaptionButton = styled(WSButton)`
+const BrowseCaptionButton = styled(WSLinkButton)`
   display: flex;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -104,6 +106,7 @@ const BrowseCaptionButton = styled(WSButton)`
   font-size: 32px;
   border-color: ${colors.ctaBorder};
   color: ${colors.ctaText};
+  width: 100%;
   &.ant-btn-lg {
     line-height: unset;
   }

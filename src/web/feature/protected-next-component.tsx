@@ -7,6 +7,7 @@ import { Skeleton } from "antd";
 import { useRouter } from "next/router";
 import { webAutoLogin } from "@/common/feature/login/actions";
 import { AutoLoginContext } from "./common/contexts/auto-login-context";
+import Router from "next/router";
 
 type ProtectedNextComponentProps = {
   children: JSX.Element;
@@ -30,7 +31,7 @@ const ProtectedNextComponent = ({
       return;
     }
     if (hasAttemptedAutoLogin && !isLoggingIn && !isLoggedIn) {
-      window.location.href = "/";
+      Router.push("/");
       return;
     }
     if (isLoggedIn && !captioner.captioner) {
@@ -41,7 +42,7 @@ const ProtectedNextComponent = ({
       !captioner.captioner.name &&
       router.pathname !== routeNames.profile.new
     ) {
-      window.location.href = routeNames.profile.new;
+      Router.push(routeNames.profile.new);
     }
   });
 
