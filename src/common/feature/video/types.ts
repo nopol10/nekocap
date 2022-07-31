@@ -234,6 +234,11 @@ export enum CaptionRendererType {
   AdvancedOctopus,
 }
 
+export enum CaptionPrivacy {
+  Public = 0,
+  Unlisted = 1,
+}
+
 export type CaptionFields = {
   language: string;
   videoId: string;
@@ -247,6 +252,7 @@ export type CaptionFields = {
   dislikes: number;
   tags: string[];
   views?: number;
+  privacy?: CaptionPrivacy;
 };
 
 export type CaptionListFields = CaptionFields & {
@@ -260,6 +266,7 @@ export type CaptionListFields = CaptionFields & {
   views: number;
   rejected?: boolean;
   thumbnailUrl?: string;
+  privacy?: number;
 };
 
 export type VideoFields = {
