@@ -45,6 +45,7 @@ import { colors } from "@/common/colors";
 import { Trans, useTranslation } from "next-i18next";
 import { YoutubeViewer } from "./container/youtube-viewer";
 import { VimeoViewer } from "./container/vimeo-viewer";
+import { DailymotionViewer } from "./container/dailymotion-viewer";
 
 const { Title, Text, Link } = Typography;
 
@@ -285,6 +286,18 @@ export const ViewerPage = ({
     );
   };
 
+  const renderDailymotionVideo = () => {
+    return (
+      <DailymotionViewer
+        embedHeight={embedHeight}
+        embedWidth={embedWidth}
+        caption={caption}
+        defaultRendererRef={defaultRendererRef}
+        currentTimeGetter={currentTimeGetter}
+      />
+    );
+  };
+
   const renderVideo = () => {
     if (isServer()) {
       return null;
@@ -296,6 +309,8 @@ export const ViewerPage = ({
       return renderYoutubeVideo();
     } else if (caption.videoSource === VideoSource.Vimeo) {
       return renderVimeoVideo();
+    } else if (caption.videoSource === VideoSource.Dailymotion) {
+      return renderDailymotionVideo();
     }
     return;
   };

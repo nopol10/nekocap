@@ -37,6 +37,9 @@ declare global {
       draw: (name: string, options: Record<string, string>) => void;
     };
     Vimeo: typeof Vimeo;
+    dailymotion: {
+      createPlayer: (videoId: string, options: { video: string }) => any;
+    };
   }
 
   namespace NodeJS {
