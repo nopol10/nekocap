@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Typography } from "antd";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
@@ -26,6 +26,7 @@ const ResultsList = styled.div`
 
 export const BrowseCaptionPage = () => {
   const dispatch = useDispatch();
+  const [requested, setRequested] = useState(false);
   const { currentResultPage, browseResults = [], hasMoreResults } = useSelector(
     publicDashboardSelector
   );
@@ -38,9 +39,11 @@ export const BrowseCaptionPage = () => {
   const { t } = useTranslation("common");
 
   useEffect(() => {
-    if (browseResults.length > 0) {
+    // Prevent requesting more than once if there are no captions available
+    if (browseResults.length > 0 || requested) {
       return;
     }
+    setRequested(true);
     dispatch(
       loadAllCaptions.request({
         pageNumber: 0,
@@ -48,7 +51,7 @@ export const BrowseCaptionPage = () => {
         append: false,
       })
     );
-  }, [browseResults]);
+  }, [browseResults, requested]);
 
   const { captioner: loggedInUserPublicProfile } = captionerState;
   // Add one to the caption count if more results are available
