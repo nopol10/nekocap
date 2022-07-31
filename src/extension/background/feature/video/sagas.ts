@@ -84,6 +84,7 @@ import {
   AutoloadMethod,
   UserExtensionPreferenceState,
 } from "../user-extension-preference/types";
+import { removeTemporaryRawCaptions } from "../../remove-temporary-raw-caption";
 
 function sendInfoMessage(tabId: number, message: NotificationMessage) {
   if (isInExtension() && isInBackgroundScript()) {
@@ -459,7 +460,7 @@ function* requestFreshTabDataSaga({
 
 function* closeTabSaga({ payload }: PayloadAction<TabbedType>) {
   const { tabId } = payload;
-
+  removeTemporaryRawCaptions(tabId);
   yield put(unsetTabData({ tabId }));
 }
 

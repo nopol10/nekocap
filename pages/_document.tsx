@@ -11,24 +11,24 @@ const getCSP = (props) => {
   csp += `img-src * data:;`;
   csp += `font-src 'self' https://nekocap.com https://*.nekocap.com data: https://fonts.gstatic.com;`;
 
-  const commonConnectSrc =
-    "https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.sentry.io/ https://vimeo.com/";
-  const commonScriptSrc =
-    "https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com";
+  const dailymotionDomains =
+    "https://*.dailymotion.com https://*.dmcdn.net https://*.dm-event.net";
+  const commonConnectSrc = `https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
+  const commonScriptSrc = `https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com ${dailymotionDomains}`;
   const commonStyleSrc = "https://*.ko-fi.com";
-  const commonFrameSrc =
-    "https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/";
+  const commonFrameSrc = `https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/ ${dailymotionDomains}`;
   const isViewer = props.url?.startsWith("/view/");
 
   if (process.env.NODE_ENV !== "production") {
-    csp += `style-src 'self' https://fonts.googleapis.com ${commonStyleSrc} 'unsafe-inline' data:; script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
+    csp += `style-src 'self' https://fonts.googleapis.com ${commonStyleSrc} 'unsafe-inline' data:;`;
+    csp += `script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;
     csp += `connect-src 'self' http://localhost:* https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
     csp += `frame-src 'self' http://www.youtube.com/ ${commonFrameSrc};`;
   } else {
     csp += `script-src 'self'${
-      isViewer ? " 'unsafe-eval'" : ""
+      isViewer ? " 'wasm-unsafe-eval'" : ""
     } https://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
       NextScript.getInlineScriptSource(props)
     )};`;

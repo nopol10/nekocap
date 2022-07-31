@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { ReactElement } from "react";
 import { useSelector } from "react-redux";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { PageType } from "@/common/feature/video/types";
 import { VideoHome } from "./video-home";
 import { createGlobalStyle } from "styled-components";
+import { VideoIframe } from "./video-iframe";
 
-export const ContentHome = () => {
+export const ContentHome = (): ReactElement => {
   const videoData = useSelector(tabVideoDataSelector(window.tabId));
 
   const hasGlobalStyles =
@@ -19,12 +20,12 @@ export const ContentHome = () => {
   if (!videoData) {
     return null;
   }
-  const { pageType } = videoData;
-
+  const pageType = window.selectedProcessor.getPageType(location.href);
   return (
     <>
       {hasGlobalStyles && <GlobalStyle />}
       {pageType === PageType.Video && <VideoHome />}
+      {pageType === PageType.VideoIframe && <VideoIframe />}
     </>
   );
 };

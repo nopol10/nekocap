@@ -11,8 +11,9 @@ export const refreshVideoMeta = async () => {
   );
   globalThis.pageType = pageType;
   globalThis.videoId = "";
+  const isInIFrame = pageType === PageType.VideoIframe;
 
-  if (pageType === PageType.Video) {
+  if (pageType === PageType.Video || isInIFrame) {
     globalThis.videoElement = await getVideoElement(
       globalThis.selectedProcessor
     );
@@ -23,11 +24,13 @@ export const refreshVideoMeta = async () => {
      */
     globalThis.captionContainerElement = globalThis.videoElement.parentElement;
 
-    globalThis.videoName = await getVideoTitle(globalThis.selectedProcessor);
-    const videoId = globalThis.selectedProcessor.getVideoId();
-    const videoSource = globalThis.selectedProcessor.type;
-    globalThis.videoId = videoId;
-    globalThis.videoSource = videoSource;
+    if (!isInIFrame) {
+      globalThis.videoName = await getVideoTitle(globalThis.selectedProcessor);
+      const videoId = globalThis.selectedProcessor.getVideoId();
+      const videoSource = globalThis.selectedProcessor.type;
+      globalThis.videoId = videoId;
+      globalThis.videoSource = videoSource;
+    }
 
     const extensionContainer = document.getElementById(
       VIDEO_ELEMENT_CONTAINER_ID

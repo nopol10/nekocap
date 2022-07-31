@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { css } from "styled-components";
 import ReactDOM from "react-dom";
@@ -14,7 +14,7 @@ import {
 } from "@/common/feature/video/selectors";
 import { CaptionRendererType } from "@/common/feature/video/types";
 import { colors } from "@/common/colors";
-import { CaptionRenderer } from "./caption-renderer";
+import { CaptionRenderer, CaptionRendererHandle } from "./caption-renderer";
 import { VideoPageMenu } from "./video-page-menu";
 import { OctopusRenderer } from "./octopus-renderer";
 import { NekoLogo } from "@/common/components/neko-logo";
@@ -45,6 +45,7 @@ import {
   setIsLoadingRawCaption,
 } from "@/common/feature/video/actions";
 import { refreshVideoMeta } from "../utils";
+import { useIframeVideoUpdate } from "../hooks/use-iframe-video-update";
 
 type InlineMenuWrapperProps = {
   isInline: boolean;
@@ -228,6 +229,11 @@ export const VideoHome = () => {
   useEffect(() => {
     requestFreshTabDataCallback();
   }, [videoMetaUpdateToken, requestFreshTabDataCallback]);
+  const rendererRef = useRef<CaptionRendererHandle>();
+
+  const { getIframeVideoTime } = useIframeVideoUpdate({
+    rendererRef,
+  });
 
   /**
    * Effect for moving the video element to the editor and back
@@ -284,6 +290,18 @@ export const VideoHome = () => {
     !window.selectedProcessor.disableEditor &&
     (!isUsingAdvancedRenderer ||
       (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0));
+
+  // Special handling for sites with videos inside iframes
+  const iframeProps = window.selectedProcessor.videoIsInIframe
+    ? {
+        height: window.videoElement ? window.videoElement.offsetHeight : 0,
+        width: window.videoElement ? window.videoElement.offsetWidth : 0,
+        getCurrentTime: getIframeVideoTime,
+      }
+    : undefined;
+  const videoElement = window.selectedProcessor.videoIsInIframe
+    ? undefined
+    : window.videoElement;
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
@@ -294,20 +312,26 @@ export const VideoHome = () => {
       {shouldRenderEditor && <EditorContainer />}
       {renderer === CaptionRendererType.Default && (
         <CaptionRenderer
+          ref={rendererRef}
           caption={caption}
-          videoElement={window.videoElement}
+          videoElement={videoElement}
           captionContainerElement={window.captionContainerElement}
           showCaption={showCaption}
+          isIframe={window.selectedProcessor.videoIsInIframe}
+          iframeProps={iframeProps}
         />
       )}
       {isUsingAdvancedRenderer && (
         <OctopusRenderer
+          ref={rendererRef}
           rawCaption={rawCaption}
-          videoElement={window.videoElement}
+          videoElement={videoElement}
           captionContainerElement={window.captionContainerElement}
           showCaption={showCaption}
           fontList={fontList}
           onFontsLoaded={handleFontsLoaded}
+          isIframe={window.selectedProcessor.videoIsInIframe}
+          iframeProps={iframeProps}
         />
       )}
     </>,

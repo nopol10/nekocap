@@ -1,3 +1,7 @@
+import {
+  getEditorRawCaptionStorageKey,
+  getRawCaptionStorageKey,
+} from "@/extension/common/raw-caption-keys";
 import { isInExtension } from "./client-utils";
 import { videoSourceToProcessorMap } from "./feature/video/utils";
 import { ChromeMessageType } from "./types";
@@ -48,6 +52,10 @@ export const requestContentPageVariable = async (
   });
 };
 
+/**
+ * Syncs various window variables to the popup so that it can retrieve and submit captions correctly
+ * @param tabId Tab id of the page the popup is opened on
+ */
 export const syncWindowVarsToPopup = async (tabId: number) => {
   if (!chrome) {
     return undefined;
@@ -60,6 +68,15 @@ export const syncWindowVarsToPopup = async (tabId: number) => {
     "tabId",
   ]);
   window.selectedProcessor = videoSourceToProcessorMap[window.videoSource];
+  // Restore loaded raw captions so that they can be submitted
+  const rawCaptionKey = getRawCaptionStorageKey(tabId);
+  const editorRawCaptionKey = getEditorRawCaptionStorageKey(tabId);
+  window.rawCaption = (await chromeProm.storage.local.get([rawCaptionKey]))?.[
+    rawCaptionKey
+  ];
+  window.editorRawCaption = (
+    await chromeProm.storage.local.get([editorRawCaptionKey])
+  )?.[editorRawCaptionKey];
 };
 
 /**
