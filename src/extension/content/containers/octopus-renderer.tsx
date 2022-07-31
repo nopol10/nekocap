@@ -178,12 +178,20 @@ const OctopusRendererInternal = React.forwardRef(
       const onReady = () => {
         /**
          * This is a workaround to prevent the ASS from rendering at a low framerate when an ASS caption is loaded.
-         * For some as yet unknown reason pausing and playing stops the lag from happening.
+         * The renderer keeps track of the play/pause state and renders at different rates
          * Setting the time of the video also works as a workaround.
+         * (Reason: https://github.com/libass/JavascriptSubtitlesOctopus/issues/72#issuecomment-1001432683)
          */
         if (videoElement && !videoElement.paused) {
           videoElement.pause();
           videoElement.play();
+        }
+        if (!videoElement) {
+          // Mainly for renderers without an associated video element
+          // Sometimes the play event can be called before the renderer is ready.
+          // This will ensure the renderer is set to the correct state to prevent the lag from occurring.
+          handleVideoPause();
+          handleVideoPlay();
         }
       };
 

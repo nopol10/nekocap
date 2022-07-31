@@ -4,6 +4,9 @@ import { MutableRefObject, useCallback, useEffect, useRef } from "react";
 import { CaptionRendererHandle } from "../containers/caption-renderer";
 import { VideoAction } from "../types";
 
+/**
+ * Hook that should be placed in the content script that contains the caption data and renders it
+ */
 export const useIframeVideoUpdate = ({
   rendererRef,
 }: {
