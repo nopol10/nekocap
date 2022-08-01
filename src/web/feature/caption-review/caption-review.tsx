@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
+import { useRouter } from "next/router";
 import {
   loadCaptionForReview,
   rejectCaption,
@@ -160,6 +161,12 @@ export const CaptionReview = () => {
   const review = useSelector(captionReviewSelector);
   const [showReject, setShowReject] = useState(false);
   const [showUnverify, setShowUnverify] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const { captionId } = router.query;
+    dispatch(loadCaptionForReview.request(captionId as string));
+  }, []);
 
   const {
     caption,

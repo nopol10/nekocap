@@ -5,10 +5,9 @@ import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { Main } from "@/web/feature/home/main";
-import { loadCaptionForReviewApi } from "@/web/feature/caption-review/api";
-import { setReviewData } from "@/common/feature/caption-review/actions";
 import { CaptionReview } from "@/web/feature/caption-review/caption-review";
 import { STRING_CONSTANTS } from "@/common/string-constants";
+import ProtectedNextComponent from "@/web/feature/protected-next-component";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
@@ -29,7 +28,9 @@ export default function CaptionDetailsPage(): JSX.Element {
         </>
       </Head>
       <Main>
-        <CaptionReview />
+        <ProtectedNextComponent>
+          <CaptionReview />
+        </ProtectedNextComponent>
       </Main>
     </>
   );
@@ -41,18 +42,7 @@ type PageParams = {
 
 export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
   wrapper.getServerSideProps(
-    (store) => async ({
-      locale,
-      params,
-    }: GetServerSidePropsContext<PageParams>) => {
-      try {
-        const { captionId } = params;
-        const caption = await loadCaptionForReviewApi(captionId);
-        store.dispatch(setReviewData(caption));
-      } catch (e) {
-        console.error("Error during caption review page generation", e);
-      }
-
+    () => async ({ locale }: GetServerSidePropsContext<PageParams>) => {
       return {
         props: {
           ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
