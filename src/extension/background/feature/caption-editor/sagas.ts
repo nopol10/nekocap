@@ -456,6 +456,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
     languageCode,
     video,
     hasAudioDescription,
+    privacy,
     translatedTitle,
   } = payload;
   const { caption }: TabEditorData = yield select(tabEditorDataSelector(tabId));
@@ -487,6 +488,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
       rawCaption: processedRawCaption,
       video: video,
       hasAudioDescription,
+      privacy,
     }
   );
   if (response.status === "error") {
@@ -509,6 +511,7 @@ function* updateUploadedCaptionSaga({
     tabId,
     hasAudioDescription,
     translatedTitle,
+    privacy,
     captionId,
     content,
     type,
@@ -542,6 +545,7 @@ function* updateUploadedCaptionSaga({
       rawCaption: processedRawCaption,
       hasAudioDescription,
       translatedTitle,
+      privacy,
     }
   );
   if (response.status === "error") {

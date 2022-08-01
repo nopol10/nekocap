@@ -189,6 +189,7 @@ export type SubmitCaption = TabbedType & {
   languageCode: string;
   translatedTitle: string;
   hasAudioDescription: boolean;
+  privacy: CaptionPrivacy;
   video: VideoMeta;
 };
 
@@ -199,6 +200,7 @@ export type UpdateUploadedCaption = TabbedType & {
   captionId: string;
   hasAudioDescription?: boolean;
   translatedTitle?: string;
+  privacy: CaptionPrivacy;
 };
 
 export type LoadServerCaption = TabbedType & {
@@ -210,6 +212,7 @@ export type SubmitCaptionRequest = {
   rawCaption?: RawCaptionData;
   hasAudioDescription: boolean;
   video: VideoMeta;
+  privacy: CaptionPrivacy;
 };
 
 // Request for updating a caption
@@ -220,6 +223,7 @@ export type UpdateCaptionRequest = {
   rawCaption?: RawCaptionData;
   hasAudioDescription?: boolean;
   translatedTitle?: string;
+  privacy: CaptionPrivacy;
 };
 
 export type VideoCaptionData = {

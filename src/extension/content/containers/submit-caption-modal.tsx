@@ -5,7 +5,7 @@ import Select from "antd/lib/select";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { VideoMeta } from "@/common/feature/video/types";
+import { CaptionPrivacy, VideoMeta } from "@/common/feature/video/types";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
 import Checkbox from "antd/lib/checkbox";
 import { getImageLink } from "@/common/chrome-utils";
@@ -17,6 +17,7 @@ import { colors } from "@/common/colors";
 import { DISCORD_INVITE_URL, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { getVideoTitle } from "../processors/processor";
+import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
 
 interface SubmitCaptionModalProps {
   visible: boolean;
@@ -28,6 +29,7 @@ type FormType = {
   translatedTitle: string;
   videoLanguageCode: string;
   hasAudioDescription: boolean;
+  privacy: CaptionPrivacy;
 };
 
 export const SubmitCaptionModal = ({
@@ -48,6 +50,7 @@ export const SubmitCaptionModal = ({
       hasAudioDescription,
       videoLanguageCode,
       translatedTitle,
+      privacy,
     } = data;
     if (window.selectedProcessor.updateTitleOnSubmission) {
       window.videoName = await getVideoTitle(window.selectedProcessor);
@@ -65,6 +68,7 @@ export const SubmitCaptionModal = ({
         video,
         translatedTitle,
         hasAudioDescription,
+        privacy,
       })
     )
       .then(() => {
@@ -156,6 +160,18 @@ export const SubmitCaptionModal = ({
             name={"hasAudioDescription"}
             control={control}
           />
+        </Form.Item>
+        <Form.Item label="Privacy">
+          <Controller
+            as={Select}
+            name={"privacy"}
+            control={control}
+            size={"middle"}
+            defaultValue={CaptionPrivacy.Public}
+            placeholder={"Privacy"}
+          >
+            {getPrivacyEnums()}
+          </Controller>
         </Form.Item>
         {errors.languageCode && (
           <div style={{ color: colors.error }}>Language code is required!</div>

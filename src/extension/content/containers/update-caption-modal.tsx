@@ -4,13 +4,16 @@ import Modal from "antd/lib/modal/Modal";
 import React, { ReactElement, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { CaptionListFields } from "@/common/feature/video/types";
+import {
+  CaptionListFields,
+  CaptionPrivacy,
+} from "@/common/feature/video/types";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
 import Checkbox from "antd/lib/checkbox";
 import { getImageLink } from "@/common/chrome-utils";
 import { MediumTag } from "@/common/components/ws-tag";
 import { updateUploadedCaption } from "@/common/feature/caption-editor/actions";
-import { Input } from "antd";
+import { Input, Select } from "antd";
 import { colors } from "@/common/colors";
 import { captionTags, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
@@ -24,6 +27,7 @@ import {
 } from "@/common/feature/caption-editor/constants";
 import { hasTag } from "@/common/caption-utils";
 import { isServer } from "@/common/client-utils";
+import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
 
 interface UpdateCaptionModalProps {
   caption?: CaptionListFields;
@@ -35,6 +39,7 @@ type FormType = {
   captionId: string;
   translatedTitle?: string;
   hasAudioDescription: boolean;
+  privacy: CaptionPrivacy;
 };
 
 export const UpdateCaptionModal = ({
@@ -61,7 +66,7 @@ export const UpdateCaptionModal = ({
   const isUserVerified = captioner?.captioner?.verified;
 
   const onSubmit = async (data: FormType) => {
-    const { hasAudioDescription, translatedTitle } = data;
+    const { hasAudioDescription, translatedTitle, privacy } = data;
     const fileCopy = file ? { ...file } : undefined;
     const nameParts = file ? file.name.split(".") : undefined;
     const fileType = file ? nameParts[nameParts.length - 1] : undefined;
@@ -74,6 +79,7 @@ export const UpdateCaptionModal = ({
         captionId: caption.id,
         hasAudioDescription,
         translatedTitle,
+        privacy,
       })
     )
       .then(() => {
@@ -159,6 +165,18 @@ export const UpdateCaptionModal = ({
             }
             control={control}
           />
+        </Form.Item>
+        <Form.Item label="Privacy">
+          <Controller
+            as={Select}
+            name={"privacy"}
+            control={control}
+            size={"middle"}
+            defaultValue={caption?.privacy}
+            placeholder={"Privacy"}
+          >
+            {getPrivacyEnums()}
+          </Controller>
         </Form.Item>
         {errors.translatedTitle && (
           <div style={{ color: colors.error }}>

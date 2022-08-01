@@ -555,6 +555,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     rawCaption,
     video,
     hasAudioDescription,
+    privacy,
   }: SubmitCaptionRequest): Promise<UploadResponse> {
     const submitResult: ServerResponse = await this.Parse.Cloud.run<
       (p: SubmitCaptionRequest) => ServerResponse
@@ -563,6 +564,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       rawCaption,
       video,
       hasAudioDescription,
+      privacy,
     });
     if (submitResult.status !== "success") {
       return {
@@ -579,6 +581,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     rawCaption,
     hasAudioDescription,
     translatedTitle,
+    privacy: privacy,
   }: UpdateCaptionRequest): Promise<UploadResponse> {
     const updateResult: ServerResponse = await this.Parse.Cloud.run<
       (p: UpdateCaptionRequest) => ServerResponse
@@ -588,6 +591,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       rawCaption,
       hasAudioDescription,
       translatedTitle,
+      privacy: privacy,
     });
     if (updateResult.status !== "success") {
       return {
