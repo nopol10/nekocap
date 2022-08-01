@@ -26,6 +26,7 @@
         "https://*.tiktok.com/*",
         "https://*.iq.com/*",
         "https://*.abema.tv/*",
+        "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*"
       ],
       "run_at": "document_end",
@@ -52,6 +53,7 @@
         "https://*.iq.com/*",
         "https://*.abema.tv/*",
         "https://*.dailymotion.com/*",
+        "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*"
       ],
       "run_at": "document_start",
@@ -88,6 +90,7 @@
         "https://*.iq.com/*",
         "https://*.abema.tv/*",
         "https://*.dailymotion.com/*",
+        "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*"
       ]
     }

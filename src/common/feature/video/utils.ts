@@ -19,6 +19,7 @@ import { iQiyiProcessor } from "@/extension/content/processors/iqiyi-processor";
 import { NogiDogaProcessor } from "@/extension/content/processors/nogidoga-processor";
 import { AbemaProcessor } from "@/extension/content/processors/abema-processor";
 import { DailymotionProcessor } from "@/extension/content/processors/dailymotion-processor";
+import { BilibiliTVProcessor } from "@/extension/content/processors/bilibilitv-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -97,6 +98,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.NogiDoga]: NogiDogaProcessor,
   [VideoSource.Abema]: AbemaProcessor,
   [VideoSource.Dailymotion]: DailymotionProcessor,
+  [VideoSource.BilibiliTV]: BilibiliTVProcessor,
 };
 
 export const processorOrder = [
@@ -115,4 +117,5 @@ export const processorOrder = [
   VideoSource.NogiDoga,
   VideoSource.Abema,
   VideoSource.Dailymotion,
+  VideoSource.BilibiliTV,
 ];
