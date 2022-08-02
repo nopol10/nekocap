@@ -31,6 +31,10 @@ const SUPPORTED_SITES: SupportedSite[] = [
     name: "bilibili",
   },
   {
+    url: "https://bilibili.tv/",
+    name: "bilibili.tv",
+  },
+  {
     url: "https://tver.jp/",
     name: "TVer",
   },
@@ -57,6 +61,10 @@ const SUPPORTED_SITES: SupportedSite[] = [
   {
     url: "https://abema.tv/",
     name: "Abema",
+  },
+  {
+    url: "https://www.dailymotion.com/",
+    name: "Dailymotion",
   },
   {
     url: "https://nogidoga.com/",
