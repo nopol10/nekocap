@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "NekoCap",
   "description": "__MSG_extShortDescription__",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "default_locale": "en",
   "action": {
     "default_icon": "icon16.png",
@@ -30,13 +30,19 @@
         "https://*.nogidoga.com/*"
       ],
       "run_at": "document_end",
-      "js": ["js/content.js"]
+      "js": [
+        "js/content.js"
+      ]
     },
     {
-      "matches": ["https://*.dailymotion.com/*"],
+      "matches": [
+        "https://*.dailymotion.com/*"
+      ],
       "run_at": "document_end",
       "all_frames": true,
-      "js": ["js/content.js"]
+      "js": [
+        "js/content.js"
+      ]
     },
     {
       "matches": [
@@ -57,7 +63,9 @@
         "https://*.nogidoga.com/*"
       ],
       "run_at": "document_start",
-      "css": ["js/content.css"]
+      "css": [
+        "js/content.css"
+      ]
     }
   ],
   "icons": {
@@ -65,7 +73,10 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": ["storage", "webNavigation"],
+  "permissions": [
+    "storage",
+    "webNavigation"
+  ],
   "web_accessible_resources": [
     {
       "resources": [
@@ -96,7 +107,10 @@
     }
   ],
   "externally_connectable": {
-    "matches": ["http://localhost:12341/*", "https://*.nekocap.com/*"]
+    "matches": [
+      "http://localhost:12341/*",
+      "https://*.nekocap.com/*"
+    ]
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
