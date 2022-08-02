@@ -13,7 +13,7 @@ const getCSP = (props) => {
 
   const dailymotionDomains =
     "https://*.dailymotion.com https://*.dmcdn.net https://*.dm-event.net";
-  const commonConnectSrc = `https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
+  const commonConnectSrc = `https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.noembed.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
   const commonScriptSrc = `https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com ${dailymotionDomains}`;
   const commonStyleSrc = "https://*.ko-fi.com";
   const commonFrameSrc = `https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/ ${dailymotionDomains}`;
