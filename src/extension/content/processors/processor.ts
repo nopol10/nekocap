@@ -48,7 +48,8 @@ export const retrieveVideoDimensions = async (
     const link: string = processor.generateVideoLink(videoId);
     const response = await fetch(`${oEmbedUrl}${link}`);
     const data = await response.json();
-    return { width: data.width, height: data.height };
+    // Set default dimensions so that server -> client hydration does not break when undefined values are given
+    return { width: data.width || 16, height: data.height || 9 };
   } catch (e) {
     return { width: 16, height: 9 };
   }
