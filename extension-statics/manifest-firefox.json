@@ -1,15 +1,15 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "NekoCap",
   "description": "__MSG_extShortDescription__",
   "version": "1.5.0",
   "default_locale": "en",
-  "browser_action": {
+  "action": {
     "default_icon": "icon16.png",
     "default_popup": "popup.html"
   },
   "background": {
-    "page": "background.html"
+    "service_worker": "js/background.js"
   },
   "content_scripts": [
     {
@@ -20,12 +20,23 @@
         "https://*.vimeo.com/*",
         "https://*.bilibili.com/*",
         "https://*.netflix.com/*",
-        "https://*.twitter.com/*"
+        "https://*.primevideo.com/*",
+        "https://*.twitter.com/*",
+        "https://*.wetv.vip/*",
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*",
+        "https://*.abema.tv/*",
+        "https://*.bilibili.tv/*",
+        "https://*.nogidoga.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
+    },
+    {
+      "matches": ["https://*.dailymotion.com/*"],
+      "run_at": "document_end",
+      "all_frames": true,
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -35,12 +46,18 @@
         "https://*.vimeo.com/*",
         "https://*.bilibili.com/*",
         "https://*.netflix.com/*",
-        "https://*.twitter.com/*"
+        "https://*.primevideo.com/*",
+        "https://*.twitter.com/*",
+        "https://*.wetv.vip/*",
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*",
+        "https://*.abema.tv/*",
+        "https://*.dailymotion.com/*",
+        "https://*.bilibili.tv/*",
+        "https://*.nogidoga.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -48,19 +65,39 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation",
-    "identity"
-  ],
+  "permissions": ["storage", "webNavigation", "identity"],
   "web_accessible_resources": [
-    "img/*.jpg",
-    "img/*.png",
-    "img/*.gif",
-    "img/*.svg",
-    "sub-assets/*.*",
-    "js/subtitle-octopus/*.*"
+    {
+      "resources": [
+        "img/*.jpg",
+        "img/*.png",
+        "img/*.gif",
+        "img/*.svg",
+        "sub-assets/*.*",
+        "js/subtitle-octopus/*.*"
+      ],
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.tver.jp/*",
+        "https://*.nicovideo.jp/*",
+        "https://*.vimeo.com/*",
+        "https://*.bilibili.com/*",
+        "https://*.netflix.com/*",
+        "https://*.primevideo.com/*",
+        "https://*.twitter.com/*",
+        "https://*.wetv.vip/*",
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*",
+        "https://*.abema.tv/*",
+        "https://*.dailymotion.com/*",
+        "https://*.bilibili.tv/*",
+        "https://*.nogidoga.com/*"
+      ]
+    }
   ],
+  "externally_connectable": {
+    "matches": ["http://localhost:12341/*", "https://*.nekocap.com/*"]
+  },
   "content_security_policy": "script-src 'self' https://*.google.com; object-src 'self'",
   "browser_specific_settings": {
     "gecko": {

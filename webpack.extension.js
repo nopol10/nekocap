@@ -66,9 +66,7 @@ module.exports = (env, argv, customEnv = {}) => {
       "js/popup": path.join(__dirname, "src/extension/popup/index.tsx"),
       "js/background": path.join(
         __dirname,
-        isChrome
-          ? "src/extension/background/index.tsx"
-          : "src/extension/background/index-page.tsx"
+        "src/extension/background/index.tsx"
       ),
       "js/content": path.join(__dirname, "src/extension/content/index.tsx"),
     },
