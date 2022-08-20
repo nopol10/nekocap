@@ -7,13 +7,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   CaptionListFields,
   CaptionPrivacy,
+  CaptionTag,
 } from "@/common/feature/video/types";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
 import Checkbox from "antd/lib/checkbox";
 import { getImageLink } from "@/common/chrome-utils";
 import { MediumTag } from "@/common/components/ws-tag";
 import { updateUploadedCaption } from "@/common/feature/caption-editor/actions";
-import { Input, Select } from "antd";
+import { Divider, Input, Select } from "antd";
 import { colors } from "@/common/colors";
 import { captionTags, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
@@ -28,6 +29,8 @@ import {
 import { hasTag } from "@/common/caption-utils";
 import { isServer } from "@/common/client-utils";
 import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
+import { CaptionTagEditor } from "../components/caption-tag-editor";
+import { getCaptionTagStrings } from "@/common/feature/video/utils";
 
 interface UpdateCaptionModalProps {
   caption?: CaptionListFields;
@@ -40,6 +43,7 @@ type FormType = {
   translatedTitle?: string;
   hasAudioDescription: boolean;
   privacy: CaptionPrivacy;
+  selectedTagNames: string[];
 };
 
 export const UpdateCaptionModal = ({
@@ -66,10 +70,18 @@ export const UpdateCaptionModal = ({
   const isUserVerified = captioner?.captioner?.verified;
 
   const onSubmit = async (data: FormType) => {
-    const { hasAudioDescription, translatedTitle, privacy } = data;
+    const {
+      hasAudioDescription,
+      translatedTitle,
+      privacy,
+      selectedTagNames,
+    } = data;
     const fileCopy = file ? { ...file } : undefined;
     const nameParts = file ? file.name.split(".") : undefined;
     const fileType = file ? nameParts[nameParts.length - 1] : undefined;
+    const selectedTags = getCaptionTagStrings(
+      userCaptionTags.filter((tag) => selectedTagNames.indexOf(tag.name) >= 0)
+    );
     dispatch(
       updateUploadedCaption.request({
         tabId: window.tabId,
@@ -79,6 +91,7 @@ export const UpdateCaptionModal = ({
         captionId: caption.id,
         hasAudioDescription,
         translatedTitle,
+        selectedTags,
         privacy,
       })
     )
@@ -112,6 +125,25 @@ export const UpdateCaptionModal = ({
     }
     setFile(file);
     return isValidFileType && isSizeValid;
+  };
+
+  const [userCaptionTags, setUserCaptionTags] = useState<CaptionTag[]>([]);
+
+  const handleNewAddTag = (tagName: string, color: string) => {
+    const updatedTags = [...userCaptionTags];
+    const existingTag = userCaptionTags.find((tag) => tag.name === tagName);
+    if (existingTag) {
+      existingTag.color = color;
+    } else {
+      updatedTags.push({ name: tagName, color });
+    }
+    const selectedTagNames = control.getValues("selectedTagNames") || [];
+    if (selectedTagNames.indexOf(tagName) >= 0) {
+      return;
+    }
+    // This updates the control
+    control.setValue("selectedTagNames", [...selectedTagNames, tagName]);
+    setUserCaptionTags(updatedTags);
   };
 
   return (
@@ -166,6 +198,15 @@ export const UpdateCaptionModal = ({
             control={control}
           />
         </Form.Item>
+        <Divider orientation="left">Tags</Divider>
+        <Form.Item>
+          <CaptionTagEditor
+            control={control}
+            onAddTag={handleNewAddTag}
+            existingTags={userCaptionTags}
+          ></CaptionTagEditor>
+        </Form.Item>
+        <Divider />
         <Form.Item label="Privacy">
           <Controller
             as={Select}

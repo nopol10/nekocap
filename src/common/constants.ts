@@ -3,6 +3,10 @@ export const captionTags = {
   hasEmail: "hasEmail", // email addresses detected inside caption data. For use in future if caption content scanning is done to prevent spam
   hasUrl: "hasUrl", // urls detected inside caption data
   ytExCC: "ytExCC", // captions imported from YoutubeExternalCC
+  // Caption group tags:
+  // Group tags have the format
+  // g:<name>:<color>
+  // E.g. g:Aimyon Interviews:#73d13d
 };
 
 export const Z_INDEX = {

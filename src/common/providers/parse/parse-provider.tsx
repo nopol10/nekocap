@@ -581,6 +581,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     rawCaption,
     hasAudioDescription,
     translatedTitle,
+    selectedTags,
     privacy: privacy,
   }: UpdateCaptionRequest): Promise<UploadResponse> {
     const updateResult: ServerResponse = await this.Parse.Cloud.run<
@@ -591,6 +592,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       rawCaption,
       hasAudioDescription,
       translatedTitle,
+      selectedTags,
       privacy: privacy,
     });
     if (updateResult.status !== "success") {
