@@ -5,6 +5,7 @@ import {
   CaptionListFields,
   VideoSource,
   UpdateCaptionRequest,
+  LoadCaptionListResult,
 } from "../feature/video/types";
 import {
   BackendProvider,
@@ -269,7 +270,7 @@ export class PassthroughProvider implements BackendProvider<RootState> {
 
   async loadUserCaptions(
     request: CaptionsRequest
-  ): Promise<CaptionListFields[]> {
+  ): Promise<LoadCaptionListResult> {
     return sendBackgroundProviderRequest({
       type: BackendProviderRequestTypes.LoadUserCaptions,
       request,

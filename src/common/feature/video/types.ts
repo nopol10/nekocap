@@ -276,6 +276,11 @@ export type CaptionListFields = CaptionFields & {
   privacy?: number;
 };
 
+export type LoadCaptionListResult = {
+  captions: CaptionListFields[];
+  hasMore: boolean;
+};
+
 export type VideoFields = {
   name: string;
   language: string;

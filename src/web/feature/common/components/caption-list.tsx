@@ -18,7 +18,7 @@ import { UpdateCaptionModal } from "@/extension/content/containers/update-captio
 import { i18n, useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 
-const PAGE_SIZE = 20;
+export const CAPTION_LIST_PAGE_SIZE = 20;
 
 const CaptionTable = styled(Table)`
   .rejected-caption {
@@ -162,7 +162,7 @@ export const CaptionList = ({
   };
   const defaultTotalRenderer = (total) => `${total} captions`;
   const paginationProps: PaginationProps = {
-    pageSize: PAGE_SIZE,
+    pageSize: CAPTION_LIST_PAGE_SIZE,
     total: totalCount,
     showTotal: renderTotal || defaultTotalRenderer,
     onChange: handleChangePage,
@@ -179,8 +179,8 @@ export const CaptionList = ({
             listContainsCurrentPageOnly
               ? captions
               : captions.slice(
-                  (currentPage - 1) * PAGE_SIZE,
-                  currentPage * PAGE_SIZE
+                  (currentPage - 1) * CAPTION_LIST_PAGE_SIZE,
+                  currentPage * CAPTION_LIST_PAGE_SIZE
                 )
           }
         />

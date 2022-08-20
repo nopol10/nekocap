@@ -21,6 +21,7 @@ import {
 } from "../admin-utils";
 import Title from "antd/lib/typography/Title";
 import { useTranslation } from "next-i18next";
+import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
 
 export const CaptionerProfile = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ export const CaptionerProfile = () => {
     currentCaptionPage,
     captions,
     captioner = EMPTY_PROFILE,
+    hasMore,
   } = profileData;
   if (!captioner) {
     return <Title style={{ padding: "0 50px" }}>User not found!</Title>;
@@ -49,12 +51,17 @@ export const CaptionerProfile = () => {
   const isLoading =
     isLoadingProfile || isAssigningReviewer || isAssigningReviewerManager;
 
-  const handleChangeCaptionPage = (page: number, pageSize?: number) => {
+  const handleChangeCaptionPage = (
+    page: number,
+    pageSize?: number,
+    tags?: string[]
+  ) => {
     dispatch(
       loadUserCaptions.request({
         pageSize,
         pageNumber: page,
         captionerId,
+        tags,
       })
     );
   };
@@ -69,6 +76,10 @@ export const CaptionerProfile = () => {
       });
   };
 
+  const handleSetFilteredTags = (tags: string[]) => {
+    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
+  };
+
   return (
     <Profile
       loggedInUser={loggedInUserPublicProfile}
@@ -79,6 +90,7 @@ export const CaptionerProfile = () => {
       onChangePage={handleChangeCaptionPage}
       isLoading={isLoading}
       isLoadingCaptionPage={isLoadingCaptionPage}
+      hasMore={hasMore}
       onAssignReviewerManager={handleAssignReviewerManager(
         captionerId,
         dispatch
@@ -86,6 +98,7 @@ export const CaptionerProfile = () => {
       onAssignReviewer={handleAssignReviewer(captionerId, dispatch)}
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}
       onBanCaptioner={handleBanCaptioner(captionerId, dispatch)}
+      onSetFilteredTags={handleSetFilteredTags}
     />
   );
 };

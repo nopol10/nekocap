@@ -1,7 +1,7 @@
 import Form from "antd/lib/form";
 import message from "antd/lib/message";
 import Modal from "antd/lib/modal/Modal";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -30,7 +30,10 @@ import { hasTag } from "@/common/caption-utils";
 import { isServer } from "@/common/client-utils";
 import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
 import { CaptionTagEditor } from "../components/caption-tag-editor";
-import { getCaptionTagStrings } from "@/common/feature/video/utils";
+import {
+  getCaptionTagFromTagString,
+  getCaptionTagStrings,
+} from "@/common/feature/video/utils";
 
 interface UpdateCaptionModalProps {
   caption?: CaptionListFields;
@@ -128,6 +131,13 @@ export const UpdateCaptionModal = ({
   };
 
   const [userCaptionTags, setUserCaptionTags] = useState<CaptionTag[]>([]);
+  useEffect(() => {
+    setUserCaptionTags(
+      (captioner.captioner?.captionTags || [])
+        .map(getCaptionTagFromTagString)
+        .filter(Boolean)
+    );
+  }, [captioner]);
 
   const handleNewAddTag = (tagName: string, color: string) => {
     const updatedTags = [...userCaptionTags];
@@ -145,6 +155,14 @@ export const UpdateCaptionModal = ({
     control.setValue("selectedTagNames", [...selectedTagNames, tagName]);
     setUserCaptionTags(updatedTags);
   };
+
+  const defaultUserTags =
+    caption?.tags
+      ?.map((tag) => {
+        const captionTag = getCaptionTagFromTagString(tag);
+        return captionTag?.name;
+      })
+      .filter(Boolean) || [];
 
   return (
     <Modal
@@ -201,6 +219,7 @@ export const UpdateCaptionModal = ({
         <Divider orientation="left">Tags</Divider>
         <Form.Item>
           <CaptionTagEditor
+            defaultTags={defaultUserTags}
             control={control}
             onAddTag={handleNewAddTag}
             existingTags={userCaptionTags}

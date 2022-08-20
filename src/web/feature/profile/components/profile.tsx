@@ -1,7 +1,7 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useMemo, useState } from "react";
 import { colors } from "@/common/colors";
 import Layout from "antd/lib/layout";
-import { message, Space, Tooltip, Typography } from "antd";
+import { message, Select, Space, Tag, Tooltip, Typography } from "antd";
 import {
   CaptionerFields,
   CaptionerPrivateFields,
@@ -15,13 +15,17 @@ import {
   faUserCheck,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
-import { CaptionList } from "../../common/components/caption-list";
+import {
+  CaptionList,
+  CAPTION_LIST_PAGE_SIZE,
+} from "../../common/components/caption-list";
 import { CaptionListFields } from "@/common/feature/video/types";
 import { EditProfileFields } from "@/common/feature/profile/types";
 import styled from "styled-components";
 import { ProfileSidebar } from "./profile-sidebar";
 import { DEVICE } from "@/common/style-constants";
 import { useTranslation } from "next-i18next";
+import { getCaptionTagFromTagString } from "@/common/feature/video/utils";
 const { Title } = Typography;
 const { Content, Header } = Layout;
 
@@ -94,7 +98,8 @@ type ProfileProps = {
   isLoadingCaptionPage?: boolean;
   isEditing?: boolean;
   canEdit?: boolean;
-  onChangePage?: (page: number, pageSize?: number) => void;
+  hasMore: boolean; // has more captions to load
+  onChangePage?: (page: number, pageSize?: number, tags?: string[]) => void;
   onDelete?: (caption: CaptionListFields) => void;
   onSetEditing?: (isEditing: boolean) => void;
   onSubmitEdit?: (form: EditProfileFields) => void;
@@ -103,6 +108,7 @@ type ProfileProps = {
   onAssignReviewer: () => void;
   onVerifyCaptioner: () => void;
   onBanCaptioner: () => void;
+  onSetFilteredTags: (tags: string[]) => void;
 };
 
 export const Profile = ({
@@ -117,6 +123,7 @@ export const Profile = ({
   isLoadingCaptionPage,
   isEditing,
   canEdit,
+  hasMore,
   onSetEditing = () => {
     /*do nothing*/
   },
@@ -138,6 +145,7 @@ export const Profile = ({
   onBanCaptioner = () => {
     /*do nothing*/
   },
+  onSetFilteredTags,
 }: ProfileProps): ReactElement => {
   const { t } = useTranslation("common");
   const {
@@ -149,9 +157,26 @@ export const Profile = ({
     banned,
     isReviewer: isProfileReviewer,
     isReviewerManager: isProfileReviewerManager,
+    captionTags = [],
   } = captioner;
 
   const isOwnProfile = !!privateData;
+
+  const existingTags = useMemo(() => {
+    return captionTags
+      .map((tag) => ({ ...getCaptionTagFromTagString(tag), tag }))
+      .filter(Boolean);
+  }, [captionTags]);
+
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const filteredCount =
+    captions.length +
+    (currentCaptionPage - 1) * CAPTION_LIST_PAGE_SIZE +
+    (hasMore ? 1 : 0);
+
+  const currentCaptionListCount =
+    selectedTags.length > 0 ? filteredCount : captionCount;
 
   const handleCopyProfileLink = () => {
     if (navigator && navigator.clipboard) {
@@ -162,6 +187,16 @@ export const Profile = ({
       );
     }
     message.info(t("profile.profileLinkCopiedMessage"));
+  };
+
+  const handleChangeTagFilter = (tags: string[]) => {
+    console.log("tags", tags);
+    setSelectedTags(tags);
+    onSetFilteredTags(tags);
+  };
+
+  const handleOnChangePage = (page: number, pageSize: number) => {
+    onChangePage(page, pageSize, selectedTags);
   };
 
   return (
@@ -255,14 +290,35 @@ export const Profile = ({
             <Content style={{ width: "auto" }}>
               <div style={{ padding: "40px 40px" }}>
                 <Title level={3}>{t("profile.contributedCaptions")}</Title>
+                <Select
+                  mode="multiple"
+                  showSearch
+                  showArrow
+                  placeholder={t("profile.filterByTags")}
+                  defaultValue={[]}
+                  style={{ width: "100%", marginBottom: 6 }}
+                  onChange={handleChangeTagFilter}
+                >
+                  {existingTags.map((tag) => {
+                    return (
+                      <Select.Option
+                        key={tag.name}
+                        value={tag.tag}
+                        label={tag.name}
+                      >
+                        <Tag color={tag.color}>{tag.name}</Tag>
+                      </Select.Option>
+                    );
+                  })}
+                </Select>
                 <CaptionList
                   loggedInUser={loggedInUser}
                   captions={captions}
-                  totalCount={captionCount}
+                  totalCount={currentCaptionListCount}
                   captionerId={captionerId}
                   isLoadingCaptionPage={isLoadingCaptionPage}
                   currentPage={currentCaptionPage}
-                  onChangePage={onChangePage}
+                  onChangePage={handleOnChangePage}
                   onDelete={onDelete}
                   listContainsCurrentPageOnly={true}
                 />

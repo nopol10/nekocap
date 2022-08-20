@@ -1,18 +1,13 @@
-import type { RcFile } from "antd/lib/upload";
-import Dragger from "antd/lib/upload/Dragger";
-import type { UploadRequestOption } from "rc-upload/lib/interface";
 import React, { ReactElement, useMemo, useState } from "react";
 import type { CustomTagProps } from "rc-select/lib/interface/generator";
 import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
-import { Card, Form, Input, message, Popover, Space, Typography } from "antd";
+import { Input, message, Popover, Space } from "antd";
 import { Control, Controller } from "react-hook-form";
-import { Color, ColorResult, SketchPicker } from "react-color";
+import { ColorResult, SketchPicker } from "react-color";
 import { CaptionTag } from "@/common/feature/video/types";
 import styled from "styled-components";
 import { WSButton } from "@/common/components/ws-button";
-
-const { Text } = Typography;
 
 const ColorPickerTrigger = styled.div<{ $color: string }>`
   width: 20px;
@@ -84,12 +79,14 @@ export const NewTag = ({ onAddTag }: NewTagProps): ReactElement => {
 };
 
 export type CaptionTagEditorProps = {
+  defaultTags: string[];
   existingTags: CaptionTag[];
   control: Control;
   onAddTag: (tagName: string, color: string) => void;
 };
 
 export const CaptionTagEditor = ({
+  defaultTags,
   existingTags = [],
   control,
   onAddTag,
@@ -102,7 +99,7 @@ export const CaptionTagEditor = ({
     });
   }, [existingTags]);
 
-  const tagRender = (props: CustomTagProps & { value: string }) => {
+  const renderTag = (props: CustomTagProps & { value: string }) => {
     const { label, value, closable, onClose } = props;
     const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
       event.preventDefault();
@@ -133,9 +130,9 @@ export const CaptionTagEditor = ({
           control={control}
           showSearch
           showArrow
-          tagRender={tagRender}
+          tagRender={renderTag}
           placeholder={"Tags"}
-          defaultValue={[]}
+          defaultValue={defaultTags}
           options={tagOptions}
           style={{ width: "100%" }}
           rules={{ required: false }}

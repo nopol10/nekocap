@@ -21,7 +21,7 @@ import {
   UpdateCaptionerProfileParams,
 } from "./types";
 import { ServerResponse } from "@/common/types";
-import { CaptionListFields } from "../video/types";
+import { LoadCaptionListResult } from "../video/types";
 import { Locator } from "@/common/locator/locator";
 
 function* loadUserCaptionsRequestSaga(
@@ -31,18 +31,19 @@ function* loadUserCaptionsRequestSaga(
   if (!isLoggedIn) {
     throw new Error("You must be logged in to perform this action!");
   }
-  const { pageNumber, pageSize, captionerId } = action.payload;
+  const { pageNumber, pageSize, captionerId, tags } = action.payload;
 
-  const captions: CaptionListFields[] = yield call(
+  const { captions, hasMore }: LoadCaptionListResult = yield call(
     [Locator.provider(), "loadUserCaptions"],
     {
       ...getLimitOffsetFromPagination(pageSize, pageNumber),
       captionerId,
+      tags,
     }
   );
 
   yield put(
-    loadUserCaptions.success({ pageNumber, pageSize, captions: captions })
+    loadUserCaptions.success({ pageNumber, pageSize, captions, hasMore })
   );
 }
 

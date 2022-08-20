@@ -97,6 +97,15 @@ export const getCaptionGroupTagName = (tag: string): string => {
   return tag.substring(nameStart, nameEnd);
 };
 
+export const getCaptionGroupTagColor = (tag: string): string => {
+  const colorStart = tag.lastIndexOf(":") + 1;
+  // The last colon has to be present at least
+  if (colorStart <= 0) {
+    return "";
+  }
+  return tag.substring(colorStart);
+};
+
 /**
  * Converts user made caption tags to the string format used to store in the database
  * @param tags
@@ -106,6 +115,18 @@ export const getCaptionTagStrings = (tags: CaptionTag[]): string[] => {
   return tags.map((tag) => {
     return `g:${tag.name}:${tag.color}`;
   });
+};
+
+export const getCaptionTagFromTagString = (
+  tag: string
+): CaptionTag | undefined => {
+  if (!tag.startsWith("g:")) {
+    return undefined;
+  }
+  return {
+    name: getCaptionGroupTagName(tag),
+    color: getCaptionGroupTagColor(tag),
+  };
 };
 
 export const videoSourceToProcessorMap: { [id: number]: Processor } = {

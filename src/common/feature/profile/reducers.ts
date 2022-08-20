@@ -16,6 +16,7 @@ const initialState: ProfileState = {
   currentCaptionPage: 1,
   captioner: null,
   captions: [],
+  hasMore: false,
 };
 
 export const profileReducer = createReducer<ProfileState>(
@@ -36,11 +37,12 @@ export const profileReducer = createReducer<ProfileState>(
         };
       })
       .addCase(setListedCaptions, (state, action) => {
-        const { captions, pageNumber } = action.payload;
+        const { captions, pageNumber, hasMore } = action.payload;
         return {
           ...state,
           captions,
           currentCaptionPage: pageNumber,
+          hasMore,
         };
       })
       .addCase(removeStoreCaption, (state, action) => {
