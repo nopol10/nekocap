@@ -136,7 +136,8 @@
     "profileUpdated": "Profile updated!",
     "profileUpdateFailed": "Failed to update profile: {{error}}",
     "roleAssignmentSuccess": "Updated!",
-    "roleAssignmentFailure": "Failed to update: {{error}}"
+    "roleAssignmentFailure": "Failed to update: {{error}}",
+    "filterByTags": "Filter by tags"
   },
   "viewer": {
     "browseOtherCaptions": "Browse other captions",
