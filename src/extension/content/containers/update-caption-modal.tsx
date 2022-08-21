@@ -220,7 +220,9 @@ export const UpdateCaptionModal = ({
             control={control}
           />
         </Form.Item>
-        <Divider orientation="left">Tags</Divider>
+        <Divider orientation="left" style={{ fontSize: 14 }}>
+          Tags
+        </Divider>
         <Form.Item>
           <CaptionTagEditor
             defaultTags={defaultUserTags}

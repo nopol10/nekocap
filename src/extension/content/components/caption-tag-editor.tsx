@@ -145,6 +145,7 @@ export const CaptionTagEditor = ({
           options={tagOptions}
           style={{ width: "100%" }}
           rules={{ required: false }}
+          notFoundContent={"No tags"}
         />
         <NewTag
           disabled={selectedTagNames?.length >= MAX_CAPTION_GROUP_TAG_LIMIT}

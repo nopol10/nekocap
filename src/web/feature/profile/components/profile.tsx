@@ -351,6 +351,7 @@ export const Profile = ({
                     value={selectedTags}
                     style={{ width: "100%", marginBottom: 6 }}
                     onChange={handleChangeTagFilter}
+                    notFoundContent={t("profile.noTags")}
                   >
                     {existingTags.map((tag) => {
                       return (
