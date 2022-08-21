@@ -45,6 +45,7 @@ type CaptionListProps = {
     originalElement: React.ReactElement<HTMLElement>
   ) => React.ReactNode;
   renderTotal?: (total: number, range: number[]) => string;
+  onUpdateCaption: (captionId: string) => void;
   listContainsCurrentPageOnly?: boolean;
   hideActions?: boolean;
 };
@@ -66,6 +67,7 @@ export const CaptionList = ({
   loggedInUser,
   renderPagination,
   renderTotal,
+  onUpdateCaption,
   listContainsCurrentPageOnly = false,
   hideActions = false,
 }: CaptionListProps): React.ReactElement => {
@@ -160,6 +162,13 @@ export const CaptionList = ({
       top: 0,
     });
   };
+
+  const handleUpdatedCaption = (captionId: string) => {
+    // Reload list
+    onChangePage(currentPage, CAPTION_LIST_PAGE_SIZE);
+    onUpdateCaption(captionId);
+  };
+
   const defaultTotalRenderer = (total) => `${total} captions`;
   const paginationProps: PaginationProps = {
     pageSize: CAPTION_LIST_PAGE_SIZE,
@@ -204,9 +213,10 @@ export const CaptionList = ({
         }}
       />
       <UpdateCaptionModal
+        caption={isUpdateModalOpen.caption}
         visible={isUpdateModalOpen.open}
         onCancel={handleCancelUpdateCaptionModal}
-        caption={isUpdateModalOpen.caption}
+        onUpdated={handleUpdatedCaption}
       />
     </>
   );

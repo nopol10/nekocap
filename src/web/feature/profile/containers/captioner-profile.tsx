@@ -80,6 +80,16 @@ export const CaptionerProfile = () => {
     handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
   };
 
+  const handleUpdateCaption = () => {
+    // Load the latest tags
+    dispatch(
+      loadProfile.request({
+        profileId: captionerId,
+        withCaptions: true,
+      })
+    );
+  };
+
   return (
     <Profile
       loggedInUser={loggedInUserPublicProfile}
@@ -99,6 +109,7 @@ export const CaptionerProfile = () => {
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}
       onBanCaptioner={handleBanCaptioner(captionerId, dispatch)}
       onSetFilteredTags={handleSetFilteredTags}
+      onUpdateCaption={handleUpdateCaption}
     />
   );
 };

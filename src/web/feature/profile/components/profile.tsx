@@ -110,6 +110,7 @@ type ProfileProps = {
   onVerifyCaptioner: () => void;
   onBanCaptioner: () => void;
   onSetFilteredTags: (tags: string[]) => void;
+  onUpdateCaption: (captionId: string) => void;
 };
 
 export const Profile = ({
@@ -147,6 +148,7 @@ export const Profile = ({
     /*do nothing*/
   },
   onSetFilteredTags,
+  onUpdateCaption,
 }: ProfileProps): ReactElement => {
   const { t } = useTranslation("common");
   const {
@@ -328,6 +330,7 @@ export const Profile = ({
                   onChangePage={handleOnChangePage}
                   onDelete={onDelete}
                   listContainsCurrentPageOnly={true}
+                  onUpdateCaption={onUpdateCaption}
                 />
               </div>
             </Content>

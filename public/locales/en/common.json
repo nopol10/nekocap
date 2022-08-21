@@ -137,7 +137,7 @@
     "profileUpdateFailed": "Failed to update profile: {{error}}",
     "roleAssignmentSuccess": "Updated!",
     "roleAssignmentFailure": "Failed to update: {{error}}",
-    "filterByTags": "Filter by tags"
+    "filterByTags": "Filter by tags (up to {{maxTags}})"
   },
   "viewer": {
     "browseOtherCaptions": "Browse other captions",

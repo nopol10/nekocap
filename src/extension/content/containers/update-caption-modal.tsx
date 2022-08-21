@@ -39,6 +39,7 @@ interface UpdateCaptionModalProps {
   caption?: CaptionListFields;
   visible: boolean;
   onCancel: () => void;
+  onUpdated: (captionId: string) => void;
 }
 
 type FormType = {
@@ -53,6 +54,7 @@ export const UpdateCaptionModal = ({
   caption,
   visible,
   onCancel,
+  onUpdated,
 }: UpdateCaptionModalProps): ReactElement => {
   if (isServer()) {
     return null;
@@ -101,6 +103,7 @@ export const UpdateCaptionModal = ({
     )
       .then(() => {
         message.success("Caption successfully updated!");
+        onUpdated(caption.id);
         onCancel();
       })
       .catch((e) => {

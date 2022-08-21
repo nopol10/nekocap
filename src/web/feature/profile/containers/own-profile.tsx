@@ -102,6 +102,14 @@ export const OwnProfile = (): ReactElement => {
     handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
   };
 
+  const handleUpdateCaption = () => {
+    // Load the latest tags
+    dispatch(
+      loadPrivateCaptionerData.request({
+        withCaptions: true,
+      })
+    );
+  };
   return (
     <Profile
       loggedInUser={captioner}
@@ -127,6 +135,7 @@ export const OwnProfile = (): ReactElement => {
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}
       onBanCaptioner={handleBanCaptioner(captionerId, dispatch)}
       onSetFilteredTags={handleSetFilteredTags}
+      onUpdateCaption={handleUpdateCaption}
     />
   );
 };
