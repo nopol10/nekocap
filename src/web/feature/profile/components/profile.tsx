@@ -1,4 +1,10 @@
-import React, { ReactElement, useMemo, useState } from "react";
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { colors } from "@/common/colors";
 import Layout from "antd/lib/layout";
 import { message, Select, Space, Tag, Tooltip, Typography } from "antd";
@@ -23,10 +29,13 @@ import { CaptionListFields } from "@/common/feature/video/types";
 import { EditProfileFields } from "@/common/feature/profile/types";
 import styled from "styled-components";
 import { ProfileSidebar } from "./profile-sidebar";
-import { DEVICE } from "@/common/style-constants";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import { DEVICE } from "@/common/style-constants";
 import { getCaptionTagFromTagString } from "@/common/feature/video/utils";
 import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
+import { useIsClient } from "@/hooks";
+
 const { Title } = Typography;
 const { Content, Header } = Layout;
 
@@ -173,6 +182,32 @@ export const Profile = ({
 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  const router = useRouter();
+  const hasPerformedInitialFilter = useRef(false);
+  const inClient = useIsClient();
+
+  useEffect(() => {
+    if (existingTags.length <= 0 || hasPerformedInitialFilter.current) {
+      return;
+    }
+    hasPerformedInitialFilter.current = true;
+    let defaultFilterTagNames = router.query.tags || "";
+    if (!defaultFilterTagNames) {
+      return;
+    }
+    if (typeof defaultFilterTagNames === "string") {
+      defaultFilterTagNames = [defaultFilterTagNames];
+    }
+    const defaultTags = existingTags
+      .filter((tag) => {
+        return defaultFilterTagNames.includes(tag.name);
+      })
+      .map((tag) => tag.tag);
+    if (defaultTags.length > 0) {
+      handleChangeTagFilter(defaultTags);
+    }
+  }, [existingTags]);
+
   const filteredCount =
     captions.length +
     (currentCaptionPage - 1) * CAPTION_LIST_PAGE_SIZE +
@@ -292,34 +327,38 @@ export const Profile = ({
             <Content style={{ width: "auto" }}>
               <div style={{ padding: "40px 40px" }}>
                 <Title level={3}>{t("profile.contributedCaptions")}</Title>
-                <Select
-                  mode="multiple"
-                  maxTagCount={5}
-                  showSearch
-                  showArrow
-                  placeholder={t("profile.filterByTags", {
-                    maxTags: MAX_SEARCH_TAG_LIMIT,
-                  })}
-                  defaultValue={[]}
-                  style={{ width: "100%", marginBottom: 6 }}
-                  onChange={handleChangeTagFilter}
-                >
-                  {existingTags.map((tag) => {
-                    return (
-                      <Select.Option
-                        key={tag.name}
-                        value={tag.tag}
-                        label={tag.name}
-                        disabled={
-                          selectedTags.length >= MAX_SEARCH_TAG_LIMIT &&
-                          !selectedTags.includes(tag.tag)
-                        }
-                      >
-                        <Tag color={tag.color}>{tag.name}</Tag>
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
+                {/* do a client check to prevent ssr issues */}
+                {inClient && (
+                  <Select
+                    mode="multiple"
+                    maxTagCount={5}
+                    showSearch
+                    showArrow
+                    placeholder={t("profile.filterByTags", {
+                      maxTags: MAX_SEARCH_TAG_LIMIT,
+                    })}
+                    value={selectedTags}
+                    style={{ width: "100%", marginBottom: 6 }}
+                    onChange={handleChangeTagFilter}
+                  >
+                    {existingTags.map((tag) => {
+                      return (
+                        <Select.Option
+                          key={tag.name}
+                          value={tag.tag}
+                          label={tag.name}
+                          disabled={
+                            selectedTags.length >= MAX_SEARCH_TAG_LIMIT &&
+                            !selectedTags.includes(tag.tag)
+                          }
+                        >
+                          <Tag color={tag.color}>{tag.name}</Tag>
+                        </Select.Option>
+                      );
+                    })}
+                  </Select>
+                )}
+
                 <CaptionList
                   loggedInUser={loggedInUser}
                   captions={captions}
