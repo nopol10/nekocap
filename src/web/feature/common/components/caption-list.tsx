@@ -246,7 +246,7 @@ export const CaptionList = ({
         expandable={{
           defaultExpandAllRows: true,
           expandIcon: () => null,
-          expandedRowKeys: captions.map((caption) => caption.id),
+          expandedRowKeys: captions?.map((caption) => caption?.id) || [],
           expandedRowRender: renderExpandedRow,
           rowExpandable: isRowExpandable,
         }}
