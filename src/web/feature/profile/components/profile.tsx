@@ -32,7 +32,10 @@ import { ProfileSidebar } from "./profile-sidebar";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { DEVICE } from "@/common/style-constants";
-import { getCaptionTagFromTagString } from "@/common/feature/video/utils";
+import {
+  getCaptionGroupTagName,
+  getCaptionTagFromTagString,
+} from "@/common/feature/video/utils";
 import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
 import { useIsClient } from "@/hooks";
 
@@ -230,6 +233,14 @@ export const Profile = ({
   const handleChangeTagFilter = (tags: string[]) => {
     setSelectedTags(tags);
     onSetFilteredTags(tags);
+    const newUrl = new URL(window.location.href);
+    newUrl.search = "";
+    if (tags.length > 0) {
+      tags.map((tag) => {
+        newUrl.searchParams.append("tags", getCaptionGroupTagName(tag));
+      });
+    }
+    window.history.pushState({}, document.title, newUrl);
   };
 
   const handleOnChangePage = (page: number, pageSize: number) => {
@@ -370,6 +381,7 @@ export const Profile = ({
                   onDelete={onDelete}
                   listContainsCurrentPageOnly={true}
                   onUpdateCaption={onUpdateCaption}
+                  onSelectTag={handleChangeTagFilter}
                 />
               </div>
             </Content>

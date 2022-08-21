@@ -1,4 +1,4 @@
-import { Popconfirm, Space, Table, Tooltip, Pagination } from "antd";
+import { Popconfirm, Space, Table, Tooltip, Pagination, Tag } from "antd";
 import React, { ReactNode, useState } from "react";
 import { CaptionListFields } from "@/common/feature/video/types";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
@@ -17,6 +17,11 @@ import { useSSRMediaQuery } from "@/hooks";
 import { UpdateCaptionModal } from "@/extension/content/containers/update-caption-modal";
 import { i18n, useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
+import {
+  getCaptionGroupTagColor,
+  getCaptionGroupTagName,
+} from "@/common/feature/video/utils";
+import Text from "antd/lib/typography/Text";
 
 export const CAPTION_LIST_PAGE_SIZE = 20;
 
@@ -45,7 +50,8 @@ type CaptionListProps = {
     originalElement: React.ReactElement<HTMLElement>
   ) => React.ReactNode;
   renderTotal?: (total: number, range: number[]) => string;
-  onUpdateCaption: (captionId: string) => void;
+  onUpdateCaption?: (captionId: string) => void;
+  onSelectTag?: (tag: string[]) => void;
   listContainsCurrentPageOnly?: boolean;
   hideActions?: boolean;
 };
@@ -70,6 +76,7 @@ export const CaptionList = ({
   onUpdateCaption,
   listContainsCurrentPageOnly = false,
   hideActions = false,
+  onSelectTag,
 }: CaptionListProps): React.ReactElement => {
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<
@@ -166,7 +173,7 @@ export const CaptionList = ({
   const handleUpdatedCaption = (captionId: string) => {
     // Reload list
     onChangePage(currentPage, CAPTION_LIST_PAGE_SIZE);
-    onUpdateCaption(captionId);
+    onUpdateCaption?.(captionId);
   };
 
   const defaultTotalRenderer = (total) => `${total} captions`;
@@ -197,6 +204,34 @@ export const CaptionList = ({
       </>
     );
   }
+
+  const renderExpandedRow = (record: CaptionListFields) => {
+    return (
+      <>
+        <Text style={{ marginRight: "20px" }}>Tags:</Text>
+        {record.tags
+          ?.filter((tag) => !!getCaptionGroupTagName(tag))
+          .map((tag) => {
+            const tagName = getCaptionGroupTagName(tag);
+            const tagColor = getCaptionGroupTagColor(tag);
+            return (
+              <Tag
+                style={{ cursor: onSelectTag ? "pointer" : "unset" }}
+                key={tag}
+                color={tagColor}
+                onClick={() => onSelectTag?.([tag])}
+              >
+                {tagName}
+              </Tag>
+            );
+          })}
+      </>
+    );
+  };
+
+  const isRowExpandable = (record: CaptionListFields) => {
+    return !!record.tags?.find((tag) => !!getCaptionGroupTagName(tag));
+  };
   return (
     <>
       <CaptionTable
@@ -208,6 +243,13 @@ export const CaptionList = ({
           return record?.rejected ? "rejected-caption" : "";
         }}
         pagination={paginationProps}
+        expandable={{
+          defaultExpandAllRows: true,
+          expandIcon: () => null,
+          expandedRowKeys: captions.map((caption) => caption.id),
+          expandedRowRender: renderExpandedRow,
+          rowExpandable: isRowExpandable,
+        }}
         locale={{
           emptyText: t("home.noCaptions"),
         }}
