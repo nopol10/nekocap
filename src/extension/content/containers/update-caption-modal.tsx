@@ -63,7 +63,7 @@ export const UpdateCaptionModal = ({
     updateUploadedCaption.isLoading(window.tabId)
   );
   const captioner = useSelector(captionerSelector);
-  const { handleSubmit, control, errors } = useForm<FormType>();
+  const { handleSubmit, control, errors, watch } = useForm<FormType>();
   const [fileContent, setFileContent] = useState<string>("");
   const [file, setFile] = useState<RcFile>();
 
@@ -71,6 +71,7 @@ export const UpdateCaptionModal = ({
   const maxNonVerifiedUploadSizeMB = MAX_CAPTION_FILE_BYTES / 1000000;
   const maxPreviewSize = MAX_VERIFIED_CAPTION_FILE_BYTES;
   const isUserVerified = captioner?.captioner?.verified;
+  const { selectedTagNames } = watch();
 
   const onSubmit = async (data: FormType) => {
     const {
@@ -223,6 +224,7 @@ export const UpdateCaptionModal = ({
             control={control}
             onAddTag={handleNewAddTag}
             existingTags={userCaptionTags}
+            selectedTagNames={selectedTagNames}
           ></CaptionTagEditor>
         </Form.Item>
         <Divider />

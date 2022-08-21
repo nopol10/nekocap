@@ -8,6 +8,7 @@ import { ColorResult, SketchPicker } from "react-color";
 import { CaptionTag } from "@/common/feature/video/types";
 import styled from "styled-components";
 import { WSButton } from "@/common/components/ws-button";
+import { MAX_CAPTION_GROUP_TAG_LIMIT } from "@/common/feature/video/constants";
 
 const ColorPickerTrigger = styled.div<{ $color: string }>`
   width: 20px;
@@ -17,10 +18,11 @@ const ColorPickerTrigger = styled.div<{ $color: string }>`
 `;
 
 export type NewTagProps = {
+  disabled: boolean;
   onAddTag: (tagName: string, color: string) => void;
 };
 
-export const NewTag = ({ onAddTag }: NewTagProps): ReactElement => {
+export const NewTag = ({ disabled, onAddTag }: NewTagProps): ReactElement => {
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState("#e7b93b");
   const handleClickAddTag = () => {
@@ -70,7 +72,7 @@ export const NewTag = ({ onAddTag }: NewTagProps): ReactElement => {
         >
           <ColorPickerTrigger $color={newTagColor}></ColorPickerTrigger>
         </Popover>
-        <WSButton size="small" onClick={handleClickAddTag}>
+        <WSButton size="small" onClick={handleClickAddTag} disabled={disabled}>
           Add tag
         </WSButton>
       </Space>
@@ -81,6 +83,7 @@ export const NewTag = ({ onAddTag }: NewTagProps): ReactElement => {
 export type CaptionTagEditorProps = {
   defaultTags: string[];
   existingTags: CaptionTag[];
+  selectedTagNames: string[];
   control: Control;
   onAddTag: (tagName: string, color: string) => void;
 };
@@ -88,6 +91,7 @@ export type CaptionTagEditorProps = {
 export const CaptionTagEditor = ({
   defaultTags,
   existingTags = [],
+  selectedTagNames,
   control,
   onAddTag,
 }: CaptionTagEditorProps): ReactElement => {
@@ -95,9 +99,14 @@ export const CaptionTagEditor = ({
     return existingTags.map((tag) => {
       return {
         value: tag.name,
+        disabled:
+          selectedTagNames?.length >= MAX_CAPTION_GROUP_TAG_LIMIT &&
+          !selectedTagNames?.find(
+            (selectedTag) => selectedTag.indexOf(tag.name) >= 0
+          ),
       };
     });
-  }, [existingTags]);
+  }, [existingTags, selectedTagNames]);
 
   const renderTag = (props: CustomTagProps & { value: string }) => {
     const { label, value, closable, onClose } = props;
@@ -137,7 +146,10 @@ export const CaptionTagEditor = ({
           style={{ width: "100%" }}
           rules={{ required: false }}
         />
-        <NewTag onAddTag={onAddTag} />
+        <NewTag
+          disabled={selectedTagNames?.length >= MAX_CAPTION_GROUP_TAG_LIMIT}
+          onAddTag={onAddTag}
+        />
       </Space>
     </>
   );

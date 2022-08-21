@@ -26,6 +26,7 @@ import { ProfileSidebar } from "./profile-sidebar";
 import { DEVICE } from "@/common/style-constants";
 import { useTranslation } from "next-i18next";
 import { getCaptionTagFromTagString } from "@/common/feature/video/utils";
+import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
 const { Title } = Typography;
 const { Content, Header } = Layout;
 
@@ -190,7 +191,6 @@ export const Profile = ({
   };
 
   const handleChangeTagFilter = (tags: string[]) => {
-    console.log("tags", tags);
     setSelectedTags(tags);
     onSetFilteredTags(tags);
   };
@@ -292,9 +292,12 @@ export const Profile = ({
                 <Title level={3}>{t("profile.contributedCaptions")}</Title>
                 <Select
                   mode="multiple"
+                  maxTagCount={5}
                   showSearch
                   showArrow
-                  placeholder={t("profile.filterByTags")}
+                  placeholder={t("profile.filterByTags", {
+                    maxTags: MAX_SEARCH_TAG_LIMIT,
+                  })}
                   defaultValue={[]}
                   style={{ width: "100%", marginBottom: 6 }}
                   onChange={handleChangeTagFilter}
@@ -305,6 +308,10 @@ export const Profile = ({
                         key={tag.name}
                         value={tag.tag}
                         label={tag.name}
+                        disabled={
+                          selectedTags.length >= MAX_SEARCH_TAG_LIMIT &&
+                          !selectedTags.includes(tag.tag)
+                        }
                       >
                         <Tag color={tag.color}>{tag.name}</Tag>
                       </Select.Option>
