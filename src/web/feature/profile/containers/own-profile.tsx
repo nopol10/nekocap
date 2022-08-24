@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -28,15 +28,15 @@ export const OwnProfile = (): ReactElement => {
   const captionerState = useSelector(captionerSelector);
 
   const isLoadingProfile = useSelector(
-    loadPrivateCaptionerData.isLoading(null)
+    loadPrivateCaptionerData.isLoading(undefined)
   );
-  const isUpdatingProfile = useSelector(updateProfile.isLoading(null));
-  const isAssigningReviewer = useSelector(assignReviewer.isLoading(null));
+  const isUpdatingProfile = useSelector(updateProfile.isLoading(undefined));
+  const isAssigningReviewer = useSelector(assignReviewer.isLoading(undefined));
   const isLoadingCaptionPage = useSelector(
-    loadLoggedInUserCaptions.isLoading(null)
+    loadLoggedInUserCaptions.isLoading(undefined)
   );
   const isAssigningReviewerManager = useSelector(
-    assignReviewerManager.isLoading(null)
+    assignReviewerManager.isLoading(undefined)
   );
 
   const dispatch = useDispatch();
@@ -58,9 +58,30 @@ export const OwnProfile = (): ReactElement => {
     isAssigningReviewer ||
     isAssigningReviewerManager;
 
+  /**
+   * If the user has captions that were not loaded
+   * (e.g. after going to their dashboard from homepage right after logging in),
+   * load them.
+   */
+  useEffect(() => {
+    if (
+      captioner.captionCount > 0 &&
+      (captions?.length || 0) <= 0 &&
+      !isLoadingCaptionPage
+    ) {
+      dispatch(
+        loadLoggedInUserCaptions.request({
+          pageSize: CAPTION_LIST_PAGE_SIZE,
+          pageNumber: 1,
+          captionerId,
+        })
+      );
+    }
+  }, [captioner.captionCount]);
+
   const handleChangeCaptionPage = (
     page: number,
-    pageSize?: number,
+    pageSize = 1,
     tags?: string[]
   ) => {
     dispatch(
@@ -115,7 +136,7 @@ export const OwnProfile = (): ReactElement => {
       loggedInUser={captioner}
       privateData={privateProfile}
       captioner={captioner}
-      captions={captions}
+      captions={captions || []}
       currentCaptionPage={currentCaptionPage}
       onDelete={handleConfirmDelete}
       onChangePage={handleChangeCaptionPage}

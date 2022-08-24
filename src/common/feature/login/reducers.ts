@@ -27,9 +27,20 @@ export const loginReducer = createReducer<LoginState>(
         };
       })
       .addCase(hydrate, (state, action) => {
+        const currentLoginState = state.loggedIn;
+        const currentUserData = state.userData;
         return {
           ...state,
           ...action.payload.login,
+          // Prevent hydration from clearing the user's logged in state
+          ...{
+            loggedIn: currentLoginState
+              ? currentLoginState
+              : action.payload.login.loggedIn,
+            userData: currentLoginState
+              ? currentUserData
+              : action.payload.login.userData,
+          },
         };
       });
   }
