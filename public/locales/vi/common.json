@@ -136,7 +136,9 @@
     "profileUpdated": "Hồ sơ đã cật nhật!",
     "profileUpdateFailed": "Không thể cật nhật hồ sơ: {{error}}",
     "roleAssignmentSuccess": "Đã cật nhật!",
-    "roleAssignmentFailure": "Cật nhật thất bại: {{error}}"
+    "roleAssignmentFailure": "Cật nhật thất bại: {{error}}",
+    "filterByTags": "Filter by tags (up to {{maxTags}})",
+    "noTags": "No tags"
   },
   "viewer": {
     "browseOtherCaptions": "Duyệt các phụ đề khác",
