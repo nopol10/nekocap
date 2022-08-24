@@ -7,6 +7,7 @@ export type CaptionerState = {
   currentCaptionPage: number;
   captioner?: CaptionerFields;
   privateProfile?: CaptionerPrivateFields;
+  hasMore: boolean;
 };
 
 export type PrivateCaptionerData = {
@@ -33,18 +34,22 @@ export type LoadPrivateCaptionerDataResponse = ServerResponse &
 
 export type CaptionsResponse = ServerResponse & {
   captions: CaptionListFields[];
+  hasMore: boolean;
 };
 
 export type CaptionsPagedRequest = PagedType & {
   captionerId: string;
+  tags?: string[];
 };
 
 export type CaptionsPagedResult = PagedType & {
   captions: CaptionListFields[];
+  hasMore: boolean;
 };
 
 export type CaptionsRequest = OffsetRequest & {
   captionerId: string;
+  tags?: string[];
 };
 
 export type RoleRequest = {
@@ -70,6 +75,7 @@ export type CaptionerFields = {
   isReviewer: boolean;
   isReviewerManager: boolean;
   isAdmin: boolean;
+  captionTags?: string[];
 };
 
 export type CaptionerPrivateFields = {

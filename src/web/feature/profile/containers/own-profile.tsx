@@ -22,6 +22,7 @@ import {
   handleVerifyCaptioner,
 } from "../admin-utils";
 import { useTranslation } from "next-i18next";
+import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
 
 export const OwnProfile = (): ReactElement => {
   const captionerState = useSelector(captionerSelector);
@@ -47,6 +48,7 @@ export const OwnProfile = (): ReactElement => {
     captions,
     captioner = EMPTY_PROFILE,
     privateProfile,
+    hasMore,
   } = captionerState;
 
   const { userId: captionerId } = captioner;
@@ -56,12 +58,17 @@ export const OwnProfile = (): ReactElement => {
     isAssigningReviewer ||
     isAssigningReviewerManager;
 
-  const handleChangeCaptionPage = (page: number, pageSize?: number) => {
+  const handleChangeCaptionPage = (
+    page: number,
+    pageSize?: number,
+    tags?: string[]
+  ) => {
     dispatch(
       loadLoggedInUserCaptions.request({
         pageSize,
         pageNumber: page,
         captionerId,
+        tags,
       })
     );
   };
@@ -91,6 +98,18 @@ export const OwnProfile = (): ReactElement => {
     setIsEditing(false);
   };
 
+  const handleSetFilteredTags = (tags: string[]) => {
+    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
+  };
+
+  const handleUpdateCaption = () => {
+    // Load the latest tags
+    dispatch(
+      loadPrivateCaptionerData.request({
+        withCaptions: true,
+      })
+    );
+  };
   return (
     <Profile
       loggedInUser={captioner}
@@ -104,6 +123,7 @@ export const OwnProfile = (): ReactElement => {
       isLoadingCaptionPage={isLoadingCaptionPage}
       isEditing={isEditing}
       canEdit={true}
+      hasMore={hasMore}
       onSetEditing={setIsEditing}
       onSubmitEdit={handleSubmitEdit}
       onCancelEdit={handleCancelEdit}
@@ -114,6 +134,8 @@ export const OwnProfile = (): ReactElement => {
       onAssignReviewer={handleAssignReviewer(captionerId, dispatch)}
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}
       onBanCaptioner={handleBanCaptioner(captionerId, dispatch)}
+      onSetFilteredTags={handleSetFilteredTags}
+      onUpdateCaption={handleUpdateCaption}
     />
   );
 };

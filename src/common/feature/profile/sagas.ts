@@ -14,7 +14,7 @@ import {
   updateProfile,
   verifyCaptioner,
 } from "./actions";
-import { CaptionListFields } from "../video/types";
+import { CaptionListFields, LoadCaptionListResult } from "../video/types";
 import {
   EditProfileFields,
   LoadProfileParams,
@@ -56,14 +56,21 @@ function* loadProfileSuccessSaga({
 function* loadUserCaptionsRequestSaga(
   action: PayloadAction<CaptionsPagedRequest>
 ) {
-  const { pageNumber, pageSize, captionerId: captionerId } = action.payload;
+  const {
+    pageNumber,
+    pageSize,
+    captionerId: captionerId,
+    tags,
+  } = action.payload;
 
-  const captions: CaptionListFields[] = yield call(
+  const { captions, hasMore }: LoadCaptionListResult = yield call(
     [Locator.provider(), "loadUserCaptions"],
-    { ...getLimitOffsetFromPagination(pageSize, pageNumber), captionerId }
+    { ...getLimitOffsetFromPagination(pageSize, pageNumber), captionerId, tags }
   );
 
-  yield put(loadUserCaptions.success({ pageNumber, pageSize, captions }));
+  yield put(
+    loadUserCaptions.success({ pageNumber, pageSize, captions, hasMore })
+  );
 }
 
 function* loadUserCaptionsSuccessSaga({

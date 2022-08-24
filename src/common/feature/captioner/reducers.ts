@@ -14,6 +14,7 @@ import { CaptionerState } from "./types";
 const initialState: CaptionerState = {
   currentCaptionPage: 1,
   captions: [],
+  hasMore: false,
 };
 
 export const captionerReducer = createReducer<CaptionerState>(
@@ -34,11 +35,12 @@ export const captionerReducer = createReducer<CaptionerState>(
         };
       })
       .addCase(setListedCaptions, (state, action) => {
-        const { captions, pageNumber } = action.payload;
+        const { captions, pageNumber, hasMore } = action.payload;
         return {
           ...state,
           captions,
           currentCaptionPage: pageNumber,
+          hasMore,
         };
       })
       .addCase(removeStoreCaption, (state, action) => {

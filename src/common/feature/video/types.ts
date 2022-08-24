@@ -201,6 +201,7 @@ export type UpdateUploadedCaption = TabbedType & {
   captionId: string;
   hasAudioDescription?: boolean;
   translatedTitle?: string;
+  selectedTags?: string[];
   privacy: CaptionPrivacy;
 };
 
@@ -224,6 +225,7 @@ export type UpdateCaptionRequest = {
   rawCaption?: RawCaptionData;
   hasAudioDescription?: boolean;
   translatedTitle?: string;
+  selectedTags?: string[];
   privacy: CaptionPrivacy;
 };
 
@@ -274,6 +276,11 @@ export type CaptionListFields = CaptionFields & {
   privacy?: number;
 };
 
+export type LoadCaptionListResult = {
+  captions: CaptionListFields[];
+  hasMore: boolean;
+};
+
 export type VideoFields = {
   name: string;
   language: string;
@@ -299,4 +306,9 @@ export type SetFontList = {
 export type SetIsLoadingRawCaption = TabbedType & {
   loading: boolean;
   percentage?: number;
+};
+
+export type CaptionTag = {
+  name: string;
+  color: string;
 };

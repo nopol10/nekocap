@@ -6,6 +6,7 @@ export type ProfileState = {
   currentCaptionPage: number;
   captioner?: CaptionerFields;
   captions: CaptionListFields[];
+  hasMore: boolean;
 };
 
 export type LoadProfileParams = {

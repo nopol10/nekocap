@@ -31,6 +31,7 @@ import {
   CaptionListFields,
   VideoSource,
   UpdateCaptionRequest,
+  LoadCaptionListResult,
 } from "../feature/video/types";
 import { RootState } from "../store/types";
 import { ProviderType, ServerResponse, UploadResponse } from "../types";
@@ -112,7 +113,9 @@ export interface BackendProvider<T extends RootState> {
   }) => Promise<LoadCaptionForReviewResult>;
   likeCaption: (props: { captionId: string }) => Promise<void>;
   dislikeCaption: (props: { captionId: string }) => Promise<void>;
-  loadUserCaptions: (options?: CaptionsRequest) => Promise<CaptionListFields[]>;
+  loadUserCaptions: (
+    options?: CaptionsRequest
+  ) => Promise<LoadCaptionListResult>;
   loadPrivateCaptionerData: (
     options?: LoadPrivateCaptionerDataRequestParams
   ) => Promise<PrivateCaptionerData>;

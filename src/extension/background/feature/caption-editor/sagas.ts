@@ -511,10 +511,11 @@ function* updateUploadedCaptionSaga({
     tabId,
     hasAudioDescription,
     translatedTitle,
-    privacy,
     captionId,
     content,
     type,
+    selectedTags,
+    privacy,
   } = payload;
   let rawCaption: RawCaptionData = undefined;
   let captionData: CaptionDataContainer = undefined;
@@ -545,6 +546,7 @@ function* updateUploadedCaptionSaga({
       rawCaption: processedRawCaption,
       hasAudioDescription,
       translatedTitle,
+      selectedTags,
       privacy,
     }
   );

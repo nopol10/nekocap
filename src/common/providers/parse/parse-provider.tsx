@@ -7,6 +7,7 @@ import {
   RawCaptionData,
   VideoFields,
   UpdateCaptionRequest,
+  LoadCaptionListResult,
 } from "../../feature/video/types";
 import {
   BackendProvider,
@@ -341,15 +342,15 @@ export class ParseProvider implements BackendProvider<ParseState> {
 
   async loadUserCaptions(
     request: CaptionsRequest
-  ): Promise<CaptionListFields[]> {
+  ): Promise<LoadCaptionListResult> {
     const response = await this.Parse.Cloud.run<
       (params: CaptionsRequest) => CaptionsResponse
     >("loadUserCaptions", request);
     if (response.status !== "success") {
       throw new Error(response.error);
     }
-    const { captions } = response;
-    return captions;
+    const { captions, hasMore } = response;
+    return { captions, hasMore };
   }
 
   async loadPrivateCaptionerData({
@@ -581,6 +582,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     rawCaption,
     hasAudioDescription,
     translatedTitle,
+    selectedTags,
     privacy: privacy,
   }: UpdateCaptionRequest): Promise<UploadResponse> {
     const updateResult: ServerResponse = await this.Parse.Cloud.run<
@@ -591,6 +593,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       rawCaption,
       hasAudioDescription,
       translatedTitle,
+      selectedTags,
       privacy: privacy,
     });
     if (updateResult.status !== "success") {
