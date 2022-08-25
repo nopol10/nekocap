@@ -45,7 +45,7 @@ export const OwnProfile = (): ReactElement => {
 
   const {
     currentCaptionPage: currentCaptionPage,
-    captions,
+    captions = [],
     captioner = EMPTY_PROFILE,
     privateProfile,
     hasMore,

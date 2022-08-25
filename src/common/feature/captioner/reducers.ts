@@ -13,7 +13,6 @@ import { CaptionerState } from "./types";
 
 const initialState: CaptionerState = {
   currentCaptionPage: 1,
-  captions: [],
   hasMore: false,
 };
 

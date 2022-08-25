@@ -3,7 +3,7 @@ import { CaptionListFields } from "../video/types";
 
 // For all captioner (logged in user) related data
 export type CaptionerState = {
-  captions: CaptionListFields[];
+  captions?: CaptionListFields[];
   currentCaptionPage: number;
   captioner?: CaptionerFields;
   privateProfile?: CaptionerPrivateFields;
