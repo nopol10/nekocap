@@ -2,19 +2,19 @@
   "title": "NekoCap",
   "tagline": "Meow",
   "home": {
-    "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
+    "summary": "<bold>Assista</bold>, <bold>crie</bold> e <bold>compartilhe</bold> suas legendas<br />com essa extensão de navegador de <open>código aberto</open>",
     "feature": {
       "easyToUse": {
-        "title": "Easy to use",
-        "description": "View captions without leaving <youtube>Youtube</youtube> and other supported <videosites>video sites</videosites>"
+        "title": "Fácil de usar",
+        "description": "Assista vídeos legendados sem sair do <youtube>YouTube</youtube> ou de outros <videosites>sites de vídeos</videosites> suportados"
       },
       "advancedEffects": {
-        "title": "Advanced effects",
-        "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
-        "viewSupportedFonts": "View supported custom fonts"
+        "title": "Efeitos avançados",
+        "description": "Assista com legendas complexas feitas nos formatos Substation Alpha (SSA, ASS) usando o avançado renderizador feito graças à <octopus>Subtitle Octopus</octopus>",
+        "viewSupportedFonts": "Confira a lista de fontes customizáveis suportadas"
       },
       "convenientEditor": {
-        "title": "Convenient editor",
+        "title": "Editor acessível",
         "description": "Create captions with the built-in editor directly in a video's page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
       },
       "import": {
