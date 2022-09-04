@@ -69,95 +69,95 @@
       }
     },
     "browseCaptions": {
-      "title": "Browse all captions"
+      "title": "Navegue por todas as legendas"
     },
     "search": {
-      "inputPlaceholder": "Search for a video",
-      "advancedSearchLabel": "Advanced",
-      "videoLanguage": "Video language",
-      "captionLanguage": "Caption language",
-      "anyLanguage": "Any",
-      "loading": "Loading...",
-      "captionLanguageListTitle": "Captions",
-      "captionCount": "{{count}} caption(s)",
-      "noVideosFound": "No videos found :(",
-      "availableCaptions": "Available captions",
-      "noCaptionsFoundForVideo": "No captions found for this video :("
+      "inputPlaceholder": "Procurar um vídeo",
+      "advancedSearchLabel": "Avançado",
+      "videoLanguage": "Idioma do vídeo",
+      "captionLanguage": "Idioma da legenda",
+      "anyLanguage": "Qualquer",
+      "loading": "Carregando...",
+      "captionLanguageListTitle": "Legendas",
+      "captionCount": "{{count}} legenda(s)",
+      "noVideosFound": "Nenhum vídeo encontrado :(",
+      "availableCaptions": "Legendas disponíveis",
+      "noCaptionsFoundForVideo": "Nenhuma legenda encontrada para este vídeo :("
     },
-    "watchHere": "Watch here",
-    "watchOnService": "Watch on {{service}}",
+    "watchHere": "Assista aqui",
+    "watchOnService": "Assista no {{service}}",
     "navigation": {
-      "home": "Home",
-      "dashboard": "Dashboard",
-      "logout": "Logout"
+      "home": "Página inicial",
+      "dashboard": "Painel de controle",
+      "logout": "Desconectar"
     }
   },
   "review": {
-    "deleteCaptionConfirmMessage": "Are you sure you want to delete this caption?",
-    "delete": "Delete",
-    "review": "Review",
-    "update": "Update"
+    "deleteCaptionConfirmMessage": "Você tem certeza que deseja excluir esta legenda?",
+    "delete": "Excluir",
+    "review": "Analisar",
+    "update": "Atualizar"
   },
   "fontlist": {
-    "hidePreview": "Hide preview",
-    "preview": "Preview",
-    "noFonts": "No fonts!",
-    "availableFonts": "Available fonts",
-    "hideAllFontPreviews": "Hide all font previews",
-    "previewAllFonts": "Preview all fonts",
-    "largeFontDownloadWarning": "Warning! This will download many megabytes of large font files!",
-    "searchFont": "Search font"
+    "hidePreview": "Ocultar pré-visualização",
+    "preview": "Pré-visualizar",
+    "noFonts": "Sem fontes!",
+    "availableFonts": "Fontes disponíveis",
+    "hideAllFontPreviews": "Ocultar todas as pré-visualizações",
+    "previewAllFonts": "Pré-visualizar todas as fontes",
+    "largeFontDownloadWarning": "Aviso! Isto irá baixar muitos megabytes de grandes arquivos de fonte!",
+    "searchFont": "Pesquisar fonte"
   },
   "login": {
-    "loginModalTitle": "Log in to access your dashboard"
+    "loginModalTitle": "Conecte-se para acessar seu painel de controle"
   },
   "profile": {
     "admin": {
-      "sectionTitle": "Admin tools",
-      "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
-      "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
-      "removeReviewerRoleButton": "Remove Reviewer Role",
-      "assignReviewerRoleButton": "Assign Reviewer Role",
-      "verify": "Verify",
-      "unverify": "Unverify",
-      "ban": "Ban",
-      "unban": "Unban"
+      "sectionTitle": "Ferramentas de administração",
+      "removeReviewerManagerRoleButton": "Remover Cargo de Gerente de Revisor",
+      "assignReviewerManagerRoleButton": "Atribuir Cargo de Gerente de Revisor",
+      "removeReviewerRoleButton": "Remover Cargo de Revisor",
+      "assignReviewerRoleButton": "Atribuir Cargo de Revisor",
+      "verify": "Verificar",
+      "unverify": "Desverificar",
+      "ban": "Banir",
+      "unban": "Desbanir"
     },
-    "about": "About",
-    "donate": "Donate",
-    "markdownInfo": "(Formatting in Markdown is supported)",
-    "proficientLanguages": "Proficient languages",
-    "contributedCaptions": "Contributed captions",
-    "languageSelectionPlaceholder": "You can select more than 1!",
-    "copyProfileLink": "Copy profile link",
-    "profileLinkCopiedMessage": "Profile link copied to clipboard!",
-    "captionDeleted": "Caption deleted! :(",
-    "captionDeletionFailed": "Failed to delete caption: {{error}}",
-    "profileUpdated": "Profile updated!",
-    "profileUpdateFailed": "Failed to update profile: {{error}}",
-    "roleAssignmentSuccess": "Updated!",
-    "roleAssignmentFailure": "Failed to update: {{error}}",
-    "filterByTags": "Filter by tags (up to {{maxTags}})",
-    "noTags": "No tags"
+    "about": "Sobre",
+    "donate": "Doar",
+    "markdownInfo": "(Formatação em Markdown é suportada)",
+    "proficientLanguages": "Idiomas proficientes",
+    "contributedCaptions": "Legendas contribuídas",
+    "languageSelectionPlaceholder": "Você pode selecionar mais de 1!",
+    "copyProfileLink": "Copiar link do perfil",
+    "profileLinkCopiedMessage": "Link do perfil copiado para área de transferência!",
+    "captionDeleted": "Legenda excluída! :(",
+    "captionDeletionFailed": "Falha ao excluir legenda: {{error}}",
+    "profileUpdated": "Perfil atualizado!",
+    "profileUpdateFailed": "Falha ao atualizar o perfil: {{error}}",
+    "roleAssignmentSuccess": "Atualizado!",
+    "roleAssignmentFailure": "Falha ao atualizar: {{error}}",
+    "filterByTags": "Filtrar por etiquetas (até {{maxTags}})",
+    "noTags": "Sem etiquetas"
   },
   "viewer": {
-    "browseOtherCaptions": "Browse other captions",
-    "failedToFindCaption": "Sorry, we could not find this caption!",
-    "copyEmbedCode": "Copy embed code",
-    "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
-    "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
-    "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
-    "captionRenderError": "There was an error rendering this caption. Sorry!"
+    "browseOtherCaptions": "Procurar outras legendas",
+    "failedToFindCaption": "Desculpa, não conseguimos encontrar essa legenda!",
+    "copyEmbedCode": "Copiar código de incorporação",
+    "copyEmbedCodeSuccess": "Código de incorporação copiado para área de transferência!",
+    "captionSubmittedBy": "Legenda enviada por <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "Para melhor experiência de visualização e criação de legendas baixe a extensão do NekoCap e veja as legendas diretamente no {{site}}.",
+    "captionRenderError": "Ocorreu um erro ao renderizar esta legenda. Desculpe!"
   },
   "common": {
-    "loading": "Loading...",
-    "cancel": "Cancel",
-    "save": "Save",
-    "edit": "Edit",
-    "banned": "Banned",
-    "verified": "Verified",
-    "reviewerManager": "Reviewer Manager",
-    "reviewer": "Reviewer",
+    "loading": "Carregando...",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "edit": "Editar",
+    "banned": "Banido",
+    "verified": "Verificado",
+    "reviewerManager": "Gerente de Revisor",
+    "reviewer": "Revisor",
     "kofiSupportMe": "Me apoie"
   }
 }
