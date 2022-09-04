@@ -36,20 +36,20 @@
       "create": {
         "title": "Como criar legendas",
         "step1": "Baixe a extensão para <chrome>Chrome</chrome>",
-        "step2": "Create an account with Nekocap",
-        "step3": "Browse to the page containing the video you want to add a caption for",
-        "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
+        "step2": "Criar uma conta com Nekocap",
+        "step3": "Navegue até a página que contém o vídeo que você deseja adicionar uma legenda",
+        "step4": "Use o editor do NekoCap para criar uma legenda ou carregar um arquivo de legenda existente sem deixar a página do vídeo!"
       }
     },
-    "browseAllCaptions": "Browse all captions",
-    "latestCaptions": "Latest captions",
-    "latestLanguageCaption": "Latest {{language}} captions",
-    "noCaptions": "No captions! You can contribute captions with the extension!",
-    "viewingCaptionInWebNotSupported": "Viewing this caption via the browser is unsupported. Download the extension instead!",
+    "browseAllCaptions": "Navegue por todas as legendas",
+    "latestCaptions": "Legendas mais recentes",
+    "latestLanguageCaption": "Últimas legendas em {{language}}",
+    "noCaptions": "Sem legendas! Você pode contribuir criando legendas com a extensão!",
+    "viewingCaptionInWebNotSupported": "Ver essa legenda através do navegador não é suportado. Baixe a extensão ao invés disso!",
     "captionList": {
       "columns": {
-        "videoName": "Video Name",
-        "captioner": "Captioner",
+        "videoName": "Nome do Vídeo",
+        "captioner": "Legendador",
         "language": "Language",
         "source": "Source",
         "uploaded": "Uploaded",
