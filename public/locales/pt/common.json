@@ -50,21 +50,21 @@
       "columns": {
         "videoName": "Nome do Vídeo",
         "captioner": "Legendador",
-        "language": "Language",
-        "source": "Source",
-        "uploaded": "Uploaded",
-        "videoLanguage": "Video Language",
-        "captionLanguage": "Caption Language",
-        "updated": "Updated",
-        "actions": "Actions",
-        "views": "Views",
-        "captionCount": "Views",
+        "language": "Idioma",
+        "source": "Origem",
+        "uploaded": "Enviado",
+        "videoLanguage": "Idioma do Vídeo",
+        "captionLanguage": "Idioma da Legenda",
+        "updated": "Atualizado",
+        "actions": "Ações",
+        "views": "Visualizações",
+        "captionCount": "Visualizações",
         "time": "Time"
       }
     },
     "videoList": {
       "columns": {
-        "videoName": "Video Name",
+        "videoName": "Nome do Vídeo",
         "captionCount": "Caption count"
       }
     },
