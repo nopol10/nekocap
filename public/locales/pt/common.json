@@ -59,13 +59,13 @@
         "actions": "Ações",
         "views": "Visualizações",
         "captionCount": "Visualizações",
-        "time": "Time"
+        "time": "Tempo"
       }
     },
     "videoList": {
       "columns": {
         "videoName": "Nome do Vídeo",
-        "captionCount": "Caption count"
+        "captionCount": "Total de legendas"
       }
     },
     "browseCaptions": {
