@@ -8,6 +8,7 @@ import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
 import { isClient, isServer } from "@/common/client-utils";
 import { rootWebSaga } from "./saga";
 import { statsReducer } from "@/common/feature/stats/slice";
+import { nekocapApi } from "@/common/store/api";
 
 const makeStore = () => {
   const sagaMiddleware = isClient() ? createSagaMiddleware() : undefined;
@@ -18,11 +19,19 @@ const makeStore = () => {
     devTools: {
       trace: true,
     },
-    middleware: [
-      isClient() ? sagaThunkMiddleware : undefined,
-      sagaMiddleware,
-      isServer() || process.env.NODE_ENV == "production" ? undefined : logger,
-    ].filter(Boolean),
+    // @ts-ignore typescript error that can be ignored
+    middleware: (getDefaultMiddleware) => {
+      return getDefaultMiddleware().concat(
+        ...[
+          isClient() ? sagaThunkMiddleware : undefined,
+          sagaMiddleware,
+          isServer() || process.env.NODE_ENV == "production"
+            ? undefined
+            : logger,
+          nekocapApi.middleware,
+        ].filter(Boolean)
+      );
+    },
     // @ts-ignore
     enhancers: [reduxBatch],
   });
