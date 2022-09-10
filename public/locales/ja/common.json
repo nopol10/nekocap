@@ -5,7 +5,7 @@
     "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
     "feature": {
       "easyToUse": {
-        "title": "Easy to use",
+        "title": "使いやすい",
         "description": "View captions without leaving <youtube>Youtube</youtube> and other supported <videosites>video sites</videosites>"
       },
       "advancedEffects": {
@@ -18,7 +18,7 @@
         "description": "Create captions with the built-in editor directly in a video's page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
       },
       "import": {
-        "title": "Import existing captions",
+        "title": "既存の字幕をインポートする",
         "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
       },
       "community": {
