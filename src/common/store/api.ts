@@ -9,6 +9,7 @@ import { BackendProvider } from "../providers/backend-provider";
 import { RootState } from "./types";
 import {
   EndpointBuilder,
+  MutationDefinition,
   QueryDefinition,
 } from "@reduxjs/toolkit/dist/query/endpointDefinitions";
 
@@ -78,8 +79,54 @@ export const nekocapQueryMaker = <
       ReducerPath
     >
   >
-) => {
+): QueryDefinition<
+  ProviderType[FuncName]["P"],
+  BackendBaseQuery<keyof BackendProvider<RootState>>,
+  TagType,
+  ProviderType[FuncName]["R"],
+  ReducerPath
+> => {
   return builder.query<
+    ProviderType[FuncName]["R"],
+    ProviderType[FuncName]["P"]
+  >({
+    ...queryOptions,
+    // @ts-ignore TODO: figure out later
+    query: (props) => {
+      return [functionName, ...props];
+    },
+  });
+};
+
+export const nekocapMutationMaker = <
+  FuncName extends keyof ProviderType,
+  TagType extends string,
+  ReducerPath extends string,
+  B extends EndpointBuilder<
+    BackendBaseQuery<keyof BackendProvider<RootState>>,
+    TagType,
+    ReducerPath
+  >
+>(
+  builder: B,
+  functionName: FuncName,
+  queryOptions?: Partial<
+    MutationDefinition<
+      ProviderType[FuncName]["P"],
+      BackendBaseQuery<keyof BackendProvider<RootState>>,
+      TagType,
+      ProviderType[FuncName]["R"],
+      ReducerPath
+    >
+  >
+): MutationDefinition<
+  ProviderType[FuncName]["P"],
+  BackendBaseQuery<keyof BackendProvider<RootState>>,
+  TagType,
+  ProviderType[FuncName]["R"],
+  ReducerPath
+> => {
+  return builder.mutation<
     ProviderType[FuncName]["R"],
     ProviderType[FuncName]["P"]
   >({
