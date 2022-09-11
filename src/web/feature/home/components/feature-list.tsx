@@ -7,6 +7,7 @@ import Title from "antd/lib/typography/Title";
 import { SupportedSites } from "@/common/components/supported-sites";
 import { Trans, useTranslation } from "next-i18next";
 import { Translation } from "react-i18next";
+import Link from "next/link";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -98,11 +99,13 @@ const features: Feature[] = [
             }}
           ></Trans>
           <br />
-          <a href="/fontlist">
-            <Translation>
-              {(t) => t("home.feature.advancedEffects.viewSupportedFonts")}
-            </Translation>
-          </a>
+          <Link href="/fontlist">
+            <a>
+              <Translation>
+                {(t) => t("home.feature.advancedEffects.viewSupportedFonts")}
+              </Translation>
+            </a>
+          </Link>
         </span>
       );
     },
