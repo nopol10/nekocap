@@ -1,0 +1,163 @@
+{
+  "title": "NekoCap",
+  "tagline": "Meow",
+  "home": {
+    "summary": "<bold>動画を見る</bold>, <bold>字幕を作成</bold> そして <bold>共有</bold> する事が出来る<br /> <open>オープンソース</open> ブラウザーです",
+    "feature": {
+      "easyToUse": {
+        "title": "使いやすい",
+        "description": "<youtube>Youtube</youtube> やその他のサポートされている <videosites>動画サイト</videosites> を離れずに字幕を表示する"
+      },
+      "advancedEffects": {
+        "title": "高度なエフェクト",
+        "description": "高度な技術を使用して、アルファフォーマット(SSA、ASS)で作られた複雑な字幕を表示する <octopus>字幕オプション</octopus> ",
+        "viewSupportedFonts": "サポートされているカスタムフォントを表示する"
+      },
+      "convenientEditor": {
+        "title": "便利な編集機能",
+        "description": "内蔵のエディタで拡張機能のあるビデオのページに直接字幕を作成します。<br />マニュアルキャプションの位置決め、キーボードショートカットがサポートされています。<br />より多くの機能が登場します"
+      },
+      "import": {
+        "title": "既存の字幕をインポートする",
+        "description": "Aegisub や SubtitleEdit などのツールを使用して字幕を作成して、NekoCap 経由でアップロードします。 <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> の形式がサポートされています。"
+      },
+      "community": {
+        "title": "コミュニティ・モデレーション",
+        "description": "NekoCap の Web サイトには、コミュニティ モデレーターが送信された字幕を確認または拒否できるツールが付属しています。 <br /> ただし、投稿された字幕の精査を手伝ってくれる、さまざまな言語に堪能なボランティアが必要です。 <br />手伝いたい場合は、Discord に参加して ping を送信してください。"
+      }
+    },
+    "instructions": {
+      "view": {
+        "title": "字幕の表示方法",
+        "step1": "<chrome>Chrome</chrome> の拡張機能をダウンロードする",
+        "step2": "サポートされている動画サイトの動画をいつものように視聴する",
+        "step3": "動画に字幕がある場合は、ドロップダウンから字幕を選択してください"
+      },
+      "create": {
+        "title": "字幕の作成方法",
+        "step1": "<chrome>Chrome</chrome> の拡張機能をダウンロードする",
+        "step2": "Nekocap でアカウントを作成する",
+        "step3": "字幕を追加したい動画を含むページを参照してください",
+        "step4": "Nekocapエディタを使用して、新しい字幕を作成したり、動画ページを離れることなく既存の字幕ファイルをアップロードできます。"
+      }
+    },
+    "browseAllCaptions": "全ての字幕を閲覧する",
+    "latestCaptions": "最新の字幕",
+    "latestLanguageCaption": "最新の {{language}} 字幕",
+    "noCaptions": "字幕がありません！拡張機能で字幕を投稿できます！",
+    "viewingCaptionInWebNotSupported": "ブラウザ経由でこの字幕を表示することはサポートされていません。拡張機能をダウンロードしてください！",
+    "captionList": {
+      "columns": {
+        "videoName": "動画の名前",
+        "captioner": "番号付け",
+        "language": "言語",
+        "source": "ソース",
+        "uploaded": "アップロード完了",
+        "videoLanguage": "動画の言語",
+        "captionLanguage": "字幕言語",
+        "updated": "更新済",
+        "actions": "操作",
+        "views": "閲覧数",
+        "captionCount": "閲覧数",
+        "time": "時間"
+      }
+    },
+    "videoList": {
+      "columns": {
+        "videoName": "動画名",
+        "captionCount": "字幕の数"
+      }
+    },
+    "browseCaptions": {
+      "title": "全ての字幕を閲覧する"
+    },
+    "search": {
+      "inputPlaceholder": "動画を検索",
+      "advancedSearchLabel": "詳細設定",
+      "videoLanguage": "動画の言語",
+      "captionLanguage": "字幕の言語",
+      "anyLanguage": "いくつか",
+      "loading": "読み込み中...",
+      "captionLanguageListTitle": "字幕",
+      "captionCount": "{{count}} 件の字幕",
+      "noVideosFound": "動画が見つかりません",
+      "availableCaptions": "利用可能な字幕",
+      "noCaptionsFoundForVideo": "この動画の字幕が見つかりませんでした"
+    },
+    "watchHere": "ここを見る",
+    "watchOnService": "{{service}} を見る",
+    "navigation": {
+      "home": "ホーム",
+      "dashboard": "ダッシュボード",
+      "logout": "ログアウト"
+    }
+  },
+  "review": {
+    "deleteCaptionConfirmMessage": "本当にこのキャプションを削除しますか？",
+    "delete": "削除します",
+    "review": "レビュー",
+    "update": "更新"
+  },
+  "fontlist": {
+    "hidePreview": "プレビューを非表示",
+    "preview": "プレビューを表示",
+    "noFonts": "フォントがありません",
+    "availableFonts": "利用可能なフォント",
+    "hideAllFontPreviews": "すべてのフォントのプレビューを非表示",
+    "previewAllFonts": "すべてのフォントをプレビューする",
+    "largeFontDownloadWarning": "警告！大容量フォントファイルをダウンロードします。",
+    "searchFont": "フォントを検索"
+  },
+  "login": {
+    "loginModalTitle": "ログインしてダッシュボードにアクセス"
+  },
+  "profile": {
+    "admin": {
+      "sectionTitle": "管理者ツール",
+      "removeReviewerManagerRoleButton": "レビュアー管理者のロールを削除",
+      "assignReviewerManagerRoleButton": "レビュアー管理者のロールを割り当てる",
+      "removeReviewerRoleButton": "レビューア権限を削除",
+      "assignReviewerRoleButton": "レビュアー管理者を譲る",
+      "verify": "確認",
+      "unverify": "確認を解除",
+      "ban": "アクセス禁止",
+      "unban": "禁止を解除"
+    },
+    "about": "概要",
+    "donate": "寄付する",
+    "markdownInfo": "(Markdown での書式設定がサポートされています)",
+    "proficientLanguages": "語学に堪能",
+    "contributedCaptions": "貢献した字幕",
+    "languageSelectionPlaceholder": "1つ以上選択できます",
+    "copyProfileLink": "プロファイルのリンクをコピー",
+    "profileLinkCopiedMessage": "プロファイルリンクをクリップボードにコピーしました",
+    "captionDeleted": "字幕を削除しました",
+    "captionDeletionFailed": "キャプションの削除に失敗しました： {{error}}",
+    "profileUpdated": "プロフィールを更新しました",
+    "profileUpdateFailed": "プロファイルの更新に失敗しました: {{error}}",
+    "roleAssignmentSuccess": "更新されました",
+    "roleAssignmentFailure": "更新に失敗しました: {{error}}",
+    "filterByTags": "タグでフィルター (最大 {{maxTags}})",
+    "noTags": "タグがありません"
+  },
+  "viewer": {
+    "browseOtherCaptions": "他の字幕を参照",
+    "failedToFindCaption": "申し訳ありませんが、字幕が見つかりませんでした",
+    "copyEmbedCode": "埋め込みコードをコピーする",
+    "copyEmbedCodeSuccess": "クリップボードに埋め込みコードをコピーしました",
+    "captionSubmittedBy": "字幕制作 <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "高度な字幕の表示と作成をするには、NekoCap拡張機能をダウンロードし、 {{site}}で直接字幕を表示します。",
+    "captionRenderError": "字幕の書込み中にエラーが発生しました。申し訳ありません。"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "edit": "編集",
+    "banned": "禁止されました",
+    "verified": "認証済",
+    "reviewerManager": "レビュー・マネージャー",
+    "reviewer": "レビュアー",
+    "kofiSupportMe": "支援する"
+  }
+}
