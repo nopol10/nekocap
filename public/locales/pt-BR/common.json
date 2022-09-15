@@ -146,7 +146,7 @@
     "copyEmbedCode": "Copiar código de incorporação",
     "copyEmbedCodeSuccess": "Código de incorporação copiado para área de transferência!",
     "captionSubmittedBy": "Legenda enviada por <captioner>{{creatorName}}</captioner>",
-    "downloadNekocapMessage": "Para melhor experiência de visualização e criação de legendas baixe a extensão do NekoCap e veja as legendas diretamente no {{site}}.",
+    "downloadNekocapMessage": "Para melhor experiência de visualização e criação de legendas, baixe a extensão do NekoCap e veja as legendas diretamente no {{site}}.",
     "captionRenderError": "Ocorreu um erro ao renderizar esta legenda. Desculpe!"
   },
   "common": {
