@@ -10,19 +10,19 @@
       },
       "advancedEffects": {
         "title": "افکت های پیشرفته",
-        "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
+        "description": "کپشن های پیچیده ساخته شده در فرمت های Substation Alpha (SSA, ASS) را با استفاده از رندرر پیشرفته محقق شده توسط <octopus>Subtitle Octopus</octopus> ببینید",
         "viewSupportedFonts": "دیدن فونت های سفارشی پشتیبانی شده"
       },
       "convenientEditor": {
         "title": "ویرایشگر رضایت بخش",
-        "description": "Create captions with the built-in editor directly in a video's page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
+        "description": "با استفاده از ویرایشگر داخلی مستقیما در صفحه یک ویدیو با افزونه کپشن ایجاد کنید.<br />موقعیت دهی دستی کپشن، میانبر های صفحه کلید پشتیبانی می شوند.<br />ویژگی های بیشتر در راه است!"
       },
       "import": {
         "title": "وارد کردن کپشن های موجود",
         "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
       },
       "community": {
-        "title": "Community moderation",
+        "title": "مدیریت جامعه کاربری",
         "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
       }
     },
@@ -36,7 +36,7 @@
       "create": {
         "title": "نحوه ایجاد کپشن ها",
         "step1": "افزونه را برای <chrome>Chrome</chrome> دانلود کنید",
-        "step2": "Create an account with Nekocap",
+        "step2": "ایجاد یک حساب با Nekocap",
         "step3": "Browse to the page containing the video you want to add a caption for",
         "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
       }
@@ -44,7 +44,7 @@
     "browseAllCaptions": "مرور همه کپشن ها",
     "latestCaptions": "کپشن های اخیر",
     "latestLanguageCaption": "کپشن های {{language}} اخیر",
-    "noCaptions": "No captions! You can contribute captions with the extension!",
+    "noCaptions": "هیچ کپشن ای نیست! شما می توانید با افزونه کپشن مشارکت کنید!",
     "viewingCaptionInWebNotSupported": "Viewing this caption via the browser is unsupported. Download the extension instead!",
     "captionList": {
       "columns": {
@@ -79,7 +79,7 @@
       "anyLanguage": "هیچ",
       "loading": "در حال بارگذاری...",
       "captionLanguageListTitle": "کپشن ها",
-      "captionCount": "{{captionCount}} caption(s)",
+      "captionCount": "{{captionCount}} کپشن",
       "noVideosFound": "هیچ ویدیو ای پیدا نشد :(",
       "availableCaptions": "کپشن های در دسترس",
       "noCaptionsFoundForVideo": "هیچ کپشن ای برای این ویدیو پیدا نشد :("
@@ -105,19 +105,19 @@
     "availableFonts": "فونت های در دسترس",
     "hideAllFontPreviews": "مخفی سازی همه پیش نمایش های فونت",
     "previewAllFonts": "پیش نمایش همه فونت ها",
-    "largeFontDownloadWarning": "Warning! This will download many megabytes of large font files!",
+    "largeFontDownloadWarning": "هشدار! این به میزان زیادی مگابایت فایل های فونت حجیم دانلود می کند!",
     "searchFont": "جست و جو فونت"
   },
   "login": {
-    "loginModalTitle": "Log in to access your dashboard"
+    "loginModalTitle": "برای دسترسی به داشبورد خودتان وارد شوید"
   },
   "profile": {
     "admin": {
       "sectionTitle": "ابزار های ادمین",
-      "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
-      "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
-      "removeReviewerRoleButton": "Remove Reviewer Role",
-      "assignReviewerRoleButton": "Assign Reviewer Role",
+      "removeReviewerManagerRoleButton": "حذف سمت مدیریت کننده بازبین",
+      "assignReviewerManagerRoleButton": "اختصاص سمت مدیریت کننده بازبین",
+      "removeReviewerRoleButton": "حذف سمت بازبین",
+      "assignReviewerRoleButton": "اختصاص سمت بازبین",
       "verify": "تایید",
       "unverify": "لغو تایید",
       "ban": "منع",
@@ -125,10 +125,10 @@
     },
     "about": "درباره",
     "donate": "دونیت",
-    "markdownInfo": "(Formatting in Markdown is supported)",
-    "proficientLanguages": "Proficient languages",
-    "contributedCaptions": "Contributed captions",
-    "languageSelectionPlaceholder": "You can select more than 1!",
+    "markdownInfo": "(فرمت دهی با مارک داون پشتیبانی می شود)",
+    "proficientLanguages": "زبان های مسلط",
+    "contributedCaptions": "کپشن های مشارکت شده",
+    "languageSelectionPlaceholder": "می توانید بیشتر از یکی انتخاب کنید!",
     "copyProfileLink": "کپی کردن لینک پروفایل",
     "profileLinkCopiedMessage": "لینک پروفایل در کلیپ بورد کپی شد!",
     "captionDeleted": "کپشن حذف شد! :(",
@@ -142,12 +142,12 @@
   },
   "viewer": {
     "browseOtherCaptions": "مرور دیگر کپشن ها",
-    "failedToFindCaption": "Sorry, we could not find this caption!",
+    "failedToFindCaption": "متاسفیم، ما نتوانستیم این کپشن را پیدا کنیم!",
     "copyEmbedCode": "کپی کد جایگذاری",
     "copyEmbedCodeSuccess": "کد جایگذاری در کلیپ بورد کپی شد!",
     "captionSubmittedBy": "کپشن ارسال شده توسط <captioner>{{creatorName}}</captioner>",
-    "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
-    "captionRenderError": "There was an error rendering this caption. Sorry!"
+    "downloadNekocapMessage": "برای بهترین تجربه دیدن و ایجاد کپشن، افزونه NekoCap را دانلود و کپشن ها را مستقیما در {{site}} ببینید.",
+    "captionRenderError": "یک خطا در رندر این کپشن بود. متاسفیم!"
   },
   "common": {
     "loading": "در حال بارگذاری...",
@@ -156,19 +156,19 @@
     "edit": "ویرایش",
     "banned": "بن شده",
     "verified": "تایید شده",
-    "reviewerManager": "Reviewer Manager",
+    "reviewerManager": "مدیریت کننده بازبین",
     "reviewer": "بازبین",
     "kofiSupportMe": "حمایت کنید"
   },
   "settings": {
-    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
+    "deleteTagConfirmMessage": "حذف این برچسب آن را از تمام کپشن هایی با این برچسب حذف می کند! پیش رفتن؟",
     "title": "تنظیمات",
     "tags": {
-      "title": "Tags",
-      "subtitle": "Manage your caption tags",
-      "tagName": "Tag name",
+      "title": "برچسب ها",
+      "subtitle": "برچسب های کپشن خودتان را مدیریت کنید",
+      "tagName": "نام برچسب",
       "captions": "کپشن ها",
-      "invalidTag": "Invalid tag provided!"
+      "invalidTag": "برچسب نامعتبر ارائه شده است!"
     }
   }
 }
