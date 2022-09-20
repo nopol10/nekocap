@@ -79,7 +79,7 @@
       "anyLanguage": "Any",
       "loading": "Loading...",
       "captionLanguageListTitle": "Captions",
-      "captionCount": "{{count}} caption(s)",
+      "captionCount": "{{captionCount}} caption(s)",
       "noVideosFound": "No videos found :(",
       "availableCaptions": "Available captions",
       "noCaptionsFoundForVideo": "No captions found for this video :("
@@ -159,5 +159,16 @@
     "reviewerManager": "Reviewer Manager",
     "reviewer": "Reviewer",
     "kofiSupportMe": "Support me"
+  },
+  "settings": {
+    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
+    "title": "Settings",
+    "tags": {
+      "title": "Tags",
+      "subtitle": "Manage your caption tags",
+      "tagName": "Tag name",
+      "captions": "Captions",
+      "invalidTag": "Invalid tag provided!"
+    }
   }
 }
