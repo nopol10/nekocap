@@ -10,6 +10,7 @@ import { captionEditorReducer } from "../feature/caption-editor/reducers";
 import { userExtensionPreferenceReducer } from "../feature/user-extension-preference/reducers";
 import { persistReducer } from "redux-persist";
 import { syncStorage } from "redux-persist-webextension-storage";
+import { nekocapApi } from "@/common/store/api";
 
 const userExtensionPreferenceSyncStorageConfig = {
   key: "userExtensionPreferenceSyncStorage",
@@ -33,5 +34,6 @@ export const createRootReducer = (additionalReducers?: ReducersMapObject) => {
       userExtensionPreferenceSyncStorageConfig,
       userExtensionPreferenceReducer
     ),
+    [nekocapApi.reducerPath]: nekocapApi.reducer,
   });
 };

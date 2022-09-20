@@ -14,6 +14,7 @@ import {
 } from "@/common/feature/captioner/types";
 import EditOutlined from "@ant-design/icons/EditOutlined";
 import CopyOutlined from "@ant-design/icons/CopyOutlined";
+import SettingOutlined from "@ant-design/icons/SettingOutlined";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBan,
@@ -38,6 +39,7 @@ import {
 } from "@/common/feature/video/utils";
 import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
 import { useIsClient } from "@/hooks";
+import { routeNames } from "../../route-types";
 
 const { Title } = Typography;
 const { Content, Header } = Layout;
@@ -59,6 +61,8 @@ const ProfileHeader = styled(Header)`
 `;
 
 const Username = styled.div`
+  display: flex;
+  align-items: baseline;
   font-size: 2em;
   font-weight: 600;
   background-color: ${colors.white};
@@ -72,6 +76,10 @@ const Username = styled.div`
   em {
     font-weight: 400;
     font-size: 0.6em;
+  }
+
+  .anticon {
+    font-size: 0.5em;
   }
 `;
 
@@ -230,6 +238,10 @@ export const Profile = ({
     message.info(t("profile.profileLinkCopiedMessage"));
   };
 
+  const handleClickSettings = () => {
+    router.push(routeNames.captioner.settings);
+  };
+
   const handleChangeTagFilter = (tags: string[]) => {
     setSelectedTags(tags);
     onSetFilteredTags(tags);
@@ -310,13 +322,16 @@ export const Profile = ({
                 )}
                 {isOwnProfile && (
                   <Tooltip title={t("profile.copyProfileLink")}>
-                    <CopyOutlined
-                      style={{ fontSize: "20px" }}
-                      onClick={handleCopyProfileLink}
-                    />
+                    <CopyOutlined onClick={handleCopyProfileLink} />
                   </Tooltip>
                 )}
               </Space>
+              {isOwnProfile && (
+                <SettingOutlined
+                  style={{ marginLeft: "auto", fontSize: "18px" }}
+                  onClick={handleClickSettings}
+                />
+              )}
             </Username>
           </div>
         </ProfileHeader>

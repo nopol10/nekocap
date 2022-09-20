@@ -1,3 +1,4 @@
+import { ServerResponse } from "@/common/types";
 import { CaptionerFields } from "../captioner/types";
 import { CaptionListFields } from "../video/types";
 
@@ -24,4 +25,14 @@ export type EditProfileFields = {
   donationLink: string;
   profileMessage: string;
   languageCodes: string[];
+};
+
+export type DeleteProfileTagParams = {
+  tagName: string;
+};
+
+export type DeleteProfileTagResponse = ServerResponse;
+
+export type GetOwnProfileTagsResponse = ServerResponse & {
+  tags?: { tag: string; count: number }[];
 };

@@ -79,7 +79,7 @@
       "anyLanguage": "いくつか",
       "loading": "読み込み中...",
       "captionLanguageListTitle": "字幕",
-      "captionCount": "{{count}} 件の字幕",
+      "captionCount": "{{captionCount}} 件の字幕",
       "noVideosFound": "動画が見つかりません",
       "availableCaptions": "利用可能な字幕",
       "noCaptionsFoundForVideo": "この動画の字幕が見つかりませんでした"

@@ -298,7 +298,7 @@ export const SearchCaptions = ({
       source,
       thumbnailUrl,
     } = video;
-    const languageList = Object.keys(captions).filter(
+    const languageList = Object.keys(captions || []).filter(
       (language) => captions[language] > 0
     );
 
@@ -339,7 +339,9 @@ export const SearchCaptions = ({
                 }
               >
                 <b>
-                  {t("home.search.captionCount", { count: captionCount })}
+                  {t("home.search.captionCount", {
+                    captionCount: captionCount?.toString() || "?",
+                  })}
                   &nbsp;&nbsp;
                   <InfoCircleOutlined style={{ verticalAlign: "middle" }} />
                 </b>

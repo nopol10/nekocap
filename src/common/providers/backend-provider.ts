@@ -1,15 +1,12 @@
 import { Middleware, ReducersMapObject, Store } from "redux";
 import {
-  EditProfileFields,
+  DeleteProfileTagParams,
+  DeleteProfileTagResponse,
+  GetOwnProfileTagsResponse,
   LoadProfileParams,
   PublicProfileData,
 } from "../feature/profile/types";
-import {
-  SearchParams,
-  SearchRequest,
-  SearchResults,
-  VideoSearchResults,
-} from "../feature/search/types";
+import { SearchRequest, VideoSearchResults } from "../feature/search/types";
 import {
   LoadCaptionForReviewResult,
   ReasonedCaptionAction,
@@ -18,7 +15,6 @@ import {
   LoadPrivateCaptionerDataRequestParams,
   PrivateCaptionerData,
   RoleRequest,
-  CaptionsPagedResult,
   CaptionsRequest,
   CaptionsResponse,
   UpdateCaptionerProfileParams,
@@ -28,7 +24,6 @@ import {
 import {
   LoadSingleCaptionResult,
   SubmitCaptionRequest,
-  CaptionListFields,
   VideoSource,
   UpdateCaptionRequest,
   LoadCaptionListResult,
@@ -144,4 +139,8 @@ export interface BackendProvider<T extends RootState> {
     params: GetAutoCaptionListParams
   ) => Promise<GetAutoCaptionListResult>;
   getGlobalStats: () => Promise<StatsResponse>;
+  getOwnProfileTags: () => Promise<GetOwnProfileTagsResponse>;
+  deleteProfileTag: (
+    params: DeleteProfileTagParams
+  ) => Promise<DeleteProfileTagResponse>;
 }

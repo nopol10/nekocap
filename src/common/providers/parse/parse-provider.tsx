@@ -37,6 +37,9 @@ import {
   BanRequest,
 } from "../../feature/captioner/types";
 import {
+  DeleteProfileTagParams,
+  DeleteProfileTagResponse,
+  GetOwnProfileTagsResponse,
   LoadProfileParams,
   PublicProfileData,
 } from "../../feature/profile/types";
@@ -162,8 +165,8 @@ type ParseState = RootState;
 
 type ParseType = typeof ParseTypeImport;
 
-type LoadCaptionForReviewResponseType = ({
-  captionId: string,
+type LoadCaptionForReviewResponseType = (params: {
+  captionId: string;
 }) => LoadCaptionForReviewResponse;
 
 export class ParseProvider implements BackendProvider<ParseState> {
@@ -415,7 +418,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     languageCode: string
   ): Promise<CaptionsResponse> {
     return await this.Parse.Cloud.run<
-      ({ languageCode: string }) => CaptionsResponse
+      (params: { languageCode: string }) => CaptionsResponse
     >("loadLatestLanguageCaptions", { languageCode });
   }
 
@@ -431,7 +434,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     captionId: string;
   }): Promise<LoadSingleCaptionResult> {
     const response = await this.Parse.Cloud.run<
-      ({ captionId: string }) => LoadSingleCaptionResponse
+      (params: { captionId: string }) => LoadSingleCaptionResponse
     >("loadCaption", { captionId });
     if (response.status === "error") {
       throw new Error(response.error);
@@ -707,6 +710,27 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
   async getGlobalStats(): Promise<StatsResponse> {
     const response: StatsResponse = await this.Parse.Cloud.run("globalStats");
+    if (response.status !== "success") {
+      throw new Error(response.error);
+    }
+    return response;
+  }
+  async getOwnProfileTags(): Promise<GetOwnProfileTagsResponse> {
+    const response: GetOwnProfileTagsResponse = await this.Parse.Cloud.run(
+      "getOwnProfileTags"
+    );
+    if (response.status !== "success") {
+      throw new Error(response.error);
+    }
+    return response;
+  }
+  async deleteProfileTag(
+    params: DeleteProfileTagParams
+  ): Promise<DeleteProfileTagResponse> {
+    const response: DeleteProfileTagResponse = await this.Parse.Cloud.run(
+      "deleteProfileTag",
+      params
+    );
     if (response.status !== "success") {
       throw new Error(response.error);
     }

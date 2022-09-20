@@ -79,7 +79,7 @@
       "anyLanguage": "Qualquer",
       "loading": "Carregando...",
       "captionLanguageListTitle": "Legendas",
-      "captionCount": "{{count}} legenda(s)",
+      "captionCount": "{{captionCount}} legenda(s)",
       "noVideosFound": "Nenhum vídeo encontrado :(",
       "availableCaptions": "Legendas disponíveis",
       "noCaptionsFoundForVideo": "Nenhuma legenda encontrada para este vídeo :("

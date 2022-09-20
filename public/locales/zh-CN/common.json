@@ -79,7 +79,7 @@
       "anyLanguage": "Any",
       "loading": "Loading...",
       "captionLanguageListTitle": "Captions",
-      "captionCount": "{{count}} caption(s)",
+      "captionCount": "{{captionCount}} caption(s)",
       "noVideosFound": "No videos found :(",
       "availableCaptions": "Available captions",
       "noCaptionsFoundForVideo": "No captions found for this video :("
