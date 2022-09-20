@@ -143,9 +143,9 @@
   "viewer": {
     "browseOtherCaptions": "مرور دیگر کپشن ها",
     "failedToFindCaption": "Sorry, we could not find this caption!",
-    "copyEmbedCode": "Copy embed code",
-    "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
-    "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
+    "copyEmbedCode": "کپی کد جایگذاری",
+    "copyEmbedCodeSuccess": "کد جایگذاری در کلیپ بورد کپی شد!",
+    "captionSubmittedBy": "کپشن ارسال شده توسط <captioner>{{creatorName}}</captioner>",
     "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
     "captionRenderError": "There was an error rendering this caption. Sorry!"
   },
@@ -162,12 +162,12 @@
   },
   "settings": {
     "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
-    "title": "Settings",
+    "title": "تنظیمات",
     "tags": {
       "title": "Tags",
       "subtitle": "Manage your caption tags",
       "tagName": "Tag name",
-      "captions": "Captions",
+      "captions": "کپشن ها",
       "invalidTag": "Invalid tag provided!"
     }
   }
