@@ -79,7 +79,7 @@
       "anyLanguage": "Qualquer",
       "loading": "Carregando...",
       "captionLanguageListTitle": "Legendas",
-      "captionCount": "{{count}} legenda(s)",
+      "captionCount": "{{captionCount}} caption(s)",
       "noVideosFound": "Nenhum vídeo encontrado :(",
       "availableCaptions": "Legendas disponíveis",
       "noCaptionsFoundForVideo": "Nenhuma legenda encontrada para este vídeo :("
@@ -159,5 +159,16 @@
     "reviewerManager": "Gerente de Revisor",
     "reviewer": "Revisor",
     "kofiSupportMe": "Me apoie"
+  },
+  "settings": {
+    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
+    "title": "Settings",
+    "tags": {
+      "title": "Tags",
+      "subtitle": "Manage your caption tags",
+      "tagName": "Tag name",
+      "captions": "Captions",
+      "invalidTag": "Invalid tag provided!"
+    }
   }
 }
