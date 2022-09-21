@@ -19,11 +19,11 @@
       },
       "import": {
         "title": "وارد کردن کپشن های موجود",
-        "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
+        "description": "از ابزار هایی مثل Aegisub یا SubtitleEdit برای ایجاد کپشن ها پیش از آپلود آنها از طریق NekoCap استفاده کنید. فرمت های <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> پشتیبانی می شوند"
       },
       "community": {
         "title": "مدیریت جامعه کاربری",
-        "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
+        "description": "وب سایت NekoCap دارای ابزار هایی است که به مدیریت کنندگان جامعه کاربری اجازه می دهد که کپشن های ارسال شده را تایید یا رد کنند. <br /> هرچند، ما به داوطلبانی نیاز داریم که به زبان های مختلف مسلط باشند تا به مدیریت کپشن های ارسال شده کمک کنند. <br />اگر شما می خواهید کمک کنید، به Discord بپیوندید و به ما اطلاع دهید!"
       }
     },
     "instructions": {
@@ -31,21 +31,21 @@
         "title": "نحوه بازدید کپشن ها",
         "step1": "افزونه را برای <chrome>Chrome</chrome> دانلود کنید",
         "step2": "در یکی از سایت های ویدیویی پشتیبانی شده طبق معمول ویدیو ها را تماشا کنید",
-        "step3": "If there are captions for the video, select them from the dropdown!"
+        "step3": "اگر برای ویدیو کپشن ای می باشد، از منو کشویی آنها را انتخاب کنید!"
       },
       "create": {
         "title": "نحوه ایجاد کپشن ها",
         "step1": "افزونه را برای <chrome>Chrome</chrome> دانلود کنید",
         "step2": "ایجاد یک حساب با Nekocap",
-        "step3": "Browse to the page containing the video you want to add a caption for",
-        "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
+        "step3": "به صفحه حاوی ویدیو ای که می خواهید برای آن یک کپشن اضافه کنید بروید",
+        "step4": "از ویرایشگر Nekocap برای ایجاد یک کپشن جدید یا آپلود یک فایل کپشن موجود بدون ترک صفحه ویدیو استفاده کنید!"
       }
     },
     "browseAllCaptions": "مرور همه کپشن ها",
     "latestCaptions": "کپشن های اخیر",
     "latestLanguageCaption": "کپشن های {{language}} اخیر",
     "noCaptions": "هیچ کپشن ای نیست! شما می توانید با افزونه کپشن مشارکت کنید!",
-    "viewingCaptionInWebNotSupported": "Viewing this caption via the browser is unsupported. Download the extension instead!",
+    "viewingCaptionInWebNotSupported": "دیدن این کپشن از طریق مرورگر پشتیبانی نمی شود. بجای آن افزونه را دانلود کنید!",
     "captionList": {
       "columns": {
         "videoName": "نام ویدیو",
