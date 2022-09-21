@@ -79,7 +79,7 @@
       "anyLanguage": "Qualquer",
       "loading": "Carregando...",
       "captionLanguageListTitle": "Legendas",
-      "captionCount": "{{captionCount}} caption(s)",
+      "captionCount": "{{captionCount}} legenda(s)",
       "noVideosFound": "Nenhum vídeo encontrado :(",
       "availableCaptions": "Legendas disponíveis",
       "noCaptionsFoundForVideo": "Nenhuma legenda encontrada para este vídeo :("
@@ -161,14 +161,14 @@
     "kofiSupportMe": "Me apoie"
   },
   "settings": {
-    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
-    "title": "Settings",
+    "deleteTagConfirmMessage": "Excluindo essa etiqueta, você irá removê-la de todas as legendas que contém essa etiqueta! Continuar?",
+    "title": "Configurações",
     "tags": {
-      "title": "Tags",
-      "subtitle": "Manage your caption tags",
-      "tagName": "Tag name",
-      "captions": "Captions",
-      "invalidTag": "Invalid tag provided!"
+      "title": "Etiquetas",
+      "subtitle": "Gerencie suas etiquetas de legenda",
+      "tagName": "Nome da etiqueta",
+      "captions": "Legendas",
+      "invalidTag": "A etiqueta fornecida é inválida!"
     }
   }
 }
