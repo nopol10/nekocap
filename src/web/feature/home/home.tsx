@@ -99,7 +99,6 @@ const BrowseCaptionButton = styled(WSLinkButton)`
   display: flex;
   margin-top: 20px;
   margin-bottom: 20px;
-  padding-bottom: 0;
   height: unset;
   justify-content: center;
   align-items: center;
@@ -109,6 +108,9 @@ const BrowseCaptionButton = styled(WSLinkButton)`
   width: 100%;
   &.ant-btn-lg {
     line-height: unset;
+  }
+  @media ${DEVICE.mobileOnly} {
+    font-size: 18px;
   }
 `;
 
