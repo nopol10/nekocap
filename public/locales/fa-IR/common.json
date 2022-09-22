@@ -1,0 +1,174 @@
+{
+  "title": "NekoCap",
+  "tagline": "Meow",
+  "home": {
+    "summary": "با این افزونه مرورگر <open>منبع باز</open> کپشن های خودتان<br /> را <bold>ببینید</bold>، <bold>ایجاد</bold> و <bold>اشتراک گذاری</bold> کنید",
+    "feature": {
+      "easyToUse": {
+        "title": "آسان برای استفاده",
+        "description": "کپشن ها را بدون ترک <youtube>یوتیوب</youtube> و دیگر <videosites>سایت های ویدیویی</videosites> پشتیبانی شده ببینید"
+      },
+      "advancedEffects": {
+        "title": "افکت های پیشرفته",
+        "description": "کپشن های پیچیده ساخته شده در فرمت های Substation Alpha (SSA, ASS) را با استفاده از رندرر پیشرفته محقق شده توسط <octopus>Subtitle Octopus</octopus> ببینید",
+        "viewSupportedFonts": "دیدن فونت های سفارشی پشتیبانی شده"
+      },
+      "convenientEditor": {
+        "title": "ویرایشگر رضایت بخش",
+        "description": "با استفاده از ویرایشگر داخلی مستقیما در صفحه یک ویدیو با افزونه کپشن ایجاد کنید.<br />موقعیت دهی دستی کپشن، میانبر های صفحه کلید پشتیبانی می شوند.<br />ویژگی های بیشتر در راه است!"
+      },
+      "import": {
+        "title": "وارد کردن کپشن های موجود",
+        "description": "از ابزار هایی مثل Aegisub یا SubtitleEdit برای ایجاد کپشن ها پیش از آپلود آنها از طریق NekoCap استفاده کنید. فرمت های <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> پشتیبانی می شوند"
+      },
+      "community": {
+        "title": "مدیریت جامعه کاربری",
+        "description": "وب سایت NekoCap دارای ابزار هایی است که به مدیریت کنندگان جامعه کاربری اجازه می دهد که کپشن های ارسال شده را تایید یا رد کنند. <br /> هرچند، ما به داوطلبانی نیاز داریم که به زبان های مختلف مسلط باشند تا به مدیریت کپشن های ارسال شده کمک کنند. <br />اگر شما می خواهید کمک کنید، به Discord بپیوندید و به ما اطلاع دهید!"
+      }
+    },
+    "instructions": {
+      "view": {
+        "title": "نحوه بازدید کپشن ها",
+        "step1": "افزونه را برای <chrome>Chrome</chrome> دانلود کنید",
+        "step2": "در یکی از سایت های ویدیویی پشتیبانی شده طبق معمول ویدیو ها را تماشا کنید",
+        "step3": "اگر برای ویدیو کپشن ای می باشد، از منو کشویی آنها را انتخاب کنید!"
+      },
+      "create": {
+        "title": "نحوه ایجاد کپشن ها",
+        "step1": "افزونه را برای <chrome>Chrome</chrome> دانلود کنید",
+        "step2": "ایجاد یک حساب با Nekocap",
+        "step3": "به صفحه حاوی ویدیو ای که می خواهید برای آن یک کپشن اضافه کنید بروید",
+        "step4": "از ویرایشگر Nekocap برای ایجاد یک کپشن جدید یا آپلود یک فایل کپشن موجود بدون ترک صفحه ویدیو استفاده کنید!"
+      }
+    },
+    "browseAllCaptions": "مرور همه کپشن ها",
+    "latestCaptions": "کپشن های اخیر",
+    "latestLanguageCaption": "کپشن های {{language}} اخیر",
+    "noCaptions": "هیچ کپشن ای نیست! شما می توانید با افزونه کپشن مشارکت کنید!",
+    "viewingCaptionInWebNotSupported": "دیدن این کپشن از طریق مرورگر پشتیبانی نمی شود. بجای آن افزونه را دانلود کنید!",
+    "captionList": {
+      "columns": {
+        "videoName": "نام ویدیو",
+        "captioner": "کپشن کننده",
+        "language": "زبان",
+        "source": "منبع",
+        "uploaded": "آپلود شده",
+        "videoLanguage": "زبان ویدیو",
+        "captionLanguage": "زبان کپشن",
+        "updated": "بروزرسانی شده",
+        "actions": "عمل ها",
+        "views": "بازدید ها",
+        "captionCount": "بازدید ها",
+        "time": "زمان"
+      }
+    },
+    "videoList": {
+      "columns": {
+        "videoName": "نام ویدیو",
+        "captionCount": "تعداد کپشن"
+      }
+    },
+    "browseCaptions": {
+      "title": "مرور همه کپشن ها"
+    },
+    "search": {
+      "inputPlaceholder": "جست و جو برای یک ویدیو",
+      "advancedSearchLabel": "پیشرفته",
+      "videoLanguage": "زبان ویدیو",
+      "captionLanguage": "زبان کپشن",
+      "anyLanguage": "هیچ",
+      "loading": "در حال بارگذاری...",
+      "captionLanguageListTitle": "کپشن ها",
+      "captionCount": "{{captionCount}} کپشن",
+      "noVideosFound": "هیچ ویدیو ای پیدا نشد :(",
+      "availableCaptions": "کپشن های در دسترس",
+      "noCaptionsFoundForVideo": "هیچ کپشن ای برای این ویدیو پیدا نشد :("
+    },
+    "watchHere": "اینجا تماشا کنید",
+    "watchOnService": "در {{service}} تماشا کنید",
+    "navigation": {
+      "home": "خانه",
+      "dashboard": "داشبورد",
+      "logout": "خروج"
+    }
+  },
+  "review": {
+    "deleteCaptionConfirmMessage": "آیا شما مطمئن هستید که می خواهید این کپشن را حذف کنید؟",
+    "delete": "حذف",
+    "review": "بازبینی",
+    "update": "بروزرسانی"
+  },
+  "fontlist": {
+    "hidePreview": "مخفی سازی پیش نمایش",
+    "preview": "پیش نمایش",
+    "noFonts": "فونت ای نیست!",
+    "availableFonts": "فونت های در دسترس",
+    "hideAllFontPreviews": "مخفی سازی همه پیش نمایش های فونت",
+    "previewAllFonts": "پیش نمایش همه فونت ها",
+    "largeFontDownloadWarning": "هشدار! این به میزان زیادی مگابایت فایل های فونت حجیم دانلود می کند!",
+    "searchFont": "جست و جو فونت"
+  },
+  "login": {
+    "loginModalTitle": "برای دسترسی به داشبورد خودتان وارد شوید"
+  },
+  "profile": {
+    "admin": {
+      "sectionTitle": "ابزار های ادمین",
+      "removeReviewerManagerRoleButton": "حذف سمت مدیریت کننده بازبین",
+      "assignReviewerManagerRoleButton": "اختصاص سمت مدیریت کننده بازبین",
+      "removeReviewerRoleButton": "حذف سمت بازبین",
+      "assignReviewerRoleButton": "اختصاص سمت بازبین",
+      "verify": "تایید",
+      "unverify": "لغو تایید",
+      "ban": "منع",
+      "unban": "لغو منع"
+    },
+    "about": "درباره",
+    "donate": "دونیت",
+    "markdownInfo": "(فرمت دهی با مارک داون پشتیبانی می شود)",
+    "proficientLanguages": "زبان های مسلط",
+    "contributedCaptions": "کپشن های مشارکت شده",
+    "languageSelectionPlaceholder": "می توانید بیشتر از یکی انتخاب کنید!",
+    "copyProfileLink": "کپی کردن لینک پروفایل",
+    "profileLinkCopiedMessage": "لینک پروفایل در کلیپ بورد کپی شد!",
+    "captionDeleted": "کپشن حذف شد! :(",
+    "captionDeletionFailed": "ناموفق در حذف کپشن: {{error}}",
+    "profileUpdated": "پروفایل بروزرسانی شد!",
+    "profileUpdateFailed": "ناموفق در بروزرسانی پروفایل: {{error}}",
+    "roleAssignmentSuccess": "بروزرسانی شد!",
+    "roleAssignmentFailure": "ناموفق در بروزرسانی: {{error}}",
+    "filterByTags": "فیلتر بر اساس تگ ها (حداکثر تا {{maxTags}})",
+    "noTags": "هیچ تگ ای نیست"
+  },
+  "viewer": {
+    "browseOtherCaptions": "مرور دیگر کپشن ها",
+    "failedToFindCaption": "متاسفیم، ما نتوانستیم این کپشن را پیدا کنیم!",
+    "copyEmbedCode": "کپی کد جایگذاری",
+    "copyEmbedCodeSuccess": "کد جایگذاری در کلیپ بورد کپی شد!",
+    "captionSubmittedBy": "کپشن ارسال شده توسط <captioner>{{creatorName}}</captioner>",
+    "downloadNekocapMessage": "برای بهترین تجربه دیدن و ایجاد کپشن، افزونه NekoCap را دانلود و کپشن ها را مستقیما در {{site}} ببینید.",
+    "captionRenderError": "یک خطا در رندر این کپشن بود. متاسفیم!"
+  },
+  "common": {
+    "loading": "در حال بارگذاری...",
+    "cancel": "لغو",
+    "save": "ذخیره",
+    "edit": "ویرایش",
+    "banned": "بن شده",
+    "verified": "تایید شده",
+    "reviewerManager": "مدیریت کننده بازبین",
+    "reviewer": "بازبین",
+    "kofiSupportMe": "حمایت کنید"
+  },
+  "settings": {
+    "deleteTagConfirmMessage": "حذف این برچسب آن را از تمام کپشن هایی با این برچسب حذف می کند! پیش رفتن؟",
+    "title": "تنظیمات",
+    "tags": {
+      "title": "برچسب ها",
+      "subtitle": "برچسب های کپشن خودتان را مدیریت کنید",
+      "tagName": "نام برچسب",
+      "captions": "کپشن ها",
+      "invalidTag": "برچسب نامعتبر ارائه شده است!"
+    }
+  }
+}

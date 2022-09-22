@@ -6,16 +6,16 @@
     "feature": {
       "easyToUse": {
         "title": "使いやすい",
-        "description": "<youtube>Youtube</youtube> やその他のサポートされている <videosites>動画サイト</videosites> を離れずに字幕を表示する"
+        "description": "<youtube>Youtube</youtube> やその他のサポートされている <videosites>動画サイト</videosites> を離れずに字幕を表示できます"
       },
       "advancedEffects": {
         "title": "高度なエフェクト",
-        "description": "高度な技術を使用して、アルファフォーマット(SSA、ASS)で作られた複雑な字幕を表示する <octopus>字幕オプション</octopus> ",
+        "description": "高度な技術を使用して、アルファフォーマット(SSA、ASS) で作られた複雑な字幕を表示できます (<octopus>字幕タコ</octopus>によって実現された)",
         "viewSupportedFonts": "サポートされているカスタムフォントを表示する"
       },
       "convenientEditor": {
         "title": "便利な編集機能",
-        "description": "内蔵のエディタで拡張機能のあるビデオのページに直接字幕を作成します。<br />マニュアルキャプションの位置決め、キーボードショートカットがサポートされています。<br />より多くの機能が登場します"
+        "description": "内蔵のエディタで拡張機能のあるビデオのページに直接字幕を作成します <br />マニュアルキャプションの位置決め、キーボードショートカットがサポートされています <br />より多くの機能が登場します"
       },
       "import": {
         "title": "既存の字幕をインポートする",
@@ -31,20 +31,20 @@
         "title": "字幕の表示方法",
         "step1": "<chrome>Chrome</chrome> の拡張機能をダウンロードする",
         "step2": "サポートされている動画サイトの動画をいつものように視聴する",
-        "step3": "動画に字幕がある場合は、ドロップダウンから字幕を選択してください"
+        "step3": "動画に字幕がある場合は、ドロップダウンから字幕を選択"
       },
       "create": {
         "title": "字幕の作成方法",
         "step1": "<chrome>Chrome</chrome> の拡張機能をダウンロードする",
-        "step2": "Nekocap でアカウントを作成する",
-        "step3": "字幕を追加したい動画を含むページを参照してください",
-        "step4": "Nekocapエディタを使用して、新しい字幕を作成したり、動画ページを離れることなく既存の字幕ファイルをアップロードできます。"
+        "step2": "Nekocapでアカウントを作成する",
+        "step3": "字幕を追加したい動画を含むページを参照",
+        "step4": "Nekocapエディタを使用して、新しい字幕を作成したり、動画ページを離れることなく既存の字幕ファイルをアップロードできます"
       }
     },
-    "browseAllCaptions": "全ての字幕を閲覧する",
+    "browseAllCaptions": "全ての字幕を閲覧",
     "latestCaptions": "最新の字幕",
     "latestLanguageCaption": "最新の {{language}} 字幕",
-    "noCaptions": "字幕がありません！拡張機能で字幕を投稿できます！",
+    "noCaptions": "字幕がありません！拡張機能で字幕を投稿できます",
     "viewingCaptionInWebNotSupported": "ブラウザ経由でこの字幕を表示することはサポートされていません。拡張機能をダウンロードしてください！",
     "captionList": {
       "columns": {
@@ -69,7 +69,7 @@
       }
     },
     "browseCaptions": {
-      "title": "全ての字幕を閲覧する"
+      "title": "全ての字幕を閲覧"
     },
     "search": {
       "inputPlaceholder": "動画を検索",
@@ -105,7 +105,7 @@
     "availableFonts": "利用可能なフォント",
     "hideAllFontPreviews": "すべてのフォントのプレビューを非表示",
     "previewAllFonts": "すべてのフォントをプレビューする",
-    "largeFontDownloadWarning": "警告！大容量フォントファイルをダウンロードします。",
+    "largeFontDownloadWarning": "警告！大容量フォントファイルをダウンロードします",
     "searchFont": "フォントを検索"
   },
   "login": {
@@ -134,9 +134,9 @@
     "captionDeleted": "字幕を削除しました",
     "captionDeletionFailed": "キャプションの削除に失敗しました： {{error}}",
     "profileUpdated": "プロフィールを更新しました",
-    "profileUpdateFailed": "プロファイルの更新に失敗しました: {{error}}",
+    "profileUpdateFailed": "プロフィールの更新に失敗しました: {{error}}",
     "roleAssignmentSuccess": "更新されました",
-    "roleAssignmentFailure": "更新に失敗しました: {{error}}",
+    "roleAssignmentFailure": "更新に失敗しました {{error}}",
     "filterByTags": "タグでフィルター (最大 {{maxTags}})",
     "noTags": "タグがありません"
   },
@@ -146,7 +146,7 @@
     "copyEmbedCode": "埋め込みコードをコピーする",
     "copyEmbedCodeSuccess": "クリップボードに埋め込みコードをコピーしました",
     "captionSubmittedBy": "字幕制作 <captioner>{{creatorName}}</captioner>",
-    "downloadNekocapMessage": "高度な字幕の表示と作成をするには、NekoCap拡張機能をダウンロードし、 {{site}}で直接字幕を表示します。",
+    "downloadNekocapMessage": "高度な字幕の表示と作成をするには、NekoCap拡張機能をダウンロードし、 {{site}} で直接字幕を表示します",
     "captionRenderError": "字幕の書込み中にエラーが発生しました。申し訳ありません。"
   },
   "common": {
@@ -159,5 +159,16 @@
     "reviewerManager": "レビュー・マネージャー",
     "reviewer": "レビュアー",
     "kofiSupportMe": "支援する"
+  },
+  "settings": {
+    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
+    "title": "Settings",
+    "tags": {
+      "title": "Tags",
+      "subtitle": "Manage your caption tags",
+      "tagName": "Tag name",
+      "captions": "Captions",
+      "invalidTag": "Invalid tag provided!"
+    }
   }
 }

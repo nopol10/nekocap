@@ -159,5 +159,16 @@
     "reviewerManager": "Reviewer Manager",
     "reviewer": "Reviewer",
     "kofiSupportMe": "Support me"
+  },
+  "settings": {
+    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
+    "title": "Settings",
+    "tags": {
+      "title": "Tags",
+      "subtitle": "Manage your caption tags",
+      "tagName": "Tag name",
+      "captions": "Captions",
+      "invalidTag": "Invalid tag provided!"
+    }
   }
 }
