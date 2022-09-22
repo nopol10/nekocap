@@ -10,7 +10,7 @@
       },
       "advancedEffects": {
         "title": "高度なエフェクト",
-        "description": "高度な技術を使用して、アルファフォーマット(SSA、ASS)で作られた複雑な字幕を表示できます  <br /><octopus>字幕オプション</octopus> ",
+        "description": "高度な技術を使用して、アルファフォーマット(SSA、ASS) で作られた複雑な字幕を表示できます (<octopus>字幕タコ</octopus>によって実現された)",
         "viewSupportedFonts": "サポートされているカスタムフォントを表示する"
       },
       "convenientEditor": {
