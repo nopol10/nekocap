@@ -9,6 +9,7 @@ import { persistStore } from "redux-persist";
 import storeCreatorFactory from "reduxed-chrome-storage";
 import { stdChannel } from "redux-saga";
 import { ExtendedStore } from "reduxed-chrome-storage/dist/types/store";
+import { nekocapApi } from "./api";
 
 function setupSaga() {
   const channel = stdChannel();
@@ -37,11 +38,14 @@ export const initStore = async (
     process.env.PRODUCTION ? undefined : logger,
     sagaThunkMiddleware,
     sagaMiddleware,
+    nekocapApi.middleware,
     ...middleware,
   ].filter(Boolean);
   const enhancers = [reduxBatch];
   const store = await asyncStoreCreator(
-    createRootReducer(reducers),
+    createRootReducer({
+      ...reducers,
+    }),
     compose(applyMiddleware(...middlewares), ...enhancers)
   );
   runSaga(

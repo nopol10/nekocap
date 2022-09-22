@@ -79,7 +79,7 @@
       "anyLanguage": "Bất kì",
       "loading": "Đang tải...",
       "captionLanguageListTitle": "Phụ đề",
-      "captionCount": "{{count}} phụ đề",
+      "captionCount": "{{captionCount}} phụ đề",
       "noVideosFound": "Không tìm thấy video :(",
       "availableCaptions": "Phụ đề có sẵn",
       "noCaptionsFoundForVideo": "Chả thấy phụ đề nào cho video này :("

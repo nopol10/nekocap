@@ -32,7 +32,13 @@ import {
   VerifyRequest,
   BanRequest,
 } from "../feature/captioner/types";
-import { LoadProfileParams, PublicProfileData } from "../feature/profile/types";
+import {
+  DeleteProfileTagParams,
+  DeleteProfileTagResponse,
+  GetOwnProfileTagsResponse,
+  LoadProfileParams,
+  PublicProfileData,
+} from "../feature/profile/types";
 import {
   LoadCaptionForReviewResult,
   ReasonedCaptionAction,
@@ -78,6 +84,8 @@ export enum BackendProviderRequestTypes {
   Browse,
   GetAutoCaptionList,
   GetGlobalStats,
+  GetOwnProfileTags,
+  DeleteProfileTag,
 }
 
 export type BackendProviderRequest =
@@ -180,6 +188,13 @@ export type BackendProviderRequest =
     }
   | {
       type: BackendProviderRequestTypes.GetGlobalStats;
+    }
+  | {
+      type: BackendProviderRequestTypes.DeleteProfileTag;
+      params: DeleteProfileTagParams;
+    }
+  | {
+      type: BackendProviderRequestTypes.GetOwnProfileTags;
     };
 
 function sendBackgroundProviderRequest(
@@ -446,6 +461,19 @@ export class PassthroughProvider implements BackendProvider<RootState> {
   async getGlobalStats(): Promise<StatsResponse> {
     return sendBackgroundProviderRequest({
       type: BackendProviderRequestTypes.GetGlobalStats,
+    });
+  }
+  async getOwnProfileTags(): Promise<GetOwnProfileTagsResponse> {
+    return sendBackgroundProviderRequest({
+      type: BackendProviderRequestTypes.GetOwnProfileTags,
+    });
+  }
+  async deleteProfileTag(
+    params: DeleteProfileTagParams
+  ): Promise<DeleteProfileTagResponse> {
+    return sendBackgroundProviderRequest({
+      type: BackendProviderRequestTypes.DeleteProfileTag,
+      params,
     });
   }
 }

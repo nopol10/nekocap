@@ -4,6 +4,7 @@ export const routeNames = {
   extensionSignIn: "/sign-in-ext",
   captioner: {
     dashboard: "/dashboard",
+    settings: "/settings",
   },
   profile: {
     main: "/capper/:id",
