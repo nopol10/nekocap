@@ -60,7 +60,9 @@
         "views": "閲覧数",
         "captionCount": "閲覧数",
         "time": "時間"
-      }
+      },
+      "totalCaptionCount": "{{captionCount}} captions",
+      "moreThanXCaptions": "> {{captionCount}} captions"
     },
     "videoList": {
       "columns": {
@@ -79,7 +81,7 @@
       "anyLanguage": "いくつか",
       "loading": "読み込み中...",
       "captionLanguageListTitle": "字幕",
-      "captionCount": "{{captionCount}} 件の字幕",
+      "captionCount": "{{captionCount}} caption(s)",
       "noVideosFound": "動画が見つかりません",
       "availableCaptions": "利用可能な字幕",
       "noCaptionsFoundForVideo": "この動画の字幕が見つかりませんでした"
@@ -158,7 +160,8 @@
     "verified": "認証済",
     "reviewerManager": "レビュー・マネージャー",
     "reviewer": "レビュアー",
-    "kofiSupportMe": "支援する"
+    "kofiSupportMe": "支援する",
+    "more": "More"
   },
   "settings": {
     "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
