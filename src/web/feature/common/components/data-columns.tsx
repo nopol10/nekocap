@@ -24,6 +24,7 @@ import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
 import { routeNames } from "../../route-types";
 import { Processor } from "@/extension/content/processors/processor";
 import Link from "next/link";
+import { WSSpace } from "@/common/components/ws-space";
 const { Link: AntdLink } = Typography;
 dayjs.extend(relativeTime);
 
@@ -76,7 +77,7 @@ export const captionColumns = {
           )}
           {hasTag(record.tags, captionTags.ytExCC) && <YTExternalCCTag />}
           <div>
-            <Space>
+            <WSSpace $size="6px">
               {processor.canWatchInNekoCapSite && (
                 <Tooltip title="Watch here">
                   <Link
@@ -97,7 +98,7 @@ export const captionColumns = {
                   <PlayCircleOutlined />
                 </AntdLink>
               </Tooltip>
-            </Space>
+            </WSSpace>
           </div>
         </>
       );

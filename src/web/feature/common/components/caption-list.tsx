@@ -22,6 +22,7 @@ import {
   getCaptionGroupTagName,
 } from "@/common/feature/video/utils";
 import Text from "antd/lib/typography/Text";
+import { WSSpace } from "@/common/components/ws-space";
 
 export const CAPTION_LIST_PAGE_SIZE = 20;
 
@@ -130,7 +131,7 @@ export const CaptionList = ({
       render: function render(text, record, index) {
         return (
           <>
-            <Space>
+            <WSSpace>
               {canDelete && (
                 <Popconfirm
                   title={t("review.deleteCaptionConfirmMessage")}
@@ -155,7 +156,7 @@ export const CaptionList = ({
                   />
                 </Tooltip>
               )}
-            </Space>
+            </WSSpace>
           </>
         );
       },

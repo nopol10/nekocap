@@ -102,15 +102,15 @@ const BrowseCaptionButton = styled(WSLinkButton)`
   height: unset;
   justify-content: center;
   align-items: center;
-  font-size: 32px;
+  font-size: 18px;
   border-color: ${colors.ctaBorder};
   color: ${colors.ctaText};
   width: 100%;
   &.ant-btn-lg {
     line-height: unset;
   }
-  @media ${DEVICE.mobileOnly} {
-    font-size: 18px;
+  @media ${DEVICE.tablet} {
+    font-size: 32px;
   }
 `;
 

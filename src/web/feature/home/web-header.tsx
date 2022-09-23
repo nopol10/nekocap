@@ -27,16 +27,14 @@ import Link from "next/link";
 const { Link: AntdLink } = Typography;
 
 const Socials = styled.div`
-  display: inline-block;
+  display: inline-flex;
+  gap: 15px;
   margin-right: auto;
   a {
     font-size: 26px;
     color: ${colors.socialIcon};
     :hover {
       color: ${colors.socialIconHovered};
-    }
-    &:not(:last-child) {
-      margin-right: 15px;
     }
   }
 `;

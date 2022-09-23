@@ -83,18 +83,26 @@ export const BrowseCaptionPage = () => {
       return originalElement;
     }
     if (page === totalPages && hasMoreResults)
-      return <a rel="nofollow">More</a>;
+      return <a rel="nofollow">{t("common.more")}</a>;
     return originalElement;
   };
 
   const renderTotal = (total: number): string => {
-    if (hasMoreResults) return `> ${total - 1} captions`;
-    return `${total} captions`;
+    if (hasMoreResults)
+      return t("home.captionList.moreThanXCaptions", {
+        captionCount: total - 1,
+      });
+    return t("home.captionList.totalCaptionCount", { captionCount: total });
   };
 
   return (
     <div
-      style={{ marginTop: "40px", padding: "0px 40px", overflowX: "hidden" }}
+      style={{
+        marginTop: "40px",
+        marginBottom: "60px",
+        padding: "0px 40px",
+        overflowX: "hidden",
+      }}
       ref={resultContainer}
     >
       <Title>{t("home.browseCaptions.title")}</Title>
