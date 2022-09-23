@@ -92,7 +92,7 @@ export default class MyDocument extends Document {
             rel="stylesheet"
           />
         </Head>
-        <body>
+        <body dir="auto">
           <Main />
           <NextScript />
         </body>
