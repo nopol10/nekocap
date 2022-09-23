@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { appWithTranslation } from "next-i18next";
 import { AppProps } from "next/app";
 import { wrapper } from "@/web/store/store";
@@ -17,11 +17,21 @@ import "antd/lib/tag/style";
 import "../src/web/feature/home/home.scss";
 import "../src/web/styles/index.scss";
 import nextI18NextConfig from "../next-i18next.config.js";
+import { ConfigProvider } from "antd";
+import { useRouter } from "next/router";
+import { ANTD_LOCALES } from "@/common/antd-locales";
+import { useDayjsLocale } from "@/common/hooks/use-dayjs-locale";
 
 function NekoCapApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  useDayjsLocale(router.locale);
   return (
     <>
-      <Component {...pageProps} />
+      <ConfigProvider
+        locale={ANTD_LOCALES[router.locale] || ANTD_LOCALES["en-US"]}
+      >
+        <Component {...pageProps} />
+      </ConfigProvider>
     </>
   );
 }
