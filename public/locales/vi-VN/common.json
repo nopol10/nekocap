@@ -60,7 +60,9 @@
         "views": "Xem",
         "captionCount": "Xem",
         "time": "T.gian"
-      }
+      },
+      "totalCaptionCount": "{{captionCount}} captions",
+      "moreThanXCaptions": "> {{captionCount}} captions"
     },
     "videoList": {
       "columns": {
@@ -79,7 +81,7 @@
       "anyLanguage": "Bất kì",
       "loading": "Đang tải...",
       "captionLanguageListTitle": "Phụ đề",
-      "captionCount": "{{captionCount}} phụ đề",
+      "captionCount": "{{captionCount}} caption(s)",
       "noVideosFound": "Không tìm thấy video :(",
       "availableCaptions": "Phụ đề có sẵn",
       "noCaptionsFoundForVideo": "Chả thấy phụ đề nào cho video này :("
@@ -158,7 +160,8 @@
     "verified": "Đã xác minh",
     "reviewerManager": "Reviewer Manager",
     "reviewer": "Reviewer",
-    "kofiSupportMe": "Hỗ trợ mình"
+    "kofiSupportMe": "Hỗ trợ mình",
+    "more": "More"
   },
   "settings": {
     "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
