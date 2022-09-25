@@ -61,8 +61,8 @@
         "captionCount": "Visualizações",
         "time": "Tempo"
       },
-      "totalCaptionCount": "{{captionCount}} captions",
-      "moreThanXCaptions": "> {{captionCount}} captions"
+      "totalCaptionCount": "{{captionCount}} legendas",
+      "moreThanXCaptions": "> {{captionCount}} legendas"
     },
     "videoList": {
       "columns": {
@@ -161,7 +161,7 @@
     "reviewerManager": "Gerente de Revisor",
     "reviewer": "Revisor",
     "kofiSupportMe": "Me apoie",
-    "more": "More"
+    "more": "Mais"
   },
   "settings": {
     "deleteTagConfirmMessage": "Excluindo essa etiqueta, você irá removê-la de todas as legendas que contém essa etiqueta! Continuar?",
