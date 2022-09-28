@@ -15,7 +15,7 @@
       },
       "convenientEditor": {
         "title": "便利な編集機能",
-        "description": "内蔵のエディタで拡張機能のあるビデオのページに直接字幕を作成します <br />マニュアルキャプションの位置決め、キーボードショートカットがサポートされています <br />より多くの機能が登場します"
+        "description": "内蔵のエディタでビデオのページに直接字幕を作成します <br />マニュアルキャプションの位置決め、キーボードショートカットがサポートされています <br />より多くの機能が登場します"
       },
       "import": {
         "title": "既存の字幕をインポートする",
@@ -30,7 +30,7 @@
       "view": {
         "title": "字幕の表示方法",
         "step1": "<chrome>Chrome</chrome> の拡張機能をダウンロードする",
-        "step2": "サポートされている動画サイトの動画をいつものように視聴する",
+        "step2": "サポートされている動画サイトの動画をいつも通り視聴する",
         "step3": "動画に字幕がある場合は、ドロップダウンから字幕を選択"
       },
       "create": {
@@ -45,15 +45,15 @@
     "latestCaptions": "最新の字幕",
     "latestLanguageCaption": "最新の {{language}} 字幕",
     "noCaptions": "字幕がありません！拡張機能で字幕を投稿できます",
-    "viewingCaptionInWebNotSupported": "ブラウザ経由でこの字幕を表示することはサポートされていません。拡張機能をダウンロードしてください！",
+    "viewingCaptionInWebNotSupported": "ブラウザ経由での表示はサポートされていません。拡張機能をダウンロードしてください！",
     "captionList": {
       "columns": {
-        "videoName": "動画の名前",
-        "captioner": "番号付け",
+        "videoName": "動画名",
+        "captioner": "字幕作成者",
         "language": "言語",
         "source": "ソース",
         "uploaded": "アップロード完了",
-        "videoLanguage": "動画の言語",
+        "videoLanguage": "動画言語",
         "captionLanguage": "字幕言語",
         "updated": "更新済",
         "actions": "操作",
@@ -62,7 +62,7 @@
         "time": "時間"
       },
       "totalCaptionCount": "{{captionCount}} 件の字幕",
-      "moreThanXCaptions": "> {{captionCount}} captions"
+      "moreThanXCaptions": "> {{captionCount}} 件の字幕"
     },
     "videoList": {
       "columns": {
@@ -161,17 +161,17 @@
     "reviewerManager": "レビュー・マネージャー",
     "reviewer": "レビュアー",
     "kofiSupportMe": "支援する",
-    "more": "More"
+    "more": "さらに見る"
   },
   "settings": {
-    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
-    "title": "Settings",
+    "deleteTagConfirmMessage": "削除すると、すべての字幕からタグが削除されます! 続行しますか?",
+    "title": "設定",
     "tags": {
-      "title": "Tags",
-      "subtitle": "Manage your caption tags",
-      "tagName": "Tag name",
-      "captions": "Captions",
-      "invalidTag": "Invalid tag provided!"
+      "title": "タグ",
+      "subtitle": "字幕タグを管理",
+      "tagName": "タグ名",
+      "captions": "字幕",
+      "invalidTag": "無効なタグが指定されました!"
     }
   }
 }
