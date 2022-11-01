@@ -1,15 +1,10 @@
 import * as React from "react";
-import styled from "styled-components";
 import { Col, InputNumber, Row } from "antd";
 import SyncOutlined from "@ant-design/icons/SyncOutlined";
 import { ButtonWithTooltip } from "@/common/components/ws-button";
 import { faArrowsAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Coords } from "@/common/types";
-
-const CoordinateInput = styled(InputNumber)`
-  width: 76px !important;
-`;
 
 export const PositionControl = ({
   position,
@@ -30,16 +25,8 @@ export const PositionControl = ({
     <Row align={"middle"}>
       <Col span={12}>
         <div>
-          <span
-            style={{
-              display: "inline-block",
-              width: "15px",
-              marginBottom: "10px",
-            }}
-          >
-            X:{" "}
-          </span>
-          <CoordinateInput
+          <InputNumber
+            addonBefore={"X"}
             min={-100}
             max={200}
             step={1}
@@ -48,8 +35,8 @@ export const PositionControl = ({
           />
         </div>
         <div>
-          <span style={{ display: "inline-block", width: "15px" }}>Y: </span>
-          <CoordinateInput
+          <InputNumber
+            addonBefore={"Y"}
             min={-100}
             max={200}
             step={1}
@@ -58,12 +45,13 @@ export const PositionControl = ({
           />
         </div>
       </Col>
-      <Col span={8}>
+      <Col span={12}>
         <ButtonWithTooltip
           title="Move"
           onClick={onToggleMoveCaptionPosition}
           buttonProps={{
             type: isMovingCaptionPosition ? "primary" : "default",
+            style: { display: "block" },
           }}
         >
           <FontAwesomeIcon icon={faArrowsAlt} />
@@ -72,6 +60,9 @@ export const PositionControl = ({
           title="Reset to default"
           tooltipProps={{ placement: "bottom" }}
           onClick={onResetCaptionPosition}
+          buttonProps={{
+            style: { display: "block" },
+          }}
         >
           <SyncOutlined />
         </ButtonWithTooltip>

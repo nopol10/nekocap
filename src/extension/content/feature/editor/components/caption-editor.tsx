@@ -86,6 +86,7 @@ import { getImageLink } from "@/common/chrome-utils";
 import { findClosestCaption } from "@/common/feature/video/utils";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
 import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
+import { DEVICE } from "@/common/style-constants";
 
 dayjs.extend(duration);
 
@@ -145,7 +146,7 @@ const VolumeSlider = styled(Slider)`
   width: 100px;
 `;
 
-const TextEditorColumn = styled(Col).withConfig<{ justify?: string }>({
+const TextEditorColumn = styled.div.withConfig<{ justify?: string }>({
   shouldForwardProp: (prop) => !["justify"].includes(prop),
 })`
   display: flex !important;
@@ -154,6 +155,22 @@ const TextEditorColumn = styled(Col).withConfig<{ justify?: string }>({
 
   & > div,button:not(:last-child) {
     margin-bottom: 5px;
+  }
+`;
+
+const TextEditorRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 10px;
+  & ${TextEditorColumn} {
+    &:nth-child(1) {
+      flex-grow: 1;
+      flex-shrink: 0;
+    }
+    &:nth-child(2) {
+      justify-content: center;
+    }
   }
 `;
 
@@ -420,11 +437,21 @@ const EditorTextAreaWrapper = styled(ObserveKeys)`
 `;
 
 const EditorTextArea = styled.textarea`
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   border: 1px solid #d9d9d9;
   resize: none !important;
   transition: none;
+`;
+
+const CueActionButton = styled(Button)`
+  padding: 0 2px;
+  font-size: 12px;
+  @media ${DEVICE.largeDesktop} {
+    padding: 0 7px;
+    font-size: 14px;
+  }
 `;
 
 const DisabledNumberFormat = styled(NumberFormat)`
@@ -433,6 +460,11 @@ const DisabledNumberFormat = styled(NumberFormat)`
   flex: 1;
   border: 1px solid #d9d9d9;
   background-color: ${colors.disabledField};
+  overflow-x: hidden;
+  font-size: 12px;
+  @media ${DEVICE.largeDesktop} {
+    font-size: 14px;
+  }
 `;
 
 const GRID_GUTTER: [Gutter, Gutter] = [20, 20];
@@ -1214,8 +1246,8 @@ const CaptionEditorInternal = ({
           >
             <PlusCircleFilled />
           </AddBetween>
-          <Row gutter={GRID_GUTTER}>
-            <TextEditorColumn span={14}>
+          <TextEditorRow /* gutter={GRID_GUTTER} */>
+            <TextEditorColumn>
               <EditorTextAreaWrapper>
                 <EditorTextArea
                   dir="auto"
@@ -1232,21 +1264,21 @@ const CaptionEditorInternal = ({
                 {charPerSecString} char/s
               </WarningText>
             </TextEditorColumn>
-            <TextEditorColumn span={2} justify={"center"}>
-              <Button
+            <TextEditorColumn>
+              <CueActionButton
                 onClick={handleJumpToCaption(selectedTrack, index)}
                 size="small"
               >
                 <CompressOutlined />
-              </Button>
-              <Button
+              </CueActionButton>
+              <CueActionButton
                 onClick={handleDeleteCaption(selectedTrack, index)}
                 size="small"
               >
                 <DeleteOutlined style={{ color: colors.dislike }} />
-              </Button>
+              </CueActionButton>
             </TextEditorColumn>
-            <TextEditorColumn span={8}>
+            <TextEditorColumn>
               <div>
                 <TimeInput>
                   <TimeInputLabel>
@@ -1290,7 +1322,7 @@ const CaptionEditorInternal = ({
                 </TimeInput>
               </div>
             </TextEditorColumn>
-          </Row>
+          </TextEditorRow>
           {index === currentTrack.cues.length - 1 && (
             <AddBetween
               top={false}

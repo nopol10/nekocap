@@ -3,7 +3,7 @@ import {
   CaptionAlignment,
   CaptionDataContainer,
 } from "@/common/caption-parsers/types";
-import { Tabs } from "antd";
+import { Col, Row, Tabs } from "antd";
 import Form from "antd/lib/form";
 import { AlignmentControl } from "./alignment-control";
 import {
@@ -15,7 +15,30 @@ import { DEFAULT_COORDS_SETTINGS, DEFAULT_LAYOUT_SETTINGS } from "../constants";
 import { PositionControl } from "./position-control";
 import { CaptionModificationState } from "@/common/feature/caption-editor/types";
 import { AnyAction } from "@reduxjs/toolkit";
+import styled from "styled-components";
+import { WSText } from "@/common/components/ws-text";
 const { TabPane } = Tabs;
+
+const Pane = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const ControlItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px;
+
+  & > div:nth-child(1),
+  & > div:nth-child(2) {
+    flex: 0 0 100%;
+  }
+  & > div:nth-child(2) {
+    max-width: 400px;
+  }
+`;
 
 type SettingsPanelProps = {
   caption?: CaptionDataContainer;
@@ -32,8 +55,6 @@ type SettingsPanelProps = {
 
 export const SettingsPanel = ({
   caption,
-  videoElement,
-  videoDurationMs,
   selectedTrack,
   selectedCaption,
   captionModificationState,
@@ -276,27 +297,37 @@ export const SettingsPanel = ({
     const globalAlignment = caption.settings?.layout?.alignment;
     const position = caption.settings?.layout?.position || { x: 0, y: 0 };
     return (
-      <Form>
-        <Form.Item label="Alignment" wrapperCol={{ span: 8 }}>
-          <AlignmentControl
-            selectedAlignment={globalAlignment}
-            defaultAlignment={CaptionAlignment.BottomCenter}
-            onChange={handleChangeGlobalAlignment}
-          />
-        </Form.Item>
-        <Form.Item label="Position (%)" wrapperCol={{ span: 8 }}>
-          <PositionControl
-            position={position}
-            isMovingCaptionPosition={
-              captionModificationState === CaptionModificationState.Global
-            }
-            onChangeCaptionX={handleChangeGlobalX}
-            onChangeCaptionY={handleChangeGlobalY}
-            onToggleMoveCaptionPosition={handleToggleMoveGlobalPosition}
-            onResetCaptionPosition={handleResetGlobalPosition}
-          />
-        </Form.Item>
-      </Form>
+      <Pane>
+        <ControlItem>
+          <div>
+            <WSText>Alignment</WSText>
+          </div>
+          <div>
+            <AlignmentControl
+              selectedAlignment={globalAlignment}
+              defaultAlignment={CaptionAlignment.BottomCenter}
+              onChange={handleChangeGlobalAlignment}
+            />
+          </div>
+        </ControlItem>
+        <ControlItem>
+          <div>
+            <WSText>Position (%)</WSText>
+          </div>
+          <div>
+            <PositionControl
+              position={position}
+              isMovingCaptionPosition={
+                captionModificationState === CaptionModificationState.Global
+              }
+              onChangeCaptionX={handleChangeGlobalX}
+              onChangeCaptionY={handleChangeGlobalY}
+              onToggleMoveCaptionPosition={handleToggleMoveGlobalPosition}
+              onResetCaptionPosition={handleResetGlobalPosition}
+            />
+          </div>
+        </ControlItem>
+      </Pane>
     );
   };
 
@@ -308,27 +339,37 @@ export const SettingsPanel = ({
     const trackAlignment = track.settings?.layout?.alignment;
     const position = track.settings?.layout?.position || { x: 0, y: 0 };
     return (
-      <Form>
-        <Form.Item label="Alignment" wrapperCol={{ span: 8 }}>
-          <AlignmentControl
-            selectedAlignment={trackAlignment}
-            defaultAlignment={CaptionAlignment.BottomCenter}
-            onChange={handleChangeTrackAlignment}
-          />
-        </Form.Item>
-        <Form.Item label="Position (%)" wrapperCol={{ span: 8 }}>
-          <PositionControl
-            position={position}
-            isMovingCaptionPosition={
-              captionModificationState === CaptionModificationState.Track
-            }
-            onChangeCaptionX={handleChangeTrackX}
-            onChangeCaptionY={handleChangeTrackY}
-            onToggleMoveCaptionPosition={handleToggleMoveTrackPosition}
-            onResetCaptionPosition={handleResetTrackPosition}
-          />
-        </Form.Item>
-      </Form>
+      <Pane>
+        <ControlItem>
+          <div>
+            <WSText>Alignment</WSText>
+          </div>
+          <div>
+            <AlignmentControl
+              selectedAlignment={trackAlignment}
+              defaultAlignment={CaptionAlignment.BottomCenter}
+              onChange={handleChangeTrackAlignment}
+            />
+          </div>
+        </ControlItem>
+        <ControlItem>
+          <div>
+            <WSText>Position (%)</WSText>
+          </div>
+          <div>
+            <PositionControl
+              position={position}
+              isMovingCaptionPosition={
+                captionModificationState === CaptionModificationState.Track
+              }
+              onChangeCaptionX={handleChangeTrackX}
+              onChangeCaptionY={handleChangeTrackY}
+              onToggleMoveCaptionPosition={handleToggleMoveTrackPosition}
+              onResetCaptionPosition={handleResetTrackPosition}
+            />
+          </div>
+        </ControlItem>
+      </Pane>
     );
   };
 
@@ -345,27 +386,37 @@ export const SettingsPanel = ({
     const captionAlignment = captionData.layout?.alignment;
     const position = captionData.layout?.position || { x: 0, y: 0 };
     return (
-      <Form>
-        <Form.Item label="Alignment" wrapperCol={{ span: 8 }}>
-          <AlignmentControl
-            selectedAlignment={captionAlignment}
-            defaultAlignment={CaptionAlignment.BottomCenter}
-            onChange={handleChangeCaptionAlignment}
-          />
-        </Form.Item>
-        <Form.Item label="Position (%)" wrapperCol={{ span: 8 }}>
-          <PositionControl
-            position={position}
-            isMovingCaptionPosition={
-              captionModificationState === CaptionModificationState.Caption
-            }
-            onChangeCaptionX={handleChangeCaptionX}
-            onChangeCaptionY={handleChangeCaptionY}
-            onToggleMoveCaptionPosition={handleToggleMoveCaptionPosition}
-            onResetCaptionPosition={handleResetCaptionPosition}
-          />
-        </Form.Item>
-      </Form>
+      <Pane>
+        <ControlItem>
+          <div>
+            <WSText>Alignment</WSText>
+          </div>
+          <div>
+            <AlignmentControl
+              selectedAlignment={captionAlignment}
+              defaultAlignment={CaptionAlignment.BottomCenter}
+              onChange={handleChangeCaptionAlignment}
+            />
+          </div>
+        </ControlItem>
+        <ControlItem>
+          <div>
+            <WSText>Position (%)</WSText>
+          </div>
+          <div>
+            <PositionControl
+              position={position}
+              isMovingCaptionPosition={
+                captionModificationState === CaptionModificationState.Caption
+              }
+              onChangeCaptionX={handleChangeCaptionX}
+              onChangeCaptionY={handleChangeCaptionY}
+              onToggleMoveCaptionPosition={handleToggleMoveCaptionPosition}
+              onResetCaptionPosition={handleResetCaptionPosition}
+            />
+          </div>
+        </ControlItem>
+      </Pane>
     );
   };
 

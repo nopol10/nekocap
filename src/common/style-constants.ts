@@ -4,6 +4,7 @@ export const SIZES = {
   mobileLarge: 425,
   tablet: 768,
   desktop: 1024,
+  largeDesktop: 1680,
 };
 
 export const DEVICE = {
@@ -13,4 +14,5 @@ export const DEVICE = {
   tablet: `(min-width: ${SIZES.tablet}px)`,
   mobileOnly: `(max-width: ${SIZES.mobileLarge}px)`,
   desktop: `(min-width: ${SIZES.desktop}px)`,
+  largeDesktop: `(min-width: ${SIZES.largeDesktop}px)`,
 };

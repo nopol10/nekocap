@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import NumberFormat, { NumberFormatProps } from "react-number-format";
 import styled from "styled-components";
 import { parseDurationToMs } from "../date-utils";
+import { DEVICE } from "../style-constants";
 
 const convertRawValueToMomentFormat = (value: string) => {
   return (
@@ -20,6 +21,12 @@ const StyledNumberFormat = styled(NumberFormat)`
   padding: 0 10px;
   width: 100%;
   border: 1px solid #d0d0d0;
+  .scoped-antd & {
+    font-size: 12px;
+    @media ${DEVICE.largeDesktop} {
+      font-size: 14px;
+    }
+  }
 `;
 
 type DurationInputProps = {
