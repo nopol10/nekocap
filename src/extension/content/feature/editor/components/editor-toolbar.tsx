@@ -23,8 +23,9 @@ import {
 } from "@/common/feature/caption-editor/selectors";
 import { SHORTCUT_NAME } from "@/common/feature/caption-editor/shortcut-constants";
 import { ColumnsType } from "antd/lib/table";
-import { startCase } from "lodash";
+import { isArray, startCase } from "lodash";
 import { WSButton } from "@/common/components/ws-button";
+import { MouseTrapKeySequence, KeyMapOptions } from "react-hotkeys-ce";
 
 const TimelineSlider = styled(Slider)`
   width: 200px;
@@ -63,12 +64,14 @@ const shortcutColumns: ColumnsType<ShortcutItem> = [
   },
 ];
 
-const formatShortcut = (name: string) => {
-  name = name.replace(/([a-zA-Z]+)/g, (value) => {
+const formatShortcut = (
+  shortcut: string | MouseTrapKeySequence | KeyMapOptions
+) => {
+  let normalizedName = shortcut.toString();
+  normalizedName = normalizedName.replace(/([a-zA-Z]+)/g, (value) => {
     return startCase(value);
   });
-  name = name.replace(",", " or ");
-  return name;
+  return normalizedName;
 };
 
 const KeyboardShortcutModal = ({ modalProps }: KeyboardShortcutModalProps) => {
@@ -92,8 +95,13 @@ const KeyboardShortcutModal = ({ modalProps }: KeyboardShortcutModalProps) => {
 
   const shortcutData: ShortcutItem[] = [
     ...Object.keys(shortcuts).map((shortcutKey) => {
-      const shortcut = shortcuts[shortcutKey].toString();
-      const formattedName = formatShortcut(shortcut);
+      const shortcut = shortcuts[shortcutKey];
+      let formattedName = "";
+      if (isArray(shortcut)) {
+        formattedName = shortcut.map(formatShortcut).join(" or ");
+      } else {
+        formattedName = formatShortcut(shortcut);
+      }
       return { name: SHORTCUT_NAME[shortcutKey], shortcut: formattedName };
     }),
   ];
@@ -132,7 +140,6 @@ export const EditorToolbar = ({
   onRedo,
   canUndo,
   canRedo,
-  onSave,
   onFixOverlaps,
   onOpenShiftTimings,
 }: EditorToolbarProps) => {
@@ -165,11 +172,6 @@ export const EditorToolbar = ({
         document.activeElement.blur();
       }
     }, 400);
-  };
-
-  const handleSave = (event: React.MouseEvent) => {
-    onSave();
-    event.preventDefault();
   };
 
   const renderZoomBar = () => {
