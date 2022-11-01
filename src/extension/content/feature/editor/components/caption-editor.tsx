@@ -85,6 +85,7 @@ import {
 import { getImageLink } from "@/common/chrome-utils";
 import { findClosestCaption } from "@/common/feature/video/utils";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
+import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
 
 dayjs.extend(duration);
 
@@ -507,6 +508,7 @@ const CaptionEditorInternal = ({
   } = useVideoVolumeChange(videoElement);
 
   const [videoDurationMs] = useVideoDurationChange(videoElement);
+  const videoFps = useGetVideoFrameRate(videoElement);
 
   const { data } = captionContainer || {};
 
@@ -1365,6 +1367,36 @@ const CaptionEditorInternal = ({
     );
   };
 
+  const handleSeekNextFrame = useCallback(
+    (event) => {
+      event.preventDefault();
+      setVideoTime(
+        clamp(
+          videoElement.currentTime + 1 / videoFps,
+          0,
+          videoElement.duration
+        ),
+        true
+      );
+    },
+    [videoFps]
+  );
+
+  const handleSeekPreviousFrame = useCallback(
+    (event) => {
+      event.preventDefault();
+      setVideoTime(
+        clamp(
+          videoElement.currentTime - 1 / videoFps,
+          0,
+          videoElement.duration
+        ),
+        true
+      );
+    },
+    [videoFps]
+  );
+
   const renderInfoMessage = () => {
     if (currentMoveType !== CaptionModificationState.None) {
       return (
@@ -1410,6 +1442,8 @@ const CaptionEditorInternal = ({
     [EDITOR_KEYS.REDO]: handleRedo,
     [EDITOR_KEYS.GO_TO_NEXT_CAPTION]: handleGotoNextCaption,
     [EDITOR_KEYS.GO_TO_PREVIOUS_CAPTION]: handleGotoPreviousCaption,
+    [EDITOR_KEYS.SEEK_NEXT_FRAME]: handleSeekNextFrame,
+    [EDITOR_KEYS.SEEK_PREVIOUS_FRAME]: handleSeekPreviousFrame,
     [EDITOR_KEYS.SEEK_FORWARD_500_MS]: handleSeekShortcut(500),
     [EDITOR_KEYS.SEEK_BACK_500_MS]: handleSeekShortcut(-500),
     [EDITOR_KEYS.SEEK_FORWARD_5_SECONDS]: handleSeekShortcut(5000),
