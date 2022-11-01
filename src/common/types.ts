@@ -89,6 +89,7 @@ export const CaptionFileFormat = {
   ssa: "ssa",
   vtt: "vtt",
   sbv: "sbv",
+  txt: "txt",
 };
 
 export type Dimension = {

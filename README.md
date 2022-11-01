@@ -48,7 +48,7 @@ Website:
   - Support for hotkeys from various editing software
   - Caption file export (SRT)
   - More to come
-- Caption file loading (SRT, VTT, SBV, SSA, ASS supported)
+- Caption file loading (SRT, VTT, SBV, SSA, ASS, TXT supported)
 - Caption upload
 - Caption viewing
 - Advanced Substation Alpha (SSA/ASS) caption rendering

@@ -16,6 +16,7 @@ export const VALID_FILE_TYPES = [
   CaptionFileFormat.sbv,
   CaptionFileFormat.ssa,
   CaptionFileFormat.ass,
+  CaptionFileFormat.txt,
 ];
 
 export const SUPPORTED_FILE_TYPES_STRING = VALID_FILE_TYPES.map((fileType) =>

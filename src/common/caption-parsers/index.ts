@@ -4,6 +4,7 @@ import { NekoCaption, CaptionDataContainer, Track } from "./types";
 import { compile as compileAss, CompiledASS, Dialogue } from "ass-compiler";
 import { CaptionFileFormat, Coords } from "../types";
 import { isRTLString } from "../utils";
+import { parseTxt } from "./txt-parser";
 
 // #region Parse
 const convertSrtCaptionsToNekoCaptionData = (
@@ -89,6 +90,8 @@ export const parseCaption = (
       return convertSrtCaptionsToNekoCaptionData(parse(content));
     case CaptionFileFormat.sbv:
       return parseSBV(content);
+    case CaptionFileFormat.txt:
+      return parseTxt(content);
     case CaptionFileFormat.ass:
     case CaptionFileFormat.ssa:
       return convertAssCaptionsToNekoCaptionData(compileAss(content, {}));
