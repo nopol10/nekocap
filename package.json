@@ -134,7 +134,7 @@
     "@manaflair/redux-batch": "^1.0.0",
     "@reduxjs/toolkit": "1.8.5",
     "@sentry/nextjs": "^7.6.0",
-    "antd": "4.15.5",
+    "antd": "4.23.6",
     "ass-compiler": "^0.1.4",
     "compression": "^1.7.4",
     "connected-react-router": "^6.8.0",
