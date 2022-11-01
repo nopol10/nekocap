@@ -6,6 +6,7 @@ import LoginRoutes from "./feature/login/containers/routes";
 import { ChromeMessage, ChromeMessageType } from "@/common/types";
 import { appHistory } from "./common/store";
 import "../../ant.less";
+import "@/antd-override.css";
 import { syncWindowVarsToPopup } from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
 import "@/extension/content/provider";
