@@ -133,6 +133,9 @@ export const SUBSTATION_GROUPED_FONTS = {
     lateef: "/fonts/Lateef-Regular.woff2",
   },
   thai: {
+    "anakotmai light": "/fonts/anakotmai-light.woff2",
+    "anakotmai medium": "/fonts/anakotmai-medium.woff2",
+    "anakotmai bold": "/fonts/anakotmai-bold.woff2",
     kanit: "/fonts/Kanit-Regular.woff2",
     "kanit light": "/fonts/Kanit-300.woff2",
     "kanit semibold": "/fonts/Kanit-600.woff2",
