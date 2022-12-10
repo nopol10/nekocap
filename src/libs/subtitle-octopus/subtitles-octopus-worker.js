@@ -1,21 +1,13 @@
-var Module = typeof Module !== "undefined" ? Module : {};
-
-if (!Module.expectedDataFileDownloads) {
-  Module.expectedDataFileDownloads = 0;
-}
-Module.expectedDataFileDownloads++;
-
+null;
+var Module = typeof Module != "undefined" ? Module : {};
 self.addEventListener("message", startWorker, false);
-
 function startWorker(message) {
   const data = message.data;
   if (data.target !== "pre-init") {
     return;
   }
   self.removeEventListener("message", startWorker);
-
   var hasNativeConsole = typeof console !== "undefined";
-
   function makeCustomConsole() {
     var console = (function () {
       function postConsoleMessage(prefix, args) {
@@ -44,239 +36,22 @@ function startWorker(message) {
     })();
     return console;
   }
-
   function isBrotliFile(url) {
     var len = url.indexOf("?");
     if (len === -1) {
       len = url.length;
     }
-    return url.endsWith(".br", len);
+    if (url.endsWith(".br", len)) {
+      console.warn(
+        "Support for manual brotli decompression is tentatively deprecated and " +
+          "may be removed with the next release. Instead use HTTP's Content-Encoding."
+      );
+      return true;
+    }
+    return false;
   }
-
   const WORKER_DIRECTORY_PREFIX =
     data.browserExtensionPath + "js/subtitle-octopus/";
-
-  (function () {
-    var loadPackage = function (metadata) {
-      var PACKAGE_PATH;
-      if (typeof window === "object") {
-        PACKAGE_PATH = window["encodeURIComponent"](
-          window.location.pathname
-            .toString()
-            .substring(
-              0,
-              window.location.pathname.toString().lastIndexOf("/")
-            ) + "/"
-        );
-      } else if (typeof location !== "undefined") {
-        PACKAGE_PATH = encodeURIComponent(
-          location.pathname
-            .toString()
-            .substring(0, location.pathname.toString().lastIndexOf("/")) + "/"
-        );
-      } else {
-        throw "using preloaded data can only be done on a web page or in a web worker";
-      }
-      var PACKAGE_NAME =
-        WORKER_DIRECTORY_PREFIX + "subtitles-octopus-worker.data";
-      var REMOTE_PACKAGE_BASE = PACKAGE_NAME; //"subtitles-octopus-worker.data";
-      if (
-        typeof Module["locateFilePackage"] === "function" &&
-        !Module["locateFile"]
-      ) {
-        Module["locateFile"] = Module["locateFilePackage"];
-        err(
-          "warning: you defined Module.locateFilePackage, that has been renamed to Module.locateFile (using your locateFilePackage for now)"
-        );
-      }
-      var REMOTE_PACKAGE_NAME = Module["locateFile"]
-        ? Module["locateFile"](REMOTE_PACKAGE_BASE, "")
-        : REMOTE_PACKAGE_BASE;
-      var REMOTE_PACKAGE_SIZE = metadata["remote_package_size"];
-      var PACKAGE_UUID = metadata["package_uuid"];
-      function fetchRemotePackage(packageName, packageSize, callback, errback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", packageName, true);
-        xhr.responseType = "arraybuffer";
-        xhr.onprogress = function (event) {
-          var url = packageName;
-          var size = packageSize;
-          if (event.total) size = event.total;
-          if (event.loaded) {
-            if (!xhr.addedTotal) {
-              xhr.addedTotal = true;
-              if (!Module.dataFileDownloads) Module.dataFileDownloads = {};
-              Module.dataFileDownloads[url] = {
-                loaded: event.loaded,
-                total: size,
-              };
-            } else {
-              Module.dataFileDownloads[url].loaded = event.loaded;
-            }
-            var total = 0;
-            var loaded = 0;
-            var num = 0;
-            for (var download in Module.dataFileDownloads) {
-              var data = Module.dataFileDownloads[download];
-              total += data.total;
-              loaded += data.loaded;
-              num++;
-            }
-            total = Math.ceil((total * Module.expectedDataFileDownloads) / num);
-            if (Module["setStatus"])
-              Module["setStatus"](
-                "Downloading data... (" + loaded + "/" + total + ")"
-              );
-          } else if (!Module.dataFileDownloads) {
-            if (Module["setStatus"]) Module["setStatus"]("Downloading data...");
-          }
-        };
-        xhr.onerror = function (event) {
-          throw new Error("NetworkError for: " + packageName);
-        };
-        xhr.onload = function (event) {
-          if (
-            xhr.status == 200 ||
-            xhr.status == 304 ||
-            xhr.status == 206 ||
-            (xhr.status == 0 && xhr.response)
-          ) {
-            var packageData = xhr.response;
-            callback(packageData);
-          } else {
-            throw new Error(xhr.statusText + " : " + xhr.responseURL);
-          }
-        };
-        xhr.send(null);
-      }
-      function handleError(error) {
-        console.error("package error:", error);
-      }
-      var fetchedCallback = null;
-      var fetched = Module["getPreloadedPackage"]
-        ? Module["getPreloadedPackage"](
-            REMOTE_PACKAGE_NAME,
-            REMOTE_PACKAGE_SIZE
-          )
-        : null;
-      if (!fetched)
-        fetchRemotePackage(
-          REMOTE_PACKAGE_NAME,
-          REMOTE_PACKAGE_SIZE,
-          function (data) {
-            if (fetchedCallback) {
-              fetchedCallback(data);
-              fetchedCallback = null;
-            } else {
-              fetched = data;
-            }
-          },
-          handleError
-        );
-      function runWithFS() {
-        function assert(check, msg) {
-          if (!check) throw msg + new Error().stack;
-        }
-        Module["FS_createPath"]("/", "assets", true, true);
-        function DataRequest(start, end, audio) {
-          this.start = start;
-          this.end = end;
-          this.audio = audio;
-        }
-        DataRequest.prototype = {
-          requests: {},
-          open: function (mode, name) {
-            this.name = name;
-            this.requests[name] = this;
-            Module["addRunDependency"]("fp " + this.name);
-          },
-          send: function () {},
-          onload: function () {
-            var byteArray = this.byteArray.subarray(this.start, this.end);
-            this.finish(byteArray);
-          },
-          finish: function (byteArray) {
-            var that = this;
-            Module["FS_createPreloadedFile"](
-              this.name,
-              null,
-              byteArray,
-              true,
-              true,
-              function () {
-                Module["removeRunDependency"]("fp " + that.name);
-              },
-              function () {
-                if (that.audio) {
-                  Module["removeRunDependency"]("fp " + that.name);
-                } else {
-                  err("Preloading file " + that.name + " failed");
-                }
-              },
-              false,
-              true
-            );
-            this.requests[this.name] = null;
-          },
-        };
-        var files = metadata["files"];
-        for (var i = 0; i < files.length; ++i) {
-          new DataRequest(
-            files[i]["start"],
-            files[i]["end"],
-            files[i]["audio"]
-          ).open("GET", files[i]["filename"]);
-        }
-        function processPackageData(arrayBuffer) {
-          assert(arrayBuffer, "Loading data file failed.");
-          assert(
-            arrayBuffer instanceof ArrayBuffer,
-            "bad input to processPackageData"
-          );
-          var byteArray = new Uint8Array(arrayBuffer);
-          DataRequest.prototype.byteArray = byteArray;
-          var files = metadata["files"];
-          for (var i = 0; i < files.length; ++i) {
-            DataRequest.prototype.requests[files[i].filename].onload();
-          }
-          Module["removeRunDependency"](
-            "datafile_dist/js/subtitles-octopus-worker.data"
-          );
-        }
-        Module["addRunDependency"](
-          "datafile_dist/js/subtitles-octopus-worker.data"
-        );
-        if (!Module.preloadResults) Module.preloadResults = {};
-        Module.preloadResults[PACKAGE_NAME] = { fromCache: false };
-        if (fetched) {
-          processPackageData(fetched);
-          fetched = null;
-        } else {
-          fetchedCallback = processPackageData;
-        }
-      }
-      if (Module["calledRun"]) {
-        runWithFS();
-      } else {
-        if (!Module["preRun"]) Module["preRun"] = [];
-        Module["preRun"].push(runWithFS);
-      }
-    };
-    loadPackage({
-      files: [
-        { filename: "/assets/default.woff2", start: 0, end: 145972, audio: 0 },
-        {
-          filename: "/assets/fonts.conf",
-          start: 145972,
-          end: 146775,
-          audio: 0,
-        },
-      ],
-      remote_package_size: 146775,
-      package_uuid: "b685a3a4-8400-48eb-a40c-96e6f71cf778",
-    });
-  })();
-
   Module = Module || {};
   Module["preRun"] = Module["preRun"] || [];
 
@@ -288,7 +63,6 @@ function startWorker(message) {
   }
 
   Module["preRun"].push(async function () {
-    var i;
     Module["FS_createPath"]("/", "fonts", true, true);
     Module["FS_createPath"]("/", "fontconfig", true, true);
     if (!self.subContent) {
@@ -316,7 +90,7 @@ function startWorker(message) {
         fontNames.add(matches[1]);
       }
       // Add font variants (bold/italic/etc)
-      const fontNamesArray = Array.from(fontNames)
+      const fontNamesArray = Array.from(fontNames);
       const weightVariants = [
         "thin",
         "extralight",
@@ -336,23 +110,20 @@ function startWorker(message) {
         "ultra bold",
         "black",
         "heavy",
-      ]
-      const styleVariants = [
-        "",
-        "italic"
-      ]
+      ];
+      const styleVariants = ["", "italic"];
       // Generate weightVariants and styleVariants by flatmapping them
-      const fontVariants = weightVariants.flatMap(weight =>
-        styleVariants.map(style => `${weight} ${style}`.trim())
-      )
-      fontNamesArray.forEach(fontName =>
-        fontVariants.forEach(variant => { 
-          const fontVariantName = `${fontName} ${variant}`.toLowerCase()
+      const fontVariants = weightVariants.flatMap((weight) =>
+        styleVariants.map((style) => `${weight} ${style}`.trim())
+      );
+      fontNamesArray.forEach((fontName) =>
+        fontVariants.forEach((variant) => {
+          const fontVariantName = `${fontName} ${variant}`.toLowerCase();
           if (self.availableFonts.hasOwnProperty(fontVariantName)) {
-            fontNames.add(fontVariantName)
+            fontNames.add(fontVariantName);
           }
         })
-      )
+      );
 
       var chunkedFontNames = chunk(Array.from(fontNames), 4);
       postMessage({
@@ -379,15 +150,10 @@ function startWorker(message) {
       Module["FS"].writeFile("/sub.ass", self.subContent);
     }
     self.subContent = null;
+    self.loadFontFile(".fallback-", self.fallbackFont);
     var fontFiles = self.fontFiles || [];
-    for (i = 0; i < fontFiles.length; i++) {
-      Module["FS_createPreloadedFile"](
-        "/fonts",
-        "font" + i + "-" + fontFiles[i].split("/").pop(),
-        fontFiles[i],
-        true,
-        true
-      );
+    for (var i = 0; i < fontFiles.length; i++) {
+      self.loadFontFile("font" + i + "-", fontFiles[i]);
     }
   });
   Module["onRuntimeInitialized"] = function () {
@@ -398,7 +164,12 @@ function startWorker(message) {
     self.blendY = Module._malloc(4);
     self.blendW = Module._malloc(4);
     self.blendH = Module._malloc(4);
-    self.octObj.initLibrary(screen.width, screen.height);
+    self.octObj.initLibrary(
+      screen.width,
+      screen.height,
+      "/fonts/.fallback-" + self.fallbackFont.split("/").pop()
+    );
+    self.octObj.setDropAnimations(self.dropAllAnimations);
     self.octObj.createTrack("/sub.ass");
     self.ass_track = self.octObj.track;
     self.ass_library = self.octObj.ass_library;
@@ -2337,30 +2108,18 @@ function startWorker(message) {
   }
   var BrotliDecode = BrotliDecodeClosure();
   Module["BrotliDecode"] = BrotliDecode;
-  var moduleOverrides = {};
-  var key;
-  for (key in Module) {
-    if (Module.hasOwnProperty(key)) {
-      moduleOverrides[key] = Module[key];
-    }
-  }
+  var moduleOverrides = Object.assign({}, Module);
   var arguments_ = [];
   var thisProgram = "./this.program";
-  var quit_ = function (status, toThrow) {
+  var quit_ = (status, toThrow) => {
     throw toThrow;
   };
-  var ENVIRONMENT_IS_WEB = false;
-  var ENVIRONMENT_IS_WORKER = false;
-  var ENVIRONMENT_IS_NODE = false;
-  var ENVIRONMENT_IS_SHELL = false;
-  ENVIRONMENT_IS_WEB = typeof window === "object";
-  ENVIRONMENT_IS_WORKER = typeof importScripts === "function";
-  ENVIRONMENT_IS_NODE =
-    typeof process === "object" &&
-    typeof process.versions === "object" &&
-    typeof process.versions.node === "string";
-  ENVIRONMENT_IS_SHELL =
-    !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
+  var ENVIRONMENT_IS_WEB = typeof window == "object";
+  var ENVIRONMENT_IS_WORKER = typeof importScripts == "function";
+  var ENVIRONMENT_IS_NODE =
+    typeof process == "object" &&
+    typeof process.versions == "object" &&
+    typeof process.versions.node == "string";
   var scriptDirectory = "";
   function locateFile(path) {
     if (Module["locateFile"]) {
@@ -2377,26 +2136,26 @@ function startWorker(message) {
   if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
     if (ENVIRONMENT_IS_WORKER) {
       scriptDirectory = WORKER_DIRECTORY_PREFIX; // self.location.href;
-    } else if (typeof document !== "undefined" && document.currentScript) {
+    } else if (typeof document != "undefined" && document.currentScript) {
       scriptDirectory = document.currentScript.src;
     }
     if (scriptDirectory.indexOf("blob:") !== 0) {
       scriptDirectory = scriptDirectory.substr(
         0,
-        scriptDirectory.lastIndexOf("/") + 1
+        scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1
       );
     } else {
       scriptDirectory = "";
     }
     {
-      read_ = function (url) {
+      read_ = (url) => {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, false);
         xhr.send(null);
         return xhr.responseText;
       };
       if (ENVIRONMENT_IS_WORKER) {
-        readBinary = function (url) {
+        readBinary = (url) => {
           var xhr = new XMLHttpRequest();
           xhr.open("GET", url, false);
           xhr.responseType = "arraybuffer";
@@ -2404,35 +2163,39 @@ function startWorker(message) {
           return new Uint8Array(xhr.response);
         };
       }
-      readAsync = function (url, onload, onerror) {
+      readAsync = (url, onload, onerror) => {
         // Use a message to retrieve the response
         const onResponseReceived = (message) => {
-          const data = message.data
-          if (data.target !== "request-response" || data.url !== url) {
-            return
+          const data = message.data;
+          if (data.target !== "request-response") {
+            return;
           }
           self.removeEventListener("message", onResponseReceived, false);
           if (data.error) {
             onerror();
-            console.log("[Worker] Request failed: " + JSON.stringify(data.error));
+            console.log(
+              "[Worker] Request failed: " + JSON.stringify(data.error)
+            );
             return;
           }
-          // Expecting an arraybuffer in onload
-          onload(data.response.slice());
-        }
-        self.addEventListener("message", onResponseReceived, false);
-        postMessage(
-          {
-            target: "request",
-            method: "GET",
-            responseType: "arraybuffer",
-            url: url,
+          let bufferResponse = data.response;
+          if (typeof data.response === "string") {
+            const jsonResponse = JSON.parse(data.response);
+            bufferResponse = new Uint8Array(jsonResponse).buffer;
           }
-        )
+          onload(bufferResponse);
+        };
+        self.addEventListener("message", onResponseReceived, false);
+        postMessage({
+          target: "request",
+          method: "GET",
+          responseType: "arraybuffer",
+          url: url,
+        });
         // var xhr = new XMLHttpRequest();
         // xhr.open("GET", url, true);
         // xhr.responseType = "arraybuffer";
-        // xhr.onload = function () {
+        // xhr.onload = () => {
         //   if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
         //     onload(xhr.response);
         //     return;
@@ -2464,27 +2227,16 @@ function startWorker(message) {
         return ret;
       };
     }
-    setWindowTitle = function (title) {
-      document.title = title;
-    };
+    setWindowTitle = (title) => (document.title = title);
   } else {
   }
   var out = Module["print"] || console.log.bind(console);
   var err = Module["printErr"] || console.warn.bind(console);
-  for (key in moduleOverrides) {
-    if (moduleOverrides.hasOwnProperty(key)) {
-      Module[key] = moduleOverrides[key];
-    }
-  }
+  Object.assign(Module, moduleOverrides);
   moduleOverrides = null;
   if (Module["arguments"]) arguments_ = Module["arguments"];
   if (Module["thisProgram"]) thisProgram = Module["thisProgram"];
   if (Module["quit"]) quit_ = Module["quit"];
-  var STACK_ALIGN = 16;
-  function alignMemory(size, factor) {
-    if (!factor) factor = STACK_ALIGN;
-    return Math.ceil(size / factor) * factor;
-  }
   function warnOnce(text) {
     if (!warnOnce.shown) warnOnce.shown = {};
     if (!warnOnce.shown[text]) {
@@ -2493,55 +2245,26 @@ function startWorker(message) {
     }
   }
   var tempRet0 = 0;
-  var setTempRet0 = function (value) {
+  var setTempRet0 = (value) => {
     tempRet0 = value;
   };
-  var getTempRet0 = function () {
-    return tempRet0;
-  };
+  var getTempRet0 = () => tempRet0;
   var wasmBinary;
   if (Module["wasmBinary"]) wasmBinary = Module["wasmBinary"];
   var noExitRuntime = Module["noExitRuntime"] || true;
-  if (typeof WebAssembly !== "object") {
+  if (typeof WebAssembly != "object") {
     abort("no native wasm support detected");
-  }
-  function getValue(ptr, type, noSafe) {
-    type = type || "i8";
-    if (type.charAt(type.length - 1) === "*") type = "i32";
-    switch (type) {
-      case "i1":
-        return HEAP8[ptr >> 0];
-      case "i8":
-        return HEAP8[ptr >> 0];
-      case "i16":
-        return HEAP16[ptr >> 1];
-      case "i32":
-        return HEAP32[ptr >> 2];
-      case "i64":
-        return HEAP32[ptr >> 2];
-      case "float":
-        return HEAPF32[ptr >> 2];
-      case "double":
-        return HEAPF64[ptr >> 3];
-      default:
-        abort("invalid type for getValue: " + type);
-    }
-    return null;
   }
   var wasmMemory;
   var ABORT = false;
   var EXITSTATUS;
   function assert(condition, text) {
     if (!condition) {
-      abort("Assertion failed: " + text);
+      abort(text);
     }
   }
   function getCFunc(ident) {
     var func = Module["_" + ident];
-    assert(
-      func,
-      "Cannot call unknown function " + ident + ", make sure it is exported"
-    );
     return func;
   }
   function ccall(ident, returnType, argTypes, args, opts) {
@@ -2562,7 +2285,9 @@ function startWorker(message) {
       },
     };
     function convertReturnValue(ret) {
-      if (returnType === "string") return UTF8ToString(ret);
+      if (returnType === "string") {
+        return UTF8ToString(ret);
+      }
       if (returnType === "boolean") return Boolean(ret);
       return ret;
     }
@@ -2581,8 +2306,11 @@ function startWorker(message) {
       }
     }
     var ret = func.apply(null, cArgs);
-    ret = convertReturnValue(ret);
-    if (stack !== 0) stackRestore(stack);
+    function onDone(ret) {
+      if (stack !== 0) stackRestore(stack);
+      return convertReturnValue(ret);
+    }
+    ret = onDone(ret);
     return ret;
   }
   function cwrap(ident, returnType, argTypes, opts) {
@@ -2599,31 +2327,35 @@ function startWorker(message) {
     };
   }
   var UTF8Decoder =
-    typeof TextDecoder !== "undefined" ? new TextDecoder("utf8") : undefined;
-  function UTF8ArrayToString(heap, idx, maxBytesToRead) {
+    typeof TextDecoder != "undefined" ? new TextDecoder("utf8") : undefined;
+  function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
     var endIdx = idx + maxBytesToRead;
     var endPtr = idx;
-    while (heap[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-    if (endPtr - idx > 16 && heap.subarray && UTF8Decoder) {
-      return UTF8Decoder.decode(heap.subarray(idx, endPtr));
+    while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+    if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
+      return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
     } else {
       var str = "";
       while (idx < endPtr) {
-        var u0 = heap[idx++];
+        var u0 = heapOrArray[idx++];
         if (!(u0 & 128)) {
           str += String.fromCharCode(u0);
           continue;
         }
-        var u1 = heap[idx++] & 63;
+        var u1 = heapOrArray[idx++] & 63;
         if ((u0 & 224) == 192) {
           str += String.fromCharCode(((u0 & 31) << 6) | u1);
           continue;
         }
-        var u2 = heap[idx++] & 63;
+        var u2 = heapOrArray[idx++] & 63;
         if ((u0 & 240) == 224) {
           u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
         } else {
-          u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heap[idx++] & 63);
+          u0 =
+            ((u0 & 7) << 18) |
+            (u1 << 12) |
+            (u2 << 6) |
+            (heapOrArray[idx++] & 63);
         }
         if (u0 < 65536) {
           str += String.fromCharCode(u0);
@@ -2702,12 +2434,6 @@ function startWorker(message) {
     }
     if (!dontAddNull) HEAP8[buffer >> 0] = 0;
   }
-  function alignUp(x, multiple) {
-    if (x % multiple > 0) {
-      x += multiple - (x % multiple);
-    }
-    return x;
-  }
   var buffer, HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAPF64;
   function updateGlobalBufferAndViews(buf) {
     buffer = buf;
@@ -2727,7 +2453,9 @@ function startWorker(message) {
   var __ATMAIN__ = [];
   var __ATPOSTRUN__ = [];
   var runtimeInitialized = false;
-  var runtimeExited = false;
+  function keepRuntimeAlive() {
+    return noExitRuntime;
+  }
   async function preRun() {
     if (Module["preRun"]) {
       if (typeof Module["preRun"] == "function")
@@ -2741,15 +2469,12 @@ function startWorker(message) {
   function initRuntime() {
     runtimeInitialized = true;
     if (!Module["noFSInit"] && !FS.init.initialized) FS.init();
+    FS.ignorePermissions = false;
     TTY.init();
     callRuntimeCallbacks(__ATINIT__);
   }
   function preMain() {
-    FS.ignorePermissions = false;
     callRuntimeCallbacks(__ATMAIN__);
-  }
-  function exitRuntime() {
-    runtimeExited = true;
   }
   function postRun() {
     if (Module["postRun"]) {
@@ -2766,9 +2491,6 @@ function startWorker(message) {
   }
   function addOnInit(cb) {
     __ATINIT__.unshift(cb);
-  }
-  function addOnPreMain(cb) {
-    __ATMAIN__.unshift(cb);
   }
   function addOnPostRun(cb) {
     __ATPOSTRUN__.unshift(cb);
@@ -2802,17 +2524,17 @@ function startWorker(message) {
       }
     }
   }
-  Module["preloadedImages"] = {};
-  Module["preloadedAudios"] = {};
   function abort(what) {
-    if (Module["onAbort"]) {
-      Module["onAbort"](what);
+    {
+      if (Module["onAbort"]) {
+        Module["onAbort"](what);
+      }
     }
-    what += "";
+    what = "Aborted(" + what + ")";
     err(what);
     ABORT = true;
     EXITSTATUS = 1;
-    what = "abort(" + what + "). Build with -s ASSERTIONS=1 for more info.";
+    what += ". Build with -sASSERTIONS for more info.";
     var e = new WebAssembly.RuntimeError(what);
     throw e;
   }
@@ -2823,7 +2545,8 @@ function startWorker(message) {
   function isFileURI(filename) {
     return filename.startsWith("file://");
   }
-  var wasmBinaryFile = "subtitles-octopus-worker.wasm";
+  var wasmBinaryFile;
+  wasmBinaryFile = "subtitles-octopus-worker.wasm";
   if (!isDataURI(wasmBinaryFile)) {
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
@@ -2843,7 +2566,7 @@ function startWorker(message) {
   }
   function getBinaryPromise() {
     if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
-      if (typeof fetch === "function" && !isFileURI(wasmBinaryFile)) {
+      if (typeof fetch == "function" && !isFileURI(wasmBinaryFile)) {
         return fetch(wasmBinaryFile, { credentials: "same-origin" })
           .then(function (response) {
             if (!response["ok"]) {
@@ -2879,10 +2602,10 @@ function startWorker(message) {
     function receiveInstance(instance, module) {
       var exports = instance.exports;
       Module["asm"] = exports;
-      wasmMemory = Module["asm"]["Q"];
+      wasmMemory = Module["asm"]["N"];
       updateGlobalBufferAndViews(wasmMemory.buffer);
-      wasmTable = Module["asm"]["be"];
-      addOnInit(Module["asm"]["R"]);
+      wasmTable = Module["asm"]["_d"];
+      addOnInit(Module["asm"]["O"]);
       removeRunDependency("wasm-instantiate");
     }
     addRunDependency("wasm-instantiate");
@@ -2892,8 +2615,10 @@ function startWorker(message) {
     function instantiateArrayBuffer(receiver) {
       return getBinaryPromise()
         .then(function (binary) {
-          var result = WebAssembly.instantiate(binary, info);
-          return result;
+          return WebAssembly.instantiate(binary, info);
+        })
+        .then(function (instance) {
+          return instance;
         })
         .then(receiver, function (reason) {
           err("failed to asynchronously prepare wasm: " + reason);
@@ -2903,10 +2628,10 @@ function startWorker(message) {
     function instantiateAsync() {
       if (
         !wasmBinary &&
-        typeof WebAssembly.instantiateStreaming === "function" &&
+        typeof WebAssembly.instantiateStreaming == "function" &&
         !isDataURI(wasmBinaryFile) &&
         !isFileURI(wasmBinaryFile) &&
-        typeof fetch === "function"
+        typeof fetch == "function"
       ) {
         return fetch(wasmBinaryFile, { credentials: "same-origin" }).then(
           function (response) {
@@ -2962,7 +2687,7 @@ function startWorker(message) {
       };
       Browser.mainLoop.method = "rAF";
     } else if (mode == 2) {
-      if (typeof setImmediate === "undefined") {
+      if (typeof setImmediate == "undefined") {
         var setImmediates = [];
         var emscriptenMainLoopMessageId = "setimmediate";
         var Browser_setImmediate_messageHandler = function (event) {
@@ -2994,25 +2719,17 @@ function startWorker(message) {
     return 0;
   }
   var _emscripten_get_now;
-  _emscripten_get_now = function () {
-    return performance.now();
-  };
-  var runtimeKeepaliveCounter = 0;
+  _emscripten_get_now = () => performance.now();
   function _exit(status) {
     exit(status);
   }
-  function maybeExit() {
-    if (!keepRuntimeAlive()) {
-      try {
-        _exit(EXITSTATUS);
-      } catch (e) {
-        if (e instanceof ExitStatus) {
-          return;
-        }
-        throw e;
-      }
+  function handleException(e) {
+    if (e instanceof ExitStatus || e == "unwind") {
+      return EXITSTATUS;
     }
+    quit_(1, e);
   }
+  function maybeExit() {}
   function setMainLoop(
     browserIterationFunc,
     fps,
@@ -3051,7 +2768,7 @@ function startWorker(message) {
             Browser.mainLoop.remainingBlockers = (8 * remaining + next) / 9;
           }
         }
-        console.log(
+        out(
           'main loop blocker "' +
             blocker.name +
             '" took ' +
@@ -3078,7 +2795,7 @@ function startWorker(message) {
       }
       Browser.mainLoop.runIter(browserIterationFunc);
       if (!checkIsRunning()) return;
-      if (typeof SDL === "object" && SDL.audio && SDL.audio.queueNewAudioData)
+      if (typeof SDL == "object" && SDL.audio && SDL.audio.queueNewAudioData)
         SDL.audio.queueNewAudioData();
       Browser.mainLoop.scheduler();
     };
@@ -3102,14 +2819,13 @@ function startWorker(message) {
     try {
       func();
     } catch (e) {
-      if (e instanceof ExitStatus) {
-        return;
-      } else if (e !== "unwind") {
-        if (e && typeof e === "object" && e.stack)
-          err("exception thrown: " + [e, e.stack]);
-        throw e;
-      }
+      handleException(e);
     }
+  }
+  function safeSetTimeout(func, timeout) {
+    return setTimeout(function () {
+      callUserCallback(func);
+    }, timeout);
   }
   var Browser = {
     mainLoop: {
@@ -3180,9 +2896,7 @@ function startWorker(message) {
         Browser.hasBlobConstructor = true;
       } catch (e) {
         Browser.hasBlobConstructor = false;
-        console.log(
-          "warning: no blob constructor, cannot create blobs with mimetypes"
-        );
+        out("warning: no blob constructor, cannot create blobs with mimetypes");
       }
       Browser.BlobBuilder =
         typeof MozBlobBuilder != "undefined"
@@ -3190,7 +2904,7 @@ function startWorker(message) {
           : typeof WebKitBlobBuilder != "undefined"
           ? WebKitBlobBuilder
           : !Browser.hasBlobConstructor
-          ? console.log("warning: no BlobBuilder")
+          ? out("warning: no BlobBuilder")
           : null;
       Browser.URLObject =
         typeof window != "undefined"
@@ -3198,8 +2912,8 @@ function startWorker(message) {
             ? window.URL
             : window.webkitURL
           : undefined;
-      if (!Module.noImageDecoding && typeof Browser.URLObject === "undefined") {
-        console.log(
+      if (!Module.noImageDecoding && typeof Browser.URLObject == "undefined") {
+        out(
           "warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available."
         );
         Module.noImageDecoding = true;
@@ -3217,7 +2931,9 @@ function startWorker(message) {
         var b = null;
         if (Browser.hasBlobConstructor) {
           try {
-            b = new Blob([byteArray], { type: Browser.getMimetype(name) });
+            b = new Blob([byteArray], {
+              type: Browser.getMimetype(name),
+            });
             if (b.size !== byteArray.length) {
               b = new Blob([new Uint8Array(byteArray).buffer], {
                 type: Browser.getMimetype(name),
@@ -3238,19 +2954,19 @@ function startWorker(message) {
         }
         var url = Browser.URLObject.createObjectURL(b);
         var img = new Image();
-        img.onload = function img_onload() {
+        img.onload = () => {
           assert(img.complete, "Image " + name + " could not be decoded");
           var canvas = document.createElement("canvas");
           canvas.width = img.width;
           canvas.height = img.height;
           var ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0);
-          Module["preloadedImages"][name] = canvas;
+          preloadedImages[name] = canvas;
           Browser.URLObject.revokeObjectURL(url);
           if (onload) onload(byteArray);
         };
-        img.onerror = function img_onerror(event) {
-          console.log("Image " + url + " could not be decoded");
+        img.onerror = (event) => {
+          out("Image " + url + " could not be decoded");
           if (onerror) onerror();
         };
         img.src = url;
@@ -3273,18 +2989,20 @@ function startWorker(message) {
         function finish(audio) {
           if (done) return;
           done = true;
-          Module["preloadedAudios"][name] = audio;
+          preloadedAudios[name] = audio;
           if (onload) onload(byteArray);
         }
         function fail() {
           if (done) return;
           done = true;
-          Module["preloadedAudios"][name] = new Audio();
+          preloadedAudios[name] = new Audio();
           if (onerror) onerror();
         }
         if (Browser.hasBlobConstructor) {
           try {
-            var b = new Blob([byteArray], { type: Browser.getMimetype(name) });
+            var b = new Blob([byteArray], {
+              type: Browser.getMimetype(name),
+            });
           } catch (e) {
             return fail();
           }
@@ -3299,7 +3017,7 @@ function startWorker(message) {
           );
           audio.onerror = function audio_onerror(event) {
             if (done) return;
-            console.log(
+            out(
               "warning: browser could not fully decode audio " +
                 name +
                 ", trying slower base64 approach"
@@ -3337,7 +3055,7 @@ function startWorker(message) {
             finish(audio);
           };
           audio.src = url;
-          Browser.safeSetTimeout(function () {
+          safeSetTimeout(function () {
             finish(audio);
           }, 1e4);
         } else {
@@ -3401,6 +3119,18 @@ function startWorker(message) {
         }
       }
     },
+    handledByPreloadPlugin: function (byteArray, fullname, finish, onerror) {
+      Browser.init();
+      var handled = false;
+      Module["preloadPlugins"].forEach(function (plugin) {
+        if (handled) return;
+        if (plugin["canHandle"](fullname)) {
+          plugin["handle"](byteArray, fullname, finish, onerror);
+          handled = true;
+        }
+      });
+      return handled;
+    },
     createContext: function (
       canvas,
       useWebGL,
@@ -3421,7 +3151,7 @@ function startWorker(message) {
             contextAttributes[attribute] = webGLContextAttributes[attribute];
           }
         }
-        if (typeof GL !== "undefined") {
+        if (typeof GL != "undefined") {
           contextHandle = GL.createContext(canvas, contextAttributes);
           if (contextHandle) {
             ctx = GL.getContext(contextHandle).GLctx;
@@ -3434,7 +3164,7 @@ function startWorker(message) {
       if (setInModule) {
         if (!useWebGL)
           assert(
-            typeof GLctx === "undefined",
+            typeof GLctx == "undefined",
             "cannot set in module if GLctx is used, but we are a non-GL context that would replace it"
           );
         Module.ctx = ctx;
@@ -3454,9 +3184,8 @@ function startWorker(message) {
     requestFullscreen: function (lockPointer, resizeCanvas) {
       Browser.lockPointer = lockPointer;
       Browser.resizeCanvas = resizeCanvas;
-      if (typeof Browser.lockPointer === "undefined")
-        Browser.lockPointer = true;
-      if (typeof Browser.resizeCanvas === "undefined")
+      if (typeof Browser.lockPointer == "undefined") Browser.lockPointer = true;
+      if (typeof Browser.resizeCanvas == "undefined")
         Browser.resizeCanvas = false;
       var canvas = Module["canvas"];
       function fullscreenChange() {
@@ -3561,22 +3290,20 @@ function startWorker(message) {
       setTimeout(func, delay);
     },
     requestAnimationFrame: function (func) {
-      if (typeof requestAnimationFrame === "function") {
+      if (typeof requestAnimationFrame == "function") {
         requestAnimationFrame(func);
         return;
       }
       var RAF = Browser.fakeRequestAnimationFrame;
       RAF(func);
     },
+    safeSetTimeout: function (func) {
+      return safeSetTimeout(func);
+    },
     safeRequestAnimationFrame: function (func) {
       return Browser.requestAnimationFrame(function () {
         callUserCallback(func);
       });
-    },
-    safeSetTimeout: function (func, timeout) {
-      return setTimeout(function () {
-        callUserCallback(func);
-      }, timeout);
     },
     getMimetype: function (name) {
       return {
@@ -3668,11 +3395,11 @@ function startWorker(message) {
         var cw = Module["canvas"].width;
         var ch = Module["canvas"].height;
         var scrollX =
-          typeof window.scrollX !== "undefined"
+          typeof window.scrollX != "undefined"
             ? window.scrollX
             : window.pageXOffset;
         var scrollY =
-          typeof window.scrollY !== "undefined"
+          typeof window.scrollY != "undefined"
             ? window.scrollY
             : window.pageYOffset;
         if (
@@ -3709,28 +3436,6 @@ function startWorker(message) {
         Browser.mouseX = x;
         Browser.mouseY = y;
       }
-    },
-    asyncLoad: function (url, onload, onerror, noRunDep) {
-      var dep = !noRunDep ? getUniqueRunDependency("al " + url) : "";
-      readAsync(
-        url,
-        function (arrayBuffer) {
-          assert(
-            arrayBuffer,
-            'Loading data file "' + url + '" failed (no arrayBuffer).'
-          );
-          onload(new Uint8Array(arrayBuffer));
-          if (dep) removeRunDependency(dep);
-        },
-        function (event) {
-          if (onerror) {
-            onerror();
-          } else {
-            throw 'Loading data file "' + url + '" failed.';
-          }
-        }
-      );
-      if (dep) addRunDependency(dep);
     },
     resizeListeners: [],
     updateResizeListeners: function () {
@@ -3814,35 +3519,45 @@ function startWorker(message) {
         }
       }
     },
-    wgetRequests: {},
-    nextWgetRequestHandle: 0,
-    getNextWgetRequestHandle: function () {
-      var handle = Browser.nextWgetRequestHandle;
-      Browser.nextWgetRequestHandle++;
-      return handle;
-    },
   };
   async function callRuntimeCallbacks(callbacks) {
     while (callbacks.length > 0) {
-      var callback = callbacks.shift();
-      if (typeof callback == "function") {
-        await callback(Module);
-        continue;
-      }
-      var func = callback.func;
-      if (typeof func === "number") {
-        if (callback.arg === undefined) {
-          wasmTable.get(func)();
-        } else {
-          wasmTable.get(func)(callback.arg);
-        }
-      } else {
-        func(callback.arg === undefined ? null : callback.arg);
-      }
+      await callbacks.shift()(Module);
     }
   }
-  function keepRuntimeAlive() {
-    return noExitRuntime || runtimeKeepaliveCounter > 0;
+  function getValue(ptr, type = "i8") {
+    if (type.endsWith("*")) type = "*";
+    switch (type) {
+      case "i1":
+        return HEAP8[ptr >> 0];
+      case "i8":
+        return HEAP8[ptr >> 0];
+      case "i16":
+        return HEAP16[ptr >> 1];
+      case "i32":
+        return HEAP32[ptr >> 2];
+      case "i64":
+        return HEAP32[ptr >> 2];
+      case "float":
+        return HEAPF32[ptr >> 2];
+      case "double":
+        return HEAPF64[ptr >> 3];
+      case "*":
+        return HEAPU32[ptr >> 2];
+      default:
+        abort("invalid type for getValue: " + type);
+    }
+    return null;
+  }
+  var wasmTableMirror = [];
+  function getWasmTableEntry(funcPtr) {
+    var func = wasmTableMirror[funcPtr];
+    if (!func) {
+      if (funcPtr >= wasmTableMirror.length)
+        wasmTableMirror.length = funcPtr + 1;
+      wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
+    }
+    return func;
   }
   function ___assert_fail(condition, filename, line, func) {
     abort(
@@ -3856,38 +3571,14 @@ function startWorker(message) {
         ]
     );
   }
-  var _emscripten_get_now_is_monotonic = true;
-  function setErrNo(value) {
-    HEAP32[___errno_location() >> 2] = value;
-    return value;
-  }
-  function _clock_gettime(clk_id, tp) {
-    var now;
-    if (clk_id === 0) {
-      now = Date.now();
-    } else if (
-      (clk_id === 1 || clk_id === 4) &&
-      _emscripten_get_now_is_monotonic
-    ) {
-      now = _emscripten_get_now();
-    } else {
-      setErrNo(28);
-      return -1;
-    }
-    HEAP32[tp >> 2] = (now / 1e3) | 0;
-    HEAP32[(tp + 4) >> 2] = ((now % 1e3) * 1e3 * 1e3) | 0;
-    return 0;
-  }
-  function ___clock_gettime(a0, a1) {
-    return _clock_gettime(a0, a1);
-  }
   var PATH = {
-    splitPath: function (filename) {
+    isAbs: (path) => path.charAt(0) === "/",
+    splitPath: (filename) => {
       var splitPathRe =
         /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
       return splitPathRe.exec(filename).slice(1);
     },
-    normalizeArray: function (parts, allowAboveRoot) {
+    normalizeArray: (parts, allowAboveRoot) => {
       var up = 0;
       for (var i = parts.length - 1; i >= 0; i--) {
         var last = parts[i];
@@ -3908,13 +3599,11 @@ function startWorker(message) {
       }
       return parts;
     },
-    normalize: function (path) {
-      var isAbsolute = path.charAt(0) === "/",
+    normalize: (path) => {
+      var isAbsolute = PATH.isAbs(path),
         trailingSlash = path.substr(-1) === "/";
       path = PATH.normalizeArray(
-        path.split("/").filter(function (p) {
-          return !!p;
-        }),
+        path.split("/").filter((p) => !!p),
         !isAbsolute
       ).join("/");
       if (!path && !isAbsolute) {
@@ -3925,7 +3614,7 @@ function startWorker(message) {
       }
       return (isAbsolute ? "/" : "") + path;
     },
-    dirname: function (path) {
+    dirname: (path) => {
       var result = PATH.splitPath(path),
         root = result[0],
         dir = result[1];
@@ -3937,7 +3626,7 @@ function startWorker(message) {
       }
       return root + dir;
     },
-    basename: function (path) {
+    basename: (path) => {
       if (path === "/") return "/";
       path = PATH.normalize(path);
       path = path.replace(/\/$/, "");
@@ -3945,21 +3634,18 @@ function startWorker(message) {
       if (lastSlash === -1) return path;
       return path.substr(lastSlash + 1);
     },
-    extname: function (path) {
-      return PATH.splitPath(path)[3];
-    },
     join: function () {
       var paths = Array.prototype.slice.call(arguments, 0);
       return PATH.normalize(paths.join("/"));
     },
-    join2: function (l, r) {
+    join2: (l, r) => {
       return PATH.normalize(l + "/" + r);
     },
   };
   function getRandomDevice() {
     if (
-      typeof crypto === "object" &&
-      typeof crypto["getRandomValues"] === "function"
+      typeof crypto == "object" &&
+      typeof crypto["getRandomValues"] == "function"
     ) {
       var randomBuffer = new Uint8Array(1);
       return function () {
@@ -3977,23 +3663,21 @@ function startWorker(message) {
         resolvedAbsolute = false;
       for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
         var path = i >= 0 ? arguments[i] : FS.cwd();
-        if (typeof path !== "string") {
+        if (typeof path != "string") {
           throw new TypeError("Arguments to path.resolve must be strings");
         } else if (!path) {
           return "";
         }
         resolvedPath = path + "/" + resolvedPath;
-        resolvedAbsolute = path.charAt(0) === "/";
+        resolvedAbsolute = PATH.isAbs(path);
       }
       resolvedPath = PATH.normalizeArray(
-        resolvedPath.split("/").filter(function (p) {
-          return !!p;
-        }),
+        resolvedPath.split("/").filter((p) => !!p),
         !resolvedAbsolute
       ).join("/");
       return (resolvedAbsolute ? "/" : "") + resolvedPath || ".";
     },
-    relative: function (from, to) {
+    relative: (from, to) => {
       from = PATH_FS.resolve(from).substr(1);
       to = PATH_FS.resolve(to).substr(1);
       function trim(arr) {
@@ -4147,10 +3831,17 @@ function startWorker(message) {
       },
     },
   };
+  function zeroMemory(address, size) {
+    HEAPU8.fill(0, address, address + size);
+  }
+  function alignMemory(size, alignment) {
+    return Math.ceil(size / alignment) * alignment;
+  }
   function mmapAlloc(size) {
-    var alignedSize = alignMemory(size, 65536);
-    var ptr = _malloc(alignedSize);
-    while (size < alignedSize) HEAP8[ptr + size++] = 0;
+    size = alignMemory(size, 65536);
+    var ptr = _emscripten_builtin_memalign(65536, size);
+    if (!ptr) return 0;
+    zeroMemory(ptr, size);
     return ptr;
   }
   var MEMFS = {
@@ -4435,10 +4126,7 @@ function startWorker(message) {
           offset + length
         );
       },
-      mmap: function (stream, address, length, position, prot, flags) {
-        if (address !== 0) {
-          throw new FS.ErrnoError(28);
-        }
+      mmap: function (stream, length, position, prot, flags) {
         if (!FS.isFile(stream.node.mode)) {
           throw new FS.ErrnoError(43);
         }
@@ -4488,6 +4176,28 @@ function startWorker(message) {
       },
     },
   };
+  function asyncLoad(url, onload, onerror, noRunDep) {
+    var dep = !noRunDep ? getUniqueRunDependency("al " + url) : "";
+    readAsync(
+      url,
+      function (arrayBuffer) {
+        assert(
+          arrayBuffer,
+          'Loading data file "' + url + '" failed (no arrayBuffer).'
+        );
+        onload(new Uint8Array(arrayBuffer));
+        if (dep) removeRunDependency(dep);
+      },
+      function (event) {
+        if (onerror) {
+          onerror();
+        } else {
+          throw 'Loading data file "' + url + '" failed.';
+        }
+      }
+    );
+    if (dep) addRunDependency(dep);
+  }
   var FS = {
     root: null,
     mounts: [],
@@ -4498,29 +4208,20 @@ function startWorker(message) {
     currentPath: "/",
     initialized: false,
     ignorePermissions: true,
-    trackingDelegate: {},
-    tracking: { openFlags: { READ: 1, WRITE: 2 } },
     ErrnoError: null,
     genericErrors: {},
     filesystems: null,
     syncFSRequests: 0,
-    lookupPath: function (path, opts) {
+    lookupPath: (path, opts = {}) => {
       path = PATH_FS.resolve(FS.cwd(), path);
-      opts = opts || {};
       if (!path) return { path: "", node: null };
       var defaults = { follow_mount: true, recurse_count: 0 };
-      for (var key in defaults) {
-        if (opts[key] === undefined) {
-          opts[key] = defaults[key];
-        }
-      }
+      opts = Object.assign(defaults, opts);
       if (opts.recurse_count > 8) {
         throw new FS.ErrnoError(32);
       }
       var parts = PATH.normalizeArray(
-        path.split("/").filter(function (p) {
-          return !!p;
-        }),
+        path.split("/").filter((p) => !!p),
         false
       );
       var current = FS.root;
@@ -4543,7 +4244,7 @@ function startWorker(message) {
             var link = FS.readlink(current_path);
             current_path = PATH_FS.resolve(PATH.dirname(current_path), link);
             var lookup = FS.lookupPath(current_path, {
-              recurse_count: opts.recurse_count,
+              recurse_count: opts.recurse_count + 1,
             });
             current = lookup.node;
             if (count++ > 40) {
@@ -4554,7 +4255,7 @@ function startWorker(message) {
       }
       return { path: current_path, node: current };
     },
-    getPath: function (node) {
+    getPath: (node) => {
       var path;
       while (true) {
         if (FS.isRoot(node)) {
@@ -4568,19 +4269,19 @@ function startWorker(message) {
         node = node.parent;
       }
     },
-    hashName: function (parentid, name) {
+    hashName: (parentid, name) => {
       var hash = 0;
       for (var i = 0; i < name.length; i++) {
         hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
       }
       return ((parentid + hash) >>> 0) % FS.nameTable.length;
     },
-    hashAddNode: function (node) {
+    hashAddNode: (node) => {
       var hash = FS.hashName(node.parent.id, node.name);
       node.name_next = FS.nameTable[hash];
       FS.nameTable[hash] = node;
     },
-    hashRemoveNode: function (node) {
+    hashRemoveNode: (node) => {
       var hash = FS.hashName(node.parent.id, node.name);
       if (FS.nameTable[hash] === node) {
         FS.nameTable[hash] = node.name_next;
@@ -4595,7 +4296,7 @@ function startWorker(message) {
         }
       }
     },
-    lookupNode: function (parent, name) {
+    lookupNode: (parent, name) => {
       var errCode = FS.mayLookup(parent);
       if (errCode) {
         throw new FS.ErrnoError(errCode, parent);
@@ -4609,57 +4310,57 @@ function startWorker(message) {
       }
       return FS.lookup(parent, name);
     },
-    createNode: function (parent, name, mode, rdev) {
+    createNode: (parent, name, mode, rdev) => {
       var node = new FS.FSNode(parent, name, mode, rdev);
       FS.hashAddNode(node);
       return node;
     },
-    destroyNode: function (node) {
+    destroyNode: (node) => {
       FS.hashRemoveNode(node);
     },
-    isRoot: function (node) {
+    isRoot: (node) => {
       return node === node.parent;
     },
-    isMountpoint: function (node) {
+    isMountpoint: (node) => {
       return !!node.mounted;
     },
-    isFile: function (mode) {
+    isFile: (mode) => {
       return (mode & 61440) === 32768;
     },
-    isDir: function (mode) {
+    isDir: (mode) => {
       return (mode & 61440) === 16384;
     },
-    isLink: function (mode) {
+    isLink: (mode) => {
       return (mode & 61440) === 40960;
     },
-    isChrdev: function (mode) {
+    isChrdev: (mode) => {
       return (mode & 61440) === 8192;
     },
-    isBlkdev: function (mode) {
+    isBlkdev: (mode) => {
       return (mode & 61440) === 24576;
     },
-    isFIFO: function (mode) {
+    isFIFO: (mode) => {
       return (mode & 61440) === 4096;
     },
-    isSocket: function (mode) {
+    isSocket: (mode) => {
       return (mode & 49152) === 49152;
     },
     flagModes: { r: 0, "r+": 2, w: 577, "w+": 578, a: 1089, "a+": 1090 },
-    modeStringToFlags: function (str) {
+    modeStringToFlags: (str) => {
       var flags = FS.flagModes[str];
-      if (typeof flags === "undefined") {
+      if (typeof flags == "undefined") {
         throw new Error("Unknown file open mode: " + str);
       }
       return flags;
     },
-    flagsToPermissionString: function (flag) {
+    flagsToPermissionString: (flag) => {
       var perms = ["r", "w", "rw"][flag & 3];
       if (flag & 512) {
         perms += "w";
       }
       return perms;
     },
-    nodePermissions: function (node, perms) {
+    nodePermissions: (node, perms) => {
       if (FS.ignorePermissions) {
         return 0;
       }
@@ -4672,20 +4373,20 @@ function startWorker(message) {
       }
       return 0;
     },
-    mayLookup: function (dir) {
+    mayLookup: (dir) => {
       var errCode = FS.nodePermissions(dir, "x");
       if (errCode) return errCode;
       if (!dir.node_ops.lookup) return 2;
       return 0;
     },
-    mayCreate: function (dir, name) {
+    mayCreate: (dir, name) => {
       try {
         var node = FS.lookupNode(dir, name);
         return 20;
       } catch (e) {}
       return FS.nodePermissions(dir, "wx");
     },
-    mayDelete: function (dir, name, isdir) {
+    mayDelete: (dir, name, isdir) => {
       var node;
       try {
         node = FS.lookupNode(dir, name);
@@ -4710,7 +4411,7 @@ function startWorker(message) {
       }
       return 0;
     },
-    mayOpen: function (node, flags) {
+    mayOpen: (node, flags) => {
       if (!node) {
         return 44;
       }
@@ -4724,9 +4425,7 @@ function startWorker(message) {
       return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
     },
     MAX_OPEN_FDS: 4096,
-    nextfd: function (fd_start, fd_end) {
-      fd_start = fd_start || 0;
-      fd_end = fd_end || FS.MAX_OPEN_FDS;
+    nextfd: (fd_start = 0, fd_end = FS.MAX_OPEN_FDS) => {
       for (var fd = fd_start; fd <= fd_end; fd++) {
         if (!FS.streams[fd]) {
           return fd;
@@ -4734,13 +4433,14 @@ function startWorker(message) {
       }
       throw new FS.ErrnoError(33);
     },
-    getStream: function (fd) {
-      return FS.streams[fd];
-    },
-    createStream: function (stream, fd_start, fd_end) {
+    getStream: (fd) => FS.streams[fd],
+    createStream: (stream, fd_start, fd_end) => {
       if (!FS.FSStream) {
-        FS.FSStream = function () {};
-        FS.FSStream.prototype = {
+        FS.FSStream = function () {
+          this.shared = {};
+        };
+        FS.FSStream.prototype = {};
+        Object.defineProperties(FS.FSStream.prototype, {
           object: {
             get: function () {
               return this.node;
@@ -4764,49 +4464,53 @@ function startWorker(message) {
               return this.flags & 1024;
             },
           },
-        };
+          flags: {
+            get: function () {
+              return this.shared.flags;
+            },
+            set: function (val) {
+              this.shared.flags = val;
+            },
+          },
+          position: {
+            get: function () {
+              return this.shared.position;
+            },
+            set: function (val) {
+              this.shared.position = val;
+            },
+          },
+        });
       }
-      var newStream = new FS.FSStream();
-      for (var p in stream) {
-        newStream[p] = stream[p];
-      }
-      stream = newStream;
+      stream = Object.assign(new FS.FSStream(), stream);
       var fd = FS.nextfd(fd_start, fd_end);
       stream.fd = fd;
       FS.streams[fd] = stream;
       return stream;
     },
-    closeStream: function (fd) {
+    closeStream: (fd) => {
       FS.streams[fd] = null;
     },
     chrdev_stream_ops: {
-      open: function (stream) {
+      open: (stream) => {
         var device = FS.getDevice(stream.node.rdev);
         stream.stream_ops = device.stream_ops;
         if (stream.stream_ops.open) {
           stream.stream_ops.open(stream);
         }
       },
-      llseek: function () {
+      llseek: () => {
         throw new FS.ErrnoError(70);
       },
     },
-    major: function (dev) {
-      return dev >> 8;
-    },
-    minor: function (dev) {
-      return dev & 255;
-    },
-    makedev: function (ma, mi) {
-      return (ma << 8) | mi;
-    },
-    registerDevice: function (dev, ops) {
+    major: (dev) => dev >> 8,
+    minor: (dev) => dev & 255,
+    makedev: (ma, mi) => (ma << 8) | mi,
+    registerDevice: (dev, ops) => {
       FS.devices[dev] = { stream_ops: ops };
     },
-    getDevice: function (dev) {
-      return FS.devices[dev];
-    },
-    getMounts: function (mount) {
+    getDevice: (dev) => FS.devices[dev],
+    getMounts: (mount) => {
       var mounts = [];
       var check = [mount];
       while (check.length) {
@@ -4816,8 +4520,8 @@ function startWorker(message) {
       }
       return mounts;
     },
-    syncfs: function (populate, callback) {
-      if (typeof populate === "function") {
+    syncfs: (populate, callback) => {
+      if (typeof populate == "function") {
         callback = populate;
         populate = false;
       }
@@ -4847,14 +4551,14 @@ function startWorker(message) {
           doCallback(null);
         }
       }
-      mounts.forEach(function (mount) {
+      mounts.forEach((mount) => {
         if (!mount.type.syncfs) {
           return done(null);
         }
         mount.type.syncfs(mount, populate, done);
       });
     },
-    mount: function (type, opts, mountpoint) {
+    mount: (type, opts, mountpoint) => {
       var root = mountpoint === "/";
       var pseudo = !mountpoint;
       var node;
@@ -4890,7 +4594,7 @@ function startWorker(message) {
       }
       return mountRoot;
     },
-    unmount: function (mountpoint) {
+    unmount: (mountpoint) => {
       var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
       if (!FS.isMountpoint(lookup.node)) {
         throw new FS.ErrnoError(28);
@@ -4898,7 +4602,7 @@ function startWorker(message) {
       var node = lookup.node;
       var mount = node.mounted;
       var mounts = FS.getMounts(mount);
-      Object.keys(FS.nameTable).forEach(function (hash) {
+      Object.keys(FS.nameTable).forEach((hash) => {
         var current = FS.nameTable[hash];
         while (current) {
           var next = current.name_next;
@@ -4912,10 +4616,10 @@ function startWorker(message) {
       var idx = node.mount.mounts.indexOf(mount);
       node.mount.mounts.splice(idx, 1);
     },
-    lookup: function (parent, name) {
+    lookup: (parent, name) => {
       return parent.node_ops.lookup(parent, name);
     },
-    mknod: function (path, mode, dev) {
+    mknod: (path, mode, dev) => {
       var lookup = FS.lookupPath(path, { parent: true });
       var parent = lookup.node;
       var name = PATH.basename(path);
@@ -4931,19 +4635,19 @@ function startWorker(message) {
       }
       return parent.node_ops.mknod(parent, name, mode, dev);
     },
-    create: function (path, mode) {
+    create: (path, mode) => {
       mode = mode !== undefined ? mode : 438;
       mode &= 4095;
       mode |= 32768;
       return FS.mknod(path, mode, 0);
     },
-    mkdir: function (path, mode) {
+    mkdir: (path, mode) => {
       mode = mode !== undefined ? mode : 511;
       mode &= 511 | 512;
       mode |= 16384;
       return FS.mknod(path, mode, 0);
     },
-    mkdirTree: function (path, mode) {
+    mkdirTree: (path, mode) => {
       var dirs = path.split("/");
       var d = "";
       for (var i = 0; i < dirs.length; ++i) {
@@ -4956,15 +4660,15 @@ function startWorker(message) {
         }
       }
     },
-    mkdev: function (path, mode, dev) {
-      if (typeof dev === "undefined") {
+    mkdev: (path, mode, dev) => {
+      if (typeof dev == "undefined") {
         dev = mode;
         mode = 438;
       }
       mode |= 8192;
       return FS.mknod(path, mode, dev);
     },
-    symlink: function (oldpath, newpath) {
+    symlink: (oldpath, newpath) => {
       if (!PATH_FS.resolve(oldpath)) {
         throw new FS.ErrnoError(44);
       }
@@ -4983,7 +4687,7 @@ function startWorker(message) {
       }
       return parent.node_ops.symlink(parent, newname, oldpath);
     },
-    rename: function (old_path, new_path) {
+    rename: (old_path, new_path) => {
       var old_dirname = PATH.dirname(old_path);
       var new_dirname = PATH.dirname(new_path);
       var old_name = PATH.basename(old_path);
@@ -5039,20 +4743,6 @@ function startWorker(message) {
           throw new FS.ErrnoError(errCode);
         }
       }
-      try {
-        if (FS.trackingDelegate["willMovePath"]) {
-          FS.trackingDelegate["willMovePath"](old_path, new_path);
-        }
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['willMovePath']('" +
-            old_path +
-            "', '" +
-            new_path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
       FS.hashRemoveNode(old_node);
       try {
         old_dir.node_ops.rename(old_node, new_dir, new_name);
@@ -5061,21 +4751,8 @@ function startWorker(message) {
       } finally {
         FS.hashAddNode(old_node);
       }
-      try {
-        if (FS.trackingDelegate["onMovePath"])
-          FS.trackingDelegate["onMovePath"](old_path, new_path);
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['onMovePath']('" +
-            old_path +
-            "', '" +
-            new_path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
     },
-    rmdir: function (path) {
+    rmdir: (path) => {
       var lookup = FS.lookupPath(path, { parent: true });
       var parent = lookup.node;
       var name = PATH.basename(path);
@@ -5090,33 +4767,10 @@ function startWorker(message) {
       if (FS.isMountpoint(node)) {
         throw new FS.ErrnoError(10);
       }
-      try {
-        if (FS.trackingDelegate["willDeletePath"]) {
-          FS.trackingDelegate["willDeletePath"](path);
-        }
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['willDeletePath']('" +
-            path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
       parent.node_ops.rmdir(parent, name);
       FS.destroyNode(node);
-      try {
-        if (FS.trackingDelegate["onDeletePath"])
-          FS.trackingDelegate["onDeletePath"](path);
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['onDeletePath']('" +
-            path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
     },
-    readdir: function (path) {
+    readdir: (path) => {
       var lookup = FS.lookupPath(path, { follow: true });
       var node = lookup.node;
       if (!node.node_ops.readdir) {
@@ -5124,9 +4778,12 @@ function startWorker(message) {
       }
       return node.node_ops.readdir(node);
     },
-    unlink: function (path) {
+    unlink: (path) => {
       var lookup = FS.lookupPath(path, { parent: true });
       var parent = lookup.node;
+      if (!parent) {
+        throw new FS.ErrnoError(44);
+      }
       var name = PATH.basename(path);
       var node = FS.lookupNode(parent, name);
       var errCode = FS.mayDelete(parent, name, false);
@@ -5139,33 +4796,10 @@ function startWorker(message) {
       if (FS.isMountpoint(node)) {
         throw new FS.ErrnoError(10);
       }
-      try {
-        if (FS.trackingDelegate["willDeletePath"]) {
-          FS.trackingDelegate["willDeletePath"](path);
-        }
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['willDeletePath']('" +
-            path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
       parent.node_ops.unlink(parent, name);
       FS.destroyNode(node);
-      try {
-        if (FS.trackingDelegate["onDeletePath"])
-          FS.trackingDelegate["onDeletePath"](path);
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['onDeletePath']('" +
-            path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
     },
-    readlink: function (path) {
+    readlink: (path) => {
       var lookup = FS.lookupPath(path);
       var link = lookup.node;
       if (!link) {
@@ -5179,7 +4813,7 @@ function startWorker(message) {
         link.node_ops.readlink(link)
       );
     },
-    stat: function (path, dontFollow) {
+    stat: (path, dontFollow) => {
       var lookup = FS.lookupPath(path, { follow: !dontFollow });
       var node = lookup.node;
       if (!node) {
@@ -5190,12 +4824,12 @@ function startWorker(message) {
       }
       return node.node_ops.getattr(node);
     },
-    lstat: function (path) {
+    lstat: (path) => {
       return FS.stat(path, true);
     },
-    chmod: function (path, mode, dontFollow) {
+    chmod: (path, mode, dontFollow) => {
       var node;
-      if (typeof path === "string") {
+      if (typeof path == "string") {
         var lookup = FS.lookupPath(path, { follow: !dontFollow });
         node = lookup.node;
       } else {
@@ -5209,19 +4843,19 @@ function startWorker(message) {
         timestamp: Date.now(),
       });
     },
-    lchmod: function (path, mode) {
+    lchmod: (path, mode) => {
       FS.chmod(path, mode, true);
     },
-    fchmod: function (fd, mode) {
+    fchmod: (fd, mode) => {
       var stream = FS.getStream(fd);
       if (!stream) {
         throw new FS.ErrnoError(8);
       }
       FS.chmod(stream.node, mode);
     },
-    chown: function (path, uid, gid, dontFollow) {
+    chown: (path, uid, gid, dontFollow) => {
       var node;
-      if (typeof path === "string") {
+      if (typeof path == "string") {
         var lookup = FS.lookupPath(path, { follow: !dontFollow });
         node = lookup.node;
       } else {
@@ -5232,22 +4866,22 @@ function startWorker(message) {
       }
       node.node_ops.setattr(node, { timestamp: Date.now() });
     },
-    lchown: function (path, uid, gid) {
+    lchown: (path, uid, gid) => {
       FS.chown(path, uid, gid, true);
     },
-    fchown: function (fd, uid, gid) {
+    fchown: (fd, uid, gid) => {
       var stream = FS.getStream(fd);
       if (!stream) {
         throw new FS.ErrnoError(8);
       }
       FS.chown(stream.node, uid, gid);
     },
-    truncate: function (path, len) {
+    truncate: (path, len) => {
       if (len < 0) {
         throw new FS.ErrnoError(28);
       }
       var node;
-      if (typeof path === "string") {
+      if (typeof path == "string") {
         var lookup = FS.lookupPath(path, { follow: true });
         node = lookup.node;
       } else {
@@ -5268,7 +4902,7 @@ function startWorker(message) {
       }
       node.node_ops.setattr(node, { size: len, timestamp: Date.now() });
     },
-    ftruncate: function (fd, len) {
+    ftruncate: (fd, len) => {
       var stream = FS.getStream(fd);
       if (!stream) {
         throw new FS.ErrnoError(8);
@@ -5278,24 +4912,24 @@ function startWorker(message) {
       }
       FS.truncate(stream.node, len);
     },
-    utime: function (path, atime, mtime) {
+    utime: (path, atime, mtime) => {
       var lookup = FS.lookupPath(path, { follow: true });
       var node = lookup.node;
       node.node_ops.setattr(node, { timestamp: Math.max(atime, mtime) });
     },
-    open: function (path, flags, mode, fd_start, fd_end) {
+    open: (path, flags, mode) => {
       if (path === "") {
         throw new FS.ErrnoError(44);
       }
-      flags = typeof flags === "string" ? FS.modeStringToFlags(flags) : flags;
-      mode = typeof mode === "undefined" ? 438 : mode;
+      flags = typeof flags == "string" ? FS.modeStringToFlags(flags) : flags;
+      mode = typeof mode == "undefined" ? 438 : mode;
       if (flags & 64) {
         mode = (mode & 4095) | 32768;
       } else {
         mode = 0;
       }
       var node;
-      if (typeof path === "object") {
+      if (typeof path == "object") {
         node = path;
       } else {
         path = PATH.normalize(path);
@@ -5330,24 +4964,20 @@ function startWorker(message) {
           throw new FS.ErrnoError(errCode);
         }
       }
-      if (flags & 512) {
+      if (flags & 512 && !created) {
         FS.truncate(node, 0);
       }
       flags &= ~(128 | 512 | 131072);
-      var stream = FS.createStream(
-        {
-          node: node,
-          path: FS.getPath(node),
-          flags: flags,
-          seekable: true,
-          position: 0,
-          stream_ops: node.stream_ops,
-          ungotten: [],
-          error: false,
-        },
-        fd_start,
-        fd_end
-      );
+      var stream = FS.createStream({
+        node: node,
+        path: FS.getPath(node),
+        flags: flags,
+        seekable: true,
+        position: 0,
+        stream_ops: node.stream_ops,
+        ungotten: [],
+        error: false,
+      });
       if (stream.stream_ops.open) {
         stream.stream_ops.open(stream);
       }
@@ -5355,31 +4985,11 @@ function startWorker(message) {
         if (!FS.readFiles) FS.readFiles = {};
         if (!(path in FS.readFiles)) {
           FS.readFiles[path] = 1;
-          err("FS.trackingDelegate error on read file: " + path);
         }
-      }
-      try {
-        if (FS.trackingDelegate["onOpenFile"]) {
-          var trackingFlags = 0;
-          if ((flags & 2097155) !== 1) {
-            trackingFlags |= FS.tracking.openFlags.READ;
-          }
-          if ((flags & 2097155) !== 0) {
-            trackingFlags |= FS.tracking.openFlags.WRITE;
-          }
-          FS.trackingDelegate["onOpenFile"](path, trackingFlags);
-        }
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['onOpenFile']('" +
-            path +
-            "', flags) threw an exception: " +
-            e.message
-        );
       }
       return stream;
     },
-    close: function (stream) {
+    close: (stream) => {
       if (FS.isClosed(stream)) {
         throw new FS.ErrnoError(8);
       }
@@ -5395,10 +5005,10 @@ function startWorker(message) {
       }
       stream.fd = null;
     },
-    isClosed: function (stream) {
+    isClosed: (stream) => {
       return stream.fd === null;
     },
-    llseek: function (stream, offset, whence) {
+    llseek: (stream, offset, whence) => {
       if (FS.isClosed(stream)) {
         throw new FS.ErrnoError(8);
       }
@@ -5412,7 +5022,7 @@ function startWorker(message) {
       stream.ungotten = [];
       return stream.position;
     },
-    read: function (stream, buffer, offset, length, position) {
+    read: (stream, buffer, offset, length, position) => {
       if (length < 0 || position < 0) {
         throw new FS.ErrnoError(28);
       }
@@ -5428,7 +5038,7 @@ function startWorker(message) {
       if (!stream.stream_ops.read) {
         throw new FS.ErrnoError(28);
       }
-      var seeking = typeof position !== "undefined";
+      var seeking = typeof position != "undefined";
       if (!seeking) {
         position = stream.position;
       } else if (!stream.seekable) {
@@ -5444,7 +5054,7 @@ function startWorker(message) {
       if (!seeking) stream.position += bytesRead;
       return bytesRead;
     },
-    write: function (stream, buffer, offset, length, position, canOwn) {
+    write: (stream, buffer, offset, length, position, canOwn) => {
       if (length < 0 || position < 0) {
         throw new FS.ErrnoError(28);
       }
@@ -5463,7 +5073,7 @@ function startWorker(message) {
       if (stream.seekable && stream.flags & 1024) {
         FS.llseek(stream, 0, 2);
       }
-      var seeking = typeof position !== "undefined";
+      var seeking = typeof position != "undefined";
       if (!seeking) {
         position = stream.position;
       } else if (!stream.seekable) {
@@ -5478,20 +5088,9 @@ function startWorker(message) {
         canOwn
       );
       if (!seeking) stream.position += bytesWritten;
-      try {
-        if (stream.path && FS.trackingDelegate["onWriteToFile"])
-          FS.trackingDelegate["onWriteToFile"](stream.path);
-      } catch (e) {
-        err(
-          "FS.trackingDelegate['onWriteToFile']('" +
-            stream.path +
-            "') threw an exception: " +
-            e.message
-        );
-      }
       return bytesWritten;
     },
-    allocate: function (stream, offset, length) {
+    allocate: (stream, offset, length) => {
       if (FS.isClosed(stream)) {
         throw new FS.ErrnoError(8);
       }
@@ -5509,7 +5108,7 @@ function startWorker(message) {
       }
       stream.stream_ops.allocate(stream, offset, length);
     },
-    mmap: function (stream, address, length, position, prot, flags) {
+    mmap: (stream, length, position, prot, flags) => {
       if (
         (prot & 2) !== 0 &&
         (flags & 2) === 0 &&
@@ -5523,32 +5122,22 @@ function startWorker(message) {
       if (!stream.stream_ops.mmap) {
         throw new FS.ErrnoError(43);
       }
-      return stream.stream_ops.mmap(
-        stream,
-        address,
-        length,
-        position,
-        prot,
-        flags
-      );
+      return stream.stream_ops.mmap(stream, length, position, prot, flags);
     },
-    msync: function (stream, buffer, offset, length, mmapFlags) {
+    msync: (stream, buffer, offset, length, mmapFlags) => {
       if (!stream || !stream.stream_ops.msync) {
         return 0;
       }
       return stream.stream_ops.msync(stream, buffer, offset, length, mmapFlags);
     },
-    munmap: function (stream) {
-      return 0;
-    },
-    ioctl: function (stream, cmd, arg) {
+    munmap: (stream) => 0,
+    ioctl: (stream, cmd, arg) => {
       if (!stream.stream_ops.ioctl) {
         throw new FS.ErrnoError(59);
       }
       return stream.stream_ops.ioctl(stream, cmd, arg);
     },
-    readFile: function (path, opts) {
-      opts = opts || {};
+    readFile: (path, opts = {}) => {
       opts.flags = opts.flags || 0;
       opts.encoding = opts.encoding || "binary";
       if (opts.encoding !== "utf8" && opts.encoding !== "binary") {
@@ -5568,11 +5157,10 @@ function startWorker(message) {
       FS.close(stream);
       return ret;
     },
-    writeFile: function (path, data, opts) {
-      opts = opts || {};
+    writeFile: (path, data, opts = {}) => {
       opts.flags = opts.flags || 577;
       var stream = FS.open(path, opts.flags, opts.mode);
-      if (typeof data === "string") {
+      if (typeof data == "string") {
         var buf = new Uint8Array(lengthBytesUTF8(data) + 1);
         var actualNumBytes = stringToUTF8Array(data, buf, 0, buf.length);
         FS.write(stream, buf, 0, actualNumBytes, undefined, opts.canOwn);
@@ -5583,10 +5171,8 @@ function startWorker(message) {
       }
       FS.close(stream);
     },
-    cwd: function () {
-      return FS.currentPath;
-    },
-    chdir: function (path) {
+    cwd: () => FS.currentPath,
+    chdir: (path) => {
       var lookup = FS.lookupPath(path, { follow: true });
       if (lookup.node === null) {
         throw new FS.ErrnoError(44);
@@ -5600,20 +5186,16 @@ function startWorker(message) {
       }
       FS.currentPath = lookup.path;
     },
-    createDefaultDirectories: function () {
+    createDefaultDirectories: () => {
       FS.mkdir("/tmp");
       FS.mkdir("/home");
       FS.mkdir("/home/web_user");
     },
-    createDefaultDevices: function () {
+    createDefaultDevices: () => {
       FS.mkdir("/dev");
       FS.registerDevice(FS.makedev(1, 3), {
-        read: function () {
-          return 0;
-        },
-        write: function (stream, buffer, offset, length, pos) {
-          return length;
-        },
+        read: () => 0,
+        write: (stream, buffer, offset, length, pos) => length,
       });
       FS.mkdev("/dev/null", FS.makedev(1, 3));
       TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
@@ -5626,27 +5208,23 @@ function startWorker(message) {
       FS.mkdir("/dev/shm");
       FS.mkdir("/dev/shm/tmp");
     },
-    createSpecialDirectories: function () {
+    createSpecialDirectories: () => {
       FS.mkdir("/proc");
       var proc_self = FS.mkdir("/proc/self");
       FS.mkdir("/proc/self/fd");
       FS.mount(
         {
-          mount: function () {
+          mount: () => {
             var node = FS.createNode(proc_self, "fd", 16384 | 511, 73);
             node.node_ops = {
-              lookup: function (parent, name) {
+              lookup: (parent, name) => {
                 var fd = +name;
                 var stream = FS.getStream(fd);
                 if (!stream) throw new FS.ErrnoError(8);
                 var ret = {
                   parent: null,
                   mount: { mountpoint: "fake" },
-                  node_ops: {
-                    readlink: function () {
-                      return stream.path;
-                    },
-                  },
+                  node_ops: { readlink: () => stream.path },
                 };
                 ret.parent = ret;
                 return ret;
@@ -5659,7 +5237,7 @@ function startWorker(message) {
         "/proc/self/fd"
       );
     },
-    createStandardStreams: function () {
+    createStandardStreams: () => {
       if (Module["stdin"]) {
         FS.createDevice("/dev", "stdin", Module["stdin"]);
       } else {
@@ -5679,7 +5257,7 @@ function startWorker(message) {
       var stdout = FS.open("/dev/stdout", 1);
       var stderr = FS.open("/dev/stderr", 1);
     },
-    ensureErrnoError: function () {
+    ensureErrnoError: () => {
       if (FS.ErrnoError) return;
       FS.ErrnoError = function ErrnoError(errno, node) {
         this.node = node;
@@ -5691,12 +5269,12 @@ function startWorker(message) {
       };
       FS.ErrnoError.prototype = new Error();
       FS.ErrnoError.prototype.constructor = FS.ErrnoError;
-      [44].forEach(function (code) {
+      [44].forEach((code) => {
         FS.genericErrors[code] = new FS.ErrnoError(code);
         FS.genericErrors[code].stack = "<generic error, no stack>";
       });
     },
-    staticInit: function () {
+    staticInit: () => {
       FS.ensureErrnoError();
       FS.nameTable = new Array(4096);
       FS.mount(MEMFS, {}, "/");
@@ -5705,7 +5283,7 @@ function startWorker(message) {
       FS.createSpecialDirectories();
       FS.filesystems = { MEMFS: MEMFS };
     },
-    init: function (input, output, error) {
+    init: (input, output, error) => {
       FS.init.initialized = true;
       FS.ensureErrnoError();
       Module["stdin"] = input || Module["stdin"];
@@ -5713,10 +5291,8 @@ function startWorker(message) {
       Module["stderr"] = error || Module["stderr"];
       FS.createStandardStreams();
     },
-    quit: function () {
+    quit: () => {
       FS.init.initialized = false;
-      var fflush = Module["_fflush"];
-      if (fflush) fflush(0);
       for (var i = 0; i < FS.streams.length; i++) {
         var stream = FS.streams[i];
         if (!stream) {
@@ -5725,13 +5301,13 @@ function startWorker(message) {
         FS.close(stream);
       }
     },
-    getMode: function (canRead, canWrite) {
+    getMode: (canRead, canWrite) => {
       var mode = 0;
       if (canRead) mode |= 292 | 73;
       if (canWrite) mode |= 146;
       return mode;
     },
-    findObject: function (path, dontResolveLastLink) {
+    findObject: (path, dontResolveLastLink) => {
       var ret = FS.analyzePath(path, dontResolveLastLink);
       if (ret.exists) {
         return ret.object;
@@ -5739,7 +5315,7 @@ function startWorker(message) {
         return null;
       }
     },
-    analyzePath: function (path, dontResolveLastLink) {
+    analyzePath: (path, dontResolveLastLink) => {
       try {
         var lookup = FS.lookupPath(path, { follow: !dontResolveLastLink });
         path = lookup.path;
@@ -5772,8 +5348,8 @@ function startWorker(message) {
       }
       return ret;
     },
-    createPath: function (parent, path, canRead, canWrite) {
-      parent = typeof parent === "string" ? parent : FS.getPath(parent);
+    createPath: (parent, path, canRead, canWrite) => {
+      parent = typeof parent == "string" ? parent : FS.getPath(parent);
       var parts = path.split("/").reverse();
       while (parts.length) {
         var part = parts.pop();
@@ -5786,25 +5362,24 @@ function startWorker(message) {
       }
       return current;
     },
-    createFile: function (parent, name, properties, canRead, canWrite) {
+    createFile: (parent, name, properties, canRead, canWrite) => {
       var path = PATH.join2(
-        typeof parent === "string" ? parent : FS.getPath(parent),
+        typeof parent == "string" ? parent : FS.getPath(parent),
         name
       );
       var mode = FS.getMode(canRead, canWrite);
       return FS.create(path, mode);
     },
-    createDataFile: function (parent, name, data, canRead, canWrite, canOwn) {
-      var path = name
-        ? PATH.join2(
-            typeof parent === "string" ? parent : FS.getPath(parent),
-            name
-          )
-        : parent;
+    createDataFile: (parent, name, data, canRead, canWrite, canOwn) => {
+      var path = name;
+      if (parent) {
+        parent = typeof parent == "string" ? parent : FS.getPath(parent);
+        path = name ? PATH.join2(parent, name) : parent;
+      }
       var mode = FS.getMode(canRead, canWrite);
       var node = FS.create(path, mode);
       if (data) {
-        if (typeof data === "string") {
+        if (typeof data == "string") {
           var arr = new Array(data.length);
           for (var i = 0, len = data.length; i < len; ++i)
             arr[i] = data.charCodeAt(i);
@@ -5818,24 +5393,24 @@ function startWorker(message) {
       }
       return node;
     },
-    createDevice: function (parent, name, input, output) {
+    createDevice: (parent, name, input, output) => {
       var path = PATH.join2(
-        typeof parent === "string" ? parent : FS.getPath(parent),
+        typeof parent == "string" ? parent : FS.getPath(parent),
         name
       );
       var mode = FS.getMode(!!input, !!output);
       if (!FS.createDevice.major) FS.createDevice.major = 64;
       var dev = FS.makedev(FS.createDevice.major++, 0);
       FS.registerDevice(dev, {
-        open: function (stream) {
+        open: (stream) => {
           stream.seekable = false;
         },
-        close: function (stream) {
+        close: (stream) => {
           if (output && output.buffer && output.buffer.length) {
             output(10);
           }
         },
-        read: function (stream, buffer, offset, length, pos) {
+        read: (stream, buffer, offset, length, pos) => {
           var bytesRead = 0;
           for (var i = 0; i < length; i++) {
             var result;
@@ -5856,7 +5431,7 @@ function startWorker(message) {
           }
           return bytesRead;
         },
-        write: function (stream, buffer, offset, length, pos) {
+        write: (stream, buffer, offset, length, pos) => {
           for (var i = 0; i < length; i++) {
             try {
               output(buffer[offset + i]);
@@ -5872,9 +5447,9 @@ function startWorker(message) {
       });
       return FS.mkdev(path, mode, dev);
     },
-    forceLoadFile: function (obj) {
+    forceLoadFile: (obj) => {
       if (obj.isDevice || obj.isFolder || obj.link || obj.contents) return true;
-      if (typeof XMLHttpRequest !== "undefined") {
+      if (typeof XMLHttpRequest != "undefined") {
         throw new Error(
           "Lazy loading should have been performed (contents set) in createLazyFile, but it was not. Lazy loading only works in web workers. Use --embed-file or --preload-file in emcc on the main thread."
         );
@@ -5889,7 +5464,7 @@ function startWorker(message) {
         throw new Error("Cannot load without read() or XMLHttpRequest.");
       }
     },
-    createLazyFile: function (parent, name, url, canRead, canWrite) {
+    createLazyFile: (parent, name, url, canRead, canWrite) => {
       function LazyUint8Array() {
         this.lengthKnown = false;
         this.chunks = [];
@@ -5923,7 +5498,7 @@ function startWorker(message) {
             header === "gzip";
           var chunkSize = 1024 * 1024;
           if (!hasByteServing) chunkSize = datalength;
-          var doXHR = function (from, to) {
+          var doXHR = (from, to) => {
             if (from > to)
               throw new Error(
                 "invalid range (" +
@@ -5940,8 +5515,7 @@ function startWorker(message) {
             xhr.open("GET", url, false);
             if (datalength !== chunkSize)
               xhr.setRequestHeader("Range", "bytes=" + from + "-" + to);
-            if (typeof Uint8Array != "undefined")
-              xhr.responseType = "arraybuffer";
+            xhr.responseType = "arraybuffer";
             if (xhr.overrideMimeType) {
               xhr.overrideMimeType("text/plain; charset=x-user-defined");
             }
@@ -5959,14 +5533,14 @@ function startWorker(message) {
             }
           };
           var lazyArray = this;
-          lazyArray.setDataGetter(function (chunkNum) {
+          lazyArray.setDataGetter((chunkNum) => {
             var start = chunkNum * chunkSize;
             var end = (chunkNum + 1) * chunkSize - 1;
             end = Math.min(end, datalength - 1);
-            if (typeof lazyArray.chunks[chunkNum] === "undefined") {
+            if (typeof lazyArray.chunks[chunkNum] == "undefined") {
               lazyArray.chunks[chunkNum] = doXHR(start, end);
             }
-            if (typeof lazyArray.chunks[chunkNum] === "undefined")
+            if (typeof lazyArray.chunks[chunkNum] == "undefined")
               throw new Error("doXHR failed!");
             return lazyArray.chunks[chunkNum];
           });
@@ -5982,7 +5556,7 @@ function startWorker(message) {
           this._chunkSize = chunkSize;
           this.lengthKnown = true;
         };
-      if (typeof XMLHttpRequest !== "undefined") {
+      if (typeof XMLHttpRequest != "undefined") {
         if (!ENVIRONMENT_IS_WORKER)
           throw "Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc";
         var lazyArray = new LazyUint8Array();
@@ -6024,21 +5598,14 @@ function startWorker(message) {
       });
       var stream_ops = {};
       var keys = Object.keys(node.stream_ops);
-      keys.forEach(function (key) {
+      keys.forEach((key) => {
         var fn = node.stream_ops[key];
         stream_ops[key] = function forceLoadLazyFile() {
           FS.forceLoadFile(node);
           return fn.apply(null, arguments);
         };
       });
-      stream_ops.read = function stream_ops_read(
-        stream,
-        buffer,
-        offset,
-        length,
-        position
-      ) {
-        FS.forceLoadFile(node);
+      function writeChunks(stream, buffer, offset, length, position) {
         var contents = stream.node.contents;
         if (position >= contents.length) return 0;
         var size = Math.min(contents.length - position, length);
@@ -6052,11 +5619,24 @@ function startWorker(message) {
           }
         }
         return size;
+      }
+      stream_ops.read = (stream, buffer, offset, length, position) => {
+        FS.forceLoadFile(node);
+        return writeChunks(stream, buffer, offset, length, position);
+      };
+      stream_ops.mmap = (stream, length, position, prot, flags) => {
+        FS.forceLoadFile(node);
+        var ptr = mmapAlloc(length);
+        if (!ptr) {
+          throw new FS.ErrnoError(48);
+        }
+        writeChunks(stream, HEAP8, ptr, length, position);
+        return { ptr: ptr, allocated: true };
       };
       node.stream_ops = stream_ops;
       return node;
     },
-    createPreloadedFile: function (
+    createPreloadedFile: (
       parent,
       name,
       url,
@@ -6067,8 +5647,7 @@ function startWorker(message) {
       dontCreateFile,
       canOwn,
       preFinish
-    ) {
-      Browser.init();
+    ) => {
       var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
       var dep = getUniqueRunDependency("cp " + fullname);
       function processData(byteArray) {
@@ -6087,33 +5666,24 @@ function startWorker(message) {
           if (onload) onload();
           removeRunDependency(dep);
         }
-        var handled = false;
-        Module["preloadPlugins"].forEach(function (plugin) {
-          if (handled) return;
-          if (plugin["canHandle"](fullname)) {
-            plugin["handle"](byteArray, fullname, finish, function () {
-              if (onerror) onerror();
-              removeRunDependency(dep);
-            });
-            handled = true;
-          }
-        });
-        if (!handled) finish(byteArray);
+        if (
+          Browser.handledByPreloadPlugin(byteArray, fullname, finish, () => {
+            if (onerror) onerror();
+            removeRunDependency(dep);
+          })
+        ) {
+          return;
+        }
+        finish(byteArray);
       }
       addRunDependency(dep);
       if (typeof url == "string") {
-        Browser.asyncLoad(
-          url,
-          function (byteArray) {
-            processData(byteArray);
-          },
-          onerror
-        );
+        asyncLoad(url, (byteArray) => processData(byteArray), onerror);
       } else {
         processData(url);
       }
     },
-    indexedDB: function () {
+    indexedDB: () => {
       return (
         window.indexedDB ||
         window.mozIndexedDB ||
@@ -6121,26 +5691,26 @@ function startWorker(message) {
         window.msIndexedDB
       );
     },
-    DB_NAME: function () {
+    DB_NAME: () => {
       return "EM_FS_" + window.location.pathname;
     },
     DB_VERSION: 20,
     DB_STORE_NAME: "FILE_DATA",
-    saveFilesToDB: function (paths, onload, onerror) {
-      onload = onload || function () {};
-      onerror = onerror || function () {};
+    saveFilesToDB: (paths, onload, onerror) => {
+      onload = onload || (() => {});
+      onerror = onerror || (() => {});
       var indexedDB = FS.indexedDB();
       try {
         var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
       } catch (e) {
         return onerror(e);
       }
-      openRequest.onupgradeneeded = function openRequest_onupgradeneeded() {
+      openRequest.onupgradeneeded = () => {
         out("creating db");
         var db = openRequest.result;
         db.createObjectStore(FS.DB_STORE_NAME);
       };
-      openRequest.onsuccess = function openRequest_onsuccess() {
+      openRequest.onsuccess = () => {
         var db = openRequest.result;
         var transaction = db.transaction([FS.DB_STORE_NAME], "readwrite");
         var files = transaction.objectStore(FS.DB_STORE_NAME);
@@ -6151,16 +5721,16 @@ function startWorker(message) {
           if (fail == 0) onload();
           else onerror();
         }
-        paths.forEach(function (path) {
+        paths.forEach((path) => {
           var putRequest = files.put(
             FS.analyzePath(path).object.contents,
             path
           );
-          putRequest.onsuccess = function putRequest_onsuccess() {
+          putRequest.onsuccess = () => {
             ok++;
             if (ok + fail == total) finish();
           };
-          putRequest.onerror = function putRequest_onerror() {
+          putRequest.onerror = () => {
             fail++;
             if (ok + fail == total) finish();
           };
@@ -6169,9 +5739,9 @@ function startWorker(message) {
       };
       openRequest.onerror = onerror;
     },
-    loadFilesFromDB: function (paths, onload, onerror) {
-      onload = onload || function () {};
-      onerror = onerror || function () {};
+    loadFilesFromDB: (paths, onload, onerror) => {
+      onload = onload || (() => {});
+      onerror = onerror || (() => {});
       var indexedDB = FS.indexedDB();
       try {
         var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
@@ -6179,7 +5749,7 @@ function startWorker(message) {
         return onerror(e);
       }
       openRequest.onupgradeneeded = onerror;
-      openRequest.onsuccess = function openRequest_onsuccess() {
+      openRequest.onsuccess = () => {
         var db = openRequest.result;
         try {
           var transaction = db.transaction([FS.DB_STORE_NAME], "readonly");
@@ -6195,9 +5765,9 @@ function startWorker(message) {
           if (fail == 0) onload();
           else onerror();
         }
-        paths.forEach(function (path) {
+        paths.forEach((path) => {
           var getRequest = files.get(path);
-          getRequest.onsuccess = function getRequest_onsuccess() {
+          getRequest.onsuccess = () => {
             if (FS.analyzePath(path).exists) {
               FS.unlink(path);
             }
@@ -6212,7 +5782,7 @@ function startWorker(message) {
             ok++;
             if (ok + fail == total) finish();
           };
-          getRequest.onerror = function getRequest_onerror() {
+          getRequest.onerror = () => {
             fail++;
             if (ok + fail == total) finish();
           };
@@ -6223,11 +5793,9 @@ function startWorker(message) {
     },
   };
   var SYSCALLS = {
-    mappings: {},
     DEFAULT_POLLMASK: 5,
-    umask: 511,
     calculateAt: function (dirfd, path, allowEmpty) {
-      if (path[0] === "/") {
+      if (PATH.isAbs(path)) {
         return path;
       }
       var dir;
@@ -6312,82 +5880,6 @@ function startWorker(message) {
       var buffer = HEAPU8.slice(addr, addr + len);
       FS.msync(stream, buffer, offset, len, flags);
     },
-    doMkdir: function (path, mode) {
-      path = PATH.normalize(path);
-      if (path[path.length - 1] === "/") path = path.substr(0, path.length - 1);
-      FS.mkdir(path, mode, 0);
-      return 0;
-    },
-    doMknod: function (path, mode, dev) {
-      switch (mode & 61440) {
-        case 32768:
-        case 8192:
-        case 24576:
-        case 4096:
-        case 49152:
-          break;
-        default:
-          return -28;
-      }
-      FS.mknod(path, mode, dev);
-      return 0;
-    },
-    doReadlink: function (path, buf, bufsize) {
-      if (bufsize <= 0) return -28;
-      var ret = FS.readlink(path);
-      var len = Math.min(bufsize, lengthBytesUTF8(ret));
-      var endChar = HEAP8[buf + len];
-      stringToUTF8(ret, buf, bufsize + 1);
-      HEAP8[buf + len] = endChar;
-      return len;
-    },
-    doAccess: function (path, amode) {
-      if (amode & ~7) {
-        return -28;
-      }
-      var node;
-      var lookup = FS.lookupPath(path, { follow: true });
-      node = lookup.node;
-      if (!node) {
-        return -44;
-      }
-      var perms = "";
-      if (amode & 4) perms += "r";
-      if (amode & 2) perms += "w";
-      if (amode & 1) perms += "x";
-      if (perms && FS.nodePermissions(node, perms)) {
-        return -2;
-      }
-      return 0;
-    },
-    doDup: function (path, flags, suggestFD) {
-      var suggest = FS.getStream(suggestFD);
-      if (suggest) FS.close(suggest);
-      return FS.open(path, flags, 0, suggestFD, suggestFD).fd;
-    },
-    doReadv: function (stream, iov, iovcnt, offset) {
-      var ret = 0;
-      for (var i = 0; i < iovcnt; i++) {
-        var ptr = HEAP32[(iov + i * 8) >> 2];
-        var len = HEAP32[(iov + (i * 8 + 4)) >> 2];
-        var curr = FS.read(stream, HEAP8, ptr, len, offset);
-        if (curr < 0) return -1;
-        ret += curr;
-        if (curr < len) break;
-      }
-      return ret;
-    },
-    doWritev: function (stream, iov, iovcnt, offset) {
-      var ret = 0;
-      for (var i = 0; i < iovcnt; i++) {
-        var ptr = HEAP32[(iov + i * 8) >> 2];
-        var len = HEAP32[(iov + (i * 8 + 4)) >> 2];
-        var curr = FS.write(stream, HEAP8, ptr, len, offset);
-        if (curr < 0) return -1;
-        ret += curr;
-      }
-      return ret;
-    },
     varargs: undefined,
     get: function () {
       SYSCALLS.varargs += 4;
@@ -6403,30 +5895,47 @@ function startWorker(message) {
       if (!stream) throw new FS.ErrnoError(8);
       return stream;
     },
-    get64: function (low, high) {
-      return low;
-    },
   };
-  function ___sys_access(path, amode) {
-    try {
-      path = SYSCALLS.getStr(path);
-      return SYSCALLS.doAccess(path, amode);
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return -e.errno;
-    }
-  }
-  function ___sys_chmod(path, mode) {
+  function ___syscall_chmod(path, mode) {
     try {
       path = SYSCALLS.getStr(path);
       FS.chmod(path, mode);
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_fcntl64(fd, cmd, varargs) {
+  function ___syscall_faccessat(dirfd, path, amode, flags) {
+    try {
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      if (amode & ~7) {
+        return -28;
+      }
+      var lookup = FS.lookupPath(path, { follow: true });
+      var node = lookup.node;
+      if (!node) {
+        return -44;
+      }
+      var perms = "";
+      if (amode & 4) perms += "r";
+      if (amode & 2) perms += "w";
+      if (amode & 1) perms += "x";
+      if (perms && FS.nodePermissions(node, perms)) {
+        return -2;
+      }
+      return 0;
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function setErrNo(value) {
+    HEAP32[___errno_location() >> 2] = value;
+    return value;
+  }
+  function ___syscall_fcntl64(fd, cmd, varargs) {
     SYSCALLS.varargs = varargs;
     try {
       var stream = SYSCALLS.getStreamFromFD(fd);
@@ -6437,7 +5946,7 @@ function startWorker(message) {
             return -28;
           }
           var newStream;
-          newStream = FS.open(stream.path, stream.flags, 0, arg);
+          newStream = FS.createStream(stream, arg);
           return newStream.fd;
         }
         case 1:
@@ -6450,14 +5959,14 @@ function startWorker(message) {
           stream.flags |= arg;
           return 0;
         }
-        case 12: {
+        case 5: {
           var arg = SYSCALLS.get();
           var offset = 0;
           HEAP16[(arg + offset) >> 1] = 2;
           return 0;
         }
-        case 13:
-        case 14:
+        case 6:
+        case 7:
           return 0;
         case 16:
         case 8:
@@ -6470,33 +5979,61 @@ function startWorker(message) {
         }
       }
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_fstat64(fd, buf) {
+  function ___syscall_fstat64(fd, buf) {
     try {
       var stream = SYSCALLS.getStreamFromFD(fd);
       return SYSCALLS.doStat(FS.stat, stream.path, buf);
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_getcwd(buf, size) {
+  function ___syscall_statfs64(path, size, buf) {
+    try {
+      path = SYSCALLS.getStr(path);
+      HEAP32[(buf + 4) >> 2] = 4096;
+      HEAP32[(buf + 40) >> 2] = 4096;
+      HEAP32[(buf + 8) >> 2] = 1e6;
+      HEAP32[(buf + 12) >> 2] = 5e5;
+      HEAP32[(buf + 16) >> 2] = 5e5;
+      HEAP32[(buf + 20) >> 2] = FS.nextInode;
+      HEAP32[(buf + 24) >> 2] = 1e6;
+      HEAP32[(buf + 28) >> 2] = 42;
+      HEAP32[(buf + 44) >> 2] = 2;
+      HEAP32[(buf + 36) >> 2] = 255;
+      return 0;
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_fstatfs64(fd, size, buf) {
+    try {
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      return ___syscall_statfs64(0, size, buf);
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_getcwd(buf, size) {
     try {
       if (size === 0) return -28;
       var cwd = FS.cwd();
-      var cwdLengthInBytes = lengthBytesUTF8(cwd);
-      if (size < cwdLengthInBytes + 1) return -68;
+      var cwdLengthInBytes = lengthBytesUTF8(cwd) + 1;
+      if (size < cwdLengthInBytes) return -68;
       stringToUTF8(cwd, buf, size);
-      return buf;
+      return cwdLengthInBytes;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_getdents64(fd, dirp, count) {
+  function ___syscall_getdents64(fd, dirp, count) {
     try {
       var stream = SYSCALLS.getStreamFromFD(fd);
       if (!stream.getdents) {
@@ -6510,8 +6047,12 @@ function startWorker(message) {
         var id;
         var type;
         var name = stream.getdents[idx];
-        if (name[0] === ".") {
-          id = 1;
+        if (name === ".") {
+          id = stream.node.id;
+          type = 4;
+        } else if (name === "..") {
+          var lookup = FS.lookupPath(stream.path, { parent: true });
+          id = lookup.node.id;
           type = 4;
         } else {
           var child = FS.lookupNode(stream.node, name);
@@ -6563,14 +6104,11 @@ function startWorker(message) {
       FS.llseek(stream, idx * struct_size, 0);
       return pos;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_getpid() {
-    return 42;
-  }
-  function ___sys_ioctl(fd, op, varargs) {
+  function ___syscall_ioctl(fd, op, varargs) {
     SYSCALLS.varargs = varargs;
     try {
       var stream = SYSCALLS.getStreamFromFD(fd);
@@ -6615,121 +6153,171 @@ function startWorker(message) {
           abort("bad ioctl syscall " + op);
       }
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_link(oldpath, newpath) {
-    return -34;
-  }
-  function ___sys_lstat64(path, buf) {
+  function ___syscall_lstat64(path, buf) {
     try {
       path = SYSCALLS.getStr(path);
       return SYSCALLS.doStat(FS.lstat, path, buf);
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_mkdir(path, mode) {
+  function ___syscall_mkdirat(dirfd, path, mode) {
     try {
       path = SYSCALLS.getStr(path);
-      return SYSCALLS.doMkdir(path, mode);
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return -e.errno;
-    }
-  }
-  function ___sys_mprotect(addr, len, size) {
-    return 0;
-  }
-  function ___sys_open(path, flags, varargs) {
-    SYSCALLS.varargs = varargs;
-    try {
-      var pathname = SYSCALLS.getStr(path);
-      var mode = varargs ? SYSCALLS.get() : 0;
-      var stream = FS.open(pathname, flags, mode);
-      return stream.fd;
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return -e.errno;
-    }
-  }
-  function ___sys_readlink(path, buf, bufsize) {
-    try {
-      path = SYSCALLS.getStr(path);
-      return SYSCALLS.doReadlink(path, buf, bufsize);
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return -e.errno;
-    }
-  }
-  function ___sys_rename(old_path, new_path) {
-    try {
-      old_path = SYSCALLS.getStr(old_path);
-      new_path = SYSCALLS.getStr(new_path);
-      FS.rename(old_path, new_path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      path = PATH.normalize(path);
+      if (path[path.length - 1] === "/") path = path.substr(0, path.length - 1);
+      FS.mkdir(path, mode, 0);
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_rmdir(path) {
+  function ___syscall_newfstatat(dirfd, path, buf, flags) {
+    try {
+      path = SYSCALLS.getStr(path);
+      var nofollow = flags & 256;
+      var allowEmpty = flags & 4096;
+      flags = flags & ~4352;
+      path = SYSCALLS.calculateAt(dirfd, path, allowEmpty);
+      return SYSCALLS.doStat(nofollow ? FS.lstat : FS.stat, path, buf);
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_openat(dirfd, path, flags, varargs) {
+    SYSCALLS.varargs = varargs;
+    try {
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      var mode = varargs ? SYSCALLS.get() : 0;
+      return FS.open(path, flags, mode).fd;
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_readlinkat(dirfd, path, buf, bufsize) {
+    try {
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      if (bufsize <= 0) return -28;
+      var ret = FS.readlink(path);
+      var len = Math.min(bufsize, lengthBytesUTF8(ret));
+      var endChar = HEAP8[buf + len];
+      stringToUTF8(ret, buf, bufsize + 1);
+      HEAP8[buf + len] = endChar;
+      return len;
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_renameat(olddirfd, oldpath, newdirfd, newpath) {
+    try {
+      oldpath = SYSCALLS.getStr(oldpath);
+      newpath = SYSCALLS.getStr(newpath);
+      oldpath = SYSCALLS.calculateAt(olddirfd, oldpath);
+      newpath = SYSCALLS.calculateAt(newdirfd, newpath);
+      FS.rename(oldpath, newpath);
+      return 0;
+    } catch (e) {
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_rmdir(path) {
     try {
       path = SYSCALLS.getStr(path);
       FS.rmdir(path);
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_stat64(path, buf) {
+  function ___syscall_stat64(path, buf) {
     try {
       path = SYSCALLS.getStr(path);
       return SYSCALLS.doStat(FS.stat, path, buf);
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_symlink(target, linkpath) {
+  function ___syscall_symlink(target, linkpath) {
     try {
       target = SYSCALLS.getStr(target);
       linkpath = SYSCALLS.getStr(linkpath);
       FS.symlink(target, linkpath);
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
-  function ___sys_unlink(path) {
+  function ___syscall_unlinkat(dirfd, path, flags) {
     try {
       path = SYSCALLS.getStr(path);
-      FS.unlink(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      if (flags === 0) {
+        FS.unlink(path);
+      } else if (flags === 512) {
+        FS.rmdir(path);
+      } else {
+        abort("Invalid flags passed to unlinkat");
+      }
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return -e.errno;
     }
   }
+  function __emscripten_date_now() {
+    return Date.now();
+  }
+  function __emscripten_fs_load_embedded_files(ptr) {
+    do {
+      var name_addr = HEAPU32[ptr >> 2];
+      ptr += 4;
+      var len = HEAPU32[ptr >> 2];
+      ptr += 4;
+      var content = HEAPU32[ptr >> 2];
+      ptr += 4;
+      var name = UTF8ToString(name_addr);
+      FS.createPath("/", PATH.dirname(name), true, true);
+      FS.createDataFile(
+        name,
+        null,
+        HEAP8.subarray(content, content + len),
+        true,
+        true,
+        true
+      );
+    } while (HEAPU32[ptr >> 2]);
+  }
+  var nowIsMonotonic = true;
+  function __emscripten_get_now_is_monotonic() {
+    return nowIsMonotonic;
+  }
+  function __emscripten_throw_longjmp() {
+    throw Infinity;
+  }
   function _abort() {
-    abort();
-  }
-  function _emscripten_get_heap_max() {
-    return 2147483648;
-  }
-  function _longjmp(env, value) {
-    _setThrew(env, value || 1);
-    throw "longjmp";
-  }
-  function _emscripten_longjmp(a0, a1) {
-    return _longjmp(a0, a1);
+    abort("");
   }
   function _emscripten_memcpy_big(dest, src, num) {
     HEAPU8.copyWithin(dest, src, src + num);
+  }
+  function getHeapMax() {
+    return 2147483648;
   }
   function emscripten_realloc_buffer(size) {
     try {
@@ -6741,10 +6329,11 @@ function startWorker(message) {
   function _emscripten_resize_heap(requestedSize) {
     var oldSize = HEAPU8.length;
     requestedSize = requestedSize >>> 0;
-    var maxHeapSize = 2147483648;
+    var maxHeapSize = getHeapMax();
     if (requestedSize > maxHeapSize) {
       return false;
     }
+    let alignUp = (x, multiple) => x + ((multiple - (x % multiple)) % multiple);
     for (var cutDown = 1; cutDown <= 4; cutDown *= 2) {
       var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown);
       overGrownHeapSize = Math.min(
@@ -6770,7 +6359,7 @@ function startWorker(message) {
     if (!getEnvStrings.strings) {
       var lang =
         (
-          (typeof navigator === "object" &&
+          (typeof navigator == "object" &&
             navigator.languages &&
             navigator.languages[0]) ||
           "C"
@@ -6785,7 +6374,8 @@ function startWorker(message) {
         _: getExecutableName(),
       };
       for (var x in ENV) {
-        env[x] = ENV[x];
+        if (ENV[x] === undefined) delete env[x];
+        else env[x] = ENV[x];
       }
       var strings = [];
       for (var x in env) {
@@ -6796,34 +6386,24 @@ function startWorker(message) {
     return getEnvStrings.strings;
   }
   function _environ_get(__environ, environ_buf) {
-    try {
-      var bufSize = 0;
-      getEnvStrings().forEach(function (string, i) {
-        var ptr = environ_buf + bufSize;
-        HEAP32[(__environ + i * 4) >> 2] = ptr;
-        writeAsciiToMemory(string, ptr);
-        bufSize += string.length + 1;
-      });
-      return 0;
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return e.errno;
-    }
+    var bufSize = 0;
+    getEnvStrings().forEach(function (string, i) {
+      var ptr = environ_buf + bufSize;
+      HEAPU32[(__environ + i * 4) >> 2] = ptr;
+      writeAsciiToMemory(string, ptr);
+      bufSize += string.length + 1;
+    });
+    return 0;
   }
   function _environ_sizes_get(penviron_count, penviron_buf_size) {
-    try {
-      var strings = getEnvStrings();
-      HEAP32[penviron_count >> 2] = strings.length;
-      var bufSize = 0;
-      strings.forEach(function (string) {
-        bufSize += string.length + 1;
-      });
-      HEAP32[penviron_buf_size >> 2] = bufSize;
-      return 0;
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return e.errno;
-    }
+    var strings = getEnvStrings();
+    HEAPU32[penviron_count >> 2] = strings.length;
+    var bufSize = 0;
+    strings.forEach(function (string) {
+      bufSize += string.length + 1;
+    });
+    HEAPU32[penviron_buf_size >> 2] = bufSize;
+    return 0;
   }
   function _fd_close(fd) {
     try {
@@ -6831,47 +6411,44 @@ function startWorker(message) {
       FS.close(stream);
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return e.errno;
     }
   }
-  function _fd_fdstat_get(fd, pbuf) {
-    try {
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      var type = stream.tty
-        ? 2
-        : FS.isDir(stream.mode)
-        ? 3
-        : FS.isLink(stream.mode)
-        ? 7
-        : 4;
-      HEAP8[pbuf >> 0] = type;
-      return 0;
-    } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
-      return e.errno;
+  function doReadv(stream, iov, iovcnt, offset) {
+    var ret = 0;
+    for (var i = 0; i < iovcnt; i++) {
+      var ptr = HEAPU32[iov >> 2];
+      var len = HEAPU32[(iov + 4) >> 2];
+      iov += 8;
+      var curr = FS.read(stream, HEAP8, ptr, len, offset);
+      if (curr < 0) return -1;
+      ret += curr;
+      if (curr < len) break;
     }
+    return ret;
   }
   function _fd_read(fd, iov, iovcnt, pnum) {
     try {
       var stream = SYSCALLS.getStreamFromFD(fd);
-      var num = SYSCALLS.doReadv(stream, iov, iovcnt);
+      var num = doReadv(stream, iov, iovcnt);
       HEAP32[pnum >> 2] = num;
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return e.errno;
     }
   }
+  function convertI32PairToI53Checked(lo, hi) {
+    return (hi + 2097152) >>> 0 < 4194305 - !!lo
+      ? (lo >>> 0) + hi * 4294967296
+      : NaN;
+  }
   function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
     try {
+      var offset = convertI32PairToI53Checked(offset_low, offset_high);
+      if (isNaN(offset)) return 61;
       var stream = SYSCALLS.getStreamFromFD(fd);
-      var HIGH_OFFSET = 4294967296;
-      var offset = offset_high * HIGH_OFFSET + (offset_low >>> 0);
-      var DOUBLE_LIMIT = 9007199254740992;
-      if (offset <= -DOUBLE_LIMIT || offset >= DOUBLE_LIMIT) {
-        return -61;
-      }
       FS.llseek(stream, offset, whence);
       (tempI64 = [
         stream.position >>> 0,
@@ -6892,39 +6469,38 @@ function startWorker(message) {
         stream.getdents = null;
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return e.errno;
     }
+  }
+  function doWritev(stream, iov, iovcnt, offset) {
+    var ret = 0;
+    for (var i = 0; i < iovcnt; i++) {
+      var ptr = HEAPU32[iov >> 2];
+      var len = HEAPU32[(iov + 4) >> 2];
+      iov += 8;
+      var curr = FS.write(stream, HEAP8, ptr, len, offset);
+      if (curr < 0) return -1;
+      ret += curr;
+    }
+    return ret;
   }
   function _fd_write(fd, iov, iovcnt, pnum) {
     try {
       var stream = SYSCALLS.getStreamFromFD(fd);
-      var num = SYSCALLS.doWritev(stream, iov, iovcnt);
-      HEAP32[pnum >> 2] = num;
+      var num = doWritev(stream, iov, iovcnt);
+      HEAPU32[pnum >> 2] = num;
       return 0;
     } catch (e) {
-      if (typeof FS === "undefined" || !(e instanceof FS.ErrnoError)) abort(e);
+      if (typeof FS == "undefined" || !(e instanceof FS.ErrnoError)) throw e;
       return e.errno;
     }
   }
   function _getTempRet0() {
     return getTempRet0();
   }
-  function _gettimeofday(ptr) {
-    var now = Date.now();
-    HEAP32[ptr >> 2] = (now / 1e3) | 0;
-    HEAP32[(ptr + 4) >> 2] = ((now % 1e3) * 1e3) | 0;
-    return 0;
-  }
   function _setTempRet0(val) {
     setTempRet0(val);
-  }
-  function _time(ptr) {
-    var ret = (Date.now() / 1e3) | 0;
-    if (ptr) {
-      HEAP32[ptr >> 2] = ret;
-    }
-    return ret;
   }
   Module["requestFullscreen"] = function Module_requestFullscreen(
     lockPointer,
@@ -6966,6 +6542,8 @@ function startWorker(message) {
       webGLContextAttributes
     );
   };
+  var preloadedImages = {};
+  var preloadedAudios = {};
   var FSNode = function (parent, name, mode, rdev) {
     if (!parent) {
       parent = this;
@@ -7017,9 +6595,9 @@ function startWorker(message) {
   Module["FS_createPath"] = FS.createPath;
   Module["FS_createDataFile"] = FS.createDataFile;
   Module["FS_createPreloadedFile"] = FS.createPreloadedFile;
+  Module["FS_unlink"] = FS.unlink;
   Module["FS_createLazyFile"] = FS.createLazyFile;
   Module["FS_createDevice"] = FS.createDevice;
-  Module["FS_unlink"] = FS.unlink;
   function intArrayFromString(stringy, dontAddNull, length) {
     var len = length > 0 ? length : lengthBytesUTF8(stringy) + 1;
     var u8array = new Array(len);
@@ -7034,67 +6612,52 @@ function startWorker(message) {
   }
   var asmLibraryArg = {
     a: ___assert_fail,
-    J: ___clock_gettime,
-    E: ___sys_access,
-    M: ___sys_chmod,
-    c: ___sys_fcntl64,
-    K: ___sys_fstat64,
-    C: ___sys_getcwd,
-    I: ___sys_getdents64,
-    g: ___sys_getpid,
-    z: ___sys_ioctl,
-    G: ___sys_link,
-    L: ___sys_lstat64,
-    N: ___sys_mkdir,
-    A: ___sys_mprotect,
-    k: ___sys_open,
-    F: ___sys_readlink,
-    y: ___sys_rename,
-    H: ___sys_rmdir,
-    n: ___sys_stat64,
-    D: ___sys_symlink,
-    B: ___sys_unlink,
-    o: _abort,
-    O: _emscripten_get_heap_max,
-    p: _emscripten_get_now,
-    e: _emscripten_longjmp,
-    t: _emscripten_memcpy_big,
-    u: _emscripten_resize_heap,
-    w: _environ_get,
-    x: _environ_sizes_get,
-    h: _exit,
-    f: _fd_close,
-    v: _fd_fdstat_get,
-    m: _fd_read,
-    s: _fd_seek,
+    L: ___syscall_chmod,
+    M: ___syscall_faccessat,
+    f: ___syscall_fcntl64,
+    I: ___syscall_fstat64,
+    w: ___syscall_fstatfs64,
+    E: ___syscall_getcwd,
+    A: ___syscall_getdents64,
+    n: ___syscall_ioctl,
+    G: ___syscall_lstat64,
+    B: ___syscall_mkdirat,
+    F: ___syscall_newfstatat,
+    l: ___syscall_openat,
+    z: ___syscall_readlinkat,
+    y: ___syscall_renameat,
+    x: ___syscall_rmdir,
+    H: ___syscall_stat64,
+    v: ___syscall_symlink,
+    u: ___syscall_unlinkat,
+    i: __emscripten_date_now,
+    o: __emscripten_fs_load_embedded_files,
+    J: __emscripten_get_now_is_monotonic,
+    t: __emscripten_throw_longjmp,
+    h: _abort,
+    m: _emscripten_get_now,
+    K: _emscripten_memcpy_big,
+    g: _emscripten_resize_heap,
+    C: _environ_get,
+    D: _environ_sizes_get,
+    e: _exit,
+    d: _fd_close,
+    k: _fd_read,
+    p: _fd_seek,
     j: _fd_write,
-    d: _getTempRet0,
-    P: _gettimeofday,
-    r: invoke_iii,
-    l: invoke_iiii,
-    q: invoke_iiiii,
+    c: _getTempRet0,
+    s: invoke_iii,
+    q: invoke_iiii,
+    r: invoke_iiiii,
     b: _setTempRet0,
-    i: _time,
   };
   var asm = createWasm();
   var ___wasm_call_ctors = (Module["___wasm_call_ctors"] = function () {
     return (___wasm_call_ctors = Module["___wasm_call_ctors"] =
-      Module["asm"]["R"]).apply(null, arguments);
-  });
-  var _malloc = (Module["_malloc"] = function () {
-    return (_malloc = Module["_malloc"] = Module["asm"]["S"]).apply(
-      null,
-      arguments
-    );
-  });
-  var _free = (Module["_free"] = function () {
-    return (_free = Module["_free"] = Module["asm"]["T"]).apply(
-      null,
-      arguments
-    );
+      Module["asm"]["O"]).apply(null, arguments);
   });
   var _main = (Module["_main"] = function () {
-    return (_main = Module["_main"] = Module["asm"]["U"]).apply(
+    return (_main = Module["_main"] = Module["asm"]["P"]).apply(
       null,
       arguments
     );
@@ -7105,7 +6668,7 @@ function startWorker(message) {
     return (_emscripten_bind_VoidPtr___destroy___0 = Module[
       "_emscripten_bind_VoidPtr___destroy___0"
     ] =
-      Module["asm"]["V"]).apply(null, arguments);
+      Module["asm"]["Q"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_w_0 = (Module[
     "_emscripten_bind_ASS_Image_get_w_0"
@@ -7113,7 +6676,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_w_0 = Module[
       "_emscripten_bind_ASS_Image_get_w_0"
     ] =
-      Module["asm"]["W"]).apply(null, arguments);
+      Module["asm"]["R"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_w_1 = (Module[
     "_emscripten_bind_ASS_Image_set_w_1"
@@ -7121,7 +6684,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_w_1 = Module[
       "_emscripten_bind_ASS_Image_set_w_1"
     ] =
-      Module["asm"]["X"]).apply(null, arguments);
+      Module["asm"]["S"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_h_0 = (Module[
     "_emscripten_bind_ASS_Image_get_h_0"
@@ -7129,7 +6692,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_h_0 = Module[
       "_emscripten_bind_ASS_Image_get_h_0"
     ] =
-      Module["asm"]["Y"]).apply(null, arguments);
+      Module["asm"]["T"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_h_1 = (Module[
     "_emscripten_bind_ASS_Image_set_h_1"
@@ -7137,7 +6700,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_h_1 = Module[
       "_emscripten_bind_ASS_Image_set_h_1"
     ] =
-      Module["asm"]["Z"]).apply(null, arguments);
+      Module["asm"]["U"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_stride_0 = (Module[
     "_emscripten_bind_ASS_Image_get_stride_0"
@@ -7145,7 +6708,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_stride_0 = Module[
       "_emscripten_bind_ASS_Image_get_stride_0"
     ] =
-      Module["asm"]["_"]).apply(null, arguments);
+      Module["asm"]["V"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_stride_1 = (Module[
     "_emscripten_bind_ASS_Image_set_stride_1"
@@ -7153,7 +6716,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_stride_1 = Module[
       "_emscripten_bind_ASS_Image_set_stride_1"
     ] =
-      Module["asm"]["$"]).apply(null, arguments);
+      Module["asm"]["W"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_bitmap_0 = (Module[
     "_emscripten_bind_ASS_Image_get_bitmap_0"
@@ -7161,7 +6724,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_bitmap_0 = Module[
       "_emscripten_bind_ASS_Image_get_bitmap_0"
     ] =
-      Module["asm"]["aa"]).apply(null, arguments);
+      Module["asm"]["X"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_bitmap_1 = (Module[
     "_emscripten_bind_ASS_Image_set_bitmap_1"
@@ -7169,7 +6732,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_bitmap_1 = Module[
       "_emscripten_bind_ASS_Image_set_bitmap_1"
     ] =
-      Module["asm"]["ba"]).apply(null, arguments);
+      Module["asm"]["Y"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_color_0 = (Module[
     "_emscripten_bind_ASS_Image_get_color_0"
@@ -7177,7 +6740,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_color_0 = Module[
       "_emscripten_bind_ASS_Image_get_color_0"
     ] =
-      Module["asm"]["ca"]).apply(null, arguments);
+      Module["asm"]["Z"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_color_1 = (Module[
     "_emscripten_bind_ASS_Image_set_color_1"
@@ -7185,7 +6748,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_color_1 = Module[
       "_emscripten_bind_ASS_Image_set_color_1"
     ] =
-      Module["asm"]["da"]).apply(null, arguments);
+      Module["asm"]["_"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_dst_x_0 = (Module[
     "_emscripten_bind_ASS_Image_get_dst_x_0"
@@ -7193,7 +6756,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_dst_x_0 = Module[
       "_emscripten_bind_ASS_Image_get_dst_x_0"
     ] =
-      Module["asm"]["ea"]).apply(null, arguments);
+      Module["asm"]["$"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_dst_x_1 = (Module[
     "_emscripten_bind_ASS_Image_set_dst_x_1"
@@ -7201,7 +6764,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_dst_x_1 = Module[
       "_emscripten_bind_ASS_Image_set_dst_x_1"
     ] =
-      Module["asm"]["fa"]).apply(null, arguments);
+      Module["asm"]["aa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_dst_y_0 = (Module[
     "_emscripten_bind_ASS_Image_get_dst_y_0"
@@ -7209,7 +6772,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_dst_y_0 = Module[
       "_emscripten_bind_ASS_Image_get_dst_y_0"
     ] =
-      Module["asm"]["ga"]).apply(null, arguments);
+      Module["asm"]["ba"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_dst_y_1 = (Module[
     "_emscripten_bind_ASS_Image_set_dst_y_1"
@@ -7217,7 +6780,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_dst_y_1 = Module[
       "_emscripten_bind_ASS_Image_set_dst_y_1"
     ] =
-      Module["asm"]["ha"]).apply(null, arguments);
+      Module["asm"]["ca"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_get_next_0 = (Module[
     "_emscripten_bind_ASS_Image_get_next_0"
@@ -7225,7 +6788,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_get_next_0 = Module[
       "_emscripten_bind_ASS_Image_get_next_0"
     ] =
-      Module["asm"]["ia"]).apply(null, arguments);
+      Module["asm"]["da"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Image_set_next_1 = (Module[
     "_emscripten_bind_ASS_Image_set_next_1"
@@ -7233,7 +6796,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Image_set_next_1 = Module[
       "_emscripten_bind_ASS_Image_set_next_1"
     ] =
-      Module["asm"]["ja"]).apply(null, arguments);
+      Module["asm"]["ea"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Name_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Name_0"
@@ -7241,7 +6804,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Name_0 = Module[
       "_emscripten_bind_ASS_Style_get_Name_0"
     ] =
-      Module["asm"]["ka"]).apply(null, arguments);
+      Module["asm"]["fa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Name_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Name_1"
@@ -7249,7 +6812,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Name_1 = Module[
       "_emscripten_bind_ASS_Style_set_Name_1"
     ] =
-      Module["asm"]["la"]).apply(null, arguments);
+      Module["asm"]["ga"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_FontName_0 = (Module[
     "_emscripten_bind_ASS_Style_get_FontName_0"
@@ -7257,7 +6820,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_FontName_0 = Module[
       "_emscripten_bind_ASS_Style_get_FontName_0"
     ] =
-      Module["asm"]["ma"]).apply(null, arguments);
+      Module["asm"]["ha"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_FontName_1 = (Module[
     "_emscripten_bind_ASS_Style_set_FontName_1"
@@ -7265,7 +6828,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_FontName_1 = Module[
       "_emscripten_bind_ASS_Style_set_FontName_1"
     ] =
-      Module["asm"]["na"]).apply(null, arguments);
+      Module["asm"]["ia"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_FontSize_0 = (Module[
     "_emscripten_bind_ASS_Style_get_FontSize_0"
@@ -7273,7 +6836,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_FontSize_0 = Module[
       "_emscripten_bind_ASS_Style_get_FontSize_0"
     ] =
-      Module["asm"]["oa"]).apply(null, arguments);
+      Module["asm"]["ja"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_FontSize_1 = (Module[
     "_emscripten_bind_ASS_Style_set_FontSize_1"
@@ -7281,7 +6844,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_FontSize_1 = Module[
       "_emscripten_bind_ASS_Style_set_FontSize_1"
     ] =
-      Module["asm"]["pa"]).apply(null, arguments);
+      Module["asm"]["ka"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_PrimaryColour_0 = (Module[
     "_emscripten_bind_ASS_Style_get_PrimaryColour_0"
@@ -7289,7 +6852,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_PrimaryColour_0 = Module[
       "_emscripten_bind_ASS_Style_get_PrimaryColour_0"
     ] =
-      Module["asm"]["qa"]).apply(null, arguments);
+      Module["asm"]["la"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_PrimaryColour_1 = (Module[
     "_emscripten_bind_ASS_Style_set_PrimaryColour_1"
@@ -7297,7 +6860,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_PrimaryColour_1 = Module[
       "_emscripten_bind_ASS_Style_set_PrimaryColour_1"
     ] =
-      Module["asm"]["ra"]).apply(null, arguments);
+      Module["asm"]["ma"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_SecondaryColour_0 = (Module[
     "_emscripten_bind_ASS_Style_get_SecondaryColour_0"
@@ -7305,7 +6868,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_SecondaryColour_0 = Module[
       "_emscripten_bind_ASS_Style_get_SecondaryColour_0"
     ] =
-      Module["asm"]["sa"]).apply(null, arguments);
+      Module["asm"]["na"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_SecondaryColour_1 = (Module[
     "_emscripten_bind_ASS_Style_set_SecondaryColour_1"
@@ -7313,7 +6876,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_SecondaryColour_1 = Module[
       "_emscripten_bind_ASS_Style_set_SecondaryColour_1"
     ] =
-      Module["asm"]["ta"]).apply(null, arguments);
+      Module["asm"]["oa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_OutlineColour_0 = (Module[
     "_emscripten_bind_ASS_Style_get_OutlineColour_0"
@@ -7321,7 +6884,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_OutlineColour_0 = Module[
       "_emscripten_bind_ASS_Style_get_OutlineColour_0"
     ] =
-      Module["asm"]["ua"]).apply(null, arguments);
+      Module["asm"]["pa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_OutlineColour_1 = (Module[
     "_emscripten_bind_ASS_Style_set_OutlineColour_1"
@@ -7329,7 +6892,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_OutlineColour_1 = Module[
       "_emscripten_bind_ASS_Style_set_OutlineColour_1"
     ] =
-      Module["asm"]["va"]).apply(null, arguments);
+      Module["asm"]["qa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_BackColour_0 = (Module[
     "_emscripten_bind_ASS_Style_get_BackColour_0"
@@ -7337,7 +6900,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_BackColour_0 = Module[
       "_emscripten_bind_ASS_Style_get_BackColour_0"
     ] =
-      Module["asm"]["wa"]).apply(null, arguments);
+      Module["asm"]["ra"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_BackColour_1 = (Module[
     "_emscripten_bind_ASS_Style_set_BackColour_1"
@@ -7345,7 +6908,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_BackColour_1 = Module[
       "_emscripten_bind_ASS_Style_set_BackColour_1"
     ] =
-      Module["asm"]["xa"]).apply(null, arguments);
+      Module["asm"]["sa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Bold_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Bold_0"
@@ -7353,7 +6916,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Bold_0 = Module[
       "_emscripten_bind_ASS_Style_get_Bold_0"
     ] =
-      Module["asm"]["ya"]).apply(null, arguments);
+      Module["asm"]["ta"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Bold_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Bold_1"
@@ -7361,7 +6924,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Bold_1 = Module[
       "_emscripten_bind_ASS_Style_set_Bold_1"
     ] =
-      Module["asm"]["za"]).apply(null, arguments);
+      Module["asm"]["ua"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Italic_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Italic_0"
@@ -7369,7 +6932,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Italic_0 = Module[
       "_emscripten_bind_ASS_Style_get_Italic_0"
     ] =
-      Module["asm"]["Aa"]).apply(null, arguments);
+      Module["asm"]["va"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Italic_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Italic_1"
@@ -7377,7 +6940,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Italic_1 = Module[
       "_emscripten_bind_ASS_Style_set_Italic_1"
     ] =
-      Module["asm"]["Ba"]).apply(null, arguments);
+      Module["asm"]["wa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Underline_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Underline_0"
@@ -7385,7 +6948,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Underline_0 = Module[
       "_emscripten_bind_ASS_Style_get_Underline_0"
     ] =
-      Module["asm"]["Ca"]).apply(null, arguments);
+      Module["asm"]["xa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Underline_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Underline_1"
@@ -7393,7 +6956,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Underline_1 = Module[
       "_emscripten_bind_ASS_Style_set_Underline_1"
     ] =
-      Module["asm"]["Da"]).apply(null, arguments);
+      Module["asm"]["ya"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_StrikeOut_0 = (Module[
     "_emscripten_bind_ASS_Style_get_StrikeOut_0"
@@ -7401,7 +6964,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_StrikeOut_0 = Module[
       "_emscripten_bind_ASS_Style_get_StrikeOut_0"
     ] =
-      Module["asm"]["Ea"]).apply(null, arguments);
+      Module["asm"]["za"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_StrikeOut_1 = (Module[
     "_emscripten_bind_ASS_Style_set_StrikeOut_1"
@@ -7409,7 +6972,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_StrikeOut_1 = Module[
       "_emscripten_bind_ASS_Style_set_StrikeOut_1"
     ] =
-      Module["asm"]["Fa"]).apply(null, arguments);
+      Module["asm"]["Aa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_ScaleX_0 = (Module[
     "_emscripten_bind_ASS_Style_get_ScaleX_0"
@@ -7417,7 +6980,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_ScaleX_0 = Module[
       "_emscripten_bind_ASS_Style_get_ScaleX_0"
     ] =
-      Module["asm"]["Ga"]).apply(null, arguments);
+      Module["asm"]["Ba"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_ScaleX_1 = (Module[
     "_emscripten_bind_ASS_Style_set_ScaleX_1"
@@ -7425,7 +6988,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_ScaleX_1 = Module[
       "_emscripten_bind_ASS_Style_set_ScaleX_1"
     ] =
-      Module["asm"]["Ha"]).apply(null, arguments);
+      Module["asm"]["Ca"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_ScaleY_0 = (Module[
     "_emscripten_bind_ASS_Style_get_ScaleY_0"
@@ -7433,7 +6996,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_ScaleY_0 = Module[
       "_emscripten_bind_ASS_Style_get_ScaleY_0"
     ] =
-      Module["asm"]["Ia"]).apply(null, arguments);
+      Module["asm"]["Da"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_ScaleY_1 = (Module[
     "_emscripten_bind_ASS_Style_set_ScaleY_1"
@@ -7441,7 +7004,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_ScaleY_1 = Module[
       "_emscripten_bind_ASS_Style_set_ScaleY_1"
     ] =
-      Module["asm"]["Ja"]).apply(null, arguments);
+      Module["asm"]["Ea"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Spacing_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Spacing_0"
@@ -7449,7 +7012,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Spacing_0 = Module[
       "_emscripten_bind_ASS_Style_get_Spacing_0"
     ] =
-      Module["asm"]["Ka"]).apply(null, arguments);
+      Module["asm"]["Fa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Spacing_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Spacing_1"
@@ -7457,7 +7020,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Spacing_1 = Module[
       "_emscripten_bind_ASS_Style_set_Spacing_1"
     ] =
-      Module["asm"]["La"]).apply(null, arguments);
+      Module["asm"]["Ga"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Angle_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Angle_0"
@@ -7465,7 +7028,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Angle_0 = Module[
       "_emscripten_bind_ASS_Style_get_Angle_0"
     ] =
-      Module["asm"]["Ma"]).apply(null, arguments);
+      Module["asm"]["Ha"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Angle_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Angle_1"
@@ -7473,7 +7036,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Angle_1 = Module[
       "_emscripten_bind_ASS_Style_set_Angle_1"
     ] =
-      Module["asm"]["Na"]).apply(null, arguments);
+      Module["asm"]["Ia"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_BorderStyle_0 = (Module[
     "_emscripten_bind_ASS_Style_get_BorderStyle_0"
@@ -7481,7 +7044,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_BorderStyle_0 = Module[
       "_emscripten_bind_ASS_Style_get_BorderStyle_0"
     ] =
-      Module["asm"]["Oa"]).apply(null, arguments);
+      Module["asm"]["Ja"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_BorderStyle_1 = (Module[
     "_emscripten_bind_ASS_Style_set_BorderStyle_1"
@@ -7489,7 +7052,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_BorderStyle_1 = Module[
       "_emscripten_bind_ASS_Style_set_BorderStyle_1"
     ] =
-      Module["asm"]["Pa"]).apply(null, arguments);
+      Module["asm"]["Ka"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Outline_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Outline_0"
@@ -7497,7 +7060,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Outline_0 = Module[
       "_emscripten_bind_ASS_Style_get_Outline_0"
     ] =
-      Module["asm"]["Qa"]).apply(null, arguments);
+      Module["asm"]["La"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Outline_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Outline_1"
@@ -7505,7 +7068,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Outline_1 = Module[
       "_emscripten_bind_ASS_Style_set_Outline_1"
     ] =
-      Module["asm"]["Ra"]).apply(null, arguments);
+      Module["asm"]["Ma"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Shadow_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Shadow_0"
@@ -7513,7 +7076,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Shadow_0 = Module[
       "_emscripten_bind_ASS_Style_get_Shadow_0"
     ] =
-      Module["asm"]["Sa"]).apply(null, arguments);
+      Module["asm"]["Na"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Shadow_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Shadow_1"
@@ -7521,7 +7084,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Shadow_1 = Module[
       "_emscripten_bind_ASS_Style_set_Shadow_1"
     ] =
-      Module["asm"]["Ta"]).apply(null, arguments);
+      Module["asm"]["Oa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Alignment_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Alignment_0"
@@ -7529,7 +7092,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Alignment_0 = Module[
       "_emscripten_bind_ASS_Style_get_Alignment_0"
     ] =
-      Module["asm"]["Ua"]).apply(null, arguments);
+      Module["asm"]["Pa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Alignment_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Alignment_1"
@@ -7537,7 +7100,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Alignment_1 = Module[
       "_emscripten_bind_ASS_Style_set_Alignment_1"
     ] =
-      Module["asm"]["Va"]).apply(null, arguments);
+      Module["asm"]["Qa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_MarginL_0 = (Module[
     "_emscripten_bind_ASS_Style_get_MarginL_0"
@@ -7545,7 +7108,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_MarginL_0 = Module[
       "_emscripten_bind_ASS_Style_get_MarginL_0"
     ] =
-      Module["asm"]["Wa"]).apply(null, arguments);
+      Module["asm"]["Ra"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_MarginL_1 = (Module[
     "_emscripten_bind_ASS_Style_set_MarginL_1"
@@ -7553,7 +7116,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_MarginL_1 = Module[
       "_emscripten_bind_ASS_Style_set_MarginL_1"
     ] =
-      Module["asm"]["Xa"]).apply(null, arguments);
+      Module["asm"]["Sa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_MarginR_0 = (Module[
     "_emscripten_bind_ASS_Style_get_MarginR_0"
@@ -7561,7 +7124,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_MarginR_0 = Module[
       "_emscripten_bind_ASS_Style_get_MarginR_0"
     ] =
-      Module["asm"]["Ya"]).apply(null, arguments);
+      Module["asm"]["Ta"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_MarginR_1 = (Module[
     "_emscripten_bind_ASS_Style_set_MarginR_1"
@@ -7569,7 +7132,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_MarginR_1 = Module[
       "_emscripten_bind_ASS_Style_set_MarginR_1"
     ] =
-      Module["asm"]["Za"]).apply(null, arguments);
+      Module["asm"]["Ua"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_MarginV_0 = (Module[
     "_emscripten_bind_ASS_Style_get_MarginV_0"
@@ -7577,7 +7140,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_MarginV_0 = Module[
       "_emscripten_bind_ASS_Style_get_MarginV_0"
     ] =
-      Module["asm"]["_a"]).apply(null, arguments);
+      Module["asm"]["Va"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_MarginV_1 = (Module[
     "_emscripten_bind_ASS_Style_set_MarginV_1"
@@ -7585,7 +7148,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_MarginV_1 = Module[
       "_emscripten_bind_ASS_Style_set_MarginV_1"
     ] =
-      Module["asm"]["$a"]).apply(null, arguments);
+      Module["asm"]["Wa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Encoding_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Encoding_0"
@@ -7593,7 +7156,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Encoding_0 = Module[
       "_emscripten_bind_ASS_Style_get_Encoding_0"
     ] =
-      Module["asm"]["ab"]).apply(null, arguments);
+      Module["asm"]["Xa"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Encoding_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Encoding_1"
@@ -7601,7 +7164,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Encoding_1 = Module[
       "_emscripten_bind_ASS_Style_set_Encoding_1"
     ] =
-      Module["asm"]["bb"]).apply(null, arguments);
+      Module["asm"]["Ya"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_treat_fontname_as_pattern_0 = (Module[
     "_emscripten_bind_ASS_Style_get_treat_fontname_as_pattern_0"
@@ -7609,7 +7172,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_treat_fontname_as_pattern_0 = Module[
       "_emscripten_bind_ASS_Style_get_treat_fontname_as_pattern_0"
     ] =
-      Module["asm"]["cb"]).apply(null, arguments);
+      Module["asm"]["Za"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_treat_fontname_as_pattern_1 = (Module[
     "_emscripten_bind_ASS_Style_set_treat_fontname_as_pattern_1"
@@ -7617,7 +7180,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_treat_fontname_as_pattern_1 = Module[
       "_emscripten_bind_ASS_Style_set_treat_fontname_as_pattern_1"
     ] =
-      Module["asm"]["db"]).apply(null, arguments);
+      Module["asm"]["_a"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Blur_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Blur_0"
@@ -7625,7 +7188,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Blur_0 = Module[
       "_emscripten_bind_ASS_Style_get_Blur_0"
     ] =
-      Module["asm"]["eb"]).apply(null, arguments);
+      Module["asm"]["$a"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Blur_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Blur_1"
@@ -7633,7 +7196,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Blur_1 = Module[
       "_emscripten_bind_ASS_Style_set_Blur_1"
     ] =
-      Module["asm"]["fb"]).apply(null, arguments);
+      Module["asm"]["ab"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_get_Justify_0 = (Module[
     "_emscripten_bind_ASS_Style_get_Justify_0"
@@ -7641,7 +7204,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_get_Justify_0 = Module[
       "_emscripten_bind_ASS_Style_get_Justify_0"
     ] =
-      Module["asm"]["gb"]).apply(null, arguments);
+      Module["asm"]["bb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Style_set_Justify_1 = (Module[
     "_emscripten_bind_ASS_Style_set_Justify_1"
@@ -7649,7 +7212,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Style_set_Justify_1 = Module[
       "_emscripten_bind_ASS_Style_set_Justify_1"
     ] =
-      Module["asm"]["hb"]).apply(null, arguments);
+      Module["asm"]["cb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Start_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Start_0"
@@ -7657,7 +7220,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Start_0 = Module[
       "_emscripten_bind_ASS_Event_get_Start_0"
     ] =
-      Module["asm"]["ib"]).apply(null, arguments);
+      Module["asm"]["db"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Start_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Start_1"
@@ -7665,7 +7228,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Start_1 = Module[
       "_emscripten_bind_ASS_Event_set_Start_1"
     ] =
-      Module["asm"]["jb"]).apply(null, arguments);
+      Module["asm"]["eb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Duration_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Duration_0"
@@ -7673,7 +7236,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Duration_0 = Module[
       "_emscripten_bind_ASS_Event_get_Duration_0"
     ] =
-      Module["asm"]["kb"]).apply(null, arguments);
+      Module["asm"]["fb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Duration_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Duration_1"
@@ -7681,7 +7244,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Duration_1 = Module[
       "_emscripten_bind_ASS_Event_set_Duration_1"
     ] =
-      Module["asm"]["lb"]).apply(null, arguments);
+      Module["asm"]["gb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_ReadOrder_0 = (Module[
     "_emscripten_bind_ASS_Event_get_ReadOrder_0"
@@ -7689,7 +7252,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_ReadOrder_0 = Module[
       "_emscripten_bind_ASS_Event_get_ReadOrder_0"
     ] =
-      Module["asm"]["mb"]).apply(null, arguments);
+      Module["asm"]["hb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_ReadOrder_1 = (Module[
     "_emscripten_bind_ASS_Event_set_ReadOrder_1"
@@ -7697,7 +7260,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_ReadOrder_1 = Module[
       "_emscripten_bind_ASS_Event_set_ReadOrder_1"
     ] =
-      Module["asm"]["nb"]).apply(null, arguments);
+      Module["asm"]["ib"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Layer_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Layer_0"
@@ -7705,7 +7268,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Layer_0 = Module[
       "_emscripten_bind_ASS_Event_get_Layer_0"
     ] =
-      Module["asm"]["ob"]).apply(null, arguments);
+      Module["asm"]["jb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Layer_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Layer_1"
@@ -7713,7 +7276,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Layer_1 = Module[
       "_emscripten_bind_ASS_Event_set_Layer_1"
     ] =
-      Module["asm"]["pb"]).apply(null, arguments);
+      Module["asm"]["kb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Style_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Style_0"
@@ -7721,7 +7284,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Style_0 = Module[
       "_emscripten_bind_ASS_Event_get_Style_0"
     ] =
-      Module["asm"]["qb"]).apply(null, arguments);
+      Module["asm"]["lb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Style_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Style_1"
@@ -7729,7 +7292,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Style_1 = Module[
       "_emscripten_bind_ASS_Event_set_Style_1"
     ] =
-      Module["asm"]["rb"]).apply(null, arguments);
+      Module["asm"]["mb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Name_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Name_0"
@@ -7737,7 +7300,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Name_0 = Module[
       "_emscripten_bind_ASS_Event_get_Name_0"
     ] =
-      Module["asm"]["sb"]).apply(null, arguments);
+      Module["asm"]["nb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Name_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Name_1"
@@ -7745,7 +7308,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Name_1 = Module[
       "_emscripten_bind_ASS_Event_set_Name_1"
     ] =
-      Module["asm"]["tb"]).apply(null, arguments);
+      Module["asm"]["ob"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_MarginL_0 = (Module[
     "_emscripten_bind_ASS_Event_get_MarginL_0"
@@ -7753,7 +7316,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_MarginL_0 = Module[
       "_emscripten_bind_ASS_Event_get_MarginL_0"
     ] =
-      Module["asm"]["ub"]).apply(null, arguments);
+      Module["asm"]["pb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_MarginL_1 = (Module[
     "_emscripten_bind_ASS_Event_set_MarginL_1"
@@ -7761,7 +7324,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_MarginL_1 = Module[
       "_emscripten_bind_ASS_Event_set_MarginL_1"
     ] =
-      Module["asm"]["vb"]).apply(null, arguments);
+      Module["asm"]["qb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_MarginR_0 = (Module[
     "_emscripten_bind_ASS_Event_get_MarginR_0"
@@ -7769,7 +7332,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_MarginR_0 = Module[
       "_emscripten_bind_ASS_Event_get_MarginR_0"
     ] =
-      Module["asm"]["wb"]).apply(null, arguments);
+      Module["asm"]["rb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_MarginR_1 = (Module[
     "_emscripten_bind_ASS_Event_set_MarginR_1"
@@ -7777,7 +7340,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_MarginR_1 = Module[
       "_emscripten_bind_ASS_Event_set_MarginR_1"
     ] =
-      Module["asm"]["xb"]).apply(null, arguments);
+      Module["asm"]["sb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_MarginV_0 = (Module[
     "_emscripten_bind_ASS_Event_get_MarginV_0"
@@ -7785,7 +7348,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_MarginV_0 = Module[
       "_emscripten_bind_ASS_Event_get_MarginV_0"
     ] =
-      Module["asm"]["yb"]).apply(null, arguments);
+      Module["asm"]["tb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_MarginV_1 = (Module[
     "_emscripten_bind_ASS_Event_set_MarginV_1"
@@ -7793,7 +7356,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_MarginV_1 = Module[
       "_emscripten_bind_ASS_Event_set_MarginV_1"
     ] =
-      Module["asm"]["zb"]).apply(null, arguments);
+      Module["asm"]["ub"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Effect_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Effect_0"
@@ -7801,7 +7364,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Effect_0 = Module[
       "_emscripten_bind_ASS_Event_get_Effect_0"
     ] =
-      Module["asm"]["Ab"]).apply(null, arguments);
+      Module["asm"]["vb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Effect_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Effect_1"
@@ -7809,7 +7372,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Effect_1 = Module[
       "_emscripten_bind_ASS_Event_set_Effect_1"
     ] =
-      Module["asm"]["Bb"]).apply(null, arguments);
+      Module["asm"]["wb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_get_Text_0 = (Module[
     "_emscripten_bind_ASS_Event_get_Text_0"
@@ -7817,7 +7380,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_get_Text_0 = Module[
       "_emscripten_bind_ASS_Event_get_Text_0"
     ] =
-      Module["asm"]["Cb"]).apply(null, arguments);
+      Module["asm"]["xb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Event_set_Text_1 = (Module[
     "_emscripten_bind_ASS_Event_set_Text_1"
@@ -7825,7 +7388,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Event_set_Text_1 = Module[
       "_emscripten_bind_ASS_Event_set_Text_1"
     ] =
-      Module["asm"]["Db"]).apply(null, arguments);
+      Module["asm"]["yb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_n_styles_0 = (Module[
     "_emscripten_bind_ASS_Track_get_n_styles_0"
@@ -7833,7 +7396,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_n_styles_0 = Module[
       "_emscripten_bind_ASS_Track_get_n_styles_0"
     ] =
-      Module["asm"]["Eb"]).apply(null, arguments);
+      Module["asm"]["zb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_n_styles_1 = (Module[
     "_emscripten_bind_ASS_Track_set_n_styles_1"
@@ -7841,7 +7404,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_n_styles_1 = Module[
       "_emscripten_bind_ASS_Track_set_n_styles_1"
     ] =
-      Module["asm"]["Fb"]).apply(null, arguments);
+      Module["asm"]["Ab"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_max_styles_0 = (Module[
     "_emscripten_bind_ASS_Track_get_max_styles_0"
@@ -7849,7 +7412,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_max_styles_0 = Module[
       "_emscripten_bind_ASS_Track_get_max_styles_0"
     ] =
-      Module["asm"]["Gb"]).apply(null, arguments);
+      Module["asm"]["Bb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_max_styles_1 = (Module[
     "_emscripten_bind_ASS_Track_set_max_styles_1"
@@ -7857,7 +7420,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_max_styles_1 = Module[
       "_emscripten_bind_ASS_Track_set_max_styles_1"
     ] =
-      Module["asm"]["Hb"]).apply(null, arguments);
+      Module["asm"]["Cb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_n_events_0 = (Module[
     "_emscripten_bind_ASS_Track_get_n_events_0"
@@ -7865,7 +7428,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_n_events_0 = Module[
       "_emscripten_bind_ASS_Track_get_n_events_0"
     ] =
-      Module["asm"]["Ib"]).apply(null, arguments);
+      Module["asm"]["Db"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_n_events_1 = (Module[
     "_emscripten_bind_ASS_Track_set_n_events_1"
@@ -7873,7 +7436,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_n_events_1 = Module[
       "_emscripten_bind_ASS_Track_set_n_events_1"
     ] =
-      Module["asm"]["Jb"]).apply(null, arguments);
+      Module["asm"]["Eb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_max_events_0 = (Module[
     "_emscripten_bind_ASS_Track_get_max_events_0"
@@ -7881,7 +7444,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_max_events_0 = Module[
       "_emscripten_bind_ASS_Track_get_max_events_0"
     ] =
-      Module["asm"]["Kb"]).apply(null, arguments);
+      Module["asm"]["Fb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_max_events_1 = (Module[
     "_emscripten_bind_ASS_Track_set_max_events_1"
@@ -7889,7 +7452,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_max_events_1 = Module[
       "_emscripten_bind_ASS_Track_set_max_events_1"
     ] =
-      Module["asm"]["Lb"]).apply(null, arguments);
+      Module["asm"]["Gb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_styles_1 = (Module[
     "_emscripten_bind_ASS_Track_get_styles_1"
@@ -7897,7 +7460,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_styles_1 = Module[
       "_emscripten_bind_ASS_Track_get_styles_1"
     ] =
-      Module["asm"]["Mb"]).apply(null, arguments);
+      Module["asm"]["Hb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_styles_2 = (Module[
     "_emscripten_bind_ASS_Track_set_styles_2"
@@ -7905,7 +7468,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_styles_2 = Module[
       "_emscripten_bind_ASS_Track_set_styles_2"
     ] =
-      Module["asm"]["Nb"]).apply(null, arguments);
+      Module["asm"]["Ib"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_events_1 = (Module[
     "_emscripten_bind_ASS_Track_get_events_1"
@@ -7913,7 +7476,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_events_1 = Module[
       "_emscripten_bind_ASS_Track_get_events_1"
     ] =
-      Module["asm"]["Ob"]).apply(null, arguments);
+      Module["asm"]["Jb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_events_2 = (Module[
     "_emscripten_bind_ASS_Track_set_events_2"
@@ -7921,7 +7484,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_events_2 = Module[
       "_emscripten_bind_ASS_Track_set_events_2"
     ] =
-      Module["asm"]["Pb"]).apply(null, arguments);
+      Module["asm"]["Kb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_style_format_0 = (Module[
     "_emscripten_bind_ASS_Track_get_style_format_0"
@@ -7929,7 +7492,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_style_format_0 = Module[
       "_emscripten_bind_ASS_Track_get_style_format_0"
     ] =
-      Module["asm"]["Qb"]).apply(null, arguments);
+      Module["asm"]["Lb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_style_format_1 = (Module[
     "_emscripten_bind_ASS_Track_set_style_format_1"
@@ -7937,7 +7500,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_style_format_1 = Module[
       "_emscripten_bind_ASS_Track_set_style_format_1"
     ] =
-      Module["asm"]["Rb"]).apply(null, arguments);
+      Module["asm"]["Mb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_event_format_0 = (Module[
     "_emscripten_bind_ASS_Track_get_event_format_0"
@@ -7945,7 +7508,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_event_format_0 = Module[
       "_emscripten_bind_ASS_Track_get_event_format_0"
     ] =
-      Module["asm"]["Sb"]).apply(null, arguments);
+      Module["asm"]["Nb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_event_format_1 = (Module[
     "_emscripten_bind_ASS_Track_set_event_format_1"
@@ -7953,7 +7516,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_event_format_1 = Module[
       "_emscripten_bind_ASS_Track_set_event_format_1"
     ] =
-      Module["asm"]["Tb"]).apply(null, arguments);
+      Module["asm"]["Ob"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_PlayResX_0 = (Module[
     "_emscripten_bind_ASS_Track_get_PlayResX_0"
@@ -7961,7 +7524,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_PlayResX_0 = Module[
       "_emscripten_bind_ASS_Track_get_PlayResX_0"
     ] =
-      Module["asm"]["Ub"]).apply(null, arguments);
+      Module["asm"]["Pb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_PlayResX_1 = (Module[
     "_emscripten_bind_ASS_Track_set_PlayResX_1"
@@ -7969,7 +7532,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_PlayResX_1 = Module[
       "_emscripten_bind_ASS_Track_set_PlayResX_1"
     ] =
-      Module["asm"]["Vb"]).apply(null, arguments);
+      Module["asm"]["Qb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_PlayResY_0 = (Module[
     "_emscripten_bind_ASS_Track_get_PlayResY_0"
@@ -7977,7 +7540,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_PlayResY_0 = Module[
       "_emscripten_bind_ASS_Track_get_PlayResY_0"
     ] =
-      Module["asm"]["Wb"]).apply(null, arguments);
+      Module["asm"]["Rb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_PlayResY_1 = (Module[
     "_emscripten_bind_ASS_Track_set_PlayResY_1"
@@ -7985,7 +7548,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_PlayResY_1 = Module[
       "_emscripten_bind_ASS_Track_set_PlayResY_1"
     ] =
-      Module["asm"]["Xb"]).apply(null, arguments);
+      Module["asm"]["Sb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_Timer_0 = (Module[
     "_emscripten_bind_ASS_Track_get_Timer_0"
@@ -7993,7 +7556,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_Timer_0 = Module[
       "_emscripten_bind_ASS_Track_get_Timer_0"
     ] =
-      Module["asm"]["Yb"]).apply(null, arguments);
+      Module["asm"]["Tb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_Timer_1 = (Module[
     "_emscripten_bind_ASS_Track_set_Timer_1"
@@ -8001,7 +7564,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_Timer_1 = Module[
       "_emscripten_bind_ASS_Track_set_Timer_1"
     ] =
-      Module["asm"]["Zb"]).apply(null, arguments);
+      Module["asm"]["Ub"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_WrapStyle_0 = (Module[
     "_emscripten_bind_ASS_Track_get_WrapStyle_0"
@@ -8009,7 +7572,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_WrapStyle_0 = Module[
       "_emscripten_bind_ASS_Track_get_WrapStyle_0"
     ] =
-      Module["asm"]["_b"]).apply(null, arguments);
+      Module["asm"]["Vb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_WrapStyle_1 = (Module[
     "_emscripten_bind_ASS_Track_set_WrapStyle_1"
@@ -8017,7 +7580,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_WrapStyle_1 = Module[
       "_emscripten_bind_ASS_Track_set_WrapStyle_1"
     ] =
-      Module["asm"]["$b"]).apply(null, arguments);
+      Module["asm"]["Wb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_ScaledBorderAndShadow_0 = (Module[
     "_emscripten_bind_ASS_Track_get_ScaledBorderAndShadow_0"
@@ -8025,7 +7588,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_ScaledBorderAndShadow_0 = Module[
       "_emscripten_bind_ASS_Track_get_ScaledBorderAndShadow_0"
     ] =
-      Module["asm"]["ac"]).apply(null, arguments);
+      Module["asm"]["Xb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_ScaledBorderAndShadow_1 = (Module[
     "_emscripten_bind_ASS_Track_set_ScaledBorderAndShadow_1"
@@ -8033,7 +7596,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_ScaledBorderAndShadow_1 = Module[
       "_emscripten_bind_ASS_Track_set_ScaledBorderAndShadow_1"
     ] =
-      Module["asm"]["bc"]).apply(null, arguments);
+      Module["asm"]["Yb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_Kerning_0 = (Module[
     "_emscripten_bind_ASS_Track_get_Kerning_0"
@@ -8041,7 +7604,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_Kerning_0 = Module[
       "_emscripten_bind_ASS_Track_get_Kerning_0"
     ] =
-      Module["asm"]["cc"]).apply(null, arguments);
+      Module["asm"]["Zb"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_Kerning_1 = (Module[
     "_emscripten_bind_ASS_Track_set_Kerning_1"
@@ -8049,7 +7612,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_Kerning_1 = Module[
       "_emscripten_bind_ASS_Track_set_Kerning_1"
     ] =
-      Module["asm"]["dc"]).apply(null, arguments);
+      Module["asm"]["_b"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_Language_0 = (Module[
     "_emscripten_bind_ASS_Track_get_Language_0"
@@ -8057,7 +7620,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_Language_0 = Module[
       "_emscripten_bind_ASS_Track_get_Language_0"
     ] =
-      Module["asm"]["ec"]).apply(null, arguments);
+      Module["asm"]["$b"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_Language_1 = (Module[
     "_emscripten_bind_ASS_Track_set_Language_1"
@@ -8065,7 +7628,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_Language_1 = Module[
       "_emscripten_bind_ASS_Track_set_Language_1"
     ] =
-      Module["asm"]["fc"]).apply(null, arguments);
+      Module["asm"]["ac"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_default_style_0 = (Module[
     "_emscripten_bind_ASS_Track_get_default_style_0"
@@ -8073,7 +7636,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_default_style_0 = Module[
       "_emscripten_bind_ASS_Track_get_default_style_0"
     ] =
-      Module["asm"]["gc"]).apply(null, arguments);
+      Module["asm"]["bc"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_default_style_1 = (Module[
     "_emscripten_bind_ASS_Track_set_default_style_1"
@@ -8081,7 +7644,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_default_style_1 = Module[
       "_emscripten_bind_ASS_Track_set_default_style_1"
     ] =
-      Module["asm"]["hc"]).apply(null, arguments);
+      Module["asm"]["cc"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_get_name_0 = (Module[
     "_emscripten_bind_ASS_Track_get_name_0"
@@ -8089,7 +7652,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_get_name_0 = Module[
       "_emscripten_bind_ASS_Track_get_name_0"
     ] =
-      Module["asm"]["ic"]).apply(null, arguments);
+      Module["asm"]["dc"]).apply(null, arguments);
   });
   var _emscripten_bind_ASS_Track_set_name_1 = (Module[
     "_emscripten_bind_ASS_Track_set_name_1"
@@ -8097,7 +7660,7 @@ function startWorker(message) {
     return (_emscripten_bind_ASS_Track_set_name_1 = Module[
       "_emscripten_bind_ASS_Track_set_name_1"
     ] =
-      Module["asm"]["jc"]).apply(null, arguments);
+      Module["asm"]["ec"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_libass_0 = (Module[
     "_emscripten_bind_libass_libass_0"
@@ -8105,7 +7668,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_libass_0 = Module[
       "_emscripten_bind_libass_libass_0"
     ] =
-      Module["asm"]["kc"]).apply(null, arguments);
+      Module["asm"]["fc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_library_version_0 = (Module[
     "_emscripten_bind_libass_oct_library_version_0"
@@ -8113,7 +7676,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_library_version_0 = Module[
       "_emscripten_bind_libass_oct_library_version_0"
     ] =
-      Module["asm"]["lc"]).apply(null, arguments);
+      Module["asm"]["gc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_library_init_0 = (Module[
     "_emscripten_bind_libass_oct_library_init_0"
@@ -8121,7 +7684,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_library_init_0 = Module[
       "_emscripten_bind_libass_oct_library_init_0"
     ] =
-      Module["asm"]["mc"]).apply(null, arguments);
+      Module["asm"]["hc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_library_done_1 = (Module[
     "_emscripten_bind_libass_oct_library_done_1"
@@ -8129,7 +7692,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_library_done_1 = Module[
       "_emscripten_bind_libass_oct_library_done_1"
     ] =
-      Module["asm"]["nc"]).apply(null, arguments);
+      Module["asm"]["ic"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_fonts_dir_2 = (Module[
     "_emscripten_bind_libass_oct_set_fonts_dir_2"
@@ -8137,7 +7700,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_fonts_dir_2 = Module[
       "_emscripten_bind_libass_oct_set_fonts_dir_2"
     ] =
-      Module["asm"]["oc"]).apply(null, arguments);
+      Module["asm"]["jc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_extract_fonts_2 = (Module[
     "_emscripten_bind_libass_oct_set_extract_fonts_2"
@@ -8145,7 +7708,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_extract_fonts_2 = Module[
       "_emscripten_bind_libass_oct_set_extract_fonts_2"
     ] =
-      Module["asm"]["pc"]).apply(null, arguments);
+      Module["asm"]["kc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_style_overrides_2 = (Module[
     "_emscripten_bind_libass_oct_set_style_overrides_2"
@@ -8153,7 +7716,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_style_overrides_2 = Module[
       "_emscripten_bind_libass_oct_set_style_overrides_2"
     ] =
-      Module["asm"]["qc"]).apply(null, arguments);
+      Module["asm"]["lc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_process_force_style_1 = (Module[
     "_emscripten_bind_libass_oct_process_force_style_1"
@@ -8161,7 +7724,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_process_force_style_1 = Module[
       "_emscripten_bind_libass_oct_process_force_style_1"
     ] =
-      Module["asm"]["rc"]).apply(null, arguments);
+      Module["asm"]["mc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_renderer_init_1 = (Module[
     "_emscripten_bind_libass_oct_renderer_init_1"
@@ -8169,7 +7732,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_renderer_init_1 = Module[
       "_emscripten_bind_libass_oct_renderer_init_1"
     ] =
-      Module["asm"]["sc"]).apply(null, arguments);
+      Module["asm"]["nc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_renderer_done_1 = (Module[
     "_emscripten_bind_libass_oct_renderer_done_1"
@@ -8177,7 +7740,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_renderer_done_1 = Module[
       "_emscripten_bind_libass_oct_renderer_done_1"
     ] =
-      Module["asm"]["tc"]).apply(null, arguments);
+      Module["asm"]["oc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_frame_size_3 = (Module[
     "_emscripten_bind_libass_oct_set_frame_size_3"
@@ -8185,7 +7748,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_frame_size_3 = Module[
       "_emscripten_bind_libass_oct_set_frame_size_3"
     ] =
-      Module["asm"]["uc"]).apply(null, arguments);
+      Module["asm"]["pc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_storage_size_3 = (Module[
     "_emscripten_bind_libass_oct_set_storage_size_3"
@@ -8193,7 +7756,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_storage_size_3 = Module[
       "_emscripten_bind_libass_oct_set_storage_size_3"
     ] =
-      Module["asm"]["vc"]).apply(null, arguments);
+      Module["asm"]["qc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_shaper_2 = (Module[
     "_emscripten_bind_libass_oct_set_shaper_2"
@@ -8201,7 +7764,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_shaper_2 = Module[
       "_emscripten_bind_libass_oct_set_shaper_2"
     ] =
-      Module["asm"]["wc"]).apply(null, arguments);
+      Module["asm"]["rc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_margins_5 = (Module[
     "_emscripten_bind_libass_oct_set_margins_5"
@@ -8209,7 +7772,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_margins_5 = Module[
       "_emscripten_bind_libass_oct_set_margins_5"
     ] =
-      Module["asm"]["xc"]).apply(null, arguments);
+      Module["asm"]["sc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_use_margins_2 = (Module[
     "_emscripten_bind_libass_oct_set_use_margins_2"
@@ -8217,7 +7780,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_use_margins_2 = Module[
       "_emscripten_bind_libass_oct_set_use_margins_2"
     ] =
-      Module["asm"]["yc"]).apply(null, arguments);
+      Module["asm"]["tc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_pixel_aspect_2 = (Module[
     "_emscripten_bind_libass_oct_set_pixel_aspect_2"
@@ -8225,7 +7788,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_pixel_aspect_2 = Module[
       "_emscripten_bind_libass_oct_set_pixel_aspect_2"
     ] =
-      Module["asm"]["zc"]).apply(null, arguments);
+      Module["asm"]["uc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_aspect_ratio_3 = (Module[
     "_emscripten_bind_libass_oct_set_aspect_ratio_3"
@@ -8233,7 +7796,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_aspect_ratio_3 = Module[
       "_emscripten_bind_libass_oct_set_aspect_ratio_3"
     ] =
-      Module["asm"]["Ac"]).apply(null, arguments);
+      Module["asm"]["vc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_font_scale_2 = (Module[
     "_emscripten_bind_libass_oct_set_font_scale_2"
@@ -8241,7 +7804,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_font_scale_2 = Module[
       "_emscripten_bind_libass_oct_set_font_scale_2"
     ] =
-      Module["asm"]["Bc"]).apply(null, arguments);
+      Module["asm"]["wc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_hinting_2 = (Module[
     "_emscripten_bind_libass_oct_set_hinting_2"
@@ -8249,7 +7812,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_hinting_2 = Module[
       "_emscripten_bind_libass_oct_set_hinting_2"
     ] =
-      Module["asm"]["Cc"]).apply(null, arguments);
+      Module["asm"]["xc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_line_spacing_2 = (Module[
     "_emscripten_bind_libass_oct_set_line_spacing_2"
@@ -8257,7 +7820,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_line_spacing_2 = Module[
       "_emscripten_bind_libass_oct_set_line_spacing_2"
     ] =
-      Module["asm"]["Dc"]).apply(null, arguments);
+      Module["asm"]["yc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_line_position_2 = (Module[
     "_emscripten_bind_libass_oct_set_line_position_2"
@@ -8265,7 +7828,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_line_position_2 = Module[
       "_emscripten_bind_libass_oct_set_line_position_2"
     ] =
-      Module["asm"]["Ec"]).apply(null, arguments);
+      Module["asm"]["zc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_fonts_6 = (Module[
     "_emscripten_bind_libass_oct_set_fonts_6"
@@ -8273,7 +7836,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_fonts_6 = Module[
       "_emscripten_bind_libass_oct_set_fonts_6"
     ] =
-      Module["asm"]["Fc"]).apply(null, arguments);
+      Module["asm"]["Ac"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_selective_style_override_enabled_2 =
     (Module[
@@ -8283,7 +7846,7 @@ function startWorker(message) {
         Module[
           "_emscripten_bind_libass_oct_set_selective_style_override_enabled_2"
         ] =
-          Module["asm"]["Gc"]).apply(null, arguments);
+          Module["asm"]["Bc"]).apply(null, arguments);
     });
   var _emscripten_bind_libass_oct_set_selective_style_override_2 = (Module[
     "_emscripten_bind_libass_oct_set_selective_style_override_2"
@@ -8291,7 +7854,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_selective_style_override_2 = Module[
       "_emscripten_bind_libass_oct_set_selective_style_override_2"
     ] =
-      Module["asm"]["Hc"]).apply(null, arguments);
+      Module["asm"]["Cc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_set_cache_limits_3 = (Module[
     "_emscripten_bind_libass_oct_set_cache_limits_3"
@@ -8299,7 +7862,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_set_cache_limits_3 = Module[
       "_emscripten_bind_libass_oct_set_cache_limits_3"
     ] =
-      Module["asm"]["Ic"]).apply(null, arguments);
+      Module["asm"]["Dc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_render_frame_4 = (Module[
     "_emscripten_bind_libass_oct_render_frame_4"
@@ -8307,7 +7870,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_render_frame_4 = Module[
       "_emscripten_bind_libass_oct_render_frame_4"
     ] =
-      Module["asm"]["Jc"]).apply(null, arguments);
+      Module["asm"]["Ec"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_new_track_1 = (Module[
     "_emscripten_bind_libass_oct_new_track_1"
@@ -8315,7 +7878,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_new_track_1 = Module[
       "_emscripten_bind_libass_oct_new_track_1"
     ] =
-      Module["asm"]["Kc"]).apply(null, arguments);
+      Module["asm"]["Fc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_free_track_1 = (Module[
     "_emscripten_bind_libass_oct_free_track_1"
@@ -8323,7 +7886,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_free_track_1 = Module[
       "_emscripten_bind_libass_oct_free_track_1"
     ] =
-      Module["asm"]["Lc"]).apply(null, arguments);
+      Module["asm"]["Gc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_alloc_style_1 = (Module[
     "_emscripten_bind_libass_oct_alloc_style_1"
@@ -8331,7 +7894,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_alloc_style_1 = Module[
       "_emscripten_bind_libass_oct_alloc_style_1"
     ] =
-      Module["asm"]["Mc"]).apply(null, arguments);
+      Module["asm"]["Hc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_alloc_event_1 = (Module[
     "_emscripten_bind_libass_oct_alloc_event_1"
@@ -8339,7 +7902,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_alloc_event_1 = Module[
       "_emscripten_bind_libass_oct_alloc_event_1"
     ] =
-      Module["asm"]["Nc"]).apply(null, arguments);
+      Module["asm"]["Ic"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_free_style_2 = (Module[
     "_emscripten_bind_libass_oct_free_style_2"
@@ -8347,7 +7910,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_free_style_2 = Module[
       "_emscripten_bind_libass_oct_free_style_2"
     ] =
-      Module["asm"]["Oc"]).apply(null, arguments);
+      Module["asm"]["Jc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_free_event_2 = (Module[
     "_emscripten_bind_libass_oct_free_event_2"
@@ -8355,7 +7918,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_free_event_2 = Module[
       "_emscripten_bind_libass_oct_free_event_2"
     ] =
-      Module["asm"]["Pc"]).apply(null, arguments);
+      Module["asm"]["Kc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_flush_events_1 = (Module[
     "_emscripten_bind_libass_oct_flush_events_1"
@@ -8363,7 +7926,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_flush_events_1 = Module[
       "_emscripten_bind_libass_oct_flush_events_1"
     ] =
-      Module["asm"]["Qc"]).apply(null, arguments);
+      Module["asm"]["Lc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_read_file_3 = (Module[
     "_emscripten_bind_libass_oct_read_file_3"
@@ -8371,7 +7934,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_read_file_3 = Module[
       "_emscripten_bind_libass_oct_read_file_3"
     ] =
-      Module["asm"]["Rc"]).apply(null, arguments);
+      Module["asm"]["Mc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_add_font_4 = (Module[
     "_emscripten_bind_libass_oct_add_font_4"
@@ -8379,7 +7942,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_add_font_4 = Module[
       "_emscripten_bind_libass_oct_add_font_4"
     ] =
-      Module["asm"]["Sc"]).apply(null, arguments);
+      Module["asm"]["Nc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_clear_fonts_1 = (Module[
     "_emscripten_bind_libass_oct_clear_fonts_1"
@@ -8387,7 +7950,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_clear_fonts_1 = Module[
       "_emscripten_bind_libass_oct_clear_fonts_1"
     ] =
-      Module["asm"]["Tc"]).apply(null, arguments);
+      Module["asm"]["Oc"]).apply(null, arguments);
   });
   var _emscripten_bind_libass_oct_step_sub_3 = (Module[
     "_emscripten_bind_libass_oct_step_sub_3"
@@ -8395,7 +7958,7 @@ function startWorker(message) {
     return (_emscripten_bind_libass_oct_step_sub_3 = Module[
       "_emscripten_bind_libass_oct_step_sub_3"
     ] =
-      Module["asm"]["Uc"]).apply(null, arguments);
+      Module["asm"]["Pc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_changed_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_changed_0"
@@ -8403,7 +7966,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_changed_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_changed_0"
     ] =
-      Module["asm"]["Vc"]).apply(null, arguments);
+      Module["asm"]["Qc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_changed_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_changed_1"
@@ -8411,7 +7974,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_changed_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_changed_1"
     ] =
-      Module["asm"]["Wc"]).apply(null, arguments);
+      Module["asm"]["Rc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_blend_time_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_blend_time_0"
@@ -8419,7 +7982,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_blend_time_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_blend_time_0"
     ] =
-      Module["asm"]["Xc"]).apply(null, arguments);
+      Module["asm"]["Sc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_blend_time_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_blend_time_1"
@@ -8427,7 +7990,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_blend_time_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_blend_time_1"
     ] =
-      Module["asm"]["Yc"]).apply(null, arguments);
+      Module["asm"]["Tc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_dest_x_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_dest_x_0"
@@ -8435,7 +7998,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_dest_x_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_dest_x_0"
     ] =
-      Module["asm"]["Zc"]).apply(null, arguments);
+      Module["asm"]["Uc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_dest_x_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_dest_x_1"
@@ -8443,7 +8006,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_dest_x_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_dest_x_1"
     ] =
-      Module["asm"]["_c"]).apply(null, arguments);
+      Module["asm"]["Vc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_dest_y_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_dest_y_0"
@@ -8451,7 +8014,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_dest_y_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_dest_y_0"
     ] =
-      Module["asm"]["$c"]).apply(null, arguments);
+      Module["asm"]["Wc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_dest_y_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_dest_y_1"
@@ -8459,7 +8022,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_dest_y_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_dest_y_1"
     ] =
-      Module["asm"]["ad"]).apply(null, arguments);
+      Module["asm"]["Xc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_dest_width_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_dest_width_0"
@@ -8467,7 +8030,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_dest_width_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_dest_width_0"
     ] =
-      Module["asm"]["bd"]).apply(null, arguments);
+      Module["asm"]["Yc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_dest_width_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_dest_width_1"
@@ -8475,7 +8038,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_dest_width_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_dest_width_1"
     ] =
-      Module["asm"]["cd"]).apply(null, arguments);
+      Module["asm"]["Zc"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_dest_height_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_dest_height_0"
@@ -8483,7 +8046,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_dest_height_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_dest_height_0"
     ] =
-      Module["asm"]["dd"]).apply(null, arguments);
+      Module["asm"]["_c"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_dest_height_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_dest_height_1"
@@ -8491,7 +8054,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_dest_height_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_dest_height_1"
     ] =
-      Module["asm"]["ed"]).apply(null, arguments);
+      Module["asm"]["$c"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_get_image_0 = (Module[
     "_emscripten_bind_RenderBlendResult_get_image_0"
@@ -8499,7 +8062,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_get_image_0 = Module[
       "_emscripten_bind_RenderBlendResult_get_image_0"
     ] =
-      Module["asm"]["fd"]).apply(null, arguments);
+      Module["asm"]["ad"]).apply(null, arguments);
   });
   var _emscripten_bind_RenderBlendResult_set_image_1 = (Module[
     "_emscripten_bind_RenderBlendResult_set_image_1"
@@ -8507,7 +8070,7 @@ function startWorker(message) {
     return (_emscripten_bind_RenderBlendResult_set_image_1 = Module[
       "_emscripten_bind_RenderBlendResult_set_image_1"
     ] =
-      Module["asm"]["gd"]).apply(null, arguments);
+      Module["asm"]["bd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_SubtitleOctopus_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_SubtitleOctopus_0"
@@ -8515,7 +8078,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_SubtitleOctopus_0 = Module[
       "_emscripten_bind_SubtitleOctopus_SubtitleOctopus_0"
     ] =
-      Module["asm"]["hd"]).apply(null, arguments);
+      Module["asm"]["cd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_setLogLevel_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_setLogLevel_1"
@@ -8523,15 +8086,29 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_setLogLevel_1 = Module[
       "_emscripten_bind_SubtitleOctopus_setLogLevel_1"
     ] =
-      Module["asm"]["id"]).apply(null, arguments);
+      Module["asm"]["dd"]).apply(null, arguments);
   });
-  var _emscripten_bind_SubtitleOctopus_initLibrary_2 = (Module[
-    "_emscripten_bind_SubtitleOctopus_initLibrary_2"
+  var _emscripten_bind_SubtitleOctopus_setDropAnimations_1 = (Module[
+    "_emscripten_bind_SubtitleOctopus_setDropAnimations_1"
   ] = function () {
-    return (_emscripten_bind_SubtitleOctopus_initLibrary_2 = Module[
-      "_emscripten_bind_SubtitleOctopus_initLibrary_2"
+    return (_emscripten_bind_SubtitleOctopus_setDropAnimations_1 = Module[
+      "_emscripten_bind_SubtitleOctopus_setDropAnimations_1"
     ] =
-      Module["asm"]["jd"]).apply(null, arguments);
+      Module["asm"]["ed"]).apply(null, arguments);
+  });
+  var _emscripten_bind_SubtitleOctopus_initLibrary_3 = (Module[
+    "_emscripten_bind_SubtitleOctopus_initLibrary_3"
+  ] = function () {
+    return (_emscripten_bind_SubtitleOctopus_initLibrary_3 = Module[
+      "_emscripten_bind_SubtitleOctopus_initLibrary_3"
+    ] =
+      Module["asm"]["fd"]).apply(null, arguments);
+  });
+  var _free = (Module["_free"] = function () {
+    return (_free = Module["_free"] = Module["asm"]["gd"]).apply(
+      null,
+      arguments
+    );
   });
   var _emscripten_bind_SubtitleOctopus_createTrack_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_createTrack_1"
@@ -8539,7 +8116,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_createTrack_1 = Module[
       "_emscripten_bind_SubtitleOctopus_createTrack_1"
     ] =
-      Module["asm"]["kd"]).apply(null, arguments);
+      Module["asm"]["hd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_createTrackMem_2 = (Module[
     "_emscripten_bind_SubtitleOctopus_createTrackMem_2"
@@ -8547,7 +8124,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_createTrackMem_2 = Module[
       "_emscripten_bind_SubtitleOctopus_createTrackMem_2"
     ] =
-      Module["asm"]["ld"]).apply(null, arguments);
+      Module["asm"]["id"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_removeTrack_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_removeTrack_0"
@@ -8555,7 +8132,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_removeTrack_0 = Module[
       "_emscripten_bind_SubtitleOctopus_removeTrack_0"
     ] =
-      Module["asm"]["md"]).apply(null, arguments);
+      Module["asm"]["jd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_resizeCanvas_2 = (Module[
     "_emscripten_bind_SubtitleOctopus_resizeCanvas_2"
@@ -8563,7 +8140,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_resizeCanvas_2 = Module[
       "_emscripten_bind_SubtitleOctopus_resizeCanvas_2"
     ] =
-      Module["asm"]["nd"]).apply(null, arguments);
+      Module["asm"]["kd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_renderImage_2 = (Module[
     "_emscripten_bind_SubtitleOctopus_renderImage_2"
@@ -8571,7 +8148,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_renderImage_2 = Module[
       "_emscripten_bind_SubtitleOctopus_renderImage_2"
     ] =
-      Module["asm"]["od"]).apply(null, arguments);
+      Module["asm"]["ld"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_quitLibrary_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_quitLibrary_0"
@@ -8579,7 +8156,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_quitLibrary_0 = Module[
       "_emscripten_bind_SubtitleOctopus_quitLibrary_0"
     ] =
-      Module["asm"]["pd"]).apply(null, arguments);
+      Module["asm"]["md"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_reloadLibrary_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_reloadLibrary_0"
@@ -8587,7 +8164,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_reloadLibrary_0 = Module[
       "_emscripten_bind_SubtitleOctopus_reloadLibrary_0"
     ] =
-      Module["asm"]["qd"]).apply(null, arguments);
+      Module["asm"]["nd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_reloadFonts_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_reloadFonts_0"
@@ -8595,7 +8172,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_reloadFonts_0 = Module[
       "_emscripten_bind_SubtitleOctopus_reloadFonts_0"
     ] =
-      Module["asm"]["rd"]).apply(null, arguments);
+      Module["asm"]["od"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_setMargin_4 = (Module[
     "_emscripten_bind_SubtitleOctopus_setMargin_4"
@@ -8603,7 +8180,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_setMargin_4 = Module[
       "_emscripten_bind_SubtitleOctopus_setMargin_4"
     ] =
-      Module["asm"]["sd"]).apply(null, arguments);
+      Module["asm"]["pd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_getEventCount_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_getEventCount_0"
@@ -8611,7 +8188,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_getEventCount_0 = Module[
       "_emscripten_bind_SubtitleOctopus_getEventCount_0"
     ] =
-      Module["asm"]["td"]).apply(null, arguments);
+      Module["asm"]["qd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_allocEvent_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_allocEvent_0"
@@ -8619,7 +8196,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_allocEvent_0 = Module[
       "_emscripten_bind_SubtitleOctopus_allocEvent_0"
     ] =
-      Module["asm"]["ud"]).apply(null, arguments);
+      Module["asm"]["rd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_allocStyle_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_allocStyle_0"
@@ -8627,7 +8204,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_allocStyle_0 = Module[
       "_emscripten_bind_SubtitleOctopus_allocStyle_0"
     ] =
-      Module["asm"]["vd"]).apply(null, arguments);
+      Module["asm"]["sd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_removeEvent_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_removeEvent_1"
@@ -8635,7 +8212,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_removeEvent_1 = Module[
       "_emscripten_bind_SubtitleOctopus_removeEvent_1"
     ] =
-      Module["asm"]["wd"]).apply(null, arguments);
+      Module["asm"]["td"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_getStyleCount_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_getStyleCount_0"
@@ -8643,7 +8220,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_getStyleCount_0 = Module[
       "_emscripten_bind_SubtitleOctopus_getStyleCount_0"
     ] =
-      Module["asm"]["xd"]).apply(null, arguments);
+      Module["asm"]["ud"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_getStyleByName_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_getStyleByName_1"
@@ -8651,7 +8228,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_getStyleByName_1 = Module[
       "_emscripten_bind_SubtitleOctopus_getStyleByName_1"
     ] =
-      Module["asm"]["yd"]).apply(null, arguments);
+      Module["asm"]["vd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_removeStyle_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_removeStyle_1"
@@ -8659,7 +8236,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_removeStyle_1 = Module[
       "_emscripten_bind_SubtitleOctopus_removeStyle_1"
     ] =
-      Module["asm"]["zd"]).apply(null, arguments);
+      Module["asm"]["wd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_removeAllEvents_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_removeAllEvents_0"
@@ -8667,7 +8244,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_removeAllEvents_0 = Module[
       "_emscripten_bind_SubtitleOctopus_removeAllEvents_0"
     ] =
-      Module["asm"]["Ad"]).apply(null, arguments);
+      Module["asm"]["xd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_setMemoryLimits_2 = (Module[
     "_emscripten_bind_SubtitleOctopus_setMemoryLimits_2"
@@ -8675,7 +8252,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_setMemoryLimits_2 = Module[
       "_emscripten_bind_SubtitleOctopus_setMemoryLimits_2"
     ] =
-      Module["asm"]["Bd"]).apply(null, arguments);
+      Module["asm"]["yd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_renderBlend_2 = (Module[
     "_emscripten_bind_SubtitleOctopus_renderBlend_2"
@@ -8683,7 +8260,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_renderBlend_2 = Module[
       "_emscripten_bind_SubtitleOctopus_renderBlend_2"
     ] =
-      Module["asm"]["Cd"]).apply(null, arguments);
+      Module["asm"]["zd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_get_track_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_get_track_0"
@@ -8691,7 +8268,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_get_track_0 = Module[
       "_emscripten_bind_SubtitleOctopus_get_track_0"
     ] =
-      Module["asm"]["Dd"]).apply(null, arguments);
+      Module["asm"]["Ad"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_set_track_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_set_track_1"
@@ -8699,7 +8276,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_set_track_1 = Module[
       "_emscripten_bind_SubtitleOctopus_set_track_1"
     ] =
-      Module["asm"]["Ed"]).apply(null, arguments);
+      Module["asm"]["Bd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_get_ass_renderer_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_get_ass_renderer_0"
@@ -8707,7 +8284,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_get_ass_renderer_0 = Module[
       "_emscripten_bind_SubtitleOctopus_get_ass_renderer_0"
     ] =
-      Module["asm"]["Fd"]).apply(null, arguments);
+      Module["asm"]["Cd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_set_ass_renderer_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_set_ass_renderer_1"
@@ -8715,7 +8292,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_set_ass_renderer_1 = Module[
       "_emscripten_bind_SubtitleOctopus_set_ass_renderer_1"
     ] =
-      Module["asm"]["Gd"]).apply(null, arguments);
+      Module["asm"]["Dd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_get_ass_library_0 = (Module[
     "_emscripten_bind_SubtitleOctopus_get_ass_library_0"
@@ -8723,7 +8300,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_get_ass_library_0 = Module[
       "_emscripten_bind_SubtitleOctopus_get_ass_library_0"
     ] =
-      Module["asm"]["Hd"]).apply(null, arguments);
+      Module["asm"]["Ed"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus_set_ass_library_1 = (Module[
     "_emscripten_bind_SubtitleOctopus_set_ass_library_1"
@@ -8731,7 +8308,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus_set_ass_library_1 = Module[
       "_emscripten_bind_SubtitleOctopus_set_ass_library_1"
     ] =
-      Module["asm"]["Id"]).apply(null, arguments);
+      Module["asm"]["Fd"]).apply(null, arguments);
   });
   var _emscripten_bind_SubtitleOctopus___destroy___0 = (Module[
     "_emscripten_bind_SubtitleOctopus___destroy___0"
@@ -8739,7 +8316,7 @@ function startWorker(message) {
     return (_emscripten_bind_SubtitleOctopus___destroy___0 = Module[
       "_emscripten_bind_SubtitleOctopus___destroy___0"
     ] =
-      Module["asm"]["Jd"]).apply(null, arguments);
+      Module["asm"]["Gd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_Hinting_ASS_HINTING_NONE = (Module[
     "_emscripten_enum_ASS_Hinting_ASS_HINTING_NONE"
@@ -8747,7 +8324,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_Hinting_ASS_HINTING_NONE = Module[
       "_emscripten_enum_ASS_Hinting_ASS_HINTING_NONE"
     ] =
-      Module["asm"]["Kd"]).apply(null, arguments);
+      Module["asm"]["Hd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_Hinting_ASS_HINTING_LIGHT = (Module[
     "_emscripten_enum_ASS_Hinting_ASS_HINTING_LIGHT"
@@ -8755,7 +8332,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_Hinting_ASS_HINTING_LIGHT = Module[
       "_emscripten_enum_ASS_Hinting_ASS_HINTING_LIGHT"
     ] =
-      Module["asm"]["Ld"]).apply(null, arguments);
+      Module["asm"]["Id"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_Hinting_ASS_HINTING_NORMAL = (Module[
     "_emscripten_enum_ASS_Hinting_ASS_HINTING_NORMAL"
@@ -8763,7 +8340,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_Hinting_ASS_HINTING_NORMAL = Module[
       "_emscripten_enum_ASS_Hinting_ASS_HINTING_NORMAL"
     ] =
-      Module["asm"]["Md"]).apply(null, arguments);
+      Module["asm"]["Jd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_Hinting_ASS_HINTING_NATIVE = (Module[
     "_emscripten_enum_ASS_Hinting_ASS_HINTING_NATIVE"
@@ -8771,7 +8348,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_Hinting_ASS_HINTING_NATIVE = Module[
       "_emscripten_enum_ASS_Hinting_ASS_HINTING_NATIVE"
     ] =
-      Module["asm"]["Nd"]).apply(null, arguments);
+      Module["asm"]["Kd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_SIMPLE = (Module[
     "_emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_SIMPLE"
@@ -8779,7 +8356,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_SIMPLE = Module[
       "_emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_SIMPLE"
     ] =
-      Module["asm"]["Od"]).apply(null, arguments);
+      Module["asm"]["Ld"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_COMPLEX = (Module[
     "_emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_COMPLEX"
@@ -8787,7 +8364,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_COMPLEX = Module[
       "_emscripten_enum_ASS_ShapingLevel_ASS_SHAPING_COMPLEX"
     ] =
-      Module["asm"]["Pd"]).apply(null, arguments);
+      Module["asm"]["Md"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_DEFAULT = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_DEFAULT"
@@ -8795,7 +8372,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_DEFAULT = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_DEFAULT"
     ] =
-      Module["asm"]["Qd"]).apply(null, arguments);
+      Module["asm"]["Nd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_STYLE = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_STYLE"
@@ -8803,7 +8380,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_STYLE = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_STYLE"
     ] =
-      Module["asm"]["Rd"]).apply(null, arguments);
+      Module["asm"]["Od"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_SELECTIVE_FONT_SCALE =
     (Module[
@@ -8813,14 +8390,14 @@ function startWorker(message) {
         Module[
           "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_SELECTIVE_FONT_SCALE"
         ] =
-          Module["asm"]["Sd"]).apply(null, arguments);
+          Module["asm"]["Pd"]).apply(null, arguments);
     });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_SIZE = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_SIZE"
   ] = function () {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_SIZE =
       Module["_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_SIZE"] =
-        Module["asm"]["Td"]).apply(null, arguments);
+        Module["asm"]["Qd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_SIZE_FIELDS =
     (Module[
@@ -8830,14 +8407,14 @@ function startWorker(message) {
         Module[
           "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_SIZE_FIELDS"
         ] =
-          Module["asm"]["Ud"]).apply(null, arguments);
+          Module["asm"]["Rd"]).apply(null, arguments);
     });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_NAME = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_NAME"
   ] = function () {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_NAME =
       Module["_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_FONT_NAME"] =
-        Module["asm"]["Vd"]).apply(null, arguments);
+        Module["asm"]["Sd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_COLORS = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_COLORS"
@@ -8845,14 +8422,14 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_COLORS = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_COLORS"
     ] =
-      Module["asm"]["Wd"]).apply(null, arguments);
+      Module["asm"]["Td"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ATTRIBUTES = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ATTRIBUTES"
   ] = function () {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ATTRIBUTES =
       Module["_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ATTRIBUTES"] =
-        Module["asm"]["Xd"]).apply(null, arguments);
+        Module["asm"]["Ud"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_BORDER = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_BORDER"
@@ -8860,14 +8437,14 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_BORDER = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_BORDER"
     ] =
-      Module["asm"]["Yd"]).apply(null, arguments);
+      Module["asm"]["Vd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ALIGNMENT = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ALIGNMENT"
   ] = function () {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ALIGNMENT =
       Module["_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_ALIGNMENT"] =
-        Module["asm"]["Zd"]).apply(null, arguments);
+        Module["asm"]["Wd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_MARGINS = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_MARGINS"
@@ -8875,7 +8452,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_MARGINS = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_MARGINS"
     ] =
-      Module["asm"]["_d"]).apply(null, arguments);
+      Module["asm"]["Xd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_FULL_STYLE = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_FULL_STYLE"
@@ -8883,7 +8460,7 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_FULL_STYLE = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_FULL_STYLE"
     ] =
-      Module["asm"]["$d"]).apply(null, arguments);
+      Module["asm"]["Yd"]).apply(null, arguments);
   });
   var _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_JUSTIFY = (Module[
     "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_JUSTIFY"
@@ -8891,11 +8468,30 @@ function startWorker(message) {
     return (_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_JUSTIFY = Module[
       "_emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_JUSTIFY"
     ] =
-      Module["asm"]["ae"]).apply(null, arguments);
+      Module["asm"]["Zd"]).apply(null, arguments);
   });
   var ___errno_location = (Module["___errno_location"] = function () {
     return (___errno_location = Module["___errno_location"] =
-      Module["asm"]["ce"]).apply(null, arguments);
+      Module["asm"]["$d"]).apply(null, arguments);
+  });
+  var _malloc = (Module["_malloc"] = function () {
+    return (_malloc = Module["_malloc"] = Module["asm"]["ae"]).apply(
+      null,
+      arguments
+    );
+  });
+  var _emscripten_builtin_memalign = (Module["_emscripten_builtin_memalign"] =
+    function () {
+      return (_emscripten_builtin_memalign = Module[
+        "_emscripten_builtin_memalign"
+      ] =
+        Module["asm"]["be"]).apply(null, arguments);
+    });
+  var _setThrew = (Module["_setThrew"] = function () {
+    return (_setThrew = Module["_setThrew"] = Module["asm"]["ce"]).apply(
+      null,
+      arguments
+    );
   });
   var stackSave = (Module["stackSave"] = function () {
     return (stackSave = Module["stackSave"] = Module["asm"]["de"]).apply(
@@ -8915,45 +8511,41 @@ function startWorker(message) {
       arguments
     );
   });
-  var _setThrew = (Module["_setThrew"] = function () {
-    return (_setThrew = Module["_setThrew"] = Module["asm"]["ge"]).apply(
-      null,
-      arguments
-    );
-  });
+  var ___emscripten_embedded_file_data = (Module[
+    "___emscripten_embedded_file_data"
+  ] = 28920);
   function invoke_iii(index, a1, a2) {
     var sp = stackSave();
     try {
-      return wasmTable.get(index)(a1, a2);
+      return getWasmTableEntry(index)(a1, a2);
     } catch (e) {
       stackRestore(sp);
-      if (e !== e + 0 && e !== "longjmp") throw e;
+      if (e !== e + 0) throw e;
       _setThrew(1, 0);
     }
   }
   function invoke_iiiii(index, a1, a2, a3, a4) {
     var sp = stackSave();
     try {
-      return wasmTable.get(index)(a1, a2, a3, a4);
+      return getWasmTableEntry(index)(a1, a2, a3, a4);
     } catch (e) {
       stackRestore(sp);
-      if (e !== e + 0 && e !== "longjmp") throw e;
+      if (e !== e + 0) throw e;
       _setThrew(1, 0);
     }
   }
   function invoke_iiii(index, a1, a2, a3) {
     var sp = stackSave();
     try {
-      return wasmTable.get(index)(a1, a2, a3);
+      return getWasmTableEntry(index)(a1, a2, a3);
     } catch (e) {
       stackRestore(sp);
-      if (e !== e + 0 && e !== "longjmp") throw e;
+      if (e !== e + 0) throw e;
       _setThrew(1, 0);
     }
   }
   Module["ccall"] = ccall;
   Module["cwrap"] = cwrap;
-  Module["getValue"] = getValue;
   Module["addRunDependency"] = addRunDependency;
   Module["removeRunDependency"] = removeRunDependency;
   Module["FS_createPath"] = FS.createPath;
@@ -8962,6 +8554,7 @@ function startWorker(message) {
   Module["FS_createLazyFile"] = FS.createLazyFile;
   Module["FS_createDevice"] = FS.createDevice;
   Module["FS_unlink"] = FS.unlink;
+  Module["getValue"] = getValue;
   var calledRun;
   function ExitStatus(status) {
     this.name = "ExitStatus";
@@ -8976,29 +8569,20 @@ function startWorker(message) {
   function callMain(args) {
     var entryFunction = Module["_main"];
     args = args || [];
-    var argc = args.length + 1;
+    args.unshift(thisProgram);
+    var argc = args.length;
     var argv = stackAlloc((argc + 1) * 4);
-    HEAP32[argv >> 2] = allocateUTF8OnStack(thisProgram);
-    for (var i = 1; i < argc; i++) {
-      HEAP32[(argv >> 2) + i] = allocateUTF8OnStack(args[i - 1]);
-    }
-    HEAP32[(argv >> 2) + argc] = 0;
+    var argv_ptr = argv >> 2;
+    args.forEach((arg) => {
+      HEAP32[argv_ptr++] = allocateUTF8OnStack(arg);
+    });
+    HEAP32[argv_ptr] = 0;
     try {
       var ret = entryFunction(argc, argv);
       exit(ret, true);
+      return ret;
     } catch (e) {
-      if (e instanceof ExitStatus) {
-        return;
-      } else if (e == "unwind") {
-        return;
-      } else {
-        var toLog = e;
-        if (e && typeof e === "object" && e.stack) {
-          toLog = [e, e.stack];
-        }
-        err("exception thrown: " + toLog);
-        quit_(1, e);
-      }
+      return handleException(e);
     } finally {
       calledMain = true;
     }
@@ -9038,16 +8622,15 @@ function startWorker(message) {
   Module["run"] = run;
   function exit(status, implicit) {
     EXITSTATUS = status;
-    if (implicit && keepRuntimeAlive() && status === 0) {
-      return;
-    }
-    if (keepRuntimeAlive()) {
-    } else {
-      exitRuntime();
-      if (Module["onExit"]) Module["onExit"](status);
+    procExit(status);
+  }
+  function procExit(code) {
+    EXITSTATUS = code;
+    if (!keepRuntimeAlive()) {
+      if (Module["onExit"]) Module["onExit"](code);
       ABORT = true;
     }
-    quit_(status, new ExitStatus(status));
+    quit_(code, new ExitStatus(code));
   }
   if (Module["preInit"]) {
     if (typeof Module["preInit"] == "function")
@@ -9107,6 +8690,7 @@ function startWorker(message) {
     size: 0,
     pos: 0,
     temps: [],
+    owned: [],
     needed: 0,
     prepare: function () {
       if (ensureCache.needed) {
@@ -9126,46 +8710,68 @@ function startWorker(message) {
       }
       ensureCache.pos = 0;
     },
-    alloc: function (array, view) {
+    alloc: function (array, view, owner) {
       assert(ensureCache.buffer);
       var bytes = view.BYTES_PER_ELEMENT;
       var len = array.length * bytes;
       len = (len + 7) & -8;
       var ret;
-      if (ensureCache.pos + len >= ensureCache.size) {
+      if (owner) {
         assert(len > 0);
         ensureCache.needed += len;
         ret = Module["_malloc"](len);
-        ensureCache.temps.push(ret);
+        ensureCache.owned.push(ret);
       } else {
-        ret = ensureCache.buffer + ensureCache.pos;
-        ensureCache.pos += len;
+        if (ensureCache.pos + len >= ensureCache.size) {
+          assert(len > 0);
+          ensureCache.needed += len;
+          ret = Module["_malloc"](len);
+          ensureCache.temps.push(ret);
+        } else {
+          ret = ensureCache.buffer + ensureCache.pos;
+          ensureCache.pos += len;
+        }
       }
       return ret;
     },
     copy: function (array, view, offset) {
-      var offsetShifted = offset;
+      offset >>>= 0;
       var bytes = view.BYTES_PER_ELEMENT;
       switch (bytes) {
         case 2:
-          offsetShifted >>= 1;
+          offset >>>= 1;
           break;
         case 4:
-          offsetShifted >>= 2;
+          offset >>>= 2;
           break;
         case 8:
-          offsetShifted >>= 3;
+          offset >>>= 3;
           break;
       }
       for (var i = 0; i < array.length; i++) {
-        view[offsetShifted + i] = array[i];
+        view[offset + i] = array[i];
       }
     },
+    clear: function (clearOwned) {
+      for (var i = 0; i < ensureCache.temps.length; i++) {
+        Module["_free"](ensureCache.temps[i]);
+      }
+      if (clearOwned) {
+        for (var i = 0; i < ensureCache.owned.length; i++) {
+          Module["_free"](ensureCache.owned[i]);
+        }
+      }
+      ensureCache.temps.length = 0;
+      Module["_free"](ensureCache.buffer);
+      ensureCache.buffer = 0;
+      ensureCache.size = 0;
+      ensureCache.needed = 0;
+    },
   };
-  function ensureString(value) {
+  function ensureString(value, owner) {
     if (typeof value === "string") {
       var intArray = intArrayFromString(value);
-      var offset = ensureCache.alloc(intArray, HEAP8);
+      var offset = ensureCache.alloc(intArray, HEAP8, owner);
       ensureCache.copy(intArray, HEAP8, offset);
       return offset;
     }
@@ -9243,7 +8849,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, false);
       _emscripten_bind_ASS_Image_set_bitmap_1(self, arg0);
     };
   Object.defineProperty(ASS_Image.prototype, "bitmap", {
@@ -9331,7 +8937,7 @@ function startWorker(message) {
     var self = this.ptr;
     ensureCache.prepare();
     if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-    else arg0 = ensureString(arg0);
+    else arg0 = ensureString(arg0, true);
     _emscripten_bind_ASS_Style_set_Name_1(self, arg0);
   };
   Object.defineProperty(ASS_Style.prototype, "Name", {
@@ -9348,7 +8954,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, true);
       _emscripten_bind_ASS_Style_set_FontName_1(self, arg0);
     };
   Object.defineProperty(ASS_Style.prototype, "FontName", {
@@ -9812,7 +9418,7 @@ function startWorker(message) {
     var self = this.ptr;
     ensureCache.prepare();
     if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-    else arg0 = ensureString(arg0);
+    else arg0 = ensureString(arg0, true);
     _emscripten_bind_ASS_Event_set_Name_1(self, arg0);
   };
   Object.defineProperty(ASS_Event.prototype, "Name", {
@@ -9874,7 +9480,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, true);
       _emscripten_bind_ASS_Event_set_Effect_1(self, arg0);
     };
   Object.defineProperty(ASS_Event.prototype, "Effect", {
@@ -9891,7 +9497,7 @@ function startWorker(message) {
     var self = this.ptr;
     ensureCache.prepare();
     if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-    else arg0 = ensureString(arg0);
+    else arg0 = ensureString(arg0, true);
     _emscripten_bind_ASS_Event_set_Text_1(self, arg0);
   };
   Object.defineProperty(ASS_Event.prototype, "Text", {
@@ -10018,7 +9624,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, true);
       _emscripten_bind_ASS_Track_set_style_format_1(self, arg0);
     };
   Object.defineProperty(ASS_Track.prototype, "style_format", {
@@ -10035,7 +9641,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, true);
       _emscripten_bind_ASS_Track_set_event_format_1(self, arg0);
     };
   Object.defineProperty(ASS_Track.prototype, "event_format", {
@@ -10143,7 +9749,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, true);
       _emscripten_bind_ASS_Track_set_Language_1(self, arg0);
     };
   Object.defineProperty(ASS_Track.prototype, "Language", {
@@ -10175,7 +9781,7 @@ function startWorker(message) {
     var self = this.ptr;
     ensureCache.prepare();
     if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-    else arg0 = ensureString(arg0);
+    else arg0 = ensureString(arg0, true);
     _emscripten_bind_ASS_Track_set_name_1(self, arg0);
   };
   Object.defineProperty(ASS_Track.prototype, "name", {
@@ -10248,7 +9854,7 @@ function startWorker(message) {
       ensureCache.prepare();
       if (priv && typeof priv === "object") priv = priv.ptr;
       if (fonts_dir && typeof fonts_dir === "object") fonts_dir = fonts_dir.ptr;
-      else fonts_dir = ensureString(fonts_dir);
+      else fonts_dir = ensureString(fonts_dir, false);
       _emscripten_bind_libass_oct_set_fonts_dir_2(self, priv, fonts_dir);
     };
   libass.prototype["oct_set_extract_fonts"] =
@@ -10383,13 +9989,13 @@ function startWorker(message) {
       if (priv && typeof priv === "object") priv = priv.ptr;
       if (default_font && typeof default_font === "object")
         default_font = default_font.ptr;
-      else default_font = ensureString(default_font);
+      else default_font = ensureString(default_font, false);
       if (default_family && typeof default_family === "object")
         default_family = default_family.ptr;
-      else default_family = ensureString(default_family);
+      else default_family = ensureString(default_family, false);
       if (dfp && typeof dfp === "object") dfp = dfp.ptr;
       if (config && typeof config === "object") config = config.ptr;
-      else config = ensureString(config);
+      else config = ensureString(config, false);
       if (update && typeof update === "object") update = update.ptr;
       _emscripten_bind_libass_oct_set_fonts_6(
         self,
@@ -10516,9 +10122,9 @@ function startWorker(message) {
       ensureCache.prepare();
       if (library && typeof library === "object") library = library.ptr;
       if (fname && typeof fname === "object") fname = fname.ptr;
-      else fname = ensureString(fname);
+      else fname = ensureString(fname, false);
       if (codepage && typeof codepage === "object") codepage = codepage.ptr;
-      else codepage = ensureString(codepage);
+      else codepage = ensureString(codepage, false);
       return wrapPointer(
         _emscripten_bind_libass_oct_read_file_3(self, library, fname, codepage),
         ASS_Track
@@ -10534,9 +10140,9 @@ function startWorker(message) {
     ensureCache.prepare();
     if (library && typeof library === "object") library = library.ptr;
     if (name && typeof name === "object") name = name.ptr;
-    else name = ensureString(name);
+    else name = ensureString(name, false);
     if (data && typeof data === "object") data = data.ptr;
-    else data = ensureString(data);
+    else data = ensureString(data, false);
     if (data_size && typeof data_size === "object") data_size = data_size.ptr;
     _emscripten_bind_libass_oct_add_font_4(
       self,
@@ -10671,7 +10277,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (arg0 && typeof arg0 === "object") arg0 = arg0.ptr;
-      else arg0 = ensureString(arg0);
+      else arg0 = ensureString(arg0, false);
       _emscripten_bind_RenderBlendResult_set_image_1(self, arg0);
     };
   Object.defineProperty(RenderBlendResult.prototype, "image", {
@@ -10693,19 +10299,38 @@ function startWorker(message) {
       if (level && typeof level === "object") level = level.ptr;
       _emscripten_bind_SubtitleOctopus_setLogLevel_1(self, level);
     };
-  SubtitleOctopus.prototype["initLibrary"] =
-    SubtitleOctopus.prototype.initLibrary = function (frame_w, frame_h) {
+  SubtitleOctopus.prototype["setDropAnimations"] =
+    SubtitleOctopus.prototype.setDropAnimations = function (value) {
       var self = this.ptr;
+      if (value && typeof value === "object") value = value.ptr;
+      _emscripten_bind_SubtitleOctopus_setDropAnimations_1(self, value);
+    };
+  SubtitleOctopus.prototype["initLibrary"] =
+    SubtitleOctopus.prototype.initLibrary = function (
+      frame_w,
+      frame_h,
+      default_font
+    ) {
+      var self = this.ptr;
+      ensureCache.prepare();
       if (frame_w && typeof frame_w === "object") frame_w = frame_w.ptr;
       if (frame_h && typeof frame_h === "object") frame_h = frame_h.ptr;
-      _emscripten_bind_SubtitleOctopus_initLibrary_2(self, frame_w, frame_h);
+      if (default_font && typeof default_font === "object")
+        default_font = default_font.ptr;
+      else default_font = ensureString(default_font, false);
+      _emscripten_bind_SubtitleOctopus_initLibrary_3(
+        self,
+        frame_w,
+        frame_h,
+        default_font
+      );
     };
   SubtitleOctopus.prototype["createTrack"] =
     SubtitleOctopus.prototype.createTrack = function (subfile) {
       var self = this.ptr;
       ensureCache.prepare();
       if (subfile && typeof subfile === "object") subfile = subfile.ptr;
-      else subfile = ensureString(subfile);
+      else subfile = ensureString(subfile, false);
       _emscripten_bind_SubtitleOctopus_createTrack_1(self, subfile);
     };
   SubtitleOctopus.prototype["createTrackMem"] =
@@ -10713,7 +10338,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (buf && typeof buf === "object") buf = buf.ptr;
-      else buf = ensureString(buf);
+      else buf = ensureString(buf, false);
       if (bufsize && typeof bufsize === "object") bufsize = bufsize.ptr;
       _emscripten_bind_SubtitleOctopus_createTrackMem_2(self, buf, bufsize);
     };
@@ -10800,7 +10425,7 @@ function startWorker(message) {
       var self = this.ptr;
       ensureCache.prepare();
       if (name && typeof name === "object") name = name.ptr;
-      else name = ensureString(name);
+      else name = ensureString(name, false);
       return _emscripten_bind_SubtitleOctopus_getStyleByName_1(self, name);
     };
   SubtitleOctopus.prototype["removeStyle"] =
@@ -10941,7 +10566,7 @@ function startWorker(message) {
         _emscripten_enum_ASS_OverrideBits_ASS_OVERRIDE_BIT_JUSTIFY();
     }
     if (runtimeInitialized) setupEnums();
-    else addOnPreMain(setupEnums);
+    else addOnInit(setupEnums);
   })();
   Module["FS"] = FS;
   self.delay = 0;
@@ -10950,8 +10575,9 @@ function startWorker(message) {
   self.rafId = null;
   self.nextIsRaf = false;
   self.lastCurrentTimeReceivedAt = Date.now();
-  self.targetFps = 30;
+  self.targetFps = 24;
   self.libassMemoryLimit = 0;
+  self.dropAllAnimations = false;
   self.width = 0;
   self.height = 0;
   self.fontMap_ = {};
@@ -10964,15 +10590,26 @@ function startWorker(message) {
     if (self.fontMap_.hasOwnProperty(font)) return;
     self.fontMap_[font] = true;
     if (!self.availableFonts.hasOwnProperty(font)) return;
-    var content = readBinary(self.availableFonts[font]);
-    Module["FS"].writeFile(
-      "/fonts/font" +
-        self.fontId++ +
-        "-" +
-        self.availableFonts[font].split("/").pop(),
-      content,
-      { encoding: "binary" }
-    );
+    self.loadFontFile("font" + self.fontId++ + "-", self.availableFonts[font]);
+  };
+  self.loadFontFile = function (fontId, path) {
+    if (self.lazyFileLoading && path.indexOf("blob:") !== 0) {
+      Module["FS"].createLazyFile(
+        "/fonts",
+        fontId + path.split("/").pop(),
+        path,
+        true,
+        false
+      );
+    } else {
+      Module["FS"].createPreloadedFile(
+        "/fonts",
+        fontId + path.split("/").pop(),
+        path,
+        true,
+        false
+      );
+    }
   };
   self.writeFontToFSAsync = async function (font) {
     font = font.trim().toLowerCase();
@@ -10983,9 +10620,11 @@ function startWorker(message) {
     self.fontMap_[font] = true;
     if (!self.availableFonts.hasOwnProperty(font)) return;
     var content = await readBinaryAsync(self.availableFonts[font]);
-    var fontFileName = "/fonts/font" + self.fontId++ + "-" + self.availableFonts[font].split("/").pop()
     Module["FS"].writeFile(
-      fontFileName,
+      "/fonts/font" +
+        self.fontId++ +
+        "-" +
+        self.availableFonts[font].split("/").pop(),
       content,
       {
         encoding: "binary",
@@ -11009,12 +10648,16 @@ function startWorker(message) {
     }
   };
   self.getRenderMethod = function () {
-    if (self.renderMode == "fast") {
-      return self.fastRender;
-    } else if (self.renderMode == "blend") {
-      return self.blendRender;
-    } else {
-      return self.render;
+    switch (self.renderMode) {
+      case "lossy":
+        return self.lossyRender;
+      case "js-blend":
+        return self.render;
+      default:
+        console.error("Unrecognised renderMode, falling back to default!");
+        self.renderMode = "wasm-blend";
+      case "wasm-blend":
+        return self.blendRender;
     }
   };
   self.setTrack = function (content) {
@@ -11022,6 +10665,8 @@ function startWorker(message) {
     Module["FS"].writeFile("/sub.ass", content);
     self.octObj.createTrack("/sub.ass");
     self.ass_track = self.octObj.track;
+    self.ass_renderer = self.octObj.ass_renderer;
+    self.ass_library = self.octObj.ass_library;
     self.getRenderMethod()();
   };
   self.freeTrack = function () {
@@ -11161,7 +10806,7 @@ function startWorker(message) {
       self.rafId = self.requestAnimationFrame(self.blendRender);
     }
   };
-  self.fastRender = function (force) {
+  self.lossyRender = function (force) {
     self.rafId = 0;
     self.renderPending = false;
     var startTime = performance.now();
@@ -11202,7 +10847,7 @@ function startWorker(message) {
       });
     }
     if (!self._isPaused) {
-      self.rafId = self.requestAnimationFrame(self.fastRender);
+      self.rafId = self.requestAnimationFrame(self.lossyRender);
     }
   };
   self.buildResult = function (ptr) {
@@ -11406,7 +11051,18 @@ function startWorker(message) {
         self.subContent = message.data.subContent;
         self.fontFiles = message.data.fonts;
         self.renderMode = message.data.renderMode;
+        if (
+          self.renderMode == "lossy" &&
+          typeof createImageBitmap === "undefined"
+        ) {
+          self.renderMode = "wasm-blend";
+          console.error(
+            "'createImageBitmap' needed for 'lossy' unsupported. Falling back to default!"
+          );
+        }
         self.availableFonts = message.data.availableFonts;
+        self.fallbackFont = message.data.fallbackFont;
+        self.lazyFileLoading = message.data.lazyFileLoading;
         self.debug = message.data.debug;
         if (!hasNativeConsole && self.debug) {
           console = makeCustomConsole();
@@ -11423,6 +11079,8 @@ function startWorker(message) {
         self.libassMemoryLimit =
           message.data.libassMemoryLimit || self.libassMemoryLimit;
         self.libassGlyphLimit = message.data.libassGlyphLimit || 0;
+        self.dropAllAnimations =
+          !!message.data.dropAllAnimations || self.dropAllAnimations;
         removeRunDependency("worker-init");
         postMessage({ target: "ready" });
         break;
@@ -11450,6 +11108,7 @@ function startWorker(message) {
         for (var i = 0; i < self.octObj.getEventCount(); i++) {
           var evnt_ptr = self.octObj.track.get_events(i);
           var event = {
+            _index: i,
             Start: evnt_ptr.get_Start(),
             Duration: evnt_ptr.get_Duration(),
             ReadOrder: evnt_ptr.get_ReadOrder(),
@@ -11464,7 +11123,11 @@ function startWorker(message) {
           };
           events.push(event);
         }
-        postMessage({ target: "get-events", time: Date.now(), events: events });
+        postMessage({
+          target: "get-events",
+          time: Date.now(),
+          events: events,
+        });
         break;
       case "set-event":
         var event = message.data.event;
@@ -11487,6 +11150,7 @@ function startWorker(message) {
         for (var i = 0; i < self.octObj.getStyleCount(); i++) {
           var styl_ptr = self.octObj.track.get_styles(i);
           var style = {
+            _index: i,
             Name: styl_ptr.get_Name(),
             FontName: styl_ptr.get_FontName(),
             FontSize: styl_ptr.get_FontSize(),
@@ -11516,7 +11180,11 @@ function startWorker(message) {
           };
           styles.push(style);
         }
-        postMessage({ target: "get-styles", time: Date.now(), styles: styles });
+        postMessage({
+          target: "get-styles",
+          time: Date.now(),
+          styles: styles,
+        });
         break;
       case "set-style":
         var style = message.data.style;

@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import * as React from "react";
 import {
   MutableRefObject,
@@ -224,6 +225,10 @@ const OctopusRendererInternal = React.forwardRef(
       if (!videoElement && !canvas) {
         return cleanup;
       }
+      const fallbackFontUrl = new URL(
+        "/fonts/Open-Sans-Regular.woff2",
+        process.env.NEXT_PUBLIC_FONTS_URL
+      ).href;
 
       const options = {
         video: videoElement,
@@ -234,6 +239,7 @@ const OctopusRendererInternal = React.forwardRef(
         legacyWorkerUrl: getURL(
           "js/subtitle-octopus/subtitles-octopus-worker-legacy.js"
         ),
+        fallbackFont: fallbackFontUrl,
         lossyRender: true,
         debug: true,
         onReady,
