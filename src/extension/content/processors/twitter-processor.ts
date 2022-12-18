@@ -18,7 +18,8 @@ export const TwitterProcessor: Processor = {
       `a[href$="/status/${this.getVideoId()}"]`
     );
     const videoParent =
-      linkElement.parentElement?.parentElement?.parentElement?.parentElement;
+      linkElement.parentElement?.parentElement?.parentElement?.parentElement
+        ?.parentElement;
     const video: HTMLVideoElement = await waitForElement("video", videoParent);
     return video;
   },
