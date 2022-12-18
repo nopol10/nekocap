@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo } from "react";
-import type { CustomTagProps } from "rc-select/lib/interface/generator";
+import type { CustomTagProps } from "rc-select/lib/BaseSelect";
 
 import { Tag } from "antd";
 import { getCaptionTagFromTagString } from "../feature/video/utils";

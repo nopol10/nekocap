@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo, useState } from "react";
-import type { CustomTagProps } from "rc-select/lib/interface/generator";
+import type { CustomTagProps } from "rc-select/lib/BaseSelect";
 import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
 import { Input, message, Popover, Space } from "antd";
@@ -108,8 +108,12 @@ export const CaptionTagEditor = ({
     });
   }, [existingTags, selectedTagNames]);
 
-  const renderTag = (props: CustomTagProps & { value: string }) => {
-    const { label, value, closable, onClose } = props;
+  const renderTag = ({
+    label,
+    value,
+    closable,
+    onClose,
+  }: CustomTagProps & { value: string }) => {
     const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
       event.preventDefault();
       event.stopPropagation();
