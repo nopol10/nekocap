@@ -46,6 +46,7 @@ import { Trans, useTranslation } from "next-i18next";
 import { YoutubeViewer } from "./container/youtube-viewer";
 import { VimeoViewer } from "./container/vimeo-viewer";
 import { DailymotionViewer } from "./container/dailymotion-viewer";
+import { useRouter } from "next/router";
 
 const { Title, Text, Link } = Typography;
 
@@ -190,6 +191,7 @@ export const ViewerPage = ({
   rawCaption,
   isEmbed,
 }: ViewerPageProps): JSX.Element => {
+  const router = useRouter();
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
   const [captionContainerElement, captionContainerElementRef] = useStateRef<
@@ -197,7 +199,9 @@ export const ViewerPage = ({
   >(null);
   const defaultRendererRef = useRef<CaptionRendererHandle>();
   const currentTimeGetter = useRef<() => number>();
-  const isLoading = useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
+  const isLoading =
+    router.isFallback ||
+    useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());
   const youtubePlayerRef = useRef<YouTubePlayer>(null);
   const fullScreenHandle = useFullScreenHandle();

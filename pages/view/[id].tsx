@@ -4,7 +4,7 @@ import { batch, useSelector } from "react-redux";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { GetStaticProps, GetStaticPropsContext } from "next";
 import { ViewerPage } from "@/web/feature/viewer/viewer-page";
 import { useRouter } from "next/router";
 import { loadWebsiteViewerCaptionApi } from "@/web/feature/viewer/api";
@@ -113,12 +113,19 @@ type PageParams = {
   id: string;
 };
 
-export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
-  wrapper.getServerSideProps(
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: true,
+  };
+};
+
+export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
+  wrapper.getStaticProps(
     (store) => async ({
       locale,
       params,
-    }: GetServerSidePropsContext<PageParams>) => {
+    }: GetStaticPropsContext<PageParams>) => {
       let rawCaption: RawCaptionData | null = null;
       try {
         const { id: captionId } = params;
@@ -148,6 +155,7 @@ export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideP
           ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
           rawCaption,
         },
+        revalidate: 60,
       };
     }
   )
