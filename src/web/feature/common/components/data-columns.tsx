@@ -4,7 +4,7 @@ import "dayjs/locale/ja";
 import relativeTime from "dayjs/plugin/relativeTime";
 import React, { ReactElement, ReactNode } from "react";
 import { useRouter } from "next/router";
-import { i18n, useTranslation } from "next-i18next";
+import { i18n } from "next-i18next";
 import {
   CaptionListFields,
   LoadCaptionsResult,
@@ -16,7 +16,7 @@ import { languages } from "@/common/languages";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
 import PlayCircleOutlined from "@ant-design/icons/PlayCircleOutlined";
-import { Space, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { getDirectCaptionLoadLink } from "@/common/processor-utils";
 import { hasTag } from "@/common/caption-utils";
 import { captionTags } from "@/common/constants";
@@ -239,7 +239,7 @@ export const videoCaptionColumns = (
     dataIndex: "languageCode",
     key: "languageCode",
     render: function render(text, record: LoadCaptionsResult) {
-      const { t } = useTranslation("common");
+      const t = i18n.t;
       const processor: Processor = videoSourceToProcessorMap[videoSource];
       if (!processor) {
         return null;
