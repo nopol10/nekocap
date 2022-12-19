@@ -13,7 +13,7 @@ export const TVerProcessor: Processor = {
   urlRegex: /tver\.jp/,
   videoSelector: "video.vjs-tech",
   videoPageUISelector: "div[class^=episode-info_flex]",
-  titleSelector: "span[class^=titles_seriesTitle]",
+  titleSelector: "*[class^=titles_seriesTitle]",
   editorVideoPlayerStyles: `
   #playerWrapper {
     width: 100% !important;
