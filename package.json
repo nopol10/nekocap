@@ -151,7 +151,7 @@
     "lz-string": "^1.4.4",
     "moment": "^2.29.0",
     "moment-duration-format": "^2.3.2",
-    "next": "12.1.5",
+    "next": "12.3.4",
     "next-i18next": "^9.1.0",
     "next-plugin-antd-less": "^1.5.2",
     "next-redux-wrapper": "7.0.5",
