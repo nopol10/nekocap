@@ -4,6 +4,7 @@ const { withSentryConfig } = require("@sentry/nextjs");
 
 const moduleExports = {
   i18n,
+  output: "standalone",
   cssLoaderOptions: {
     modules: true,
   },
