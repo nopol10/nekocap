@@ -10,7 +10,7 @@ const parseProvider = new ParseProvider(
 );
 
 export const NextWrapper = {
-  getStaticProps: <P extends unknown = any>(
+  getStaticProps: <P = any,>(
     callback: GetStaticProps<P>
   ): GetStaticProps<P> => {
     return async (context) => {
@@ -18,7 +18,7 @@ export const NextWrapper = {
       return callback(context);
     };
   },
-  getServerSideProps: <P extends unknown = any>(
+  getServerSideProps: <P = any,>(
     callback: GetServerSideProps<P>
   ): GetServerSideProps<P> => {
     return async (context) => {

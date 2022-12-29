@@ -17,7 +17,7 @@ const convertRawValueToMomentFormat = (value: string) => {
   );
 };
 
-const StyledNumberFormat = styled(NumberFormat)`
+const StyledNumberFormat = styled(NumberFormat<unknown>)`
   padding: 0 10px;
   width: 100%;
   border: 1px solid #d0d0d0;
@@ -45,7 +45,7 @@ export const DurationInput = ({
   ...rest
 }: DurationInputProps) => {
   const inputRef = useRef<HTMLInputElement>();
-  const numberFormatRef = useRef<NumberFormat>();
+  const numberFormatRef = useRef<NumberFormat<unknown>>();
   const updateOnKeyup = useRef<boolean>(false);
   const highlightMsOnChange = useRef<boolean>(false);
 

@@ -454,7 +454,7 @@ const CueActionButton = styled(Button)`
   }
 `;
 
-const DisabledNumberFormat = styled(NumberFormat)`
+const DisabledNumberFormat = styled(NumberFormat<unknown>)`
   padding: 10px;
   letter-spacing: 2px;
   flex: 1;
@@ -507,9 +507,8 @@ const CaptionEditorInternal = ({
   onExport,
   keyboardShortcuts,
 }: CaptionEditorProps) => {
-  const [editorVideoContainer, editorVideoContainerRef] = useStateRef<
-    HTMLDivElement
-  >(null);
+  const [editorVideoContainer, editorVideoContainerRef] =
+    useStateRef<HTMLDivElement>(null);
   const originalCaptionContainerParent = useRef<HTMLElement>();
   const setTimelineScroll = useRef<SetTimelineScroll>(undefined);
   const textEditorScrollRef = useRef<List>(null);
@@ -520,9 +519,8 @@ const CaptionEditorInternal = ({
   const [isShiftTimingsModalOpen, setIsShiftTimingsModalOpen] = useState(false);
 
   // Whether we are currently changing the global, track or caption's position
-  const [currentMoveType, setCurrentMoveType] = useState<
-    CaptionModificationState
-  >(CaptionModificationState.None);
+  const [currentMoveType, setCurrentMoveType] =
+    useState<CaptionModificationState>(CaptionModificationState.None);
   /**
    * We add this to the caption text editor list items' keys to force the list to refresh correctly when captions are added
    */
@@ -531,9 +529,8 @@ const CaptionEditorInternal = ({
   const lastDebouncedAction = useRef<PayloadAction<any>>(undefined);
   const hotKeysRef = useRef<HTMLDivElement>(null);
   const videoDimensions = useRef<Coords>({ x: 0, y: 0 });
-  const [isPlaying, setIsPlaying, isPlayingRef] = useVideoPlayPause(
-    videoElement
-  );
+  const [isPlaying, setIsPlaying, isPlayingRef] =
+    useVideoPlayPause(videoElement);
   const {
     volume: [volume, setVolume, volumeRef],
     mute: [isMute],
@@ -1069,98 +1066,93 @@ const CaptionEditorInternal = ({
     }
   };
 
-  const handleStartTimeKeyboardInput = (trackId: number, captionId: number) => (
-    value: string
-  ) => {
-    updateCaption(
-      modifyCaptionStartTime({ trackId, captionId, newFormattedTime: value })
-    );
-  };
+  const handleStartTimeKeyboardInput =
+    (trackId: number, captionId: number) => (value: string) => {
+      updateCaption(
+        modifyCaptionStartTime({ trackId, captionId, newFormattedTime: value })
+      );
+    };
 
-  const handleChangeStartTime = (trackId: number, captionId: number) => (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    queueDebounceUpdateCaption(
-      modifyCaptionStartTime({
-        trackId,
-        captionId,
-        newFormattedTime: event.target.value,
-      })
-    );
-  };
+  const handleChangeStartTime =
+    (trackId: number, captionId: number) =>
+    (event: ChangeEvent<HTMLInputElement>) => {
+      queueDebounceUpdateCaption(
+        modifyCaptionStartTime({
+          trackId,
+          captionId,
+          newFormattedTime: event.target.value,
+        })
+      );
+    };
 
-  const handleEndTimeKeyboardInput = (trackId: number, captionId: number) => (
-    value: string
-  ) => {
-    updateCaption(
-      modifyCaptionEndTime({ trackId, captionId, newFormattedTime: value })
-    );
-  };
+  const handleEndTimeKeyboardInput =
+    (trackId: number, captionId: number) => (value: string) => {
+      updateCaption(
+        modifyCaptionEndTime({ trackId, captionId, newFormattedTime: value })
+      );
+    };
 
-  const handleChangeEndTime = (trackId: number, captionId: number) => (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    queueDebounceUpdateCaption(
-      modifyCaptionEndTime({
-        trackId,
-        captionId,
-        newFormattedTime: event.target.value,
-      })
-    );
-  };
+  const handleChangeEndTime =
+    (trackId: number, captionId: number) =>
+    (event: ChangeEvent<HTMLInputElement>) => {
+      queueDebounceUpdateCaption(
+        modifyCaptionEndTime({
+          trackId,
+          captionId,
+          newFormattedTime: event.target.value,
+        })
+      );
+    };
 
-  const handleChangeCaptionText = (trackId: number, captionId: number) => (
-    event: ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    queueDebounceUpdateCaption(
-      modifyCaptionText({
-        trackId,
-        captionId,
-        text: event.target.value,
-      })
-    );
-  };
+  const handleChangeCaptionText =
+    (trackId: number, captionId: number) =>
+    (event: ChangeEvent<HTMLTextAreaElement>) => {
+      queueDebounceUpdateCaption(
+        modifyCaptionText({
+          trackId,
+          captionId,
+          text: event.target.value,
+        })
+      );
+    };
 
-  const handleClickCaptionTextArea = (trackId: number, captionId: number) => (
-    event: React.MouseEvent
-  ) => {
-    if (!textEditorScrollRef.current) {
-      return;
-    }
-    setSelectedCaption(captionId);
-  };
-
-  const handleJumpToCaption = (trackId: number, captionId: number) => (
-    event: React.MouseEvent
-  ) => {
-    if (!textEditorScrollRef.current) {
-      return;
-    }
-    const startTime = data.tracks[trackId].cues[captionId].start;
-    setVideoTime(startTime / 1000, true);
-    setSelectedCaption(captionId);
-  };
-
-  const handleDeleteCaption = (trackId: number, captionId: number) => (
-    event: React.MouseEvent
-  ) => {
-    captionListKeySuffix.current++;
-    if (captionId === selectedCaption) {
-      if (selectedCaption >= data.tracks[trackId].cues.length - 1) {
-        // Is the last, we need to make the previous caption the selected one
-        setSelectedCaption(selectedCaption - 1 >= 0 ? selectedCaption - 1 : -1);
+  const handleClickCaptionTextArea =
+    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+      if (!textEditorScrollRef.current) {
+        return;
       }
-    }
-    updateCaption(deleteCaption({ trackId, captionId }));
-  };
+      setSelectedCaption(captionId);
+    };
 
-  const handleClickAddCaptionBetweenCaptions = (
-    trackId: number,
-    captionId: number
-  ) => (event: React.MouseEvent) => {
-    captionListKeySuffix.current++;
-    updateCaption(addCaptionToTrackRelative({ trackId, captionId }));
-  };
+  const handleJumpToCaption =
+    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+      if (!textEditorScrollRef.current) {
+        return;
+      }
+      const startTime = data.tracks[trackId].cues[captionId].start;
+      setVideoTime(startTime / 1000, true);
+      setSelectedCaption(captionId);
+    };
+
+  const handleDeleteCaption =
+    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+      captionListKeySuffix.current++;
+      if (captionId === selectedCaption) {
+        if (selectedCaption >= data.tracks[trackId].cues.length - 1) {
+          // Is the last, we need to make the previous caption the selected one
+          setSelectedCaption(
+            selectedCaption - 1 >= 0 ? selectedCaption - 1 : -1
+          );
+        }
+      }
+      updateCaption(deleteCaption({ trackId, captionId }));
+    };
+
+  const handleClickAddCaptionBetweenCaptions =
+    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+      captionListKeySuffix.current++;
+      updateCaption(addCaptionToTrackRelative({ trackId, captionId }));
+    };
 
   const noTextRowRenderer = () => {
     return (

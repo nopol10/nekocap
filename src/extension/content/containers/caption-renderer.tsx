@@ -173,6 +173,7 @@ const alignContainer = (
   container.setAttribute("data-layout-type", coordType);
 };
 
+/* eslint-disable react/display-name */
 const CaptionRendererInternal = React.forwardRef(
   (
     {
@@ -200,10 +201,8 @@ const CaptionRendererInternal = React.forwardRef(
       height: 0,
     });
     const previousTime = useRef<number>(-1);
-    const [
-      recreateLocalCaptionContainer,
-      setRecreateLocalCaptionContainer,
-    ] = useState<boolean>(false);
+    const [recreateLocalCaptionContainer, setRecreateLocalCaptionContainer] =
+      useState<boolean>(false);
 
     const updateCaptionContainerStyles = (width: number, height: number) => {
       if (!localCaptionContainer.current) {
