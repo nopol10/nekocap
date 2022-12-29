@@ -2167,7 +2167,7 @@ function startWorker(message) {
         // Use a message to retrieve the response
         const onResponseReceived = (message) => {
           const data = message.data;
-          if (data.target !== "request-response") {
+          if (data.target !== "request-response" || data.url !== url) {
             return;
           }
           self.removeEventListener("message", onResponseReceived, false);
@@ -2466,15 +2466,15 @@ function startWorker(message) {
     }
     await callRuntimeCallbacks(__ATPRERUN__);
   }
-  function initRuntime() {
+  async function initRuntime() {
     runtimeInitialized = true;
     if (!Module["noFSInit"] && !FS.init.initialized) FS.init();
     FS.ignorePermissions = false;
     TTY.init();
-    callRuntimeCallbacks(__ATINIT__);
+    await callRuntimeCallbacks(__ATINIT__);
   }
-  function preMain() {
-    callRuntimeCallbacks(__ATMAIN__);
+  async function preMain() {
+    await callRuntimeCallbacks(__ATMAIN__);
   }
   function postRun() {
     if (Module["postRun"]) {
@@ -8596,27 +8596,27 @@ function startWorker(message) {
     if (runDependencies > 0) {
       return;
     }
-    function doRun() {
+    async function doRun() {
       if (calledRun) return;
       calledRun = true;
       Module["calledRun"] = true;
       if (ABORT) return;
-      initRuntime();
-      preMain();
+      await initRuntime();
+      await preMain();
       if (Module["onRuntimeInitialized"]) Module["onRuntimeInitialized"]();
       if (shouldRunNow) callMain(args);
       postRun();
     }
     if (Module["setStatus"]) {
       Module["setStatus"]("Running...");
-      setTimeout(function () {
+      setTimeout(async function () {
         setTimeout(function () {
           Module["setStatus"]("");
         }, 1);
-        doRun();
+        await doRun();
       }, 1);
     } else {
-      doRun();
+      await doRun();
     }
   }
   Module["run"] = run;
