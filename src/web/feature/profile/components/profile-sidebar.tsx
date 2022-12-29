@@ -162,7 +162,7 @@ export const ProfileSidebar = ({
             </Title>
             {!isEditing && (
               <ProfileMessage>
-                <WSMarkdown source={profileMessage} />
+                <WSMarkdown>{profileMessage}</WSMarkdown>
               </ProfileMessage>
             )}
             {isEditing && (
