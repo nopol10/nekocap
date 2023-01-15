@@ -23,7 +23,7 @@
       },
       "community": {
         "title": "社群共同審核",
-        "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
+        "description": "NekoCap網站擁有可以讓社群共同審閱及駁回已上傳字幕的工具<br />然而，我們需要能使用不同語言的志願者協助我們審閱已上傳的字幕<br />如果你願意幫忙，歡迎加入Discord和寄信給我們！"
       }
     },
     "instructions": {
@@ -38,7 +38,7 @@
         "step1": "在<chrome>Chrome瀏覽器</chrome>內下載擴充工具",
         "step2": "在NekoCap中建立帳號",
         "step3": "瀏覽你想要建立字幕的影片",
-        "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
+        "step4": "無須離開原影片網站即可使用NekoCap的編輯器新建字幕或上傳既有的字幕檔案！"
       }
     },
     "browseAllCaptions": "瀏覽所有字幕",
@@ -97,11 +97,11 @@
   "review": {
     "deleteCaptionConfirmMessage": "確認刪除此字幕？",
     "delete": "刪除",
-    "review": "Review",
+    "review": "預覽",
     "update": "更新"
   },
   "fontlist": {
-    "hidePreview": "Hide preview",
+    "hidePreview": "隱藏預覽",
     "preview": "Preview",
     "noFonts": "無字體！",
     "availableFonts": "有可用的字體",
@@ -111,35 +111,35 @@
     "searchFont": "尋找字體"
   },
   "login": {
-    "loginModalTitle": "Log in to access your dashboard"
+    "loginModalTitle": "登入以使用控制臺"
   },
   "profile": {
     "admin": {
-      "sectionTitle": "Admin tools",
+      "sectionTitle": "管理者工具",
       "removeReviewerManagerRoleButton": "Remove Reviewer Manager Role",
       "assignReviewerManagerRoleButton": "Assign Reviewer Manager Role",
       "removeReviewerRoleButton": "Remove Reviewer Role",
       "assignReviewerRoleButton": "Assign Reviewer Role",
-      "verify": "Verify",
-      "unverify": "Unverify",
-      "ban": "Ban",
-      "unban": "Unban"
+      "verify": "認證",
+      "unverify": "未認證",
+      "ban": "禁止",
+      "unban": "取消禁止"
     },
     "about": "關於我",
     "donate": "贊助",
     "markdownInfo": "(Formatting in Markdown is supported)",
-    "proficientLanguages": "Proficient languages",
-    "contributedCaptions": "Contributed captions",
-    "languageSelectionPlaceholder": "You can select more than 1!",
+    "proficientLanguages": "適用語言",
+    "contributedCaptions": "你貢獻的字幕",
+    "languageSelectionPlaceholder": "可以選擇一個以上！",
     "copyProfileLink": "複製個人資料網址",
-    "profileLinkCopiedMessage": "Profile link copied to clipboard!",
+    "profileLinkCopiedMessage": "個人資料網址已複製到剪貼簿！",
     "captionDeleted": "字幕已被刪除！:(",
     "captionDeletionFailed": "字幕更新失敗：{{error}}",
     "profileUpdated": "已更新個人檔案！",
     "profileUpdateFailed": "個人檔案更新失敗：{{error}}",
     "roleAssignmentSuccess": "已更新！",
     "roleAssignmentFailure": "更新失敗：{{error}}",
-    "filterByTags": "Filter by tags (up to {{maxTags}})",
+    "filterByTags": "篩選標籤（最多{{maxTags}} 個）",
     "noTags": "沒有標籤"
   },
   "viewer": {
@@ -152,26 +152,26 @@
     "captionRenderError": "There was an error rendering this caption. Sorry!"
   },
   "common": {
-    "loading": "加載中…",
+    "loading": "載入中…",
     "cancel": "取消",
     "save": "儲存",
     "edit": "編輯",
-    "banned": "Banned",
-    "verified": "Verified",
-    "reviewerManager": "Reviewer Manager",
-    "reviewer": "Reviewer",
+    "banned": "已禁止",
+    "verified": "已認證",
+    "reviewerManager": "審閱者管理員",
+    "reviewer": "審閱者",
     "kofiSupportMe": "支持我",
     "more": "更多"
   },
   "settings": {
-    "deleteTagConfirmMessage": "Deleting this tag will remove the tag from all captions with the tag! Proceed?",
+    "deleteTagConfirmMessage": "刪除這個標籤將會移除所有影片中的該標籤，仍要繼續？",
     "title": "設定",
     "tags": {
       "title": "標籤",
       "subtitle": "管理字幕標籤",
       "tagName": "標籤名稱",
       "captions": "字幕",
-      "invalidTag": "Invalid tag provided!"
+      "invalidTag": "提供無效的標籤！"
     }
   }
 }
