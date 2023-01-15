@@ -2,14 +2,14 @@
   "title": "NekoCap",
   "tagline": "Meow",
   "home": {
-    "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
+    "summary": "<bold>觀看</bold>、<bold>新增</bold>與<bold>分享</bold>你的字幕<br />在<open>免費且公開</open>的瀏覽器擴充功能",
     "feature": {
       "easyToUse": {
-        "title": "Easy to use",
-        "description": "View captions without leaving <youtube>Youtube</youtube> and other supported <videosites>video sites</videosites>"
+        "title": "簡易使用",
+        "description": "不需要離開 <youtube>Youtube</youtube> 或 <videosites>其他支援的網站</videosites>即可觀看字幕"
       },
       "advancedEffects": {
-        "title": "Advanced effects",
+        "title": "進階功能",
         "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
         "viewSupportedFonts": "View supported custom fonts"
       },
