@@ -10,19 +10,19 @@
       },
       "advancedEffects": {
         "title": "進階功能",
-        "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
-        "viewSupportedFonts": "View supported custom fonts"
+        "description": "利用<octopus>Subtitle Octopus</octopus>支援的高級渲染器，觀看以 Substation Alpha（SSA、ASS）製作的精緻字幕",
+        "viewSupportedFonts": "查看支援的自定義字體"
       },
       "convenientEditor": {
-        "title": "Convenient editor",
-        "description": "Create captions with the built-in editor directly in a video's page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
+        "title": "便利編輯",
+        "description": "透過擴充工具直接在影片頁面，以內建的編輯工具製作字幕<br />支援滑鼠拖曳字幕、快捷鍵<br />以及未來更多功能！"
       },
       "import": {
-        "title": "Import existing captions",
-        "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
+        "title": "導入既有字幕",
+        "description": "使用如Aegisub、SubtitleEdit等工具創建字幕並透過NekoCap上傳。支援<bold>SSA</bold>、<bold>ASS</bold>、<bold>SRT</bold>、<bold>VTT</bold>及<bold>SBV</bold>等格式。"
       },
       "community": {
-        "title": "Community moderation",
+        "title": "社群共同審核",
         "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
       }
     },
