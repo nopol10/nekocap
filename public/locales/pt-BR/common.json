@@ -38,10 +38,10 @@
         "step1": "Baixe a extensão para <chrome>Chrome</chrome>",
         "step2": "Crie uma conta com Nekocap",
         "step3": "Navegue até a página que contém o vídeo que você deseja adicionar uma legenda",
-        "step4": "Use o editor do NekoCap para criar uma legenda ou carregar um arquivo de legenda existente sem deixar a página do vídeo!"
+        "step4": "Use o editor do NekoCap para criar uma legenda nova ou carregar um arquivo de legenda existente sem sair da página do vídeo!"
       }
     },
-    "browseAllCaptions": "Navegue por todas as legendas",
+    "browseAllCaptions": "Explore todas legendas",
     "latestCaptions": "Legendas mais recentes",
     "latestLanguageCaption": "Últimas legendas em {{language}}",
     "noCaptions": "Sem legendas! Você pode contribuir criando legendas com a extensão!",
@@ -71,7 +71,7 @@
       }
     },
     "browseCaptions": {
-      "title": "Navegue por todas as legendas"
+      "title": "Explore todas legendas"
     },
     "search": {
       "inputPlaceholder": "Procurar um vídeo",
