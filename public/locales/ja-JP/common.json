@@ -120,8 +120,8 @@
       "assignReviewerManagerRoleButton": "レビュアー管理者のロールを割り当てる",
       "removeReviewerRoleButton": "レビューア権限を削除",
       "assignReviewerRoleButton": "レビュアー管理者を譲る",
-      "verify": "確認",
-      "unverify": "確認を解除",
+      "verify": "認証",
+      "unverify": "認証を解除",
       "ban": "アクセス禁止",
       "unban": "禁止を解除"
     },
