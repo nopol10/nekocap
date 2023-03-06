@@ -1,4 +1,4 @@
-import { Popconfirm, Space, Table, Tooltip, Pagination, Tag } from "antd";
+import { Popconfirm, Table, Tooltip, Pagination, Tag } from "antd";
 import React, { ReactNode, useState } from "react";
 import { CaptionListFields } from "@/common/feature/video/types";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
@@ -65,7 +65,6 @@ type UpdateModalDetails = {
 export const CaptionList = ({
   captions,
   totalCount,
-  captioner,
   captionerId,
   currentPage,
   onDelete,
@@ -80,9 +79,8 @@ export const CaptionList = ({
   onSelectTag,
 }: CaptionListProps): React.ReactElement => {
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<
-    UpdateModalDetails
-  >({ open: false, caption: undefined });
+  const [isUpdateModalOpen, setIsUpdateModalOpen] =
+    useState<UpdateModalDetails>({ open: false, caption: undefined });
   const { t } = useTranslation("common");
   const router = useRouter();
 
@@ -207,6 +205,9 @@ export const CaptionList = ({
   }
 
   const renderExpandedRow = (record: CaptionListFields) => {
+    if (!record) {
+      return null;
+    }
     return (
       <>
         <Text style={{ marginRight: "20px" }}>Tags:</Text>
@@ -231,7 +232,7 @@ export const CaptionList = ({
   };
 
   const isRowExpandable = (record: CaptionListFields) => {
-    return !!record.tags?.find((tag) => !!getCaptionGroupTagName(tag));
+    return !!record?.tags?.find((tag) => !!getCaptionGroupTagName(tag));
   };
   return (
     <>
