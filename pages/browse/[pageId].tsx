@@ -45,55 +45,50 @@ type PageParams = {
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
-    (store) => async ({
-      locale,
-      params,
-    }: GetStaticPropsContext<PageParams>) => {
-      try {
-        const requestedPageNumber = Math.max(1, parseInt(params.pageId) ?? 1);
-        const {
-          status,
-          error,
-          captions,
-          hasMoreResults,
-          totalCount,
-        }: BrowseResults = await Locator.provider().browse({
-          limit: BROWSE_PAGE_SIZE,
-          offset: (requestedPageNumber - 1) * BROWSE_PAGE_SIZE,
-        });
-        if (status === "error") {
-          throw new Error(error);
-        }
-        const actualPageNumber =
-          totalCount !== undefined && !hasMoreResults
-            ? Math.ceil(totalCount / BROWSE_PAGE_SIZE)
-            : requestedPageNumber;
-
-        const append = false;
-        const paddedCaptions = [
-          ...new Array(BROWSE_PAGE_SIZE * (actualPageNumber - 1)).fill(null),
-          ...captions,
-        ];
-        store.dispatch(
-          setBrowseResults({
+    (store) =>
+      async ({ locale, params }: GetStaticPropsContext<PageParams>) => {
+        try {
+          const requestedPageNumber = Math.max(1, parseInt(params.pageId) ?? 1);
+          const {
+            status,
+            error,
+            captions,
             hasMoreResults,
-            currentResultPage: actualPageNumber,
-            pageSize: BROWSE_PAGE_SIZE,
-            captions: paddedCaptions,
-            append,
-          })
-        );
-      } catch (e) {
-        console.error("Error during browse caption page generation", e);
-      }
+            totalCount,
+          }: BrowseResults = await Locator.provider().browse({
+            limit: BROWSE_PAGE_SIZE,
+            offset: (requestedPageNumber - 1) * BROWSE_PAGE_SIZE,
+          });
+          if (status === "error") {
+            throw new Error(error);
+          }
+          const actualPageNumber =
+            totalCount !== undefined && !hasMoreResults
+              ? Math.ceil(totalCount / BROWSE_PAGE_SIZE)
+              : requestedPageNumber;
 
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-        revalidate: 60,
-      };
-    }
+          const append = false;
+          store.dispatch(
+            setBrowseResults({
+              hasMoreResults,
+              currentResultPage: actualPageNumber,
+              pageSize: BROWSE_PAGE_SIZE,
+              captions: captions,
+              totalResults: totalCount,
+              append,
+            })
+          );
+        } catch (e) {
+          console.error("Error during browse caption page generation", e);
+        }
+
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          },
+          revalidate: 60,
+        };
+      }
   )
 );
 

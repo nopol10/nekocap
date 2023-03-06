@@ -60,6 +60,7 @@ export const publicDashboardReducer = createReducer<PublicDashboardState>(
           pageSize,
           append,
           hasMoreResults,
+          totalResults,
         } = action.payload;
         let newCaptions = captions;
         if (append) {
@@ -76,6 +77,7 @@ export const publicDashboardReducer = createReducer<PublicDashboardState>(
           browseResults: newCaptions,
           hasMoreResults,
           currentResultPage,
+          totalResults,
         };
       })
       .addCase(hydrate, (state, action) => {

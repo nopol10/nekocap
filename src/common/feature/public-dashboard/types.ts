@@ -21,6 +21,7 @@ export type SetBrowseResults = {
   hasMoreResults: boolean;
   currentResultPage: number;
   pageSize: number;
+  totalResults: number;
   append: boolean;
 };
 
