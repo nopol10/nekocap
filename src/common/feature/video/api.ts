@@ -1,5 +1,29 @@
-import { getNekoCapWebsiteUrl, isInExtension } from "@/common/client-utils";
+import { getNekoCapWebsiteUrl } from "@/common/client-utils";
 import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
+import { CaptionListFields } from "./types";
+import { videoSourceToProcessorMap } from "./utils";
+
+export const populateCaptionDetails = async (
+  captions: CaptionListFields[]
+): Promise<CaptionListFields[]> => {
+  const updatedCaptions = await Promise.all(
+    captions.map(async (caption) => {
+      const processor =
+        videoSourceToProcessorMap[parseInt(caption.videoSource)];
+      if (!processor) {
+        return caption;
+      }
+      const thumbnailUrl = await processor.generateThumbnailLink(
+        caption.videoId
+      );
+      return {
+        ...caption,
+        thumbnailUrl,
+      };
+    })
+  );
+  return updatedCaptions;
+};
 
 export const loadFontListApi = async (): Promise<Record<string, string>> => {
   try {

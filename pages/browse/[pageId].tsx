@@ -9,10 +9,9 @@ import {
   BrowseCaptionPage,
   BROWSE_PAGE_SIZE,
 } from "@/web/feature/browse/containers/browse-caption-page";
-import { BrowseResults } from "@/common/feature/public-dashboard/types";
-import { Locator } from "@/common/locator/locator";
 import { setBrowseResults } from "@/common/feature/public-dashboard/actions";
 import { STRING_CONSTANTS } from "@/common/string-constants";
+import { loadBrowseCaptions } from "@/common/feature/public-dashboard/api";
 
 const TRANSLATION_NAMESPACES = ["common"];
 
@@ -49,19 +48,8 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
       async ({ locale, params }: GetStaticPropsContext<PageParams>) => {
         try {
           const requestedPageNumber = Math.max(1, parseInt(params.pageId) ?? 1);
-          const {
-            status,
-            error,
-            captions,
-            hasMoreResults,
-            totalCount,
-          }: BrowseResults = await Locator.provider().browse({
-            limit: BROWSE_PAGE_SIZE,
-            offset: (requestedPageNumber - 1) * BROWSE_PAGE_SIZE,
-          });
-          if (status === "error") {
-            throw new Error(error);
-          }
+          const { captions, totalCount, hasMoreResults } =
+            await loadBrowseCaptions(requestedPageNumber);
           const actualPageNumber =
             totalCount !== undefined && !hasMoreResults
               ? Math.ceil(totalCount / BROWSE_PAGE_SIZE)

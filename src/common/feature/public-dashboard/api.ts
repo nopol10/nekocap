@@ -1,36 +1,12 @@
 import { Locator } from "@/common/locator/locator";
+import { BROWSE_PAGE_SIZE } from "@/web/feature/browse/containers/browse-caption-page";
 import { CaptionsResponse } from "../captioner/types";
-import { CaptionListFields } from "../video/types";
-import { videoSourceToProcessorMap } from "../video/utils";
-
-export const populateCaptionDetails = async (
-  captions: CaptionListFields[]
-): Promise<CaptionListFields[]> => {
-  const updatedCaptions = await Promise.all(
-    captions.map(async (caption) => {
-      const processor =
-        videoSourceToProcessorMap[parseInt(caption.videoSource)];
-      if (!processor) {
-        return caption;
-      }
-      const thumbnailUrl = await processor.generateThumbnailLink(
-        caption.videoId
-      );
-      return {
-        ...caption,
-        thumbnailUrl,
-      };
-    })
-  );
-  return updatedCaptions;
-};
+import { populateCaptionDetails } from "../video/api";
+import { BrowseResults } from "./types";
 
 export const loadLatestCaptionsApi = async () => {
-  const {
-    captions,
-    status,
-    error,
-  }: CaptionsResponse = await Locator.provider().loadLatestCaptions();
+  const { captions, status, error }: CaptionsResponse =
+    await Locator.provider().loadLatestCaptions();
   if (status !== "success") {
     throw new Error(error);
   }
@@ -38,4 +14,22 @@ export const loadLatestCaptionsApi = async () => {
   const captionsWithDetails = await populateCaptionDetails(captions);
 
   return captionsWithDetails;
+};
+
+export const loadBrowseCaptions = async (pageNumber: number) => {
+  const { status, error, captions, hasMoreResults, totalCount }: BrowseResults =
+    await Locator.provider().browse({
+      limit: BROWSE_PAGE_SIZE,
+      offset: (pageNumber - 1) * BROWSE_PAGE_SIZE,
+    });
+  const captionsWithDetails = await populateCaptionDetails(captions);
+
+  if (status === "error") {
+    throw new Error(error);
+  }
+  return {
+    captions: captionsWithDetails,
+    hasMoreResults,
+    totalCount,
+  };
 };
