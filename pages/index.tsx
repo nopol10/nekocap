@@ -27,7 +27,7 @@ export default function HomePage() {
 }
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
-  wrapper.getStaticProps((store) => async ({ locale }) => {
+  wrapper.getStaticProps((store) => async ({ locale = "en-US" }) => {
     try {
       const latestCaptions = await loadLatestCaptionsApi();
       store.dispatch(setLatestCaptions(latestCaptions));

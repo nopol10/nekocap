@@ -3,12 +3,7 @@ import React from "react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
-import {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  GetStaticProps,
-  GetStaticPropsContext,
-} from "next";
+import { GetStaticProps, GetStaticPropsContext } from "next";
 import { Main } from "@/web/feature/home/main";
 import { OwnProfile } from "@/web/feature/profile/containers/own-profile";
 import ProtectedNextComponent from "@/web/feature/protected-next-component";
@@ -47,12 +42,13 @@ type PageParams = {
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
-    (store) => async ({ locale }: GetStaticPropsContext<PageParams>) => {
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-      };
-    }
+    (store) =>
+      async ({ locale = "en-US" }: GetStaticPropsContext<PageParams>) => {
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          },
+        };
+      }
   )
 );

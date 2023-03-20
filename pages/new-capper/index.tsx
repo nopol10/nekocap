@@ -42,12 +42,13 @@ type PageParams = {
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
-    () => async ({ locale }: GetStaticPropsContext<PageParams>) => {
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-      };
-    }
+    () =>
+      async ({ locale = "en-US" }: GetStaticPropsContext<PageParams>) => {
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          },
+        };
+      }
   )
 );
