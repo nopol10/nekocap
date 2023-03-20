@@ -2,7 +2,8 @@ import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const TVER_URL_REGEX = /(http:|https:|)\/\/(tver.jp)\/((episodes?|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/;
+const TVER_URL_REGEX =
+  /(http:|https:|)\/\/(tver.jp)\/((episodes?|corner|feature)\/([A-Za-z0-9._%-]*))(&\S+)?/;
 /**
  * Processor for TVer.jp
  * Ads do not seem to play in the same player as the main video
@@ -34,6 +35,9 @@ export const TVerProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(TVER_URL_REGEX);
+    if (!matches) {
+      return "";
+    }
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {

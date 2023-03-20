@@ -2,7 +2,8 @@ import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const videoMatchingRegex = /(http:|https:)\/\/(?:www\.)?(iq\.com)\/play\/([A-Za-z0-9._%-]*)([&\S]+)?/;
+const videoMatchingRegex =
+  /(http:|https:)\/\/(?:www\.)?(iq\.com)\/play\/([A-Za-z0-9._%-]*)([&\S]+)?/;
 /**
  * Processor for iQiyi
  */
@@ -14,9 +15,11 @@ export const iQiyiProcessor: Processor = {
   videoPageUISelector: ".intl-play-area-inner",
   updateTitleOnSubmission: true,
   titleSelector: async () => {
-    const mainTitle = (document.querySelector(
-      ".intl-album-title-word-wrap > span:first-child"
-    ) as HTMLElement)?.innerText;
+    const mainTitle = (
+      document.querySelector(
+        ".intl-album-title-word-wrap > span:first-child"
+      ) as HTMLElement
+    )?.innerText;
     const episodeElement = document.querySelector(".v-li.drama.selected");
     if (!episodeElement) {
       return mainTitle;
@@ -32,6 +35,9 @@ export const iQiyiProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     return matches[3].split("-").slice(-1)[0];
   },
   generateVideoLink: (videoId: string) => {

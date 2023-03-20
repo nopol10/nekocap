@@ -4,7 +4,8 @@ import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const PART_SEPARATOR = "/";
-const videoMatchingRegex = /(http:|https:)\/\/(?:www\.)?(wetv\.vip)(?:.*)\/play\/([A-Za-z0-9._%]*)(-.*)?\/([A-Za-z0-9._%]*)(-.*)?(&\S+)?/;
+const videoMatchingRegex =
+  /(http:|https:)\/\/(?:www\.)?(wetv\.vip)(?:.*)\/play\/([A-Za-z0-9._%]*)(-.*)?\/([A-Za-z0-9._%]*)(-.*)?(&\S+)?/;
 /**
  * Processor for WeTV
  */
@@ -42,6 +43,9 @@ export const WetvProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     return matches[3] + PART_SEPARATOR + matches[5];
   },
   generateVideoLink: (videoId: string) => {

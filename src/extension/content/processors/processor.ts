@@ -6,7 +6,7 @@ import { waitForElement } from "@/common/utils";
 
 export const getUIElement = async (
   processor: Processor
-): Promise<HTMLElement> => {
+): Promise<HTMLElement | undefined> => {
   if (typeof processor.videoPageUISelector === "string") {
     return waitForElement(processor.videoPageUISelector);
   }
@@ -61,7 +61,7 @@ export interface Processor {
   canWatchInNekoCapSite?: boolean;
   urlRegex: RegExp;
   videoSelector: string | (() => Promise<HTMLVideoElement>);
-  videoPageUISelector: string | (() => Promise<HTMLElement>);
+  videoPageUISelector: string | (() => Promise<HTMLElement | undefined>);
   // Used to identify when an inaccurate title was detected. For sites where the title is not always retrievable
   // at any time. If any of the titles in this list are found, the title should be updated to the correct one.
   inaccurateTitles?: [string];

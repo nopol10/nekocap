@@ -56,6 +56,9 @@ export const NetflixProcessor: Processor = {
     const matches = window.location.href.match(
       /(http:|https:)\/\/(?:www\.)(netflix.com)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/
     );
+    if (!matches) {
+      return "";
+    }
     return matches[5];
   },
   generateVideoLink: (videoId: string) => {

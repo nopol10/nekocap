@@ -3,8 +3,10 @@ import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(dailymotion.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
-const inPageIframeRegex = /(http:|https:|)\/\/(?:www.)?(dailymotion.com)\/embed\?.*/;
+const videoMatchingRegex =
+  /(http:|https:|)\/\/(?:www.)?(dailymotion.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
+const inPageIframeRegex =
+  /(http:|https:|)\/\/(?:www.)?(dailymotion.com)\/embed\?.*/;
 
 export const DailymotionProcessor: Processor = {
   type: VideoSource.Dailymotion,
@@ -17,10 +19,8 @@ export const DailymotionProcessor: Processor = {
     if (this.getPageType(location.href) === PageType.VideoIframe) {
       return await waitForElement("#dmp_Video", document.body);
     }
-    const videoIframe: HTMLIFrameElement | undefined = await waitForElement(
-      "#player-body"
-    );
-    return (videoIframe as unknown) as HTMLVideoElement;
+    const videoIframe = await waitForElement("#player-body");
+    return videoIframe as unknown as HTMLVideoElement;
   },
   videoPageUISelector: "div[class*=ResponsiveHeaderTab__tab]",
   titleSelector: "*[class*=VideoInfoTitle__videoTitle]",
@@ -46,6 +46,9 @@ export const DailymotionProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {

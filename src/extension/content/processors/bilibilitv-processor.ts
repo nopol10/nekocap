@@ -3,7 +3,8 @@ import type { Dimension } from "@/common/types";
 import { last } from "lodash";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const videoMatchingRegex = /(http:|https:)\/\/(?:www.)?(bilibili.tv)\/(?:.+)\/((video|play)\/([A-Za-z0-9._%-]*)\/?([A-Za-z0-9._%-]*)?)(&\S+)?/;
+const videoMatchingRegex =
+  /(http:|https:)\/\/(?:www.)?(bilibili.tv)\/(?:.+)\/((video|play)\/([A-Za-z0-9._%-]*)\/?([A-Za-z0-9._%-]*)?)(&\S+)?/;
 
 const trimSlash = (input: string) => {
   if (input.endsWith("/")) {
@@ -23,9 +24,9 @@ export const BilibiliTVProcessor: Processor = {
   updateTitleOnSubmission: true,
   disableEditor: true, // TODO: Enable later
   titleSelector: async () => {
-    const mainTitle = (document.querySelector(
-      ".bstar-meta__title"
-    ) as HTMLElement)?.innerText;
+    const mainTitle = (
+      document.querySelector(".bstar-meta__title") as HTMLElement
+    )?.innerText;
     if (!document.querySelector(".ep-list")) {
       return mainTitle;
     }
@@ -40,6 +41,9 @@ export const BilibiliTVProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     let mainId = matches[3];
     if (!mainId.startsWith("play")) {
       // A single video
@@ -49,10 +53,12 @@ export const BilibiliTVProcessor: Processor = {
     if (!episodeId) {
       // This is the first episode, we need to append the episode id
       const firstEpisodeHref =
-        (document.querySelector(
-          ".ep-list > .ep-item:first-child a"
-        ) as HTMLAnchorElement)?.href || "";
-      episodeId = last(firstEpisodeHref.split("/")).split("?")[0];
+        (
+          document.querySelector(
+            ".ep-list > .ep-item:first-child a"
+          ) as HTMLAnchorElement
+        )?.href || "";
+      episodeId = last(firstEpisodeHref.split("/"))?.split("?")[0] || "";
       mainId += `/${episodeId}`;
     }
     return trimSlash(mainId);
