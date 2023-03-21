@@ -1,4 +1,3 @@
-import { NekoCaption } from "@/common/caption-parsers/types";
 import * as dayjs from "dayjs";
 import { i18n } from "next-i18next";
 import { ReactNode } from "react";
@@ -6,7 +5,7 @@ import { ReactNode } from "react";
 export const captionDataColumns = {
   startTime: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.time");
+      return i18n?.t("home.captionList.columns.time");
     },
     dataIndex: "start",
     key: "start",

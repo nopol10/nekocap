@@ -155,9 +155,11 @@ const rejectionColumns = [
 
 export const CaptionReview = () => {
   const dispatch = useDispatch();
-  const isLoadingCaption = useSelector(loadCaptionForReview.isLoading(null));
-  const isRejecting = useSelector(rejectCaption.isLoading(null));
-  const isUnverifying = useSelector(verifyCaption.isLoading(null));
+  const isLoadingCaption = useSelector(
+    loadCaptionForReview.isLoading(undefined)
+  );
+  const isRejecting = useSelector(rejectCaption.isLoading(undefined));
+  const isUnverifying = useSelector(verifyCaption.isLoading(undefined));
   const review = useSelector(captionReviewSelector);
   const [showReject, setShowReject] = useState(false);
   const [showUnverify, setShowUnverify] = useState(false);
@@ -168,14 +170,8 @@ export const CaptionReview = () => {
     dispatch(loadCaptionForReview.request(captionId as string));
   }, []);
 
-  const {
-    caption,
-    captioner,
-    videoName,
-    reviewHistory,
-    rejected,
-    verified,
-  } = review;
+  const { caption, captioner, videoName, reviewHistory, rejected, verified } =
+    review;
 
   const sortedRejectionHistory = useMemo(() => {
     if (!reviewHistory) {
@@ -184,9 +180,12 @@ export const CaptionReview = () => {
     return [...reviewHistory].sort((h1, h2) => h2.date - h1.date);
   }, [reviewHistory]);
 
-  const { data, languageCode, videoSource, videoId } = caption || {};
+  const { data, languageCode = "en", videoSource, videoId } = caption || {};
 
   const captionTextList: NekoCaption[] = useMemo(() => {
+    if (!data) {
+      return [];
+    }
     return getCaptionCues(data);
   }, [data]);
 
@@ -202,6 +201,9 @@ export const CaptionReview = () => {
     setShowUnverify(true);
   };
   const handleSubmitVerify = () => {
+    if (!review.caption || !review.caption.id) {
+      return;
+    }
     dispatch(
       verifyCaption.request({
         captionId: review.caption.id,
@@ -224,6 +226,9 @@ export const CaptionReview = () => {
   };
 
   const handleSubmitRejection = (rejectForm: RejectForm) => {
+    if (!review.caption || !review.caption.id) {
+      return;
+    }
     dispatch(
       rejectCaption.request({
         reason: rejectForm.reason,
@@ -236,6 +241,9 @@ export const CaptionReview = () => {
   };
 
   const handleSubmitUnverify = (form: RejectForm) => {
+    if (!review.caption || !review.caption.id) {
+      return;
+    }
     dispatch(
       verifyCaption.request({
         reason: form.reason,
@@ -262,8 +270,11 @@ export const CaptionReview = () => {
   };
 
   const renderVideoLink = () => {
+    if (videoSource === undefined) {
+      return <></>;
+    }
     const processor = videoSourceToProcessorMap[videoSource];
-    if (!processor) {
+    if (!processor || !videoId) {
       return <b>videoName</b>;
     }
     return (
