@@ -23,7 +23,7 @@ import {
   TRACK_BASE_HEIGHT,
   TRACK_INFO_WIDTH,
 } from "../constants";
-import { clearSelection, roundMs } from "@/common/utils";
+import { BooleanFilter, clearSelection, roundMs } from "@/common/utils";
 import { styledNoPass } from "@/common/style-utils";
 dayjs.extend(duration);
 
@@ -237,7 +237,7 @@ type EditorTimelineProps = {
 export const EditorTimeline = ({
   caption,
   videoElement,
-  scale, // Scale changes the width between every 100 ms
+  scale = 1, // Scale changes the width between every 100 ms
   selectedTrack,
   selectedCaption,
   videoDurationMs,
@@ -250,11 +250,8 @@ export const EditorTimeline = ({
   onUpdateCaptionTime,
 }: EditorTimelineProps) => {
   // Let the view range be 2 separate variables so we know when to rescale the timeline
-  const [
-    viewRangeStart,
-    setViewRangeStart,
-    viewRangeStartRef,
-  ] = useStateAutoRef<number>(0);
+  const [viewRangeStart, setViewRangeStart, viewRangeStartRef] =
+    useStateAutoRef<number>(0);
   const trackScrollRef = useRef<Collection>(null);
   const trackContainerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
@@ -262,11 +259,9 @@ export const EditorTimeline = ({
   const endTimeIndicatorRef = useRef<HTMLDivElement>(null);
   const isPlayingRef = useRef<boolean>(false);
   const [timelineYOffset, setTimelineYOffset] = useState<number>(0);
-  const [track, trackRef] = useStateRef<HTMLDivElement>(null);
-  const [root, rootRef] = useStateRef<HTMLDivElement>(null);
-  const [timebarCanvas, timebarCanvasRef] = useStateRef<HTMLCanvasElement>(
-    null
-  );
+  const [track, trackRef] = useStateRef<HTMLDivElement>();
+  const [root, rootRef] = useStateRef<HTMLDivElement>();
+  const [timebarCanvas, timebarCanvasRef] = useStateRef<HTMLCanvasElement>();
 
   useResize(
     root,
@@ -317,14 +312,13 @@ export const EditorTimeline = ({
       return;
     }
     const context = timebarCanvas.getContext("2d");
+    if (!context) {
+      return;
+    }
     context.clearRect(0, 0, timelineVisibleWidth, timebarCanvas.height);
 
-    const {
-      markerSeparation,
-      totalWidth,
-      markerCount,
-      interval,
-    } = getTimelineParameters(scale, videoDurationMs);
+    const { markerSeparation, totalWidth, markerCount, interval } =
+      getTimelineParameters(scale, videoDurationMs);
 
     const visibleStartX =
       viewRangeStartRef.current * (totalWidth - timelineVisibleWidth);
@@ -550,43 +544,35 @@ export const EditorTimeline = ({
   };
   // #endregion
 
-  const handleCaptionDragStart = (
-    trackId: number,
-    captionId: number,
-    totalWidth: number,
-    cueId: number
-  ) => (startX: number, endX: number, currentTrackId: number) => {
-    isDragging.current = true;
-    setStartIndicatorText(startX, totalWidth);
-    setEndIndicatorText(endX, totalWidth);
-    updateTimeIndicatorPositions(startX, endX, currentTrackId);
-  };
+  const handleCaptionDragStart =
+    (trackId: number, captionId: number, totalWidth: number, cueId: number) =>
+    (startX: number, endX: number, currentTrackId: number) => {
+      isDragging.current = true;
+      setStartIndicatorText(startX, totalWidth);
+      setEndIndicatorText(endX, totalWidth);
+      updateTimeIndicatorPositions(startX, endX, currentTrackId);
+    };
 
-  const handleCaptionDrag = (
-    trackId: number,
-    captionId: number,
-    totalWidth: number,
-    cueId: number
-  ) => (startX: number, endX: number, currentTrackId: number) => {
-    setStartIndicatorText(startX, totalWidth);
-    setEndIndicatorText(endX, totalWidth);
-    updateTimeIndicatorPositions(startX, endX, currentTrackId);
-  };
+  const handleCaptionDrag =
+    (trackId: number, captionId: number, totalWidth: number, cueId: number) =>
+    (startX: number, endX: number, currentTrackId: number) => {
+      setStartIndicatorText(startX, totalWidth);
+      setEndIndicatorText(endX, totalWidth);
+      updateTimeIndicatorPositions(startX, endX, currentTrackId);
+    };
 
-  const handleCaptionDragEnd = (trackId: number, captionId: number) => (
-    startX: number,
-    endX: number,
-    finalTrackId: number
-  ) => {
-    isDragging.current = false;
-    const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
-    const startMs = (startX / totalWidth) * videoDurationMs;
-    const endMs = (endX / totalWidth) * videoDurationMs;
-    if (onUpdateCaptionTime) {
-      onUpdateCaptionTime(trackId, captionId, startMs, endMs, finalTrackId);
-    }
-    hideTimeIndicators();
-  };
+  const handleCaptionDragEnd =
+    (trackId: number, captionId: number) =>
+    (startX: number, endX: number, finalTrackId: number) => {
+      isDragging.current = false;
+      const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
+      const startMs = (startX / totalWidth) * videoDurationMs;
+      const endMs = (endX / totalWidth) * videoDurationMs;
+      if (onUpdateCaptionTime) {
+        onUpdateCaptionTime(trackId, captionId, startMs, endMs, finalTrackId);
+      }
+      hideTimeIndicators();
+    };
 
   const captionCueCellSizeAndPositionGetter = ({ index }) => {
     if (!caption || !caption.tracks || caption.tracks.length <= 0) {
@@ -648,12 +634,14 @@ export const EditorTimeline = ({
     const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
     const captionCueRenderer = ({
       index,
-      isScrolling,
       key,
       style,
     }: CollectionCellRendererParams) => {
       const cellData = captionCueCellSizeAndPositionGetter({ index });
       const { isDummy, trackId, captionId, text } = cellData;
+      if (trackId === undefined || trackId === null) {
+        return;
+      }
 
       if (isDummy) {
         return <div key={key} style={{ ...style, pointerEvents: "none" }} />;
@@ -791,7 +779,7 @@ export const EditorTimeline = ({
       const scrollOffset = trackContainerRef.current
         ? trackContainerRef.current.scrollTop
         : 0;
-      const trackY = timebarCanvas.getBoundingClientRect().bottom;
+      const trackY = timebarCanvas?.getBoundingClientRect().bottom || 0;
       const relativeY = mouseY - trackY + scrollOffset;
       clickedTrack = Math.floor(relativeY / TRACK_BASE_HEIGHT);
     }

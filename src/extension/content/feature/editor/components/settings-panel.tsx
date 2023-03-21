@@ -3,8 +3,7 @@ import {
   CaptionAlignment,
   CaptionDataContainer,
 } from "@/common/caption-parsers/types";
-import { Col, Row, Tabs } from "antd";
-import Form from "antd/lib/form";
+import { Tabs } from "antd";
 import { AlignmentControl } from "./alignment-control";
 import {
   modifyCaption,
@@ -162,10 +161,11 @@ export const SettingsPanel = ({
       settings: {
         ...trackSettings,
         layout: {
-          ...trackSettings.layout,
+          alignment: CaptionAlignment.BottomCenter,
+          ...trackSettings?.layout,
           position: {
             ...DEFAULT_COORDS_SETTINGS,
-            ...trackSettings.layout?.position,
+            ...trackSettings?.layout?.position,
             x: xValue / 100,
           },
         },
@@ -182,10 +182,11 @@ export const SettingsPanel = ({
       settings: {
         ...trackSettings,
         layout: {
-          ...trackSettings.layout,
+          alignment: CaptionAlignment.BottomCenter,
+          ...trackSettings?.layout,
           position: {
             ...DEFAULT_COORDS_SETTINGS,
-            ...trackSettings.layout?.position,
+            ...trackSettings?.layout?.position,
             y: yValue / 100,
           },
         },
@@ -201,10 +202,10 @@ export const SettingsPanel = ({
         ...globalSettings,
         layout: {
           ...DEFAULT_LAYOUT_SETTINGS,
-          ...globalSettings.layout,
+          ...globalSettings?.layout,
           position: {
             ...DEFAULT_COORDS_SETTINGS,
-            ...globalSettings.layout?.position,
+            ...globalSettings?.layout?.position,
             x: xValue / 100,
           },
         },
@@ -220,10 +221,10 @@ export const SettingsPanel = ({
         ...globalSettings,
         layout: {
           ...DEFAULT_LAYOUT_SETTINGS,
-          ...globalSettings.layout,
+          ...globalSettings?.layout,
           position: {
             ...DEFAULT_COORDS_SETTINGS,
-            ...globalSettings.layout?.position,
+            ...globalSettings?.layout?.position,
             y: yValue / 100,
           },
         },
@@ -270,7 +271,7 @@ export const SettingsPanel = ({
         ...trackSettings,
         layout: {
           ...DEFAULT_LAYOUT_SETTINGS,
-          ...trackSettings.layout,
+          ...trackSettings?.layout,
           position: undefined,
         },
       },
@@ -285,7 +286,7 @@ export const SettingsPanel = ({
         ...captionSettings,
         layout: {
           ...DEFAULT_LAYOUT_SETTINGS,
-          ...captionSettings.layout,
+          ...captionSettings?.layout,
           position: undefined,
         },
       },

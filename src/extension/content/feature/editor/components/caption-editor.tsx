@@ -61,7 +61,7 @@ import { VideoScrubber } from "./video-scrubber";
 import { SettingsPanel } from "./settings-panel";
 import { Gutter } from "antd/lib/grid/row";
 import { WarningText } from "@/common/components/warning-text";
-import { clamp, isInputElementSelected } from "@/common/utils";
+import { BooleanFilter, clamp, isInputElementSelected } from "@/common/utils";
 import NekoLogoSvg from "@/assets/images/nekocap.svg";
 import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
 import {
@@ -87,6 +87,7 @@ import { findClosestCaption } from "@/common/feature/video/utils";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
 import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
 import { DEVICE } from "@/common/style-constants";
+import { CaptionAlignment } from "@/common/caption-parsers/types";
 
 dayjs.extend(duration);
 
@@ -508,9 +509,11 @@ const CaptionEditorInternal = ({
   keyboardShortcuts,
 }: CaptionEditorProps) => {
   const [editorVideoContainer, editorVideoContainerRef] =
-    useStateRef<HTMLDivElement>(null);
-  const originalCaptionContainerParent = useRef<HTMLElement>();
-  const setTimelineScroll = useRef<SetTimelineScroll>(undefined);
+    useStateRef<HTMLDivElement>();
+  const originalCaptionContainerParent = useRef<HTMLElement | null>();
+  const setTimelineScroll = useRef<SetTimelineScroll>(() => {
+    /* */
+  });
   const textEditorScrollRef = useRef<List>(null);
 
   const [timelineScale, setTimelineScale] = useState(1);
@@ -526,7 +529,7 @@ const CaptionEditorInternal = ({
    */
   const captionListKeySuffix = useRef<number>(0);
   const focusNewCaptionIndex = useRef<number>(-1);
-  const lastDebouncedAction = useRef<PayloadAction<any>>(undefined);
+  const lastDebouncedAction = useRef<PayloadAction<any>>();
   const hotKeysRef = useRef<HTMLDivElement>(null);
   const videoDimensions = useRef<Coords>({ x: 0, y: 0 });
   const [isPlaying, setIsPlaying, isPlayingRef] =
@@ -584,7 +587,10 @@ const CaptionEditorInternal = ({
   }, [showEditor, captionListKeySuffix]);
 
   const handleDragCaptionEnd = (trackId: number, position: CSSPosition) => {
-    const draggedCaption = data.tracks[trackId].cues[selectedCaption];
+    const draggedCaption = data?.tracks[trackId].cues[selectedCaption];
+    if (!draggedCaption) {
+      return;
+    }
     const x =
       ((position.left !== undefined ? position.left : position.right) || 0) /
       100;
@@ -600,7 +606,8 @@ const CaptionEditorInternal = ({
             ...draggedCaption,
             layout: {
               ...DEFAULT_LAYOUT_SETTINGS, // We have to set alignment to the default if it does not exist for the positioning to take effect
-              ...draggedCaption.layout,
+              // alignment: CaptionAlignment.BottomCenter,
+              ...draggedCaption?.layout,
               position: {
                 x,
                 y,
@@ -653,8 +660,8 @@ const CaptionEditorInternal = ({
     if (currentMoveType === CaptionModificationState.None) {
       return false;
     }
-    const trackLayout = data.tracks[trackId].settings?.layout;
-    const captionLayout = data.tracks[trackId].cues[captionId].layout;
+    const trackLayout = data?.tracks[trackId].settings?.layout;
+    const captionLayout = data?.tracks[trackId].cues[captionId].layout;
     if (
       currentMoveType === CaptionModificationState.Global &&
       (trackLayout || captionLayout)
@@ -701,7 +708,7 @@ const CaptionEditorInternal = ({
     if (focusNewCaptionIndex.current >= 0) {
       selectAndScrollToCaptionId(focusNewCaptionIndex.current);
       if (
-        data.tracks[selectedTrack] &&
+        data?.tracks[selectedTrack] &&
         data.tracks[selectedTrack]?.cues[focusNewCaptionIndex.current] !==
           undefined
       ) {
@@ -768,6 +775,9 @@ const CaptionEditorInternal = ({
 
   const handleSetStartToCurrentTime = useCallback(
     (event) => {
+      if (!data) {
+        return;
+      }
       if (
         selectedTrack < 0 ||
         selectedTrack >= data.tracks.length ||
@@ -800,6 +810,9 @@ const CaptionEditorInternal = ({
 
   const handleSetEndToCurrentTime = useCallback(
     (event) => {
+      if (!data) {
+        return;
+      }
       if (
         selectedTrack < 0 ||
         selectedTrack >= data.tracks.length ||
@@ -844,6 +857,9 @@ const CaptionEditorInternal = ({
 
   const handleGotoNextCaption = useCallback(
     (event) => {
+      if (!data) {
+        return;
+      }
       if (selectedCaption < 0) {
         return;
       }
@@ -863,7 +879,7 @@ const CaptionEditorInternal = ({
 
   const handleGotoPreviousCaption = useCallback(
     (event) => {
-      if (selectedCaption < 0) {
+      if (!data || selectedCaption < 0) {
         return;
       }
       const newId = selectedCaption - 1;
@@ -880,7 +896,7 @@ const CaptionEditorInternal = ({
   );
 
   const handleNewCaptionFromShortcut = (event: Event) => {
-    if (selectedTrack < 0) {
+    if (!data || selectedTrack < 0) {
       return;
     }
     event.preventDefault();
@@ -926,16 +942,16 @@ const CaptionEditorInternal = ({
                   timeMs: newTime,
                   skipValidityChecks: false,
                 }),
-              ],
+              ].filter(BooleanFilter),
             })
           );
         } else {
           handleNewCaption(selectedTrack, newTime);
         }
         focusNewCaptionIndex.current = newCaptionId;
-        inputElement.removeEventListener("keyup", temporaryKeyupListener);
+        inputElement?.removeEventListener("keyup", temporaryKeyupListener);
       };
-      inputElement.addEventListener("keyup", temporaryKeyupListener);
+      inputElement?.addEventListener("keyup", temporaryKeyupListener);
     } else {
       debouncedUpdateCaption.flush();
       handleNewCaption(selectedTrack, newTime);
@@ -976,9 +992,9 @@ const CaptionEditorInternal = ({
   const handleRemoveTrack = (trackId: number) => {
     const updatedCaption = {
       ...captionContainer,
-      data: { ...captionContainer.data },
+      data: { ...captionContainer?.data },
     };
-    if (updatedCaption.data.tracks.length <= 1) {
+    if ((updatedCaption.data.tracks?.length || 0) <= 1) {
       message.error("A caption needs to have at least 1 track!");
       return;
     }
@@ -991,6 +1007,9 @@ const CaptionEditorInternal = ({
     captionId: number,
     currentTimeMs: number
   ) => {
+    if (!data) {
+      return;
+    }
     setVideoTime(currentTimeMs * TIME.MS_TO_SECONDS, false);
     if (trackId >= 0 && trackId < data.tracks.length) {
       setSelectedTrack(trackId);
@@ -1032,6 +1051,9 @@ const CaptionEditorInternal = ({
     endMs: number,
     finalTrackId: number
   ) => {
+    if (!data) {
+      return;
+    }
     if (finalTrackId === trackId) {
       captionListKeySuffix.current++;
       // Dry run to get new id after changing the time so that we can set the selected caption to the right one
@@ -1042,6 +1064,10 @@ const CaptionEditorInternal = ({
         startMs,
         endMs
       );
+      if (!caption) {
+        console.warn("No caption data found");
+        return;
+      }
       const newIndex = findClosestCaption(
         caption.tracks[trackId].cues,
         startMs + (endMs - startMs) / 2
@@ -1126,7 +1152,7 @@ const CaptionEditorInternal = ({
 
   const handleJumpToCaption =
     (trackId: number, captionId: number) => (event: React.MouseEvent) => {
-      if (!textEditorScrollRef.current) {
+      if (!data || !textEditorScrollRef.current) {
         return;
       }
       const startTime = data.tracks[trackId].cues[captionId].start;
@@ -1136,6 +1162,9 @@ const CaptionEditorInternal = ({
 
   const handleDeleteCaption =
     (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+      if (!data) {
+        return;
+      }
       captionListKeySuffix.current++;
       if (captionId === selectedCaption) {
         if (selectedCaption >= data.tracks[trackId].cues.length - 1) {
@@ -1167,7 +1196,7 @@ const CaptionEditorInternal = ({
 
   const renderTrackList = () => {
     if (!data) {
-      return null;
+      return <></>;
     }
     const captionCount =
       selectedTrack >= 0 &&
@@ -1185,7 +1214,7 @@ const CaptionEditorInternal = ({
       const { tracks } = data;
       const currentTrack = tracks[selectedTrack];
       if (!currentTrack) {
-        return null;
+        return <></>;
       }
 
       const currentCaption = currentTrack.cues[index];
@@ -1476,6 +1505,10 @@ const CaptionEditorInternal = ({
     [EDITOR_KEYS.SAVE]: handleShortcutSave,
   };
 
+  const editorPortalElement = document.getElementById(EDITOR_PORTAL_ELEMENT_ID);
+  if (!editorPortalElement) {
+    return <></>;
+  }
   return ReactDOM.createPortal(
     <>
       <HotKeys
@@ -1495,7 +1528,7 @@ const CaptionEditorInternal = ({
               <VideoPane>
                 <EditorVideoContainer
                   playerStyles={
-                    window.selectedProcessor.editorVideoPlayerStyles
+                    window.selectedProcessor?.editorVideoPlayerStyles || ""
                   }
                   innerRef={editorVideoContainerRef}
                 ></EditorVideoContainer>
@@ -1602,7 +1635,7 @@ const CaptionEditorInternal = ({
         videoElement={videoElement}
       />
     </>,
-    document.getElementById(EDITOR_PORTAL_ELEMENT_ID)
+    editorPortalElement
   );
 };
 

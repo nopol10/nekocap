@@ -24,7 +24,7 @@ export const CreateCaptionWarningModal = ({
   };
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Open Editor"}
       onOk={handleOpenEditor}
