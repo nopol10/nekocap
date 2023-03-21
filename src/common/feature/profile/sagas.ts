@@ -14,7 +14,7 @@ import {
   updateProfile,
   verifyCaptioner,
 } from "./actions";
-import { CaptionListFields, LoadCaptionListResult } from "../video/types";
+import { LoadCaptionListResult } from "../video/types";
 import {
   EditProfileFields,
   LoadProfileParams,
@@ -97,9 +97,13 @@ function* updateProfileSuccessSaga({
   const { captions: captions }: CaptionerState = yield select(
     captionerSelector
   );
+  if (!privateProfile || !captioner) {
+    console.error("No captioner data found.");
+    return;
+  }
   yield put(
     setCaptionerPrivateData({
-      captions,
+      captions: captions || [],
       privateProfile,
       captioner,
     })

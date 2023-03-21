@@ -39,14 +39,14 @@ export const searchReducer = createReducer<SearchState>(
         return {
           ...state,
           searchString,
-          videoLanguageCode,
-          captionLanguageCode,
+          videoLanguageCode: videoLanguageCode || null,
+          captionLanguageCode: captionLanguageCode || null,
           videos: append ? [...state.videos, ...videos] : videos,
           hasMoreResults,
           currentResultPage,
         };
       })
-      .addCase(setNoMoreSearchResults, (state, action) => {
+      .addCase(setNoMoreSearchResults, (state) => {
         return {
           ...state,
           hasMoreResults: false,

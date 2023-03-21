@@ -200,7 +200,7 @@ export type BackendProviderRequest =
 function sendBackgroundProviderRequest(
   request: BackendProviderRequest
 ): Promise<any> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     chrome.runtime.sendMessage(
       { type: ChromeMessageType.ProviderRequest, payload: request },
       (response) => {
@@ -301,7 +301,7 @@ export class PassthroughProvider implements BackendProvider<RootState> {
     });
   }
 
-  async loadProfile(options?: LoadProfileParams): Promise<PublicProfileData> {
+  async loadProfile(options: LoadProfileParams): Promise<PublicProfileData> {
     return sendBackgroundProviderRequest({
       type: BackendProviderRequestTypes.LoadProfile,
       options,

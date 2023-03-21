@@ -7,8 +7,8 @@ export async function searchCaptionsApi(
   title: string,
   pageSize,
   pageNumber,
-  videoLanguageCode: string,
-  captionLanguageCode: string
+  videoLanguageCode?: string,
+  captionLanguageCode?: string
 ) {
   return Locator.provider().search({
     title,

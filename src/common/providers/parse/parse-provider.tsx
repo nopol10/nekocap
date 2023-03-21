@@ -2,7 +2,6 @@ import {
   LoadSingleCaptionResult,
   SubmitCaptionRequest,
   CaptionContainer,
-  CaptionListFields,
   VideoSource,
   RawCaptionData,
   VideoFields,
@@ -131,7 +130,7 @@ const loginWithGoogle = async (
   }
   const userData: UserData = {
     id: user.uid,
-    username: user.displayName,
+    username: user.displayName || "",
     idToken,
   };
 
@@ -170,7 +169,7 @@ type LoadCaptionForReviewResponseType = (params: {
 }) => LoadCaptionForReviewResponse;
 
 export class ParseProvider implements BackendProvider<ParseState> {
-  private Parse: ParseType = null;
+  private Parse: ParseType | null = null;
   private googleOauthClientId = "";
 
   type() {
@@ -179,10 +178,10 @@ export class ParseProvider implements BackendProvider<ParseState> {
 
   constructor(
     newParse: ParseType,
-    parseAppId: string = process.env.NEXT_PUBLIC_PARSE_APP_ID,
-    parseUrl: string = process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+    parseAppId: string = process.env.NEXT_PUBLIC_PARSE_APP_ID || "",
+    parseUrl: string = process.env.NEXT_PUBLIC_PARSE_SERVER_URL || "",
     googleOauthClientId: string = process.env
-      .NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
+      .NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID || "",
     masterKey?: string
   ) {
     this.Parse = newParse;
@@ -244,9 +243,12 @@ export class ParseProvider implements BackendProvider<ParseState> {
     options?: LoginOptions
   ): Promise<LoginResponse> {
     const { background = false, userData: presetUserData } = options || {};
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const currentUser = await this.Parse.User.currentAsync();
     // Check if a user exists and has a valid session token
-    if (currentUser && options?.userData) {
+    if (currentUser && presetUserData) {
       const dummyQuery = new this.Parse.Query("captions").limit(0);
       try {
         await dummyQuery.find();
@@ -261,8 +263,8 @@ export class ParseProvider implements BackendProvider<ParseState> {
         logoutFromAuthServer: options ? !options.background : true,
       });
     }
-    let responseStatus: ResponseStatus;
-    let userData: UserData = presetUserData;
+    let responseStatus: ResponseStatus = "error";
+    let userData: UserData | undefined = presetUserData;
     let authData: ParseTypeImport.AuthData = {};
     if (!userData) {
       if (method === LoginMethod.Google) {
@@ -279,7 +281,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
         responseStatus = loginResponse.status;
         userData = loginResponse.userData;
         authData = {
-          id: userData.id,
+          id: userData?.id,
           access_token: loginResponse.idToken,
         };
       }
@@ -293,6 +295,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
         access_token: userData.idToken,
       };
     }
+    if (!userData) {
+      throw new Error("User data not populated");
+    }
     userData = await this.completeDeferredLogin(method, userData, authData);
 
     return { status: responseStatus, userData };
@@ -303,7 +308,10 @@ export class ParseProvider implements BackendProvider<ParseState> {
     userData: UserData,
     authData: ParseTypeImport.AuthData
   ): Promise<UserData> {
-    const loginOpts: ParseTypeImport.FullOptions = undefined;
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
+    const loginOpts: ParseTypeImport.FullOptions | undefined = undefined;
     let authProvider;
     switch (method) {
       case LoginMethod.Google:
@@ -327,6 +335,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async logout(options?: LogoutOptions) {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     await this.Parse.User.logOut();
     if (!options || options.logoutFromAuthServer !== false) {
       await signOut(globalThis.firebaseAuth);
@@ -340,12 +351,18 @@ export class ParseProvider implements BackendProvider<ParseState> {
     videoId: string;
     videoSource: VideoSource;
   }) {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     return this.Parse.Cloud.run("findCaptions", { videoId, videoSource });
   }
 
   async loadUserCaptions(
     request: CaptionsRequest
   ): Promise<LoadCaptionListResult> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response = await this.Parse.Cloud.run<
       (params: CaptionsRequest) => CaptionsResponse
     >("loadUserCaptions", request);
@@ -359,6 +376,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async loadPrivateCaptionerData({
     withCaptions = true,
   }: LoadPrivateCaptionerDataRequestParams): Promise<PrivateCaptionerData> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response = await this.Parse.Cloud.run<
       (
         params: LoadPrivateCaptionerDataRequestParams
@@ -375,7 +395,10 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
   }
 
-  async loadProfile(options?: LoadProfileParams): Promise<PublicProfileData> {
+  async loadProfile(options: LoadProfileParams): Promise<PublicProfileData> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response = await this.Parse.Cloud.run<
       (params: LoadProfileParams) => PublicProfileResponse
     >("loadProfile", options);
@@ -392,6 +415,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async updateCaptionerProfile(
     params: UpdateCaptionerProfileParams
   ): Promise<PrivateCaptionerData> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response = await this.Parse.Cloud.run<
       (params: UpdateCaptionerProfileParams) => LoadPrivateCaptionerDataResponse
     >("updateCaptionerProfile", params);
@@ -408,6 +434,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async loadLatestCaptions(): Promise<CaptionsResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response = await this.Parse.Cloud.run<() => CaptionsResponse>(
       "loadLatestCaptions"
     );
@@ -417,12 +446,18 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async loadLatestUserLanguageCaptions(
     languageCode: string
   ): Promise<CaptionsResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     return await this.Parse.Cloud.run<
       (params: { languageCode: string }) => CaptionsResponse
     >("loadLatestLanguageCaptions", { languageCode });
   }
 
   async loadPopularCaptions(): Promise<CaptionsResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     return await this.Parse.Cloud.run<() => CaptionsResponse>(
       "loadPopularCaptions"
     );
@@ -433,6 +468,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }: {
     captionId: string;
   }): Promise<LoadSingleCaptionResult> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response = await this.Parse.Cloud.run<
       (params: { captionId: string }) => LoadSingleCaptionResponse
     >("loadCaption", { captionId });
@@ -473,10 +511,12 @@ export class ParseProvider implements BackendProvider<ParseState> {
       let rawCaptionUrl = originalRawCaptionUrl;
       let rawCaptionString = "";
       if (isServer()) {
-        rawCaptionUrl = rawCaptionUrl.replace(
-          process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
-          process.env.PARSE_INTERNAL_SERVER_URL
-        );
+        if (process.env.NEXT_PUBLIC_PARSE_SERVER_URL) {
+          rawCaptionUrl = rawCaptionUrl.replace(
+            process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
+            process.env.PARSE_INTERNAL_SERVER_URL || ""
+          );
+        }
         rawCaptionString = await nodefetch(rawCaptionUrl)
           .then((response) => response.buffer())
           .then((buffer) => {
@@ -489,7 +529,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
         );
         rawCaptionString = rawCaptionString.split(",")[1];
       }
-
+      if (!serverRawCaption) {
+        throw new Error("No raw caption data found");
+      }
       const rawType = (JSON.parse(serverRawCaption) as RawCaptionData).type;
       rawCaption = JSON.stringify({
         type: rawType,
@@ -504,9 +546,14 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }: {
     captionId: string;
   }): Promise<LoadCaptionForReviewResult> {
-    const response = await this.Parse.Cloud.run<
-      LoadCaptionForReviewResponseType
-    >("loadCaptionForReview", { captionId });
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
+    const response =
+      await this.Parse.Cloud.run<LoadCaptionForReviewResponseType>(
+        "loadCaptionForReview",
+        { captionId }
+      );
     const {
       status,
       caption: serverCaption,
@@ -534,9 +581,8 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     const rejected: boolean = captionResponse.get("rejected");
     const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] = captionResponse.get(
-      "reviewHistory"
-    );
+    const reviewHistory: ReviewActionDetails[] =
+      captionResponse.get("reviewHistory");
     return {
       caption,
       captioner,
@@ -548,9 +594,15 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async likeCaption({ captionId }: { captionId: string }) {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     return this.Parse.Cloud.run("likeCaption", { captionId });
   }
   async dislikeCaption({ captionId }: { captionId: string }) {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     return this.Parse.Cloud.run("dislikeCaption", { captionId });
   }
 
@@ -561,6 +613,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
     hasAudioDescription,
     privacy,
   }: SubmitCaptionRequest): Promise<UploadResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const submitResult: ServerResponse = await this.Parse.Cloud.run<
       (p: SubmitCaptionRequest) => ServerResponse
     >("submitCaption", {
@@ -588,6 +643,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
     selectedTags,
     privacy: privacy,
   }: UpdateCaptionRequest): Promise<UploadResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const updateResult: ServerResponse = await this.Parse.Cloud.run<
       (p: UpdateCaptionRequest) => ServerResponse
     >("updateCaption", {
@@ -609,6 +667,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async deleteCaption(captionId: string): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const deleteResult: ServerResponse = await this.Parse.Cloud.run(
       "deleteCaption",
       { captionId }
@@ -617,6 +678,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async rejectCaption(params: ReasonedCaptionAction): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const result: ServerResponse = await this.Parse.Cloud.run(
       "rejectCaption",
       params
@@ -625,6 +689,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async verifyCaption(params: ReasonedCaptionAction): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const result: ServerResponse = await this.Parse.Cloud.run(
       "verifyCaption",
       params
@@ -633,6 +700,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async assignReviewerManager(params: RoleRequest): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const result: ServerResponse = await this.Parse.Cloud.run(
       "assignReviewerManagerRole",
       params
@@ -641,6 +711,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async assignReviewer(params: RoleRequest): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const result: ServerResponse = await this.Parse.Cloud.run(
       "assignReviewerRole",
       params
@@ -649,6 +722,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async verifyCaptioner(params: VerifyRequest): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const result: ServerResponse = await this.Parse.Cloud.run(
       "verifyCaptioner",
       params
@@ -657,6 +733,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async banCaptioner(params: BanRequest): Promise<ServerResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const result: ServerResponse = await this.Parse.Cloud.run(
       "banCaptioner",
       params
@@ -665,6 +744,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   }
 
   async search(params: SearchRequest): Promise<VideoSearchResults> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response: VideoSearchResponse = await this.Parse.Cloud.run(
       "search",
       params
@@ -677,12 +759,15 @@ export class ParseProvider implements BackendProvider<ParseState> {
     };
     if (response.videos) {
       results.videos = response.videos.map((video) => {
-        return (video.toJSON() as unknown) as VideoFields;
+        return video.toJSON() as unknown as VideoFields;
       });
     }
     return results;
   }
   async browse(params: BrowseRequest): Promise<BrowseResults> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response: BrowseResponse = await this.Parse.Cloud.run(
       "browse",
       params
@@ -699,6 +784,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async getAutoCaptionList(
     params: GetAutoCaptionListParams
   ): Promise<GetAutoCaptionListResult> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response: GetAutoCaptionListResponse = await this.Parse.Cloud.run(
       "getAutoCaptionList",
       params
@@ -709,6 +797,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
     return response;
   }
   async getGlobalStats(): Promise<StatsResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response: StatsResponse = await this.Parse.Cloud.run("globalStats");
     if (response.status !== "success") {
       throw new Error(response.error);
@@ -716,6 +807,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
     return response;
   }
   async getOwnProfileTags(): Promise<GetOwnProfileTagsResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response: GetOwnProfileTagsResponse = await this.Parse.Cloud.run(
       "getOwnProfileTags"
     );
@@ -727,6 +821,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async deleteProfileTag(
     params: DeleteProfileTagParams
   ): Promise<DeleteProfileTagResponse> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
     const response: DeleteProfileTagResponse = await this.Parse.Cloud.run(
       "deleteProfileTag",
       params

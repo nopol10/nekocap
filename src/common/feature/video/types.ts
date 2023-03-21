@@ -48,8 +48,8 @@ export type CaptionContainer = {
   originalTitle?: string;
   likes?: number;
   dislikes?: number;
-  userLike?: boolean;
-  userDislike?: boolean;
+  userLike: boolean | null;
+  userDislike: boolean | null;
   tags?: string[];
   modifiedTime?: number; // This is used to trigger a refresh when loading raw captions consecutively since they are not stored in the redux store
 };
@@ -129,7 +129,7 @@ export type LoadCaptionsResult = {
 
 export type LoadSingleCaption = {
   caption: CaptionContainer;
-  rawCaption?: string;
+  rawCaption: string | null;
   userLike?: boolean;
   userDislike?: boolean;
 };

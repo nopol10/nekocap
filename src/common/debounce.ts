@@ -83,7 +83,7 @@ function debounce(func, wait = 0, options?: DebounceSettings) {
   if (isObject(options)) {
     leading = !!options.leading;
     maxing = "maxWait" in options;
-    maxWait = maxing ? Math.max(+options.maxWait || 0, wait) : maxWait;
+    maxWait = maxing ? Math.max(+(options.maxWait || "") || 0, wait) : maxWait;
     trailing = "trailing" in options ? !!options.trailing : trailing;
   }
 

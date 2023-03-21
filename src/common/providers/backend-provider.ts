@@ -114,7 +114,7 @@ export interface BackendProvider<T extends RootState> {
   loadPrivateCaptionerData: (
     options?: LoadPrivateCaptionerDataRequestParams
   ) => Promise<PrivateCaptionerData>;
-  loadProfile: (options?: LoadProfileParams) => Promise<PublicProfileData>;
+  loadProfile: (options: LoadProfileParams) => Promise<PublicProfileData>;
   updateCaptionerProfile: (
     options?: UpdateCaptionerProfileParams
   ) => Promise<PrivateCaptionerData>;

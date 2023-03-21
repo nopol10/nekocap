@@ -2,7 +2,7 @@ import { CaptionerFields } from "../captioner/types";
 import { CaptionContainer } from "../video/types";
 
 export type CaptionReviewState = {
-  caption: CaptionContainer | undefined;
+  caption: CaptionContainer | null;
   captioner?: CaptionerFields;
   videoName?: string;
   verified?: boolean;
