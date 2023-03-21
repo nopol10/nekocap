@@ -20,7 +20,7 @@ import { CaptionRendererHandle } from "./caption-renderer";
 interface OctopusRendererProps {
   rawCaption?: string;
   videoElement?: HTMLVideoElement;
-  captionContainerElement: HTMLElement;
+  captionContainerElement?: HTMLElement;
   showCaption: boolean;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
@@ -216,7 +216,7 @@ const OctopusRendererInternal = React.forwardRef(
       };
 
       let canvas: HTMLCanvasElement | undefined;
-      if (isIframe && iframeProps) {
+      if (isIframe && iframeProps && captionContainerElement) {
         const width: number = window.screen.width * window.devicePixelRatio;
         const height: number = width * (iframeProps.height / iframeProps.width);
         const canvasElements = createCanvas(

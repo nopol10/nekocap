@@ -34,8 +34,8 @@ import { refreshVideoMeta } from "../utils";
 import { isInExtension } from "@/common/client-utils";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
-  videoElement: HTMLVideoElement;
-  captionContainerElement: HTMLElement;
+  videoElement?: HTMLVideoElement;
+  captionContainerElement?: HTMLElement;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
   showCaption: boolean;
@@ -209,8 +209,8 @@ const CaptionRendererInternal = React.forwardRef(
         return;
       }
       containerDimensions.current = {
-        width: videoElement.offsetWidth,
-        height: videoElement.offsetHeight,
+        width: videoElement?.offsetWidth || 0,
+        height: videoElement?.offsetHeight || 0,
       };
       localCaptionContainer.current.style.width = `${width}px`;
       localCaptionContainer.current.style.height = `${height}px`;
@@ -273,7 +273,7 @@ const CaptionRendererInternal = React.forwardRef(
       try {
         captionContainerElement.insertBefore(
           localCaptionContainer.current,
-          videoElement.nextSibling
+          videoElement?.nextSibling || null
         );
       } catch (e) {
         console.warn(
@@ -285,7 +285,7 @@ const CaptionRendererInternal = React.forwardRef(
       const videoElementHeight =
         isIframe && iframeProps
           ? iframeProps.height
-          : videoElement.offsetHeight;
+          : videoElement?.offsetHeight || 0;
       for (let trackId = 0; trackId < MAX_TRACKS; trackId++) {
         for (let i = 0; i < MAX_CONCURRENT_CAPTIONS; i++) {
           const captionContainer = document.createElement("div");
@@ -341,11 +341,11 @@ const CaptionRendererInternal = React.forwardRef(
           width:
             isIframe && iframeProps
               ? iframeProps.width
-              : videoElement.offsetWidth,
+              : videoElement?.offsetWidth || 0,
           height:
             isIframe && iframeProps
               ? iframeProps.height
-              : videoElement.offsetHeight,
+              : videoElement?.offsetHeight || 0,
         };
         localCaptionContainer.current.style.width = `${containerDimensions.current.width}px`;
         localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
