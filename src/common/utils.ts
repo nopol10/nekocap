@@ -166,3 +166,6 @@ export const waitUntil = async (predicate: () => boolean): Promise<void> => {
     await delay(500);
   }
 };
+
+type ValidValue<T> = Exclude<T, null | undefined | 0 | "" | false>;
+export const BooleanFilter = <T>(x: T): x is ValidValue<T> => Boolean(x);
