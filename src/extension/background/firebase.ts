@@ -33,4 +33,5 @@ export const initFirebase = (): { auth: Auth; firebaseApp: FirebaseApp } => {
     globalThis.firebaseAuth = auth;
     return { auth, firebaseApp };
   }
+  throw new Error("Could not initialize Firebase");
 };

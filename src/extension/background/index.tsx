@@ -66,27 +66,24 @@ chrome.runtime.onMessageExternal.addListener(
   (message, sender, sendResponse) => {
     if (message.type === ChromeExternalMessageType.GoogleAuthCredentials) {
       // Complete the rest of the sign in process
-      const {
-        id,
-        credentialIdToken,
-        idToken,
-        name,
-      } = message.payload as FirebaseLoggedInUser;
+      const { id, credentialIdToken, idToken, name } =
+        message.payload as FirebaseLoggedInUser;
       const credential = GoogleAuthProvider.credential(credentialIdToken);
       signInWithCredential(auth, credential).then(async () => {
         const { store } = await storeInitPromise;
-        const userData: UserData = await globalThis.backendProvider.completeDeferredLogin(
-          LoginMethod.Google,
-          {
-            id,
-            username: name,
-            idToken: idToken,
-          },
-          {
-            id,
-            access_token: idToken,
-          }
-        );
+        const userData: UserData =
+          await globalThis.backendProvider.completeDeferredLogin(
+            LoginMethod.Google,
+            {
+              id,
+              username: name,
+              idToken: idToken,
+            },
+            {
+              id,
+              access_token: idToken,
+            }
+          );
         store.dispatch(loginSuccess(userData));
         sendResponse(userData);
       });
@@ -125,7 +122,7 @@ async function initStore() {
 
 async function performBackgroundRequest(options: BackgroundRequest) {
   const { url, method, responseType } = options;
-  const response = await new Promise((resolve, reject) => {
+  const response = await new Promise<any>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.responseType = responseType;
@@ -171,7 +168,11 @@ chrome.runtime.onMessage.addListener(
       });
       return true;
     } else if (request.type === ChromeMessageType.VideoIframeToBackground) {
-      chrome.tabs.sendMessage(sender.tab?.id, {
+      const senderTabId = sender.tab?.id;
+      if (senderTabId === undefined) {
+        return;
+      }
+      chrome.tabs.sendMessage(senderTabId, {
         ...request,
         type: ChromeMessageType.VideoIframeToContent,
       });
