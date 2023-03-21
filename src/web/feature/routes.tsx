@@ -15,7 +15,9 @@ import { useTranslation } from "next-i18next";
 
 export const Routes = () => {
   const { t } = useTranslation("common");
-
+  if (!webHistory) {
+    return <></>;
+  }
   return (
     <>
       <Router history={webHistory}>

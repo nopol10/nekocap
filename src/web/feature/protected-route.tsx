@@ -26,7 +26,10 @@ const ProtectedRoute = ({
         if (isLoggedIn && !captioner.captioner) {
           return <Skeleton active={true} />;
         }
-        if (!captioner.captioner.name && rest.path !== routeNames.profile.new) {
+        if (
+          !captioner.captioner?.name &&
+          rest.path !== routeNames.profile.new
+        ) {
           return (
             <Redirect
               to={{
