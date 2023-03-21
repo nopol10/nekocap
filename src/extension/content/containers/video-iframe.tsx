@@ -6,7 +6,7 @@ import { VideoAction } from "../types";
 export const VideoIframe = (): ReactElement => {
   useEffect(() => {
     if (
-      window.selectedProcessor.getPageType(location.href) !==
+      window.selectedProcessor?.getPageType(location.href) !==
       PageType.VideoIframe
     ) {
       return;

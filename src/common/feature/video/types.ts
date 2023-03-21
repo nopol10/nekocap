@@ -196,7 +196,7 @@ export type SubmitCaption = TabbedType & {
 
 export type UpdateUploadedCaption = TabbedType & {
   file: RcFile;
-  type: string;
+  type?: string;
   content: string;
   captionId: string;
   hasAudioDescription?: boolean;

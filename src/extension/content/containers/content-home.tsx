@@ -15,12 +15,12 @@ export const ContentHome = (): ReactElement => {
     ? createGlobalStyle`
     ${window.selectedProcessor && window.selectedProcessor.globalStyles}
   `
-    : null;
+    : () => <></>;
 
   if (!videoData) {
-    return null;
+    return <></>;
   }
-  const pageType = window.selectedProcessor.getPageType(location.href);
+  const pageType = window.selectedProcessor?.getPageType(location.href);
   return (
     <>
       {hasGlobalStyles && <GlobalStyle />}

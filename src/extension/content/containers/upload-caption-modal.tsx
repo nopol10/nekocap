@@ -34,7 +34,7 @@ export const SelectFileModal = ({
   const maxVerifiedUploadSizeMB = MAX_VERIFIED_CAPTION_FILE_BYTES / 1000000;
   const maxNonVerifiedUploadSizeMB = MAX_CAPTION_FILE_BYTES / 1000000;
   const maxPreviewSize = MAX_VERIFIED_CAPTION_FILE_BYTES;
-  const isUserVerified = captioner?.captioner?.verified;
+  const isUserVerified = !!captioner?.captioner?.verified;
 
   const beforeUpload = (file: RcFile): boolean => {
     const extension = file.name
@@ -43,24 +43,26 @@ export const SelectFileModal = ({
     const isValidFileType = VALID_FILE_TYPES.includes(extension);
     if (!isValidFileType) {
       message.error(`You can only load ${SUPPORTED_FILE_TYPES_STRING} files!`);
-      return;
+      return false;
     }
     const isSizeValid = file.size < maxPreviewSize;
     if (!isSizeValid) {
       message.error(`Caption must smaller than ${maxPreviewSize / 1000000}MB!`);
-      return;
+      return false;
     }
     setFile(file);
     return isValidFileType && isSizeValid;
   };
 
   const handleSubmit = () => {
-    onDone(file, fileContent);
+    if (file) {
+      onDone(file, fileContent);
+    }
   };
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Load"}
       onOk={handleSubmit}
