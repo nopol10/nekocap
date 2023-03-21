@@ -78,6 +78,8 @@ export const convertToCaptionContainer = (
     videoSource,
     data: captionData,
     loadedByUser: true,
+    userDislike: false,
+    userLike: false,
   };
   return caption;
 };
