@@ -15,7 +15,7 @@ export const VimeoViewer = ({
   currentTimeGetter,
 }: VimeoViewerProps): ReactElement => {
   const currentTime = useRef<number>();
-  const vimeoFrame = useRef<HTMLIFrameElement>();
+  const vimeoFrame = useRef<HTMLIFrameElement>(null);
 
   const handlePlay = () => {
     if (!defaultRendererRef.current) {
@@ -34,13 +34,16 @@ export const VimeoViewer = ({
   };
   const handleScriptLoaded = () => {
     const iframe = vimeoFrame.current;
+    if (!iframe) {
+      return;
+    }
     const player = new window.Vimeo.Player(iframe);
 
     player.on("play", handlePlay);
     player.on("pause", handlePause);
     player.on("timeupdate", handleTimeUpdate);
 
-    currentTimeGetter.current = () => currentTime.current;
+    currentTimeGetter.current = () => currentTime.current || 0;
   };
 
   return (
@@ -52,7 +55,7 @@ export const VimeoViewer = ({
       <iframe
         ref={vimeoFrame}
         id={VIMEO_IFRAME_ID}
-        src={`https://player.vimeo.com/video/${caption.videoId}?h=8272103f6e`}
+        src={`https://player.vimeo.com/video/${caption?.videoId}?h=8272103f6e`}
         width={embedWidth.toString()}
         height={embedHeight.toString()}
         frameBorder="0"
