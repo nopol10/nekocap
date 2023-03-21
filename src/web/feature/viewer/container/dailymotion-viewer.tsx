@@ -32,7 +32,7 @@ export const DailymotionViewer = ({
   currentTimeGetter,
 }: DailymotionViewerProps): ReactElement => {
   const currentTime = useRef<number>();
-  const dailymotionFrame = useRef<HTMLIFrameElement>();
+  const dailymotionFrame = useRef<HTMLIFrameElement>(null);
 
   const handlePlay = () => {
     if (!defaultRendererRef.current) {
@@ -49,7 +49,13 @@ export const DailymotionViewer = ({
   const handleTimeUpdate = (event: { videoTime: number }) => {
     currentTime.current = event.videoTime;
   };
+  const handleSeekEnd = (event: { videoTime: number }) => {
+    currentTime.current = event.videoTime;
+  };
   const handleScriptLoaded = async () => {
+    if (!caption) {
+      return;
+    }
     const player = await window.dailymotion.createPlayer(VIMEO_IFRAME_ID, {
       video: caption.videoId,
     });
@@ -57,9 +63,12 @@ export const DailymotionViewer = ({
     player.on("video_start", handlePlay);
     player.on("play", handlePlay);
     player.on("pause", handlePause);
+    player.on("seeked", handleSeekEnd);
     player.on("timeupdate", handleTimeUpdate);
 
-    currentTimeGetter.current = () => currentTime.current;
+    currentTimeGetter.current = () => {
+      return currentTime.current || 0;
+    };
   };
 
   return (
