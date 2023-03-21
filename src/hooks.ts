@@ -55,8 +55,8 @@ export const useAnimationFrame = (
 
 export const useStateRef = <S>(
   initialState?: S | (() => S)
-): [S, (a: S) => void] => {
-  const [state, setState] = useState<S>(initialState);
+): [S | undefined, (a: S) => void] => {
+  const [state, setState] = useState<S | undefined>(initialState);
 
   const refCallback = useCallback((node: S) => {
     if (node) setState(node);
@@ -83,7 +83,7 @@ export const useStateAutoRef = <S>(
 };
 
 export const useResize = (
-  element: HTMLElement,
+  element: HTMLElement | undefined,
   callback: (width: number, height: number) => void,
   interval: number,
   dependencies: DependencyList = []
@@ -107,7 +107,7 @@ export const useResize = (
 };
 
 export const useRerenderOnResize = (
-  element: HTMLElement,
+  element?: HTMLElement,
   dependencies: DependencyList = []
 ) => {
   const [_, setDummy] = useState(0);
@@ -145,7 +145,7 @@ export const useRerenderOnWindowResize = (
 };
 
 export const useDrag = (
-  element: HTMLElement,
+  element: HTMLElement | undefined,
   onStart: (x: number, y: number) => { x: number; y: number }, // Callback on start of drag that returns a corrected start coordinates
   onMove: (start: Coords, corrected: Coords, delta: Coords) => void,
   onStop: (start: Coords, corrected: Coords, delta: Coords) => void,
@@ -263,9 +263,8 @@ export const useVideoPlayPause = (
 export const useVideoDurationChange = (
   videoElement: HTMLVideoElement
 ): [number, MutableRefObject<number>] => {
-  const [videoDuration, setVideoDuration, videoDurationRef] = useStateAutoRef(
-    0
-  );
+  const [videoDuration, setVideoDuration, videoDurationRef] =
+    useStateAutoRef(0);
   useEffect(() => {
     const handleDurationChange = () => {
       setVideoDuration(videoElement.duration * TIME.SECONDS_TO_MS);
@@ -352,6 +351,10 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
     const findVideoElement = () => {
+      if (!window.selectedProcessor) {
+        console.warn("Selected processor not set");
+        return;
+      }
       getVideoElement(window.selectedProcessor).then((element) => {
         window.videoElement = element;
         setDummy(Math.random());
@@ -409,7 +412,7 @@ export const processorObserveUpdates = (
     if (mutations.length <= 0) {
       return;
     }
-    const observerSettings = window.selectedProcessor.observer;
+    const observerSettings = window.selectedProcessor?.observer;
     if (!observerSettings) {
       return;
     }
@@ -421,11 +424,17 @@ export const processorObserveUpdates = (
         const addedNode = addedNodes[i];
         if (!addedNode["tagName"]) continue;
         const element = addedNode as HTMLElement;
-        if (element.querySelector(observerSettings.menuElementSelector)) {
+        if (
+          observerSettings.menuElementSelector &&
+          element.querySelector(observerSettings.menuElementSelector)
+        ) {
           menuNodeWasAdded = true;
           break;
         }
-        if (element.querySelector(observerSettings.videoMetaElementSelector)) {
+        if (
+          observerSettings.videoMetaElementSelector &&
+          element.querySelector(observerSettings.videoMetaElementSelector)
+        ) {
           metaNodeWasAdded = true;
           break;
         }
@@ -433,7 +442,8 @@ export const processorObserveUpdates = (
       if (
         !menuNodeWasAdded &&
         mutation.attributeName === "class" &&
-        observerSettings.shouldObserveMenuPlaceability
+        observerSettings.shouldObserveMenuPlaceability &&
+        observerSettings.menuElementSelector
       ) {
         menuNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
           observerSettings.menuElementSelector.replace(/[.#]/g, "")
@@ -442,7 +452,8 @@ export const processorObserveUpdates = (
       if (
         !metaNodeWasAdded &&
         mutation.attributeName === "class" &&
-        observerSettings.shouldObserveVideoMetaUpdate
+        observerSettings.shouldObserveVideoMetaUpdate &&
+        observerSettings.videoMetaElementSelector
       ) {
         metaNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
           observerSettings.videoMetaElementSelector.replace(/[.#]/g, "")
@@ -460,12 +471,14 @@ export const processorObserveUpdates = (
         if (
           !menuNodeWasAdded &&
           observerSettings.shouldObserveMenuPlaceability &&
+          observerSettings.menuElementSelector &&
           element.querySelector(observerSettings.menuElementSelector)
         ) {
           callback("menuElementRemoved", element);
         }
         if (
           observerSettings.shouldObserveVideoMetaUpdate &&
+          observerSettings.videoMetaElementSelector &&
           element.querySelector(observerSettings.videoMetaElementSelector)
         ) {
           callback("videoElementRemoved", element);
@@ -496,7 +509,7 @@ export const useMenuUIElementUpdate = (
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
     if (
-      !window.selectedProcessor.observer ||
+      !window.selectedProcessor?.observer ||
       (!window.selectedProcessor.observer.shouldObserveMenuPlaceability &&
         !window.selectedProcessor.observer.shouldObserveVideoMetaUpdate)
     ) {
@@ -513,7 +526,7 @@ export const useMenuUIElementUpdate = (
           // This must be done here so that we can prevent our portal container element from being removed
           // when the element that contains it gets removed
           if (updateEvent === "menuElementRemoved") {
-            const menuUIElement = removedElement.querySelector(
+            const menuUIElement = removedElement?.querySelector(
               `#${IN_PAGE_MENU_CONTAINER_ID}`
             );
             const menuUIHTMLElement = menuUIElement
@@ -648,6 +661,9 @@ export function useSSRMediaQuery(settings: { query?: string }) {
   const [matches, setMatches] = useState(false);
 
   useEffect(() => {
+    if (!query) {
+      return;
+    }
     const media = window.matchMedia(query);
     if (media.matches !== matches) {
       setMatches(media.matches);
