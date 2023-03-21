@@ -16,15 +16,11 @@ type Catch = {
   catch: (...params: any) => void;
 };
 
-export const createSignalActionInState = (stateKey: string, tabbed = false) => <
-  R = void,
-  S = void,
-  F = void
->(
-  actionType: string
-) => {
-  return createSignalAction<R, S, F>(actionType, stateKey, tabbed);
-};
+export const createSignalActionInState =
+  (stateKey: string, tabbed = false) =>
+  <R = void, S = void, F = void>(actionType: string) => {
+    return createSignalAction<R, S, F>(actionType, stateKey, tabbed);
+  };
 
 type ErrorType = Partial<TabbedType> & {
   error: string;
@@ -52,19 +48,15 @@ export const createSignalAction = <R = void, S = void, F = void>(
   const successActionCreator = createThunkedActionCreator<S>(successType);
   const failureActionCreator = createThunkedActionCreator<F>(failureType);
 
-  const loadStartCreator = tabbed
-    ? createAction<TabbedType>(loadStartType)
-    : createAction(loadStartType);
-  const loadEndCreator = tabbed
-    ? createAction<TabbedType>(loadEndType)
-    : createAction(loadEndType);
+  const loadStartCreator = createAction<TabbedType | undefined>(loadStartType);
+  const loadEndCreator = createAction<TabbedType | undefined>(loadEndType);
 
   const setErrorCreator = tabbed
-    ? createAction<ErrorType>(setErrorType)
+    ? createAction<ErrorType | undefined>(setErrorType)
     : createAction(setErrorType);
-  const clearErrorCreator = tabbed
-    ? createAction<TabbedType>(clearErrorType)
-    : createAction(clearErrorType);
+  const clearErrorCreator = createAction<TabbedType | undefined>(
+    clearErrorType
+  );
 
   const loadKey = `${actionType}Load`;
   const errorKey = `${actionType}Error`;
@@ -83,7 +75,7 @@ export const createSignalAction = <R = void, S = void, F = void>(
     failure: failureActionCreator,
     augmentReducer: <T>(
       builder: ActionReducerMapBuilder<T>,
-      isTabbedOverride: boolean = undefined
+      isTabbedOverride: boolean | undefined = undefined
     ) => {
       const isTabbed =
         isTabbedOverride !== undefined ? isTabbedOverride : tabbed;
@@ -142,11 +134,11 @@ export const createSignalAction = <R = void, S = void, F = void>(
         };
       });
       builder.addCase(setErrorCreator, (state: any, action) => {
-        if (!state) {
+        if (!state || !action.payload) {
           return state;
         }
         const { tabId, error } = action.payload;
-        if (isTabbed) {
+        if (isTabbed && tabId) {
           const defaultState = { [errorKey]: error };
           const currentTab = state.tabMeta
             ? state.tabMeta[tabId] || defaultState
@@ -199,30 +191,34 @@ export const createSignalAction = <R = void, S = void, F = void>(
       });
       return builder;
     },
-    isLoading: (tabId: number | undefined) => (state): boolean => {
-      if (tabbed) {
-        if (!state[stateKey].tabMeta || !state[stateKey].tabMeta[tabId]) {
-          return false;
+    isLoading:
+      (tabId: number | undefined) =>
+      (state): boolean => {
+        if (tabbed && tabId) {
+          if (!state[stateKey].tabMeta || !state[stateKey].tabMeta[tabId]) {
+            return false;
+          }
+          return state[stateKey].tabMeta[tabId][loadKey] === true;
         }
-        return state[stateKey].tabMeta[tabId][loadKey] === true;
-      }
-      return state[stateKey][loadKey] === true;
-    },
-    error: (tabId: number | undefined) => (state): string | undefined => {
-      if (tabbed) {
-        if (!state[stateKey].tabMeta || !state[stateKey].tabMeta[tabId]) {
-          return undefined;
+        return state[stateKey][loadKey] === true;
+      },
+    error:
+      (tabId: number | undefined) =>
+      (state): string | undefined => {
+        if (tabbed && tabId) {
+          if (!state[stateKey].tabMeta || !state[stateKey].tabMeta[tabId]) {
+            return undefined;
+          }
+          return state[stateKey].tabMeta[tabId][errorKey];
         }
-        return state[stateKey].tabMeta[tabId][errorKey];
-      }
-      return state[stateKey][errorKey];
-    },
+        return state[stateKey][errorKey];
+      },
     requestSaga: (worker: (action: ThunkedPayloadAction<R>) => any) =>
       function* (action: ThunkedPayloadAction<R>) {
         const { meta } = action;
-        let payload = undefined;
+        let payload: { tabId: number } | undefined = undefined;
         if (tabbed) {
-          const incomingPayload = (action.payload as unknown) as TabbedType;
+          const incomingPayload = action.payload as unknown as TabbedType;
           payload = { tabId: incomingPayload.tabId };
         }
         try {
@@ -245,7 +241,7 @@ export const createSignalAction = <R = void, S = void, F = void>(
         } catch (error) {
           const errorPayload: ErrorType = { error: error.message };
           if (tabbed) {
-            const incomingPayload = (action.payload as unknown) as TabbedType;
+            const incomingPayload = action.payload as unknown as TabbedType;
             errorPayload.tabId = incomingPayload.tabId;
           }
           yield put(setErrorCreator(errorPayload));
