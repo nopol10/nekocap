@@ -23,6 +23,7 @@ import {
 } from "@/common/feature/video/utils";
 import Text from "antd/lib/typography/Text";
 import { WSSpace } from "@/common/components/ws-space";
+import { BooleanFilter } from "@/common/utils";
 
 export const CAPTION_LIST_PAGE_SIZE = 20;
 
@@ -118,12 +119,12 @@ export const CaptionList = ({
     captionColumns.videoLanguage,
     captionColumns.captionLanguage,
     captionColumns.updatedDate,
-  ].filter(Boolean);
+  ].filter(BooleanFilter);
 
   if ((canEdit || canDelete) && !hideActions) {
     tableColumns.push({
       title: (): ReactNode => {
-        return i18n.t("home.captionList.columns.actions");
+        return i18n?.t("home.captionList.columns.actions");
       },
       key: "actions",
       render: function render(text, record, index) {
@@ -162,7 +163,7 @@ export const CaptionList = ({
   }
 
   const handleChangePage = (page: number, pageSize?: number) => {
-    onChangePage(page, pageSize);
+    onChangePage?.(page, pageSize);
     window.scrollTo({
       behavior: "smooth",
       top: 0,
@@ -171,7 +172,7 @@ export const CaptionList = ({
 
   const handleUpdatedCaption = (captionId: string) => {
     // Reload list
-    onChangePage(currentPage, CAPTION_LIST_PAGE_SIZE);
+    onChangePage?.(currentPage, CAPTION_LIST_PAGE_SIZE);
     onUpdateCaption?.(captionId);
   };
 
