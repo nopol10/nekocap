@@ -32,7 +32,6 @@ import { useRerenderOnResize, useSSRMediaQuery, useStateRef } from "@/hooks";
 import { isAss } from "@/common/caption-utils";
 import { styledNoPass } from "@/common/style-utils";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { Processor } from "@/extension/content/processors/processor";
 import { CHROME_DOWNLOAD_URL, FIREFOX_DOWNLOAD_URL } from "@/common/constants";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
@@ -194,16 +193,15 @@ export const ViewerPage = ({
   const router = useRouter();
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
-  const [captionContainerElement, captionContainerElementRef] = useStateRef<
-    HTMLDivElement
-  >(null);
-  const defaultRendererRef = useRef<CaptionRendererHandle>();
+  const [captionContainerElement, captionContainerElementRef] =
+    useStateRef<HTMLDivElement>(undefined);
+  const defaultRendererRef = useRef<CaptionRendererHandle>(null);
   const currentTimeGetter = useRef<() => number>();
   const isLoading =
     router.isFallback ||
     useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
   const fontList = useSelector(fontListSelector());
-  const youtubePlayerRef = useRef<YouTubePlayer>(null);
+  const youtubePlayerRef = useRef<YouTubePlayer>();
   const fullScreenHandle = useFullScreenHandle();
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [videoPlayerPreferences, dispatchVideoPreference] = useReducer<
@@ -306,7 +304,7 @@ export const ViewerPage = ({
     if (isServer()) {
       return null;
     }
-    if (!loadComplete || noData) {
+    if (!loadComplete || noData || !caption) {
       return;
     }
     if (caption.videoSource === VideoSource.Youtube) {
@@ -325,9 +323,10 @@ export const ViewerPage = ({
   let iframeWidth = 0;
   let iframeHeight = 0;
   if (isLandscape) {
-    const currentEmbedHeight = fullScreenHandle.active
-      ? captionContainerElement.offsetHeight
-      : embedHeight;
+    const currentEmbedHeight =
+      (fullScreenHandle.active
+        ? captionContainerElement?.offsetHeight
+        : embedHeight) || 0;
     iframeWidth = Math.ceil(
       videoDimensions
         ? (videoDimensions.width * currentEmbedHeight) / videoDimensions.height
@@ -357,7 +356,7 @@ export const ViewerPage = ({
     getCurrentTime,
   };
 
-  const processor: Processor = caption
+  const processor = caption
     ? videoSourceToProcessorMap[caption.videoSource]
     : undefined;
 
@@ -384,7 +383,7 @@ export const ViewerPage = ({
   return (
     <Wrapper
       style={{
-        height: isEmbed ? "100%" : null,
+        height: isEmbed ? "100%" : undefined,
       }}
       className={isEmbed ? NEKOCAP_EMBED_CLASSNAME : ""}
     >
@@ -424,7 +423,7 @@ export const ViewerPage = ({
                     <Link
                       href={routeNames.profile.main.replace(
                         ":id",
-                        caption.creator
+                        caption.creator || ""
                       )}
                     ></Link>
                   ),
