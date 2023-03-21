@@ -25,7 +25,11 @@ chrome.runtime.onMessage.addListener((request: ChromeMessage) => {
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
   storeInitPromise.then(async ({ store }) => {
-    await syncWindowVarsToPopup(tab[0].id);
+    const tabId = tab[0].id;
+    if (!tabId) {
+      throw new Error("No tab id found!");
+    }
+    await syncWindowVarsToPopup(tabId);
     ReactDOM.render(
       <Provider store={store}>
         <Router history={appHistory}>

@@ -62,7 +62,7 @@ const ProtectedRoute = ({ children, ...rest }: ProtectedRouteType) => {
         }
 
         if (
-          !captioner.captioner.name &&
+          !captioner.captioner?.name &&
           rest.path !== loginRoutes.popup.profile
         ) {
           return (

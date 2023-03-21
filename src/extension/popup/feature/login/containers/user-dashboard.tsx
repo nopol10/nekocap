@@ -5,11 +5,10 @@ import { userDataSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import styled from "styled-components";
 import { Button, Divider } from "antd";
-import { NekoLogo, NekoLogoPopup } from "@/common/components/neko-logo";
+import { NekoLogoPopup } from "@/common/components/neko-logo";
 import { PopupPage } from "@/extension/popup/common/components/popup-page";
 import { SupportedSites } from "@/common/components/supported-sites";
 import { ExtensionPreferences } from "./extension-preferences";
-import { VideoPageMenu } from "@/extension/content/containers/video-page-menu";
 import { PopupVideoMenu } from "./popup-video-menu";
 
 const HelloText = styled.div`
@@ -39,7 +38,7 @@ export const UserDashboard = () => {
     <PopupPage>
       <NekoLogoPopup />
       <HelloText>
-        Hello <b>{captionerData.captioner.name}</b>
+        Hello <b>{captionerData.captioner?.name}</b>
       </HelloText>
       <div>
         Visit one of the supported sites to start viewing and creating captions:
