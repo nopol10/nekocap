@@ -65,7 +65,7 @@ export const FontListPage = (): JSX.Element => {
       [groupName]: Object.keys(group).reduce((fontsAcc, fontKey) => {
         const fontPath = group[fontKey];
         const newPath = fontPath.startsWith("/")
-          ? `${process.env.NEXT_PUBLIC_FONTS_URL.replace(
+          ? `${(process.env.NEXT_PUBLIC_FONTS_URL || "")?.replace(
               /\/+$/,
               ""
             )}${fontPath}`
@@ -133,7 +133,7 @@ export const FontListPage = (): JSX.Element => {
       .filter((row) => row.type === "font")
       .reduce((acc, row) => {
         if (row.type !== "font") {
-          return null;
+          return acc;
         }
         acc[row.font.fontName] = row.font;
         return acc;
@@ -160,7 +160,7 @@ export const FontListPage = (): JSX.Element => {
 
   useEffect(() => {
     const fontDownloader = setInterval(() => {
-      const fontsToQueue = [];
+      const fontsToQueue: string[] = [];
       // Since we're not updating the queue from the state during the loop,
       // we have to copy the states out and modify them before updating the states all at once.
       const currentQueue = { ...fontQueue };
