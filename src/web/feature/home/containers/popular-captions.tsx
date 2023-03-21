@@ -9,7 +9,7 @@ import { useTranslation } from "next-i18next";
 export const PopularCaptions = () => {
   const dispatch = useDispatch();
   const { popularCaptions } = useSelector(publicDashboardSelector);
-  const isLoading = useSelector(loadPopularCaptions.isLoading(null));
+  const isLoading = useSelector(loadPopularCaptions.isLoading(undefined));
   useEffect(() => {
     if (popularCaptions.length > 0) {
       return;

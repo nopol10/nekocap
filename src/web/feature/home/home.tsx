@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
@@ -20,12 +20,10 @@ import {
   GITHUB_URL,
 } from "@/common/constants";
 import { routeNames } from "../route-types";
-import { WSButton } from "@/common/components/ws-button";
 import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
 import { Trans, useTranslation } from "next-i18next";
 import { KofiWidget } from "../common/containers/kofi-widget";
-import Link from "next/link";
 import { WSLinkButton } from "@/common/components/ws-link-button";
 
 const { Content } = Layout;
