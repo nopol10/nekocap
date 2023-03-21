@@ -22,7 +22,7 @@ declare global {
     videoSource: VideoSource;
     videoName: string;
     videoElement: HTMLVideoElement;
-    selectedProcessor: Processor;
+    selectedProcessor?: Processor;
     captionContainerElement: HTMLElement;
     backendProvider: BackendProvider<any>;
     backupHotkeyParentElement: Node | null;
