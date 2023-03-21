@@ -33,7 +33,7 @@ export const BrowseCaptionPage = () => {
   const captionerState = useSelector(captionerSelector);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isSearching = useSelector(search.isLoading(null));
+  const isSearching = useSelector(search.isLoading(undefined));
   const resultContainer = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { t } = useTranslation("common");
@@ -45,7 +45,7 @@ export const BrowseCaptionPage = () => {
 
   const handleChangeResultPage = async (page: number) => {
     setIsLoading(true);
-    await router.push(`${page}`, null, { shallow: false });
+    await router.push(`${page}`, undefined, { shallow: false });
     setIsLoading(false);
   };
 
