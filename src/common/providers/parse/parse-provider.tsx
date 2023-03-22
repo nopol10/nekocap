@@ -23,6 +23,7 @@ import {
   ResponseStatus,
   ServerResponse,
   UploadResponse,
+  UploadResult,
 } from "../../types";
 import {
   LoadPrivateCaptionerDataRequestParams,
@@ -617,12 +618,12 @@ export class ParseProvider implements BackendProvider<ParseState> {
     video,
     hasAudioDescription,
     privacy,
-  }: SubmitCaptionRequest): Promise<UploadResponse> {
+  }: SubmitCaptionRequest): Promise<UploadResult> {
     if (!this.Parse) {
       throw new Error("Parse not found");
     }
-    const submitResult: ServerResponse = await this.Parse.Cloud.run<
-      (p: SubmitCaptionRequest) => ServerResponse
+    const submitResult: UploadResponse = await this.Parse.Cloud.run<
+      (p: SubmitCaptionRequest) => UploadResponse
     >("submitCaption", {
       caption,
       rawCaption,
@@ -636,7 +637,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
         error: submitResult.error || "",
       };
     }
-    return { status: "success" };
+    return { status: "success", captionId: submitResult.captionId };
   }
 
   async updateCaption({

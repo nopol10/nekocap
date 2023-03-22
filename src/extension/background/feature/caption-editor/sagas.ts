@@ -88,6 +88,7 @@ import {
   ChromeMessageType,
   TabbedType,
   UploadResponse,
+  UploadResult,
 } from "@/common/types";
 import { loadCaptions, setRenderer } from "@/common/feature/video/actions";
 import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
@@ -495,7 +496,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
   if (processedRawCaption.data) {
     processedRawCaption.data = lzCompress(rawCaption.data);
   }
-  const response: UploadResponse = yield call(
+  const response: UploadResult = yield call(
     [Locator.provider(), "submitCaption"],
     {
       caption: updatedCaption,
@@ -516,6 +517,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
       videoSource: updatedCaption.videoSource,
     })
   );
+  return { payload: response };
 }
 
 function* updateUploadedCaptionSaga({

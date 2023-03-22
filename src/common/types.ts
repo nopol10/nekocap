@@ -49,7 +49,17 @@ export type ServerResponse = {
   error?: string;
 };
 
-export type UploadResponse = ServerResponse;
+// Provider to backend layer
+export type UploadResponse = ServerResponse & {
+  captionId?: string;
+};
+
+// View layer
+export type UploadResult = {
+  status: ResponseStatus;
+  error?: string;
+  captionId?: string;
+};
 
 export type OffsetRequest = {
   limit?: number;
