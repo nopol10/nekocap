@@ -81,7 +81,9 @@ export const CaptionControl = ({
           dots
           value={preferences.fontSizeMultiplier}
           onChange={handleChangeFontMultiplier}
-          tipFormatter={sizeTipFormatter}
+          tooltip={{
+            formatter: sizeTipFormatter,
+          }}
         />
         <div style={{ position: "relative", marginLeft: "auto" }}>
           {rightContainer}
