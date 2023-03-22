@@ -25,6 +25,7 @@ import { routeNames } from "../../route-types";
 import { Processor } from "@/extension/content/processors/processor";
 import Link from "next/link";
 import { WSSpace } from "@/common/components/ws-space";
+import { CaptionTags } from "@/common/feature/video/components/caption-tags";
 const { Link: AntdLink } = Typography;
 dayjs.extend(relativeTime);
 
@@ -72,10 +73,9 @@ export const captionColumns = {
             <div dir="auto">{record.translatedTitle}</div>
           )}
           <span dir="auto">{record.videoName}</span>
-          {hasTag(record.tags, captionTags.audioDescribed) && (
-            <AudioDescribedTag />
-          )}
-          {hasTag(record.tags, captionTags.ytExCC) && <YTExternalCCTag />}
+          <CaptionTags
+            caption={{ advanced: record.advanced, tags: record.tags }}
+          ></CaptionTags>
           <div>
             <WSSpace $size="6px">
               {processor.canWatchInNekoCapSite && (

@@ -72,6 +72,8 @@ import { shouldAutosaveSelector } from "@/extension/background/feature/user-exte
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
 import { ConfirmSaveModal } from "./confirm-save-modal";
 import { useIsInPopup } from "@/hooks";
+import { CaptionTags } from "@/common/feature/video/components/caption-tags";
+import { WSSpace } from "@/common/components/ws-space";
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -119,20 +121,18 @@ const captionOptionCreator = ({
   captionerName,
   likes,
   dislikes,
-  verified,
   tags,
+  advanced,
 }: LoadCaptionsResult) => {
   const language = languages[languageCode];
-  const label = `${language} by ${captionerName || "Unknown"}`;
-  const audioDescribed = tags.includes(captionTags.audioDescribed);
-  const fromYTExCC = tags.includes(captionTags.ytExCC);
+  const optionLabel = `${language} by ${captionerName || "Unknown"}`;
+  const selectedLabel = `${language}`;
   return (
-    <Select.Option value={id} label={label} key={`cap-${id}`}>
+    <Select.Option value={id} label={selectedLabel} key={`cap-${id}`}>
       <Space>
-        <span>{label}</span>
-        <Space>
-          {audioDescribed && <AudioDescribedTag />}
-          {fromYTExCC && <YTExternalCCTag />}
+        <span>{optionLabel}</span>
+        <WSSpace $direction="horizontal" style={{ alignItems: "center" }}>
+          <CaptionTags caption={{ advanced: advanced, tags }}></CaptionTags>
           <div>
             <LikeTwoTone
               twoToneColor={colors.like}
@@ -147,7 +147,7 @@ const captionOptionCreator = ({
             />
             {dislikes}
           </div>
-        </Space>
+        </WSSpace>
       </Space>
     </Select.Option>
   );

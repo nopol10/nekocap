@@ -125,6 +125,7 @@ export type LoadCaptionsResult = {
   likes: number;
   dislikes: number;
   tags: string[];
+  advanced: boolean;
 };
 
 export type LoadSingleCaption = {
@@ -274,6 +275,7 @@ export type CaptionListFields = CaptionFields & {
   rejected?: boolean;
   thumbnailUrl?: string;
   privacy?: number;
+  advanced: boolean;
 };
 
 export type LoadCaptionListResult = {
