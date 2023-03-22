@@ -2,6 +2,9 @@ const { i18n } = require("./next-i18next.config");
 const withAntdLess = require("next-plugin-antd-less");
 const { withSentryConfig } = require("@sentry/nextjs");
 
+/**
+ * @type {import('next').NextConfig}
+ */
 const moduleExports = {
   i18n,
   output: "standalone",
@@ -9,6 +12,14 @@ const moduleExports = {
     modules: true,
   },
   modifyVars: { "@primary-color": "#ffa62b" },
+  async headers() {
+    return [
+      {
+        source: "/fontlist.json",
+        headers: [{ key: "access-control-allow-origin", value: "*" }],
+      },
+    ];
+  },
 };
 
 const sentryWebpackPluginOptions = {};
