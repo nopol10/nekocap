@@ -588,18 +588,27 @@ export const VideoPageMenu = ({
   };
 
   const renderCaptionerProfileLink = () => {
-    if (!caption || !caption.creator) {
+    if (!caption || !caption.creator || !caption.creatorName) {
       return null;
     }
     return (
-      <a
-        target="_blank"
-        rel="noreferrer"
-        href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}capper/${caption.creator}`}
-        style={{ fontWeight: "bold", color: colors.base }}
-      >
-        View captioner profile
-      </a>
+      <>
+        by
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}capper/${caption.creator}`}
+          style={{
+            fontWeight: "bold",
+            color: colors.base,
+            maxWidth: "180px",
+            overflowX: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {caption.creatorName}
+        </a>
+      </>
     );
   };
 
@@ -622,7 +631,7 @@ export const VideoPageMenu = ({
         onChange={handleLoadServerCaption}
         dropdownMatchSelectWidth={false}
         style={{
-          minWidth: "200px",
+          minWidth: "128px",
         }}
         dropdownAlign={{
           points: ["bl", "tl"],
@@ -659,6 +668,7 @@ export const VideoPageMenu = ({
             </Spin>
           </>
         )}
+        {renderCaptionerProfileLink()}
         {availableRenderers.length > 0 && (
           <Dropdown overlay={renderRendererMenu()} placement={"topCenter"}>
             <WSButton>Renderer</WSButton>
@@ -677,7 +687,6 @@ export const VideoPageMenu = ({
         {renderShowHideButton()}
         {renderRawLoadingState()}
         {!inEditorScreen && renderLikeButtons()}
-        {renderCaptionerProfileLink()}
       </MenuRow>
       <ConfirmSaveModal
         visible={isConfirmSaveOpen}
