@@ -42,13 +42,13 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
 
   const metaTitle = (() => {
     return hasCaption()
-      ? `${tabData.caption.translatedTitle} - NekoCap`
+      ? `${tabData?.caption?.translatedTitle} - NekoCap`
       : "NekoCap - Caption not found";
   })();
 
   const metaDescription = (() => {
     return hasCaption()
-      ? `Translated from ${truncate(tabData.caption.originalTitle, {
+      ? `Translated from ${truncate(tabData?.caption?.originalTitle, {
           length: 40,
         })}. NekoCap lets you create and share community captions for online videos. SSA/ASS captions are supported too!`
       : STRING_CONSTANTS.metaDescription;
@@ -56,7 +56,7 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
 
   const metaImage = (() => {
     return hasCaption()
-      ? `https://i.ytimg.com/vi/${tabData.caption.videoId}/hqdefault.jpg`
+      ? `https://i.ytimg.com/vi/${tabData?.caption?.videoId}/hqdefault.jpg`
       : "";
   })();
 
@@ -122,41 +122,42 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
-    (store) => async ({
-      locale,
-      params,
-    }: GetStaticPropsContext<PageParams>) => {
-      let rawCaption: RawCaptionData | null = null;
-      try {
-        const { id: captionId } = params;
-        const response = await loadWebsiteViewerCaptionApi(captionId);
-        const fontList = await loadFontListApi();
-        const { caption, renderer } = response;
-        rawCaption = response.rawCaption;
-        const tabId = TAB_ID;
+    (store) =>
+      async ({
+        locale = "en-US",
+        params = { id: "" },
+      }: GetStaticPropsContext<PageParams>) => {
+        let rawCaption: RawCaptionData | null = null;
+        try {
+          const { id: captionId } = params;
+          const response = await loadWebsiteViewerCaptionApi(captionId);
+          const fontList = await loadFontListApi();
+          const { caption, renderer } = response;
+          rawCaption = response.rawCaption;
+          const tabId = TAB_ID;
 
-        const processor = videoSourceToProcessorMap[caption.videoSource];
-        const dimensions: Dimension = await processor.retrieveVideoDimensions(
-          caption.videoId
-        );
-        batch(() => {
-          store.dispatch(setFontList({ list: fontList }));
-          store.dispatch(setLoadedCaption({ tabId, caption }));
-          store.dispatch(setRenderer({ tabId, renderer }));
-          store.dispatch(setVideoDimensions({ tabId, dimensions }));
-          store.dispatch(loadServerCaption.success());
-        });
-      } catch (e) {
-        console.error("Error during viewer page generation", e);
+          const processor = videoSourceToProcessorMap[caption.videoSource];
+          const dimensions: Dimension = await processor.retrieveVideoDimensions(
+            caption.videoId
+          );
+          batch(() => {
+            store.dispatch(setFontList({ list: fontList }));
+            store.dispatch(setLoadedCaption({ tabId, caption }));
+            store.dispatch(setRenderer({ tabId, renderer }));
+            store.dispatch(setVideoDimensions({ tabId, dimensions }));
+            store.dispatch(loadServerCaption.success());
+          });
+        } catch (e) {
+          console.error("Error during viewer page generation", e);
+        }
+
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+            rawCaption,
+          },
+          revalidate: 60,
+        };
       }
-
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-          rawCaption,
-        },
-        revalidate: 60,
-      };
-    }
   )
 );

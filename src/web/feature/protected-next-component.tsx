@@ -39,7 +39,7 @@ const ProtectedNextComponent = ({
       return;
     }
     if (
-      !captioner.captioner.name &&
+      !captioner.captioner?.name &&
       router.pathname !== routeNames.profile.new
     ) {
       Router.push(routeNames.profile.new);

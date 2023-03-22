@@ -52,50 +52,52 @@ type PageParams = {
   title: string;
 };
 
-export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
-  wrapper.getServerSideProps(
-    (store) => async ({
-      locale,
-      params,
-      query,
-    }: GetServerSidePropsContext<PageParams>) => {
-      const { title } = params;
-      const videoLanguageCode = (query.vl as string) || null;
-      const captionLanguageCode = (query.cl as string) || null;
-      try {
-        const PAGE_NUMBER = 1;
-        const { videos, hasMoreResults } = await searchCaptionsApi(
-          title,
-          20,
-          PAGE_NUMBER,
-          videoLanguageCode,
-          captionLanguageCode
-        );
+export const getServerSideProps: GetServerSideProps =
+  NextWrapper.getServerSideProps(
+    wrapper.getServerSideProps(
+      (store) =>
+        async ({
+          locale = "en-US",
+          params = { title: "" },
+          query,
+        }: GetServerSidePropsContext<PageParams>) => {
+          const { title } = params;
+          const videoLanguageCode = (query.vl as string) || undefined;
+          const captionLanguageCode = (query.cl as string) || undefined;
+          try {
+            const PAGE_NUMBER = 1;
+            const { videos, hasMoreResults } = await searchCaptionsApi(
+              title,
+              20,
+              PAGE_NUMBER,
+              videoLanguageCode,
+              captionLanguageCode
+            );
 
-        const videosWithDetails: VideoFields[] = await populateVideoDetails(
-          videos
-        );
+            const videosWithDetails: VideoFields[] = await populateVideoDetails(
+              videos
+            );
 
-        store.dispatch(
-          setSearchResults({
-            searchString: title,
-            videoLanguageCode,
-            captionLanguageCode,
-            hasMoreResults,
-            currentResultPage: PAGE_NUMBER,
-            videos: videosWithDetails,
-            append: false,
-          })
-        );
-      } catch (e) {
-        console.error("Error during search page generation", e);
-      }
+            store.dispatch(
+              setSearchResults({
+                searchString: title,
+                videoLanguageCode,
+                captionLanguageCode,
+                hasMoreResults,
+                currentResultPage: PAGE_NUMBER,
+                videos: videosWithDetails,
+                append: false,
+              })
+            );
+          } catch (e) {
+            console.error("Error during search page generation", e);
+          }
 
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-      };
-    }
-  )
-);
+          return {
+            props: {
+              ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+            },
+          };
+        }
+    )
+  );

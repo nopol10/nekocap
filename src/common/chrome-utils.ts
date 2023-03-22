@@ -12,8 +12,12 @@ export const requestBackgroundPageVariable = async (
   if (!chrome) {
     return undefined;
   }
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     chrome.runtime.getBackgroundPage((page) => {
+      if (!page) {
+        reject("page object unavailable");
+        return;
+      }
       variableNames.forEach((variableName) => {
         window[variableName] = page[variableName];
       });
@@ -107,7 +111,7 @@ export const chromeProm = {
         if (!chrome) {
           return undefined;
         }
-        const result = await new Promise((resolve) => {
+        const result = await new Promise<Record<string, any>>((resolve) => {
           chrome.storage.local.get(items, (result) => {
             resolve(result);
           });

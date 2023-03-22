@@ -30,7 +30,7 @@ export const AutoCaptionsModal = ({
   const isLoading = useSelector(fetchAutoCaptionList.isLoading(tabId));
 
   const [selectedCaptionId, setSelectedCaptionId] = useState<string>(
-    editorData.autoCaptions && editorData.autoCaptions.length > 0
+    editorData?.autoCaptions && editorData.autoCaptions.length > 0
       ? editorData.autoCaptions[0].id
       : ""
   );
@@ -47,7 +47,7 @@ export const AutoCaptionsModal = ({
     onCancel();
   };
 
-  const captions = editorData.autoCaptions || [];
+  const captions = editorData?.autoCaptions || [];
 
   const handleChangeCaption = (e: RadioChangeEvent) => {
     setSelectedCaptionId(e.target.value);
@@ -62,7 +62,7 @@ export const AutoCaptionsModal = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Load caption"}
       onOk={handleFetchAutoCaption}

@@ -28,7 +28,9 @@ function NekoCapApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <ConfigProvider
-        locale={ANTD_LOCALES[router.locale] || ANTD_LOCALES["en-US"]}
+        locale={
+          ANTD_LOCALES[router?.locale || "en-US"] || ANTD_LOCALES["en-US"]
+        }
       >
         <Component {...pageProps} />
       </ConfigProvider>
@@ -37,5 +39,6 @@ function NekoCapApp({ Component, pageProps }: AppProps) {
 }
 
 export default wrapper.withRedux(
+  // @ts-ignore
   appWithTranslation(NekoCapApp, nextI18NextConfig)
 );

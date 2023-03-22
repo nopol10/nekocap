@@ -75,11 +75,15 @@ type SearchForm = {
   captionLanguageCode: string;
 };
 
-const SearchForm = ({ stickyTarget }: { stickyTarget?: () => HTMLElement }) => {
+const SearchForm = ({
+  stickyTarget,
+}: {
+  stickyTarget?: () => HTMLElement | null;
+}) => {
   const { control, handleSubmit, errors } = useForm<SearchForm>();
   const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const isSearching = useSelector(search.isLoading(null));
+  const isSearching = useSelector(search.isLoading(undefined));
   const router = useRouter();
   const { t } = useTranslation("common");
 
@@ -244,15 +248,12 @@ export const SearchCaptions = ({
     captionLanguageCode,
     videoLanguageCode,
   } = useSelector(searchSelector);
-  const isSearching = useSelector(search.isLoading(null));
+  const isSearching = useSelector(search.isLoading(undefined));
   const videoCaptions = useSelector(searchVideoCaptionResultsSelector);
-  const [
-    isCaptionModalOpened,
-    openCaptionModal,
-    closeCaptionModal,
-  ] = useOpenClose();
+  const [isCaptionModalOpened, openCaptionModal, closeCaptionModal] =
+    useOpenClose();
   const isLoadingCaptions = useSelector(
-    loadSearchResultVideoCaptions.isLoading(null)
+    loadSearchResultVideoCaptions.isLoading(undefined)
   );
   const [selectedVideo, setSelectedVideo] = useState<{
     videoId: string;
@@ -266,10 +267,10 @@ export const SearchCaptions = ({
     dispatch(
       search.request({
         title,
-        videoLanguageCode,
-        captionLanguageCode,
+        videoLanguageCode: videoLanguageCode || undefined,
+        captionLanguageCode: captionLanguageCode || undefined,
         pageNumber: page,
-        pageSize: pageSize,
+        pageSize: pageSize || PAGE_SIZE,
         append: true,
       })
     );
@@ -290,14 +291,8 @@ export const SearchCaptions = ({
         </List.Item>
       );
     }
-    const {
-      name,
-      captionCount,
-      captions,
-      sourceId,
-      source,
-      thumbnailUrl,
-    } = video;
+    const { name, captionCount, captions, sourceId, source, thumbnailUrl } =
+      video;
     const languageList = Object.keys(captions || []).filter(
       (language) => captions[language] > 0
     );

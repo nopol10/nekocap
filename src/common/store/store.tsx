@@ -29,7 +29,7 @@ export const initStore = async (
   usePersist = true
 ): Promise<{
   store: ExtendedStore;
-  persistor: import("redux-persist").Persistor;
+  persistor?: import("redux-persist").Persistor;
 }> => {
   // Setup saga in a way that works with reduxed-chrome-storage https://github.com/hindmost/reduxed-chrome-storage/issues/6#issuecomment-914874307
   const { channel, sagaMiddleware } = setupSaga();
@@ -39,7 +39,7 @@ export const initStore = async (
     sagaThunkMiddleware,
     sagaMiddleware,
     nekocapApi.middleware,
-    ...middleware,
+    ...(middleware || []),
   ].filter(Boolean);
   const enhancers = [reduxBatch];
   const store = await asyncStoreCreator(

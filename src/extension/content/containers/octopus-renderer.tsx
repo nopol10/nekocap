@@ -20,7 +20,7 @@ import { CaptionRendererHandle } from "./caption-renderer";
 interface OctopusRendererProps {
   rawCaption?: string;
   videoElement?: HTMLVideoElement;
-  captionContainerElement: HTMLElement;
+  captionContainerElement?: HTMLElement;
   showCaption: boolean;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
@@ -49,7 +49,7 @@ const WebViewerStyle = createGlobalStyle`
 const createCanvas = (
   dimension: Dimension,
   captionContainerElement: HTMLElement
-): [HTMLCanvasElement, HTMLDivElement] => {
+): [HTMLCanvasElement | undefined, HTMLDivElement | undefined] => {
   if (!captionContainerElement) {
     return [undefined, undefined];
   }
@@ -118,7 +118,7 @@ const OctopusRendererInternal = React.forwardRef(
     useEffect(() => {
       if (
         !isInExtension() ||
-        !window.selectedProcessor.observer ||
+        !window.selectedProcessor?.observer ||
         !window.selectedProcessor.observer.shouldObserveMenuPlaceability
       ) {
         return;
@@ -148,14 +148,17 @@ const OctopusRendererInternal = React.forwardRef(
       if (octopusInstance.current) {
         octopusInstance.current.setIsPaused(
           false,
-          iframeProps.getCurrentTime()
+          iframeProps?.getCurrentTime()
         );
       }
     };
 
     const handleVideoPause = () => {
       if (octopusInstance.current) {
-        octopusInstance.current.setIsPaused(true, iframeProps.getCurrentTime());
+        octopusInstance.current.setIsPaused(
+          true,
+          iframeProps?.getCurrentTime()
+        );
       }
     };
 
@@ -212,8 +215,8 @@ const OctopusRendererInternal = React.forwardRef(
         }
       };
 
-      let canvas: HTMLCanvasElement;
-      if (isIframe) {
+      let canvas: HTMLCanvasElement | undefined;
+      if (isIframe && iframeProps && captionContainerElement) {
         const width: number = window.screen.width * window.devicePixelRatio;
         const height: number = width * (iframeProps.height / iframeProps.width);
         const canvasElements = createCanvas(
@@ -250,13 +253,19 @@ const OctopusRendererInternal = React.forwardRef(
       octopusInstance.current.setCurrentTime(
         isIframe && iframeProps && iframeProps.getCurrentTime
           ? iframeProps.getCurrentTime()
-          : videoElement.currentTime
+          : videoElement?.currentTime
       );
       // Update the caption container's width and height to match the video to prevent subs from going into the black bars
       if (localCaptionContainer.current) {
         containerDimensions.current = {
-          width: isIframe ? iframeProps.width : videoElement.offsetWidth,
-          height: isIframe ? iframeProps.height : videoElement.offsetHeight,
+          width:
+            isIframe && iframeProps
+              ? iframeProps.width
+              : videoElement?.offsetWidth || 0,
+          height:
+            isIframe && iframeProps
+              ? iframeProps.height
+              : videoElement?.offsetHeight || 0,
         };
         localCaptionContainer.current.style.width = `${containerDimensions.current.width}px`;
         localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
@@ -276,7 +285,7 @@ const OctopusRendererInternal = React.forwardRef(
       if (!isIframe || !octopusInstance || !octopusInstance.current) {
         return;
       }
-      const currentTime = iframeProps.getCurrentTime();
+      const currentTime = iframeProps?.getCurrentTime();
       octopusInstance.current.setCurrentTime(currentTime);
     }, [isIframe, iframeProps, octopusInstance]);
 

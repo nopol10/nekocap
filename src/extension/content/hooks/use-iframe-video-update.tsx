@@ -10,7 +10,7 @@ import { VideoAction } from "../types";
 export const useIframeVideoUpdate = ({
   rendererRef,
 }: {
-  rendererRef: MutableRefObject<CaptionRendererHandle>;
+  rendererRef: MutableRefObject<CaptionRendererHandle | null>;
 }): { getIframeVideoTime: () => number } => {
   const iframeVideoData = useRef<{ time: number; duration: number }>({
     time: 0,
@@ -35,7 +35,7 @@ export const useIframeVideoUpdate = ({
   }, []);
   useEffect(() => {
     if (
-      window.selectedProcessor.getPageType(location.href) !== PageType.Video
+      window.selectedProcessor?.getPageType(location.href) !== PageType.Video
     ) {
       return;
     }

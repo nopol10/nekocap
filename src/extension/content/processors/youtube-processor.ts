@@ -12,8 +12,8 @@ const disableYoutubeHotkeys = () => {
     window.backupHotkeyParentElement = hotkeyManager.parentNode;
     window.backupHotkeyElement = hotkeyManager;
     const clone = hotkeyManager.cloneNode(false);
-    hotkeyManager.parentNode.replaceChild(clone, hotkeyManager);
-    clone.parentNode.removeChild(clone);
+    hotkeyManager.parentNode?.replaceChild(clone, hotkeyManager);
+    clone.parentNode?.removeChild(clone);
   }
 
   const player = document.getElementById("player");
@@ -101,14 +101,18 @@ export const YoutubeProcessor: Processor = {
     /**
      * The isTranslatable block at the end is used to recognize the end of the captionTracks property
      */
-    const captionArrayRegex = /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
+    const captionArrayRegex =
+      /{"captionTracks":(.*"isTranslatable":(true|false)}])/;
     /**
      * The capture group will contain a string of the form
      * [{"baseUrl": "...", "languageCode": "...", "name": "..."}, ...]
      */
-    const captionArray: YoutubeCaptionDetails[] = JSON.parse(
-      captionArrayRegex.exec(videoInfoText)[1]
-    );
+    const videoInfoGroupText = captionArrayRegex.exec(videoInfoText)?.[1];
+    if (!videoInfoGroupText) {
+      throw new Error(`No valid captions data found for ${videoId}`);
+    }
+    const captionArray: YoutubeCaptionDetails[] =
+      JSON.parse(videoInfoGroupText);
     return captionArray.map((youtubeCaption) => {
       return {
         id: youtubeCaption.baseUrl,
@@ -129,12 +133,12 @@ export const YoutubeProcessor: Processor = {
     const cues = Array.from(captionXml.getElementsByTagName("text"))
       .map((cue) => {
         const start =
-          parseFloat(cue.getAttribute("start")) * TIME.SECONDS_TO_MS;
+          parseFloat(cue.getAttribute("start") || "0") * TIME.SECONDS_TO_MS;
         // Sometimes the dur attribute will not be present. Use a default value in that case
         const end =
           start +
-          (parseFloat(cue.getAttribute("dur")) || 1000) * TIME.SECONDS_TO_MS;
-        const text = unescape(cue.textContent);
+          parseFloat(cue.getAttribute("dur") || "1000") * TIME.SECONDS_TO_MS;
+        const text = unescape(cue.textContent || "");
         return {
           start,
           end,
@@ -157,6 +161,9 @@ export const YoutubeProcessor: Processor = {
     const matches = window.location.href.match(
       /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
     );
+    if (!matches) {
+      return "";
+    }
     const videoId = matches[6];
     return videoId;
   },

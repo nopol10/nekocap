@@ -26,7 +26,7 @@ export const VideoCaptionModal = ({
   const { t } = useTranslation("common");
 
   if (isServer()) {
-    return null;
+    return <></>;
   }
   const videoColumns = videoCaptionColumns(videoId, videoSource);
   const tableColumns: ColumnsType<LoadCaptionsResult> = [
@@ -36,7 +36,7 @@ export const VideoCaptionModal = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       title={t("home.search.availableCaptions")}
       footer={null}

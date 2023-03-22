@@ -116,9 +116,8 @@ const initialize = async () => {
         if (message.payload.isEditor) {
           window.editorRawCaption = message.payload.rawCaption;
           chrome.storage.local.set({
-            [getEditorRawCaptionStorageKey(
-              window.tabId
-            )]: window.editorRawCaption,
+            [getEditorRawCaptionStorageKey(window.tabId)]:
+              window.editorRawCaption,
           });
         } else {
           window.rawCaption = message.payload.rawCaption;
@@ -162,7 +161,7 @@ const initialize = async () => {
             newVideoId: window.videoId,
             newVideoSource: window.videoSource,
             newPageType: window.pageType,
-            newCaptionId: autoLoadCaptionId,
+            newCaptionId: autoLoadCaptionId || undefined,
             currentUrl: location.href,
           })
         );

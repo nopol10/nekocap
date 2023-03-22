@@ -52,7 +52,7 @@ export const SubmitCaptionModal = ({
       translatedTitle,
       privacy,
     } = data;
-    if (window.selectedProcessor.updateTitleOnSubmission) {
+    if (window.selectedProcessor?.updateTitleOnSubmission) {
       window.videoName = await getVideoTitle(window.selectedProcessor);
     }
     const video: VideoMeta = {
@@ -87,7 +87,7 @@ export const SubmitCaptionModal = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Submit"}
       onOk={handleSubmit(onSubmit)}

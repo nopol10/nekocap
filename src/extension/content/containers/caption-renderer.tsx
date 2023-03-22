@@ -34,8 +34,8 @@ import { refreshVideoMeta } from "../utils";
 import { isInExtension } from "@/common/client-utils";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
-  videoElement: HTMLVideoElement;
-  captionContainerElement: HTMLElement;
+  videoElement?: HTMLVideoElement;
+  captionContainerElement?: HTMLElement;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
   showCaption: boolean;
@@ -209,8 +209,8 @@ const CaptionRendererInternal = React.forwardRef(
         return;
       }
       containerDimensions.current = {
-        width: videoElement.offsetWidth,
-        height: videoElement.offsetHeight,
+        width: videoElement?.offsetWidth || 0,
+        height: videoElement?.offsetHeight || 0,
       };
       localCaptionContainer.current.style.width = `${width}px`;
       localCaptionContainer.current.style.height = `${height}px`;
@@ -221,7 +221,7 @@ const CaptionRendererInternal = React.forwardRef(
     useEffect(() => {
       if (
         !isInExtension() ||
-        !window.selectedProcessor.observer ||
+        !window.selectedProcessor?.observer ||
         !window.selectedProcessor.observer.shouldObserveMenuPlaceability
       ) {
         return;
@@ -264,8 +264,8 @@ const CaptionRendererInternal = React.forwardRef(
         return;
       }
 
-      const newCaptionElements = [];
-      const newCaptionTextElements = [];
+      const newCaptionElements: HTMLElement[] = [];
+      const newCaptionTextElements: HTMLElement[] = [];
       localCaptionContainer.current = document.createElement("div");
       localCaptionContainer.current.classList.add("nekocap-cap-container");
       localCaptionContainer.current.style.cssText = localCaptionContainerStyle;
@@ -273,7 +273,7 @@ const CaptionRendererInternal = React.forwardRef(
       try {
         captionContainerElement.insertBefore(
           localCaptionContainer.current,
-          videoElement.nextSibling
+          videoElement?.nextSibling || null
         );
       } catch (e) {
         console.warn(
@@ -282,9 +282,10 @@ const CaptionRendererInternal = React.forwardRef(
         captionContainerElement.appendChild(localCaptionContainer.current);
       }
 
-      const videoElementHeight = isIframe
-        ? iframeProps.height
-        : videoElement.offsetHeight;
+      const videoElementHeight =
+        isIframe && iframeProps
+          ? iframeProps.height
+          : videoElement?.offsetHeight || 0;
       for (let trackId = 0; trackId < MAX_TRACKS; trackId++) {
         for (let i = 0; i < MAX_CONCURRENT_CAPTIONS; i++) {
           const captionContainer = document.createElement("div");
@@ -314,11 +315,11 @@ const CaptionRendererInternal = React.forwardRef(
         if (!captionContainerElement) {
           return;
         }
-        captionWrapperElements.current.forEach((element) => {
+        captionWrapperElements.current?.forEach((element) => {
           element.remove();
         });
         captionWrapperElements.current = [];
-        localCaptionContainer.current.remove();
+        localCaptionContainer.current?.remove();
         localCaptionContainer.current = undefined;
       };
     }, [captionContainerElement, videoElement, recreateLocalCaptionContainer]);
@@ -337,8 +338,14 @@ const CaptionRendererInternal = React.forwardRef(
       // Update the caption container's width and height to match the video to prevent subs from going into the black bars
       if (localCaptionContainer.current) {
         containerDimensions.current = {
-          width: isIframe ? iframeProps.width : videoElement.offsetWidth,
-          height: isIframe ? iframeProps.height : videoElement.offsetHeight,
+          width:
+            isIframe && iframeProps
+              ? iframeProps.width
+              : videoElement?.offsetWidth || 0,
+          height:
+            isIframe && iframeProps
+              ? iframeProps.height
+              : videoElement?.offsetHeight || 0,
         };
         localCaptionContainer.current.style.width = `${containerDimensions.current.width}px`;
         localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
@@ -453,10 +460,12 @@ const CaptionRendererInternal = React.forwardRef(
               containerId++
             ) {
               const currentTextElement =
-                captionTextElements.current[
+                captionTextElements.current?.[
                   trackIndex * MAX_CONCURRENT_CAPTIONS + containerId
                 ];
-              currentTextElement.innerText = "";
+              if (currentTextElement) {
+                currentTextElement.innerText = "";
+              }
             }
             continue;
           }
@@ -491,17 +500,19 @@ const CaptionRendererInternal = React.forwardRef(
             }
 
             const wrapper =
-              captionWrapperElements.current[
+              captionWrapperElements.current?.[
                 trackIndex * MAX_CONCURRENT_CAPTIONS + totalCaptionsSet
               ];
             const currentTextElement =
-              captionTextElements.current[
+              captionTextElements.current?.[
                 trackIndex * MAX_CONCURRENT_CAPTIONS + totalCaptionsSet
               ];
             if (
               currentTimeMs >= currentCaption.start &&
               currentTimeMs <= currentCaption.end &&
-              totalCaptionsSet < MAX_CONCURRENT_CAPTIONS
+              totalCaptionsSet < MAX_CONCURRENT_CAPTIONS &&
+              currentTextElement &&
+              wrapper
             ) {
               updateRenderedCaption(
                 currentTextElement,
@@ -509,7 +520,7 @@ const CaptionRendererInternal = React.forwardRef(
                 currentCaption,
                 i,
                 caption.data,
-                track.settings
+                track.settings || {}
               );
               totalCaptionsSet++;
             } else if (currentTimeMs > currentCaption.end) {
@@ -523,10 +534,12 @@ const CaptionRendererInternal = React.forwardRef(
             unsetCaptionId++
           ) {
             const textElement =
-              captionTextElements.current[
+              captionTextElements.current?.[
                 trackIndex * MAX_CONCURRENT_CAPTIONS + unsetCaptionId
               ];
-            textElement.innerText = "";
+            if (textElement) {
+              textElement.innerText = "";
+            }
           }
         }
       },

@@ -5,7 +5,7 @@ import { CaptionListFields } from "../video/types";
 // Data for the profile of any captioner
 export type ProfileState = {
   currentCaptionPage: number;
-  captioner?: CaptionerFields;
+  captioner: CaptionerFields | null;
   captions: CaptionListFields[];
   hasMore: boolean;
 };

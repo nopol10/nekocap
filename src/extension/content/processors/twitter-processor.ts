@@ -3,7 +3,8 @@ import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const TWITTER_STATUS_REGEX = /(http:|https:)\/\/(twitter.com)\/.*\/status\/([A-Za-z0-9]*)[/#]*(?:\?.*)?$/;
+const TWITTER_STATUS_REGEX =
+  /(http:|https:)\/\/(twitter.com)\/.*\/status\/([A-Za-z0-9]*)[/#]*(?:\?.*)?$/;
 
 /**
  * Processor for Twitter
@@ -27,7 +28,10 @@ export const TwitterProcessor: Processor = {
     const linkElement = await waitForElement(
       `a[href$="/status/${this.getVideoId()}"]`
     );
-    return linkElement?.parentElement?.parentElement?.parentElement;
+
+    return (
+      linkElement?.parentElement?.parentElement?.parentElement || undefined
+    );
   },
   titleSelector: "title",
   observer: {

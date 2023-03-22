@@ -49,6 +49,9 @@ function* rejectCaptionRequestSaga({
   }
 
   const { caption }: CaptionReviewState = yield select(captionReviewSelector);
+  if (!caption || !caption.id) {
+    throw new Error("No caption data found.");
+  }
   yield put(loadCaptionForReview.request(caption.id));
 
   yield put(rejectCaption.success());
@@ -66,6 +69,9 @@ function* verifyCaptionRequestSaga({
   }
 
   const { caption }: CaptionReviewState = yield select(captionReviewSelector);
+  if (!caption || !caption.id) {
+    throw new Error("No caption data found.");
+  }
   yield put(loadCaptionForReview.request(caption.id));
 
   yield put(verifyCaption.success());

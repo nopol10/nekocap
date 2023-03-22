@@ -40,14 +40,16 @@ type PageParams = {
   captionId: string;
 };
 
-export const getServerSideProps: GetServerSideProps = NextWrapper.getServerSideProps(
-  wrapper.getServerSideProps(
-    () => async ({ locale }: GetServerSidePropsContext<PageParams>) => {
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-      };
-    }
-  )
-);
+export const getServerSideProps: GetServerSideProps =
+  NextWrapper.getServerSideProps(
+    wrapper.getServerSideProps(
+      () =>
+        async ({ locale = "en-US" }: GetServerSidePropsContext<PageParams>) => {
+          return {
+            props: {
+              ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+            },
+          };
+        }
+    )
+  );

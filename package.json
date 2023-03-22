@@ -157,6 +157,7 @@
     "next-redux-wrapper": "7.0.5",
     "parse": "3.4.1",
     "postcss": "8.4.18",
+    "rc-trigger": "5.3.4",
     "rc-virtual-list": "^3.4.8",
     "react": "^17.0.2",
     "react-color": "^2.19.3",

@@ -118,8 +118,8 @@ const generateNewCaptionData = (
   action: PayloadAction<any>,
   caption: CaptionContainer
 ) => {
-  let error = "";
-  let newCaptionData: CaptionDataContainer;
+  let error: string | undefined = "";
+  let newCaptionData: CaptionDataContainer | undefined;
   if (isActionType(action, modifyCaption)) {
     const { captionId, newCaption, trackId } = action.payload;
     const result = CaptionMutators.modifyCaption(
@@ -287,17 +287,20 @@ function* updateEditorCaptionSaga({
   const actions = isActionType(action, modifyCaptionWithMultipleActions)
     ? action.payload.actions
     : [action];
-  const updatedCaption = { ...caption };
+  if (!caption) {
+    throw new Error("no caption data in editor");
+  }
+  const updatedCaption: CaptionContainer = { ...caption };
   for (let i = 0; i < actions.length; i++) {
     const { error, newCaptionData } = generateNewCaptionData(
       actions[i],
       updatedCaption
     );
-    updatedCaption.data = newCaptionData;
     if (error || !newCaptionData) {
       // TODO send error message to content script
       return;
     }
+    updatedCaption.data = newCaptionData;
   }
 
   yield put({
@@ -353,9 +356,13 @@ function* saveLocalCaptionSaga({
     return;
   }
   const { caption } = tabData;
-  let result:
-    | { editor: CaptionEditorStorage }
-    | undefined = yield call(chromeProm.storage.local.get, ["editor"]);
+  if (!caption) {
+    throw new Error("No caption data to save.");
+  }
+  let result: { editor: CaptionEditorStorage } | undefined = yield call(
+    chromeProm.storage.local.get,
+    ["editor"]
+  );
 
   if (!result || !result.editor) {
     const shortcutType = yield select(currentShortcutTypeSelector);
@@ -393,16 +400,17 @@ function* saveLocalCaptionSaga({
 function* loadLocallySavedCaptionSaga({
   payload,
 }: ThunkedPayloadAction<CreateNewCaption>) {
-  const result:
-    | { editor: CaptionEditorStorage }
-    | undefined = yield call(chromeProm.storage.local.get, ["editor"]);
+  const result: { editor: CaptionEditorStorage } | undefined = yield call(
+    chromeProm.storage.local.get,
+    ["editor"]
+  );
   if (!result || !result.editor) {
     throw new Error("No save found");
   }
   const { tabId, videoId, videoSource } = payload;
 
   const { saves = [] } = result.editor;
-  const save: CaptionEditorLocalSave = saves.find((save) => {
+  const save: CaptionEditorLocalSave | undefined = saves.find((save) => {
     return save.videoId === videoId && save.videoSource === videoSource;
   });
 
@@ -443,6 +451,9 @@ function* exportCaptionSaga({ payload }: ThunkedPayloadAction<ExportCaption>) {
     return;
   }
   const { caption } = tabData;
+  if (!caption) {
+    throw new Error("empty caption");
+  }
   const captionString = stringifyCaption(format, caption.data);
   const filename = `${caption.videoId}.${CaptionFileFormat[format]}`;
   const saveFileMessage: ExportCaptionResult = { captionString, filename };
@@ -467,6 +478,9 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
   let { caption: updatedCaption }: TabEditorData = yield select(
     tabEditorDataSelector(tabId)
   );
+  if (!updatedCaption) {
+    throw new Error("No caption data found");
+  }
   // Due to the way reduxed-chrome-storage works,
   // selecting the data immediately will not work, so we need to construct it
   // manually here
@@ -517,8 +531,8 @@ function* updateUploadedCaptionSaga({
     selectedTags,
     privacy,
   } = payload;
-  let rawCaption: RawCaptionData = undefined;
-  let captionData: CaptionDataContainer = undefined;
+  let rawCaption: RawCaptionData | undefined = undefined;
+  let captionData: CaptionDataContainer | undefined = undefined;
   if (content && type) {
     const convertedCaptions = getCaptionContainersFromFile({
       content,
@@ -533,7 +547,7 @@ function* updateUploadedCaptionSaga({
   } else if (captionData) {
     rawCaption = undefined;
   }
-  let processedRawCaption: RawCaptionData = undefined;
+  let processedRawCaption: RawCaptionData | undefined = undefined;
   if (rawCaption && rawCaption.data) {
     processedRawCaption = { ...rawCaption };
     processedRawCaption.data = lzCompress(rawCaption.data);
@@ -572,6 +586,8 @@ function* createNewCaptionSaga({
     loadedByUser: true,
     videoId,
     videoSource,
+    userLike: null,
+    userDislike: null,
   };
   // Use setEditorCaptionAfterEdit to force one entry to be entered into the undo-redo state so that we can undo back to the original state
   // @ts-ignore
@@ -624,12 +640,19 @@ function* fetchAutoCaptionSaga({
   if (!processor.supportAutoCaptions(videoId)) {
     return;
   }
+  if (!processor.getAutoCaption) {
+    // Processor does not support autocaptioning
+    return;
+  }
   const autoCaption: CaptionDataContainer = yield call(
     processor.getAutoCaption,
     videoId,
     captionId
   );
   const { caption }: TabEditorData = yield select(tabEditorDataSelector(tabId));
+  if (!caption) {
+    throw new Error("No caption data.");
+  }
   const newCaption: CaptionContainer = {
     ...caption,
     data: autoCaption,

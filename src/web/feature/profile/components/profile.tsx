@@ -211,7 +211,7 @@ export const Profile = ({
     }
     const defaultTags = existingTags
       .filter((tag) => {
-        return defaultFilterTagNames.includes(tag.name);
+        return tag.name && defaultFilterTagNames.includes(tag.name);
       })
       .map((tag) => tag.tag);
     if (defaultTags.length > 0) {
@@ -256,7 +256,7 @@ export const Profile = ({
   };
 
   const handleOnChangePage = (page: number, pageSize: number) => {
-    onChangePage(page, pageSize, selectedTags);
+    onChangePage?.(page, pageSize, selectedTags);
   };
 
   return (
@@ -341,8 +341,8 @@ export const Profile = ({
               captioner={captioner}
               loggedInUser={loggedInUser}
               privateData={privateData}
-              isLoading={isLoading}
-              isEditing={isEditing}
+              isLoading={!!isLoading}
+              isEditing={!!isEditing}
               onAssignReviewerManager={onAssignReviewerManager}
               onAssignReviewer={onAssignReviewer}
               onVerifyCaptioner={onVerifyCaptioner}

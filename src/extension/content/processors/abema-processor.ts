@@ -2,7 +2,8 @@ import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const ABEMA_URL_REGEX = /(http:|https:|)\/\/(abema.tv)\/((video)\/(episode)\/([A-Za-z0-9._%-]*))(&\S+)?/;
+const ABEMA_URL_REGEX =
+  /(http:|https:|)\/\/(abema.tv)\/((video)\/(episode)\/([A-Za-z0-9._%-]*))(&\S+)?/;
 /**
  * Processor for Abema
  */
@@ -32,6 +33,9 @@ export const AbemaProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(ABEMA_URL_REGEX);
+    if (!matches) {
+      return "";
+    }
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {

@@ -126,6 +126,7 @@ export const SUBSTATION_GROUPED_FONTS = {
     "noto sans sc bold": "/fonts/Noto-Sans-SC-700.woff2",
   },
   traditionalChinese: {
+    "iansui 094": "/fonts/Iansui094-Regular.woff2",
     "noto sans tc": "/fonts/Noto-Sans-TC-Regular.woff2",
     "noto sans tc bold": "/fonts/Noto-Sans-TC-700.woff2",
     "noto serif tc": "/fonts/Noto-Serif-TC-Regular.woff2",
@@ -257,7 +258,7 @@ const flattenAndProcessFontList = (
     } else if (typeof fontObject === "string") {
       output[key] =
         (isInExtension()
-          ? process.env.NEXT_PUBLIC_FONTS_URL
+          ? process.env.NEXT_PUBLIC_FONTS_URL || ""
           : websiteUrl
         ).replace(/\/+$/, "") + fontObject;
     }

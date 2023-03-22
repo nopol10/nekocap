@@ -41,7 +41,7 @@ type EditorToolbarProps = UndoComponentProps & {
 };
 
 type KeyboardShortcutModalProps = {
-  modalProps?: ModalProps;
+  modalProps: ModalProps;
 };
 
 const shortcutOptions = [...Object.values(SHORTCUT_TYPES)];
@@ -87,9 +87,9 @@ const KeyboardShortcutModal = ({ modalProps }: KeyboardShortcutModalProps) => {
     });
   };
 
-  const handleOk = () => {
+  const handleOk = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     if (onCancel) {
-      onCancel(undefined);
+      onCancel(e);
     }
   };
 
@@ -207,7 +207,7 @@ export const EditorToolbar = ({
     <>
       <KeyboardShortcutModal
         modalProps={{
-          visible: showShortcutModal,
+          open: showShortcutModal,
           onCancel: handleCloseShortcutModal,
         }}
       />

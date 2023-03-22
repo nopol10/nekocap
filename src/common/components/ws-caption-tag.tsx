@@ -15,6 +15,9 @@ export const WSCaptionTag = (props: WSCaptionTagProps): ReactElement => {
     event.stopPropagation();
   };
   const captionTag = useMemo(() => getCaptionTagFromTagString(tag), [tag]);
+  if (!captionTag) {
+    return <></>;
+  }
   return (
     <Tag
       color={captionTag.color}

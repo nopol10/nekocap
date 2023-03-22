@@ -118,8 +118,8 @@ export const DraggableCue = ({
     isDraggingElement.current = true;
     clickStartTime.current = Date.now();
     dragStartX.current = event.clientX;
-    const left = parseFloat(style.left.toString() || "0");
-    const width = parseFloat(style.width.toString() || "0");
+    const left = parseFloat(style?.left?.toString() || "0");
+    const width = parseFloat(style?.width?.toString() || "0");
     propertiesBeforeDragging.current = {
       left,
       width,
@@ -178,8 +178,8 @@ export const DraggableCue = ({
     clearSelection();
     isDraggingLeft.current = true;
     dragStartX.current = event.clientX;
-    const left = parseFloat(style.left.toString() || "0");
-    const width = parseFloat(style.width.toString() || "0");
+    const left = parseFloat(style?.left?.toString() || "0");
+    const width = parseFloat(style?.width?.toString() || "0");
     propertiesBeforeDragging.current = {
       left,
       width,
@@ -229,8 +229,8 @@ export const DraggableCue = ({
     clearSelection();
     isDraggingRight.current = true;
     dragStartX.current = event.clientX;
-    const left = parseFloat(style.left.toString() || "0");
-    const width = parseFloat(style.width.toString() || "0");
+    const left = parseFloat(style?.left?.toString() || "0");
+    const width = parseFloat(style?.width?.toString() || "0");
     const right = left + width;
     propertiesBeforeDragging.current = {
       left,

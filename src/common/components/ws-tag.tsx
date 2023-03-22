@@ -1,6 +1,4 @@
-import Layout from "antd/lib/layout";
 import React from "react";
-import { ReactNode } from "react";
 import styled from "styled-components";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
 import ytexccImage from "@/assets/images/ytexcc-tag.jpg";

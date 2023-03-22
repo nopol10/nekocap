@@ -1,8 +1,5 @@
 import { createAction } from "@reduxjs/toolkit";
-import {
-  createSignalAction,
-  createSignalActionInState,
-} from "@/common/store/action";
+import { createSignalActionInState } from "@/common/store/action";
 import { loginActionTypes } from "./action-types";
 import { LoginRequest, WebAutoLoginRequest, WebLoginSuccess } from "./types";
 import { UserData } from "@/common/providers/backend-provider";

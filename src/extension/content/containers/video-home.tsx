@@ -106,7 +106,13 @@ const RawLoadingIndicator = styled.div`
 `;
 
 const InPageMenuContainer = () => {
-  const isInlineMenu = !!window.selectedProcessor.inlineMenu;
+  const isInlineMenu = !!window.selectedProcessor?.inlineMenu;
+  const inPageMenuContainer = document.getElementById(
+    IN_PAGE_MENU_CONTAINER_ID
+  );
+  if (!inPageMenuContainer) {
+    return <></>;
+  }
   return ReactDOM.createPortal(
     <>
       {
@@ -126,12 +132,15 @@ const InPageMenuContainer = () => {
         </InlineMenuWrapper>
       }
     </>,
-    document.getElementById(IN_PAGE_MENU_CONTAINER_ID)
+    inPageMenuContainer
   );
 };
 
 const InlineVideoPageMenu = () => {
   const videoData = useSelector(tabVideoDataSelector(window.tabId));
+  if (!videoData) {
+    return <></>;
+  }
   const isLoading = videoData.isLoadingRawCaption;
   const loadingPercentage = `${(videoData.rawLoadPercentage || 0).toFixed(0)}%`;
   return (
@@ -207,9 +216,9 @@ export const VideoHome = () => {
   useVideoElementUpdate([]);
   const requestFreshTabDataCallback = useCallback(async () => {
     if (
-      !window.selectedProcessor.observer ||
-      !window.selectedProcessor.observer.shouldObserveMenuPlaceability ||
-      !window.selectedProcessor.observer.refreshTabDataAfterElementUpdate
+      window.selectedProcessor?.observer &&
+      (!window.selectedProcessor.observer.shouldObserveMenuPlaceability ||
+        !window.selectedProcessor.observer.refreshTabDataAfterElementUpdate)
     ) {
       return;
     }
@@ -229,7 +238,7 @@ export const VideoHome = () => {
   useEffect(() => {
     requestFreshTabDataCallback();
   }, [videoMetaUpdateToken, requestFreshTabDataCallback]);
-  const rendererRef = useRef<CaptionRendererHandle>();
+  const rendererRef = useRef<CaptionRendererHandle>(null);
 
   const { getIframeVideoTime } = useIframeVideoUpdate({
     rendererRef,
@@ -242,6 +251,9 @@ export const VideoHome = () => {
   useEffect(() => {
     // Move the element to the correct spot
     (async () => {
+      if (!window.selectedProcessor) {
+        return;
+      }
       if (window.selectedProcessor.waitUntilPageIsReady) {
         await window.selectedProcessor.waitUntilPageIsReady();
       }
@@ -253,7 +265,7 @@ export const VideoHome = () => {
       ) {
         window.videoName = await getVideoTitle(window.selectedProcessor);
       }
-      const extensionUIElement: HTMLElement = await getUIElement(
+      const extensionUIElement: HTMLElement | undefined = await getUIElement(
         window.selectedProcessor
       );
       if (!extensionUIElement) {
@@ -286,22 +298,29 @@ export const VideoHome = () => {
 
   const isUsingAdvancedRenderer =
     renderer === CaptionRendererType.AdvancedOctopus && isAss(rawType);
+  const captionTrackCount = caption?.data?.tracks?.length || 0;
   const shouldRenderEditor =
-    !window.selectedProcessor.disableEditor &&
+    !window.selectedProcessor?.disableEditor &&
     (!isUsingAdvancedRenderer ||
-      (isUsingAdvancedRenderer && caption?.data?.tracks?.length > 0));
+      (isUsingAdvancedRenderer && captionTrackCount > 0));
 
   // Special handling for sites with videos inside iframes
-  const iframeProps = window.selectedProcessor.videoIsInIframe
+  const iframeProps = window.selectedProcessor?.videoIsInIframe
     ? {
         height: window.videoElement ? window.videoElement.offsetHeight : 0,
         width: window.videoElement ? window.videoElement.offsetWidth : 0,
         getCurrentTime: getIframeVideoTime,
       }
     : undefined;
-  const videoElement = window.selectedProcessor.videoIsInIframe
+  const videoElement = window.selectedProcessor?.videoIsInIframe
     ? undefined
     : window.videoElement;
+  const videoContainerElement = document.getElementById(
+    VIDEO_ELEMENT_CONTAINER_ID
+  );
+  if (!videoContainerElement) {
+    return <></>;
+  }
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
@@ -317,7 +336,7 @@ export const VideoHome = () => {
           videoElement={videoElement}
           captionContainerElement={window.captionContainerElement}
           showCaption={showCaption}
-          isIframe={window.selectedProcessor.videoIsInIframe}
+          isIframe={window.selectedProcessor?.videoIsInIframe}
           iframeProps={iframeProps}
         />
       )}
@@ -330,11 +349,11 @@ export const VideoHome = () => {
           showCaption={showCaption}
           fontList={fontList}
           onFontsLoaded={handleFontsLoaded}
-          isIframe={window.selectedProcessor.videoIsInIframe}
+          isIframe={window.selectedProcessor?.videoIsInIframe}
           iframeProps={iframeProps}
         />
       )}
     </>,
-    document.getElementById(VIDEO_ELEMENT_CONTAINER_ID)
+    videoContainerElement
   );
 };

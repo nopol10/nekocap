@@ -14,7 +14,6 @@ import { CSSProperties } from "react";
 import chunk from "lodash/chunk";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { colors } from "@/common/colors";
-const { TabPane } = Tabs;
 
 const DirectionButton = styled(Button)`
   &.ant-btn-dashed {

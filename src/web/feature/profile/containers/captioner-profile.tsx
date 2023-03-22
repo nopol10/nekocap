@@ -25,12 +25,14 @@ import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
 export const CaptionerProfile = () => {
   const dispatch = useDispatch();
   const profileData = useSelector(profileSelector);
-  const isLoadingProfile = useSelector(loadProfile.isLoading(null));
-  const isLoadingCaptionPage = useSelector(loadUserCaptions.isLoading(null));
+  const isLoadingProfile = useSelector(loadProfile.isLoading(undefined));
+  const isLoadingCaptionPage = useSelector(
+    loadUserCaptions.isLoading(undefined)
+  );
   const captionerState = useSelector(captionerSelector);
-  const isAssigningReviewer = useSelector(assignReviewer.isLoading(null));
+  const isAssigningReviewer = useSelector(assignReviewer.isLoading(undefined));
   const isAssigningReviewerManager = useSelector(
-    assignReviewerManager.isLoading(null)
+    assignReviewerManager.isLoading(undefined)
   );
   const { t } = useTranslation("common");
 
@@ -52,7 +54,7 @@ export const CaptionerProfile = () => {
 
   const handleChangeCaptionPage = (
     page: number,
-    pageSize?: number,
+    pageSize: number = CAPTION_LIST_PAGE_SIZE,
     tags?: string[]
   ) => {
     dispatch(

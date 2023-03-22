@@ -45,7 +45,7 @@ export const DurationInput = ({
   ...rest
 }: DurationInputProps) => {
   const inputRef = useRef<HTMLInputElement>();
-  const numberFormatRef = useRef<NumberFormat<unknown>>();
+  const numberFormatRef = useRef<NumberFormat<unknown>>(null);
   const updateOnKeyup = useRef<boolean>(false);
   const highlightMsOnChange = useRef<boolean>(false);
 
@@ -63,6 +63,9 @@ export const DurationInput = ({
   };
 
   const handleKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!inputRef.current) {
+      return;
+    }
     if (!onKeyboardShortcutInput) {
       return;
     }
@@ -104,6 +107,9 @@ export const DurationInput = ({
    * For handling the end of repeated keydowns
    */
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!inputRef.current) {
+      return;
+    }
     if (!onKeyboardShortcutInput) {
       return;
     }

@@ -5,7 +5,7 @@ import { ViewerProps } from "./viewer-props";
 const YOUTUBE_IFRAME_ID = "youtube-iframe";
 
 export type YoutubeViewerProps = ViewerProps & {
-  youtubePlayerRef: React.MutableRefObject<YouTubePlayer>;
+  youtubePlayerRef: React.MutableRefObject<YouTubePlayer | undefined>;
 };
 
 export const YoutubeViewer = ({
@@ -47,7 +47,7 @@ export const YoutubeViewer = ({
           },
         }}
         id={YOUTUBE_IFRAME_ID}
-        videoId={caption.videoId}
+        videoId={caption?.videoId}
         onReady={handleYoutubeReady}
         onPlay={handleYoutubePlay}
         onPause={handleYoutubePause}

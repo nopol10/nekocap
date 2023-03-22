@@ -61,14 +61,11 @@ type VideoScrubberProps = {
 };
 
 export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
-  const [scrubber, scrubberRef] = useStateRef<HTMLDivElement>(null);
-  const [scrubberProgressBar, scrubberProgressBarRef] = useStateRef<
-    HTMLDivElement
-  >(null);
-  const [scrubberPlayhead, scrubberPlayheadRef] = useStateRef<HTMLDivElement>(
-    null
-  );
-  const [timeIndicator, timeIndicatorRef] = useStateRef<HTMLDivElement>(null);
+  const [scrubber, scrubberRef] = useStateRef<HTMLDivElement>();
+  const [scrubberProgressBar, scrubberProgressBarRef] =
+    useStateRef<HTMLDivElement>();
+  const [scrubberPlayhead, scrubberPlayheadRef] = useStateRef<HTMLDivElement>();
+  const [timeIndicator, timeIndicatorRef] = useStateRef<HTMLDivElement>();
 
   const scrubberWidth = useRef<number>(0);
 
@@ -78,14 +75,14 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
   const handleTimeUpdate = () => {
     const playheadX =
       (videoElement.currentTime / duration.current) * scrubberWidth.current;
-    scrubberPlayhead.style.left = `${playheadX}px`;
-    scrubberProgressBar.style.width = `${playheadX}px`;
+    if (scrubberPlayhead) scrubberPlayhead.style.left = `${playheadX}px`;
+    if (scrubberProgressBar) scrubberProgressBar.style.width = `${playheadX}px`;
   };
 
   useResize(
     scrubber,
     () => {
-      scrubberWidth.current = scrubber.offsetWidth;
+      scrubberWidth.current = scrubber?.offsetWidth || 0;
       handleTimeUpdate();
     },
     100,
@@ -100,7 +97,7 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
 
   const handlePlayheadDragStart = useCallback(
     (x: number, y: number) => {
-      const actualX = parseInt(scrubberPlayhead.style.left) || 0;
+      const actualX = parseInt(scrubberPlayhead?.style.left || "0");
       wasPaused.current = videoElement.paused;
       videoElement.pause();
       return { x: actualX, y };
@@ -109,6 +106,9 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
   );
 
   const setTimeIndicator = (x: number, time: number) => {
+    if (!timeIndicator) {
+      return;
+    }
     const indicatorX = Math.min(
       Math.max(INDICATOR_WIDTH / 2, x),
       scrubberWidth.current - INDICATOR_WIDTH / 2
@@ -122,7 +122,7 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
   };
 
   const hideTimeIndicator = () => {
-    timeIndicator.style.opacity = "0";
+    if (timeIndicator) timeIndicator.style.opacity = "0";
   };
 
   const handlePlayheadDragMove = useCallback(
@@ -131,14 +131,14 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
         Math.max(0, corrected.x + delta.x),
         scrubberWidth.current
       );
-      scrubberPlayhead.style.left = `${x}px`;
+      if (scrubberPlayhead) scrubberPlayhead.style.left = `${x}px`;
       if (!videoElement) {
         return;
       }
       videoElement.currentTime =
         (x / scrubberWidth.current) * videoElement.duration || 0;
 
-      onSeek(videoElement.currentTime);
+      onSeek?.(videoElement.currentTime);
 
       setTimeIndicator(x, videoElement.currentTime);
     },
@@ -204,7 +204,7 @@ export const VideoScrubber = ({ videoElement, onSeek }: VideoScrubberProps) => {
     const { x, width } = scrubber.getBoundingClientRect();
     videoElement.currentTime =
       ((event.clientX - x) / width) * videoElement.duration;
-    onSeek(videoElement.currentTime);
+    onSeek?.(videoElement.currentTime);
   };
 
   const handleMouseOverScrubber = (event: React.MouseEvent) => {

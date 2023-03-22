@@ -8,7 +8,7 @@ import { SUPPORTED_FILE_TYPES_STRING } from "@/common/feature/caption-editor/con
 
 export type UploadCaptionBlockProps = {
   beforeUpload: (file: RcFile) => boolean;
-  file: RcFile;
+  file?: RcFile;
   isUserVerified: boolean;
   maxVerifiedUploadSizeMB: number;
   maxNonVerifiedUploadSizeMB: number;
@@ -28,7 +28,7 @@ export const UploadCaptionBlock = ({
     if (!file) {
       return;
     }
-    onSuccess(file, new XMLHttpRequest());
+    onSuccess?.(file, new XMLHttpRequest());
     const reader = new FileReader();
     reader.onload = () => {
       setFileContent((reader.result as string) || "");

@@ -10,6 +10,7 @@ import ProtectedNextComponent from "@/web/feature/protected-next-component";
 import { STRING_CONSTANTS } from "@/common/string-constants";
 import { Locator } from "@/common/locator/locator";
 import { statsActions } from "@/common/feature/stats/slice";
+import { GlobalStats } from "@/common/feature/stats/types";
 
 const DynamicGlobalStats = dynamic(
   () => import("../../src/web/feature/stats/container/global-stats"),
@@ -43,29 +44,39 @@ export default function StatsPage(): JSX.Element {
   );
 }
 
+const DEFAULT_GLOBAL_STATS: GlobalStats = {
+  topCaptionsAllTime: [],
+  topCaptionsUploadedThisMonth: [],
+  totalCaptions: 0,
+  totalCaptionsPerLanguage: [],
+  totalViews: 0,
+  totalViewsPerLanguage: [],
+};
+
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
-    (store) => async ({ locale }: GetStaticPropsContext) => {
-      try {
-        const {
-          status,
-          error,
-          result,
-        } = await Locator.provider().getGlobalStats();
-        if (status === "error") {
-          throw new Error(error);
+    (store) =>
+      async ({ locale = "en-US" }: GetStaticPropsContext) => {
+        try {
+          const {
+            status,
+            error,
+            result = DEFAULT_GLOBAL_STATS,
+          } = await Locator.provider().getGlobalStats();
+          if (status === "error") {
+            throw new Error(error);
+          }
+          store.dispatch(statsActions.setGlobalStats(result));
+        } catch (e) {
+          console.error("Error during browse caption page generation", e);
         }
-        store.dispatch(statsActions.setGlobalStats(result));
-      } catch (e) {
-        console.error("Error during browse caption page generation", e);
-      }
 
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-        revalidate: 120,
-      };
-    }
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          },
+          revalidate: 120,
+        };
+      }
   )
 );

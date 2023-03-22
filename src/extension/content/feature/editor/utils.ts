@@ -193,6 +193,9 @@ export class CaptionMutators {
       trackId,
       captionId
     );
+    if (!container) {
+      return { caption, error: "No caption container found." };
+    }
     const addCaptionResult = this.addCaptionToTrackTime(
       container,
       finalTrackId,
@@ -204,7 +207,9 @@ export class CaptionMutators {
       return { caption, error: addCaptionResult.error };
     }
     container = addCaptionResult.caption;
-
+    if (!container) {
+      return { caption, error: "No caption container found." };
+    }
     const targetTrack = container.tracks[finalTrackId];
     const nextCaption = targetTrack.cues[captionId + 1];
     const previousCaption = targetTrack.cues[captionId - 1];

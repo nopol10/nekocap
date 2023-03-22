@@ -33,7 +33,8 @@ export const loadFontListApi = async (): Promise<Record<string, string>> => {
       const fontPath = data[key];
       if (fontPath.startsWith("/")) {
         acc[key] =
-          process.env.NEXT_PUBLIC_FONTS_URL.replace(/\/+$/, "") + fontPath;
+          (process.env.NEXT_PUBLIC_FONTS_URL || "").replace(/\/+$/, "") +
+          fontPath;
       } else {
         acc[key] = fontPath;
       }

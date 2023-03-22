@@ -1,6 +1,6 @@
 export const waitForElement = async <T extends HTMLElement>(
   selector: string,
-  parentElement: HTMLElement = null
+  parentElement: HTMLElement | null = null
 ): Promise<T> => {
   return new Promise<T>((resolve) => {
     const observer = new MutationObserver(function (mutations, me) {
@@ -68,10 +68,12 @@ export const convertBlobToBase64 = (blob: Blob): Promise<string> =>
   });
 
 export const isInputElementSelected = (): boolean => {
+  if (!document.activeElement) {
+    return false;
+  }
   return (
-    document.activeElement &&
-    (document.activeElement.tagName === "TEXTAREA" ||
-      document.activeElement.tagName === "INPUT")
+    document.activeElement.tagName === "TEXTAREA" ||
+    document.activeElement.tagName === "INPUT"
   );
 };
 
@@ -164,3 +166,6 @@ export const waitUntil = async (predicate: () => boolean): Promise<void> => {
     await delay(500);
   }
 };
+
+type ValidValue<T> = Exclude<T, null | undefined | 0 | "" | false>;
+export const BooleanFilter = <T>(x: T): x is ValidValue<T> => Boolean(x);

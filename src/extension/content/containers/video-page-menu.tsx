@@ -183,16 +183,14 @@ export const VideoPageMenu = ({
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [isSelectFileOpen, setIsSelectFileOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-  const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] = useState(
-    false
-  );
+  const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] =
+    useState(false);
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
   const [editorMenuVisible, setEditorMenuVisible] = useState(false);
   const isInPopup = useIsInPopup();
 
-  const newLoadedFileAction = useRef<
-    ThunkedPayloadAction<UpdateLoadedCaptionFromFile>
-  >(undefined);
+  const newLoadedFileAction =
+    useRef<ThunkedPayloadAction<UpdateLoadedCaptionFromFile>>();
 
   const handleForceSave = useCallback(() => {
     setIsConfirmSaveOpen(false);
@@ -310,7 +308,10 @@ export const VideoPageMenu = ({
     if (!file || !content) {
       return;
     }
-    const fileCopy = { ...file };
+    const fileCopy = Object.assign(
+      Object.create(Object.getPrototypeOf(file)),
+      file
+    );
     const nameParts = file.name.split(".");
     const fileType = nameParts[nameParts.length - 1];
     setIsSelectFileOpen(false);
@@ -356,6 +357,7 @@ export const VideoPageMenu = ({
 
   const renderEditorMenu = () => {
     const canExport =
+      editorTabData &&
       editorTabData.caption &&
       editorTabData.caption.data &&
       editorTabData.caption.data.tracks &&
@@ -396,12 +398,12 @@ export const VideoPageMenu = ({
     );
   };
 
-  const handleUpdateRenderer = (renderer: CaptionRendererType) => (
-    event: React.MouseEvent<HTMLAnchorElement>
-  ) => {
-    dispatch(updateRenderer({ tabId: window.tabId, renderer }));
-    event.preventDefault();
-  };
+  const handleUpdateRenderer =
+    (renderer: CaptionRendererType) =>
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      dispatch(updateRenderer({ tabId: window.tabId, renderer }));
+      event.preventDefault();
+    };
 
   const renderRendererMenu = () => {
     return (
@@ -467,7 +469,7 @@ export const VideoPageMenu = ({
   };
 
   const renderRawLoadingState = () => {
-    if (tabData.isLoadingRawCaption) {
+    if (tabData && tabData.isLoadingRawCaption) {
       const percentage =
         tabData.rawLoadPercentage !== undefined &&
         tabData.rawLoadPercentage !== null
@@ -489,7 +491,7 @@ export const VideoPageMenu = ({
   const renderAutoCaptionButton = () => {
     if (
       !inEditorScreen ||
-      !window.selectedProcessor.supportAutoCaptions(window.videoId)
+      !window.selectedProcessor?.supportAutoCaptions(window.videoId)
     ) {
       return null;
     }
@@ -563,7 +565,7 @@ export const VideoPageMenu = ({
                 }}
               />
             </Expandable>
-            <LikeText activated={userLike}>{likes}</LikeText>
+            <LikeText activated={!!userLike}>{likes}</LikeText>
           </div>
         </Tooltip>
         <Tooltip placement={"top"} title={"I dislike this caption"}>
@@ -578,7 +580,7 @@ export const VideoPageMenu = ({
                 }}
               />
             </Expandable>
-            <DislikeText activated={userDislike}>{dislikes}</DislikeText>
+            <DislikeText activated={!!userDislike}>{dislikes}</DislikeText>
           </div>
         </Tooltip>
       </Space>
@@ -665,8 +667,8 @@ export const VideoPageMenu = ({
         {
           <Dropdown
             overlay={renderEditorMenu()}
-            visible={editorMenuVisible}
-            onVisibleChange={handleEditorMenuVisibleChange}
+            open={editorMenuVisible}
+            onOpenChange={handleEditorMenuVisibleChange}
             placement={"topCenter"}
           >
             <WSButton>Editor</WSButton>

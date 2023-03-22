@@ -34,6 +34,7 @@ import {
   getCaptionTagFromTagString,
   getCaptionTagStrings,
 } from "@/common/feature/video/utils";
+import { BooleanFilter } from "@/common/utils";
 
 interface UpdateCaptionModalProps {
   caption?: CaptionListFields;
@@ -56,8 +57,8 @@ export const UpdateCaptionModal = ({
   onCancel,
   onUpdated,
 }: UpdateCaptionModalProps): ReactElement => {
-  if (isServer()) {
-    return null;
+  if (isServer() || !caption) {
+    return <></>;
   }
   window.tabId = 0;
   const dispatch = useDispatch();
@@ -72,19 +73,18 @@ export const UpdateCaptionModal = ({
   const maxVerifiedUploadSizeMB = MAX_VERIFIED_CAPTION_FILE_BYTES / 1000000;
   const maxNonVerifiedUploadSizeMB = MAX_CAPTION_FILE_BYTES / 1000000;
   const maxPreviewSize = MAX_VERIFIED_CAPTION_FILE_BYTES;
-  const isUserVerified = captioner?.captioner?.verified;
+  const isUserVerified = !!captioner?.captioner?.verified;
   const { selectedTagNames } = watch();
 
   const onSubmit = async (data: FormType) => {
-    const {
-      hasAudioDescription,
-      translatedTitle,
-      privacy,
-      selectedTagNames,
-    } = data;
-    const fileCopy = file ? { ...file } : undefined;
+    const { hasAudioDescription, translatedTitle, privacy, selectedTagNames } =
+      data;
+    const fileCopy = file
+      ? Object.assign(Object.create(Object.getPrototypeOf(file)), file)
+      : undefined;
     const nameParts = file ? file.name.split(".") : undefined;
-    const fileType = file ? nameParts[nameParts.length - 1] : undefined;
+    const fileType =
+      file && nameParts ? nameParts[nameParts.length - 1] : undefined;
     const selectedTags = getCaptionTagStrings(
       userCaptionTags.filter((tag) => selectedTagNames.indexOf(tag.name) >= 0)
     );
@@ -123,12 +123,12 @@ export const UpdateCaptionModal = ({
     const isValidFileType = VALID_FILE_TYPES.includes(extension);
     if (!isValidFileType) {
       message.error(`You can only load ${SUPPORTED_FILE_TYPES_STRING} files!`);
-      return;
+      return false;
     }
     const isSizeValid = file.size < maxPreviewSize;
     if (!isSizeValid) {
       message.error(`Caption must smaller than ${maxPreviewSize / 1000000}MB!`);
-      return;
+      return false;
     }
     setFile(file);
     return isValidFileType && isSizeValid;
@@ -139,7 +139,7 @@ export const UpdateCaptionModal = ({
     setUserCaptionTags(
       (captioner.captioner?.captionTags || [])
         .map(getCaptionTagFromTagString)
-        .filter(Boolean)
+        .filter(BooleanFilter)
     );
   }, [captioner]);
 
@@ -166,7 +166,7 @@ export const UpdateCaptionModal = ({
         const captionTag = getCaptionTagFromTagString(tag);
         return captionTag?.name;
       })
-      .filter(Boolean) || [];
+      .filter(BooleanFilter) || [];
 
   return (
     <Modal

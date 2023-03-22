@@ -6,7 +6,6 @@ import { css } from "styled-components";
 import { Processor } from "../extension/content/processors/processor";
 import { VideoSource } from "./feature/video/types";
 import { videoSourceToProcessorMap } from "./feature/video/utils";
-import type { Dimension } from "./types";
 
 export const getVideoSourceIcon = (
   videoSource: VideoSource,

@@ -74,7 +74,7 @@ const features: Feature[] = [
               videosites: <a href="#" onClick={handleOpenList} />,
             }}
           ></Trans>
-          <Modal visible={listOpened} onCancel={handleCloseList} footer={null}>
+          <Modal open={listOpened} onCancel={handleCloseList} footer={null}>
             <SupportSiteList />
           </Modal>
         </span>
@@ -148,7 +148,7 @@ export const FeatureList = () => {
           return (
             <FeatureItem key={index} lg={8} md={16} xs={24}>
               <div>
-                <header>{t(feature.title)}</header>
+                <header>{t(feature.title || "")}</header>
                 <main>
                   {typeof feature.description !== "function" &&
                     feature.description}

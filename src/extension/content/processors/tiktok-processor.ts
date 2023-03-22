@@ -4,7 +4,8 @@ import { truncate } from "lodash";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const PART_SEPARATOR = "/";
-const videoMatchingRegex = /(http:|https:)\/\/(?:www\.)?(tiktok\.com)\/@((?:.*))\/video\/([A-Za-z0-9._%]*)(&\S+)?/;
+const videoMatchingRegex =
+  /(http:|https:)\/\/(?:www\.)?(tiktok\.com)\/@((?:.*))\/video\/([A-Za-z0-9._%]*)(&\S+)?/;
 /**
  * Processor for TikTok
  */
@@ -37,6 +38,9 @@ export const TikTokProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     return matches[3] + PART_SEPARATOR + matches[4];
   },
   generateVideoLink: (videoId: string) => {

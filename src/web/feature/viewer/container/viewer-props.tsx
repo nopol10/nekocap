@@ -4,7 +4,7 @@ import type { CaptionRendererHandle } from "@/extension/content/containers/capti
 export type ViewerProps = {
   embedWidth: number;
   embedHeight: number;
-  caption: CaptionContainer;
-  defaultRendererRef: React.MutableRefObject<CaptionRendererHandle>;
-  currentTimeGetter: React.MutableRefObject<() => number>;
+  caption?: CaptionContainer;
+  defaultRendererRef: React.MutableRefObject<CaptionRendererHandle | null>;
+  currentTimeGetter: React.MutableRefObject<(() => number) | undefined>;
 };

@@ -159,7 +159,7 @@ function* loadAllCaptionsRequestSaga(action: PayloadAction<BrowseParams>) {
       pageSize,
       captions,
       append,
-      totalResults: totalCount,
+      totalResults: totalCount || 0,
     })
   );
 }

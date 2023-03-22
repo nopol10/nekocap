@@ -17,7 +17,10 @@ export const loadWebsiteViewerCaptionApi = async (captionId: string) => {
     rawCaption = JSON.parse(rawCaptionString);
     if (rawCaption && rawCaption.data) {
       if (rawCaption.data) {
-        rawCaption.data = lzDecompress(rawCaption.data);
+        const decompressedRawCaption = lzDecompress(rawCaption.data);
+        if (decompressedRawCaption) {
+          rawCaption.data = decompressedRawCaption;
+        }
       }
     }
   }

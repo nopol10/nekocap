@@ -18,7 +18,6 @@ import {
 } from "firebase/auth";
 import type { UserData } from "@/common/providers/backend-provider";
 import { useSelector } from "react-redux";
-import { profileSelector } from "@/common/feature/profile/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 
 const TRANSLATION_NAMESPACES = ["common"];
@@ -43,7 +42,7 @@ export default function ExtensionSignInPage(): JSX.Element {
       const { auth } = initFirebase();
       try {
         const authResult = await getRedirectResult(auth);
-        if (authResult && authResult.user) {
+        if (authResult && authResult.user && auth.currentUser) {
           setLogInState(LoginState.Authed);
           const idToken = await auth.currentUser.getIdToken();
           const loggedInUserData: FirebaseLoggedInUser = {
@@ -56,10 +55,10 @@ export default function ExtensionSignInPage(): JSX.Element {
               // @ts-ignore
               authResult.credential?.oauthIdToken,
             idToken,
-            name: authResult.user.displayName,
+            name: authResult.user.displayName || "unknown",
           };
           chrome.runtime.sendMessage(
-            process.env.NEXT_PUBLIC_EXTENSION_ID,
+            process.env.NEXT_PUBLIC_EXTENSION_ID || "",
             {
               type: ChromeExternalMessageType.GoogleAuthCredentials,
               payload: loggedInUserData,
@@ -132,7 +131,7 @@ export default function ExtensionSignInPage(): JSX.Element {
 }
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
-  wrapper.getStaticProps(() => async ({ locale }) => {
+  wrapper.getStaticProps(() => async ({ locale = "en-US" }) => {
     return {
       props: {
         ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),

@@ -5,7 +5,7 @@ export type PopupState = Record<string, never>;
 export type PopupActions = { type: "" };
 
 export const PopupContext = React.createContext<
-  [PopupState, React.Dispatch<PopupActions>]
+  [PopupState, React.Dispatch<PopupActions>] | null
 >(null);
 
 const reducer = (state: PopupState, action: PopupActions) => {

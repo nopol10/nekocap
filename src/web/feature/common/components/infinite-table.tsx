@@ -13,7 +13,7 @@ type InfiniteTableProps<T> = {
   onChangePage?: (page: number, pageSize?: number) => void;
   listNode: (props: ListProps<T>) => JSX.Element;
   listProps: ListProps<T>;
-  getScrollParent?: () => HTMLElement;
+  getScrollParent?: () => HTMLElement | null;
   initialLoad?: boolean;
   pageStart?: number;
 };
@@ -31,7 +31,7 @@ export const InfiniteList = <T,>({
   pageStart = 0,
 }: InfiniteTableProps<T>) => {
   const handleFetch = (page: number) => {
-    onChangePage(page, pageSize);
+    onChangePage?.(page, pageSize);
   };
 
   return (

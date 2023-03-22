@@ -56,17 +56,17 @@ const autoLoadOptions: { [key in AutoloadMethod]: string } = {
 export const ExtensionPreferences = () => {
   const dispatch = useDispatch();
   const [tabId, setTabId] = useState(0);
-  const {
-    hideToolbarIfNoCaptions,
-    autoloadMethod,
-    preferredLanguage,
-  } = useSelector(userExtensionPreferenceSelector);
+  const { hideToolbarIfNoCaptions, autoloadMethod, preferredLanguage } =
+    useSelector(userExtensionPreferenceSelector);
 
   const tabData = useSelector(tabVideoDataSelector(tabId));
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      setTabId(tabs[0].id);
+      const tabId = tabs[0]?.id;
+      if (typeof tabId === "number") {
+        setTabId(tabId);
+      }
     });
   }, []);
 

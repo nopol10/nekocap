@@ -3,13 +3,7 @@ import React from "react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { wrapper } from "@/web/store/store";
 import { NextWrapper } from "@/web/next-helpers/page-wrapper";
-import {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  GetStaticPaths,
-  GetStaticProps,
-  GetStaticPropsContext,
-} from "next";
+import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import { Main } from "@/web/feature/home/main";
 import { CaptionerProfile } from "@/web/feature/profile/containers/captioner-profile";
 import { loadCaptionerProfileApi } from "@/web/feature/profile/api";
@@ -47,27 +41,28 @@ type PageParams = {
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
-    (store) => async ({
-      locale,
-      params,
-    }: GetStaticPropsContext<PageParams>) => {
-      try {
-        const { capperId } = params;
-        const profile = await loadCaptionerProfileApi(capperId);
-        if (profile.captioner) {
-          store.dispatch(setProfile(profile));
+    (store) =>
+      async ({
+        locale = "en-US",
+        params = { capperId: "" },
+      }: GetStaticPropsContext<PageParams>) => {
+        try {
+          const { capperId } = params;
+          const profile = await loadCaptionerProfileApi(capperId);
+          if (profile.captioner) {
+            store.dispatch(setProfile(profile));
+          }
+        } catch (e) {
+          console.error("Error during profile page generation", e);
         }
-      } catch (e) {
-        console.error("Error during profile page generation", e);
-      }
 
-      return {
-        props: {
-          ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-        },
-        revalidate: 60,
-      };
-    }
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          },
+          revalidate: 60,
+        };
+      }
   )
 );
 

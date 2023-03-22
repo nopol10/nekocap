@@ -52,12 +52,16 @@ function* autoLoginRequestSaga() {
       background: true,
       userData: {
         id: user.uid,
-        username: user.displayName,
+        username: user.displayName || "",
         idToken,
       },
     }
   );
   if (status === "deferred") {
+    return;
+  }
+  if (!userData) {
+    console.warn("No user data found");
     return;
   }
   yield put(loginSuccess(userData));
@@ -72,7 +76,7 @@ function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
   if (status === "deferred") {
     return;
   }
-  if (status === "error") {
+  if (status === "error" || !userData) {
     yield put(loginWithGoogle.failure());
     return;
   }
@@ -130,12 +134,16 @@ function* webAutoLoginRequestSaga({
       background: true,
       userData: {
         id: user.uid,
-        username: user.displayName,
+        username: user.displayName || "",
         idToken,
       },
     }
   );
   if (status === "deferred") {
+    return;
+  }
+  if (!userData) {
+    console.warn("No user data found");
     return;
   }
   yield put(webLoginSuccess({ userData, withCaptions }));
@@ -151,6 +159,10 @@ function* webLoginWithGoogleRequestSaga({
     { background }
   );
   if (status === "deferred") {
+    return;
+  }
+  if (!userData) {
+    console.warn("No user data found");
     return;
   }
   // Retrieve data

@@ -37,11 +37,14 @@ export default function NewCaptionerPage(): JSX.Element {
 }
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
-  wrapper.getStaticProps(() => async ({ locale }: GetStaticPropsContext) => {
-    return {
-      props: {
-        ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-      },
-    };
-  })
+  wrapper.getStaticProps(
+    () =>
+      async ({ locale = "en-US" }: GetStaticPropsContext) => {
+        return {
+          props: {
+            ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
+          },
+        };
+      }
+  )
 );

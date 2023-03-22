@@ -4,7 +4,8 @@ import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const PART_SEPARATOR = "|";
-const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
+const videoMatchingRegex =
+  /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
 /**
  * Processor for Bilibili
  */
@@ -16,13 +17,16 @@ export const BilibiliProcessor: Processor = {
   videoPageUISelector: ".player-wrap",
   updateTitleOnSubmission: true,
   titleSelector: async () => {
-    const mainTitle = (document.querySelector(
-      ".video-title span, .video-title"
-    ) as HTMLElement)?.innerText;
+    const mainTitle = (
+      document.querySelector(".video-title span, .video-title") as HTMLElement
+    )?.innerText;
     if (!document.querySelector("#multi_page")) {
       return mainTitle;
     }
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     const mainId = matches[3];
     const url = new URL(window.location.href);
     const partId = url.searchParams.get("p") || "1";
@@ -64,6 +68,9 @@ export const BilibiliProcessor: Processor = {
     let suffix = "";
     if (!!partId && partId != "1") {
       suffix = `${PART_SEPARATOR}${partId}`;
+    }
+    if (!matches) {
+      return "";
     }
     return matches[3] + suffix;
   },

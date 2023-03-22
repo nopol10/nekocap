@@ -45,9 +45,15 @@ type PageParams = {
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
   wrapper.getStaticProps(
     (store) =>
-      async ({ locale, params }: GetStaticPropsContext<PageParams>) => {
+      async ({
+        locale = "en-US",
+        params,
+      }: GetStaticPropsContext<PageParams>) => {
         try {
-          const requestedPageNumber = Math.max(1, parseInt(params.pageId) ?? 1);
+          const requestedPageNumber = Math.max(
+            1,
+            parseInt(params?.pageId || "1") ?? 1
+          );
           const { captions, totalCount, hasMoreResults } =
             await loadBrowseCaptions(requestedPageNumber);
           const actualPageNumber =
@@ -62,7 +68,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
               currentResultPage: actualPageNumber,
               pageSize: BROWSE_PAGE_SIZE,
               captions: captions,
-              totalResults: totalCount,
+              totalResults: totalCount || 0,
               append,
             })
           );

@@ -14,7 +14,6 @@ import {
 import {
   canEditorRedoSelector,
   canEditorUndoSelector,
-  hasEditorCaptionDataSelector,
   isUserCaptionLoadedSelector,
   keyboardShortcutsSelector,
   showEditorSelector,

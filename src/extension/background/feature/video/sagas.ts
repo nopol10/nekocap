@@ -131,6 +131,8 @@ function* updateLoadedCaptionFromFileSaga({
     videoId,
     videoSource,
     modifiedTime: Date.now(),
+    userLike: null,
+    userDislike: null,
   };
 
   yield put([
@@ -298,13 +300,17 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
   }
   const { caption, rawCaption: rawCaptionString } = response;
   let fontList = SUBSTATION_FONT_LIST;
-  let rawCaption: RawCaptionData;
+  let rawCaption: RawCaptionData | undefined;
   if (rawCaptionString) {
     rawCaption = JSON.parse(rawCaptionString);
     if (rawCaption && rawCaption.data) {
       if (rawCaption.data) {
         // Also load the font list when raw captions are required
-        rawCaption.data = lzDecompress(rawCaption.data);
+        const decompressedRawCaption = lzDecompress(rawCaption.data);
+        if (!decompressedRawCaption) {
+          throw new Error("No data in raw caption");
+        }
+        rawCaption.data = decompressedRawCaption;
         fontList = yield call(loadFontListApi);
       }
     }
@@ -357,9 +363,12 @@ function* loadWebsiteViewerCaptionSaga(
 
 function* likeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
   const { tabId } = payload;
-  const { id: captionId, userLike }: CaptionContainer = yield select(
+  const { id: captionId }: CaptionContainer = yield select(
     loadedCaptionSelector(tabId)
   );
+  if (!captionId) {
+    throw new Error("Tried to like caption without id");
+  }
   yield call([Locator.provider(), "likeCaption"], { captionId: captionId });
 
   yield put(loadServerCaption.request({ captionId, tabId }));
@@ -372,7 +381,9 @@ function* dislikeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
   const { id: captionId, userDislike }: CaptionContainer = yield select(
     loadedCaptionSelector(tabId)
   );
-
+  if (!captionId) {
+    throw new Error("Tried to dislike caption without id");
+  }
   yield call([Locator.provider(), "dislikeCaption"], {
     captionId,
   });
@@ -393,7 +404,6 @@ function* requestFreshTabDataSaga({
     newCaptionId,
     currentUrl,
   } = payload;
-
   // @ts-ignore
   yield put([clearHistory(tabId), clearTabData({ tabId })]);
   yield put(setContentPageType({ tabId, pageType: newPageType, currentUrl }));
@@ -405,7 +415,7 @@ function* requestFreshTabDataSaga({
   if (newPageType !== PageType.Video) {
     return;
   }
-  if (newVideoId) {
+  if (newVideoId && newVideoSource !== undefined) {
     yield put(
       loadCaptions.request({
         videoId: newVideoId,
@@ -414,12 +424,8 @@ function* requestFreshTabDataSaga({
       })
     );
   }
-  const {
-    autoloadMethod,
-    preferredLanguage,
-  }: UserExtensionPreferenceState = yield select(
-    userExtensionPreferenceSelector
-  );
+  const { autoloadMethod, preferredLanguage }: UserExtensionPreferenceState =
+    yield select(userExtensionPreferenceSelector);
   if (newCaptionId) {
     // Load the caption specified in the URL
     yield put(loadServerCaption.request({ captionId: newCaptionId, tabId }));
@@ -429,9 +435,8 @@ function* requestFreshTabDataSaga({
     return;
   }
   // Autoload caption
-  const {
-    payload: serverCaptionAction,
-  }: PayloadAction<SetServerCaptions> = yield take(setServerCaptions);
+  const { payload: serverCaptionAction }: PayloadAction<SetServerCaptions> =
+    yield take(setServerCaptions);
   const serverCaptionList = serverCaptionAction.captions;
   if (serverCaptionList.length <= 0) {
     return;

@@ -16,74 +16,71 @@ export const tabEditorDataSelector = (tabId: number) => (state: RootState) => {
  * Returns whether there is any user entered caption data
  * @param tabId
  */
-export const hasEditorCaptionDataSelector = (tabId: number) => (
-  state: RootState
-) => {
-  const tabData = state.captionEditor.tabData;
-  if (!tabData || !tabData[tabId]) {
-    return undefined;
-  }
-  const editorData = state.captionEditor.tabData[tabId].present;
-  if (
-    !editorData ||
-    !editorData.caption ||
-    !editorData.caption.data ||
-    !editorData.caption.data.tracks ||
-    editorData.caption.data.tracks.length <= 0
-  ) {
-    return false;
-  }
-  for (
-    let trackId = 0;
-    trackId < editorData.caption.data.tracks.length;
-    trackId++
-  ) {
-    const { cues } = editorData.caption.data.tracks[trackId];
-    for (let cueId = 0; cueId < cues.length; cueId++) {
-      if (cues[cueId].text) {
-        return true;
+export const hasEditorCaptionDataSelector =
+  (tabId: number) => (state: RootState) => {
+    const tabData = state.captionEditor.tabData;
+    if (!tabData || !tabData[tabId]) {
+      return undefined;
+    }
+    const editorData = state.captionEditor.tabData[tabId].present;
+    if (
+      !editorData ||
+      !editorData.caption ||
+      !editorData.caption.data ||
+      !editorData.caption.data.tracks ||
+      editorData.caption.data.tracks.length <= 0
+    ) {
+      return false;
+    }
+    for (
+      let trackId = 0;
+      trackId < editorData.caption.data.tracks.length;
+      trackId++
+    ) {
+      const { cues } = editorData.caption.data.tracks[trackId];
+      for (let cueId = 0; cueId < cues.length; cueId++) {
+        if (cues[cueId].text) {
+          return true;
+        }
       }
     }
-  }
-  return false;
-};
+    return false;
+  };
 
-export const tabEditorRawDataSelector = (tabId: number) => (
-  state: RootState
-): RawCaptionData => {
-  const background = isInBackgroundScript();
-  const tabRawData =
-    background &&
-    globalThis.backgroundEditorRawCaption &&
-    globalThis.backgroundEditorRawCaption[tabId]
-      ? globalThis.backgroundEditorRawCaption[tabId]
-      : globalThis.editorRawCaption; // state.captionEditor.tabRawData;
-  // if (!tabRawData || !tabRawData[tabId]) {
-  if (!tabRawData) {
-    return undefined;
-  }
-  return tabRawData;
-};
+export const tabEditorRawDataSelector =
+  (tabId: number) =>
+  (state: RootState): RawCaptionData | undefined => {
+    const background = isInBackgroundScript();
+    const tabRawData =
+      background &&
+      globalThis.backgroundEditorRawCaption &&
+      globalThis.backgroundEditorRawCaption[tabId]
+        ? globalThis.backgroundEditorRawCaption[tabId]
+        : globalThis.editorRawCaption; // state.captionEditor.tabRawData;
+    // if (!tabRawData || !tabRawData[tabId]) {
+    if (!tabRawData) {
+      return undefined;
+    }
+    return tabRawData;
+  };
 
-export const loadedEditorCaptionSelector = (tabId: number) => (
-  state: RootState
-) => {
-  const tabData = state.captionEditor.tabData;
-  if (!tabData || !tabData[tabId]) {
-    return undefined;
-  }
-  return state.captionEditor.tabData[tabId].present.caption;
-};
+export const loadedEditorCaptionSelector =
+  (tabId: number) => (state: RootState) => {
+    const tabData = state.captionEditor.tabData;
+    if (!tabData || !tabData[tabId]) {
+      return undefined;
+    }
+    return state.captionEditor.tabData[tabId].present.caption;
+  };
 
-export const showEditorIfPossibleSelector = (tabId: number) => (
-  state: RootState
-) => {
-  const tabData = state.captionEditor.tabData;
-  if (!tabData || !tabData[tabId]) {
-    return undefined;
-  }
-  return state.captionEditor.tabData[tabId].present.showEditorIfPossible;
-};
+export const showEditorIfPossibleSelector =
+  (tabId: number) => (state: RootState) => {
+    const tabData = state.captionEditor.tabData;
+    if (!tabData || !tabData[tabId]) {
+      return undefined;
+    }
+    return state.captionEditor.tabData[tabId].present.showEditorIfPossible;
+  };
 
 export const keyboardShortcutsSelector = (state: RootState) => {
   return state.captionEditor.keyboardShortcuts;
@@ -121,7 +118,7 @@ export const showEditorSelector = (tabId: number) =>
     isUserCaptionLoadedSelector(tabId),
     showEditorIfPossibleSelector(tabId),
     (isUserCaptionLoaded, showEditorIfPossible) => {
-      return isUserCaptionLoaded && showEditorIfPossible;
+      return !!(isUserCaptionLoaded && showEditorIfPossible);
     }
   );
 

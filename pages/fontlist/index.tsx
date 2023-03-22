@@ -36,7 +36,7 @@ export default function FontsPage(): JSX.Element {
 }
 
 export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
-  wrapper.getStaticProps((store) => async ({ locale }) => {
+  wrapper.getStaticProps((store) => async ({ locale = "en-US" }) => {
     try {
       const fontList = await loadFontListApi();
       store.dispatch(setFontList({ list: fontList }));

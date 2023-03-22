@@ -22,7 +22,6 @@ import { isClient } from "@/common/client-utils";
 import { useSSRMediaQuery } from "@/hooks";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import Link from "next/link";
 
 const { Link: AntdLink } = Typography;
 
@@ -143,7 +142,7 @@ export const WebHeader = (): ReactElement => {
     <>
       {!isLoggedIn && (
         <LoginModal
-          modalProps={{ visible: showLogin, onCancel: handleCloseLoginModal }}
+          modalProps={{ open: showLogin, onCancel: handleCloseLoginModal }}
         />
       )}
       <Socials>

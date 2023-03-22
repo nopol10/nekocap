@@ -16,7 +16,7 @@ const { Title } = Typography;
 export const LatestCaptions = (): ReactElement => {
   const dispatch = useDispatch();
   const { latestCaptions } = useSelector(publicDashboardSelector);
-  const isLoading = useSelector(loadLatestCaptions.isLoading(null));
+  const isLoading = useSelector(loadLatestCaptions.isLoading(undefined));
   useEffect(() => {
     if (latestCaptions.length > 0) {
       return;

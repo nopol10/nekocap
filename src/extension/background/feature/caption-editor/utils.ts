@@ -13,9 +13,8 @@ export async function hasSaveData(
   videoId: string,
   videoSource: VideoSource
 ): Promise<boolean> {
-  const result:
-    | { editor: CaptionEditorStorage }
-    | undefined = await chromeProm.storage.local.get(["editor"]);
+  const result: { editor: CaptionEditorStorage } | undefined =
+    await chromeProm.storage.local.get(["editor"]);
   if (!result || !result.editor) {
     return false;
   }
@@ -38,7 +37,7 @@ export function getCaptionContainersFromFile({
 } {
   const format: keyof typeof CaptionFileFormat | undefined =
     CaptionFileFormat[type];
-  let rawCaptionData: RawCaptionData = undefined;
+  let rawCaptionData: RawCaptionData | undefined = undefined;
   let canAutoConvertToNekoCaption = true;
   if (format) {
     if (isAss(type)) {

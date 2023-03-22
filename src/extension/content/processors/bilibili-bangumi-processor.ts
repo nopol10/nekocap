@@ -3,7 +3,8 @@ import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-const videoMatchingRegex = /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/bangumi\/([A-Za-z0-9._%-/]*)(&\S+)?/;
+const videoMatchingRegex =
+  /(http:|https:|)\/\/(?:www.)?(bilibili.com)\/bangumi\/([A-Za-z0-9._%-/]*)(&\S+)?/;
 /**
  * Processor for Bilibili Bangumi
  */
@@ -38,6 +39,9 @@ export const BilibiliBangumiProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = window.location.href.match(videoMatchingRegex);
+    if (!matches) {
+      return "";
+    }
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {

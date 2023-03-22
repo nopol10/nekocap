@@ -148,7 +148,7 @@ export const ShiftTimingsModal = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Shift"}
       onOk={handleShiftTimings}

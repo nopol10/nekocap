@@ -14,12 +14,12 @@ export const AmazonPrimeProcessor: Processor = {
   videoPageUISelector: ".atvwebplayersdk-timeindicator-text",
   updateTitleOnSubmission: true,
   titleSelector: async () => {
-    const title = (document.querySelector(
-      ".atvwebplayersdk-title-text"
-    ) as HTMLElement)?.innerText;
-    const subtitle = (document.querySelector(
-      ".atvwebplayersdk-subtitle-text"
-    ) as HTMLElement)?.innerText;
+    const title = (
+      document.querySelector(".atvwebplayersdk-title-text") as HTMLElement
+    )?.innerText;
+    const subtitle = (
+      document.querySelector(".atvwebplayersdk-subtitle-text") as HTMLElement
+    )?.innerText;
     return `${title} ${subtitle}`;
   },
   inlineMenu: { insertPosition: "after" },
@@ -47,7 +47,7 @@ export const AmazonPrimeProcessor: Processor = {
     );
     if (downloadButton) {
       const downloadElement = downloadButton as HTMLAnchorElement;
-      titleId = new URL(downloadElement.href).searchParams.get("gti");
+      titleId = new URL(downloadElement.href).searchParams.get("gti") || "";
     }
     // For each series id, find the number of occurences of that id and sort them in descending order
     const seriesIds = uniq(

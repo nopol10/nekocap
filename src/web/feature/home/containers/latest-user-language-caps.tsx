@@ -16,10 +16,11 @@ const { Title } = Typography;
 
 export const LatestUserLanguageCaptions = (): ReactElement => {
   const dispatch = useDispatch();
-  const {
-    latestUserLanguageCaptions: latestUserLanguageCaptions,
-  } = useSelector(publicDashboardSelector);
-  const isLoading = useSelector(loadLatestUserLanguageCaptions.isLoading(null));
+  const { latestUserLanguageCaptions: latestUserLanguageCaptions } =
+    useSelector(publicDashboardSelector);
+  const isLoading = useSelector(
+    loadLatestUserLanguageCaptions.isLoading(undefined)
+  );
   const [baseLanguageName, setBaseLanguageName] = useState("");
   useEffect(() => {
     if (latestUserLanguageCaptions.length > 0) {

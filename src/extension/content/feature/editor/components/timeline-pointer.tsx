@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { colors } from "@/common/colors";
 
 interface TimelinePointerProps {
-  hoverElements: HTMLElement[];
+  hoverElements: (HTMLElement | undefined)[];
   onMouseUp?: (x: number, y: number) => void;
   onDoubleClick?: (x: number, y: number) => void;
   dependencies?: DependencyList;

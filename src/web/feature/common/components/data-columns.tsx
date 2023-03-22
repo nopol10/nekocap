@@ -41,13 +41,13 @@ export const getTooltippedDate = (
 export const captionColumns = {
   videoName: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.videoName");
+      return i18n?.t("home.captionList.columns.videoName");
     },
     dataIndex: "videoName",
     key: "videoName",
     render: function render(text, record: CaptionListFields): ReactElement {
       if (!record) {
-        return null;
+        return <></>;
       }
       const processor: Processor =
         videoSourceToProcessorMap[record.videoSource];
@@ -116,7 +116,7 @@ export const captionColumns = {
   },
   videoSource: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.source");
+      return i18n?.t("home.captionList.columns.source");
     },
     dataIndex: "videoSource",
     key: "videoSource",
@@ -132,7 +132,7 @@ export const captionColumns = {
   },
   createdDate: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.uploaded");
+      return i18n?.t("home.captionList.columns.uploaded");
     },
     dataIndex: "createdDate",
     key: "createdDate",
@@ -143,7 +143,7 @@ export const captionColumns = {
   },
   videoLanguage: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.videoLanguage");
+      return i18n?.t("home.captionList.columns.videoLanguage");
     },
     dataIndex: "videoLanguage",
     key: "videoLanguage",
@@ -156,7 +156,7 @@ export const captionColumns = {
   },
   captionLanguage: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.captionLanguage");
+      return i18n?.t("home.captionList.columns.captionLanguage");
     },
     dataIndex: "language",
     key: "language",
@@ -169,12 +169,12 @@ export const captionColumns = {
   },
   fromToLanguage: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.language");
+      return i18n?.t("home.captionList.columns.language");
     },
     key: "language",
     render: function render(text, record): ReactElement {
       if (!record) {
-        return null;
+        return <></>;
       }
       const fromLanguage = languages[record.videoLanguage];
       const toLanguage = languages[record.language];
@@ -187,7 +187,7 @@ export const captionColumns = {
   },
   updatedDate: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.updated");
+      return i18n?.t("home.captionList.columns.updated");
     },
     dataIndex: "updatedDate",
     key: "updatedDate",
@@ -198,7 +198,7 @@ export const captionColumns = {
   },
   captioner: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.captioner");
+      return i18n?.t("home.captionList.columns.captioner");
     },
     dataIndex: "creatorName",
     key: "creatorName",
@@ -218,7 +218,7 @@ export const captionColumns = {
   },
   views: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.views");
+      return i18n?.t("home.captionList.columns.views");
     },
     dataIndex: "views",
     key: "views",
@@ -234,14 +234,14 @@ export const videoCaptionColumns = (
 ) => ({
   language: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.captionLanguage");
+      return i18n?.t("home.captionList.columns.captionLanguage");
     },
     dataIndex: "languageCode",
     key: "languageCode",
     render: function render(text, record: LoadCaptionsResult) {
-      const t = i18n.t;
+      const t = i18n?.t;
       const processor: Processor = videoSourceToProcessorMap[videoSource];
-      if (!processor) {
+      if (!processor || !t) {
         return null;
       }
       const language = languages[record.languageCode];
@@ -294,7 +294,7 @@ export const videoCaptionColumns = (
   },
   captioner: {
     title: (): ReactNode => {
-      return i18n.t("home.captionList.columns.captioner");
+      return i18n?.t("home.captionList.columns.captioner");
     },
     key: "captionerName",
     render: function render(text, record: LoadCaptionsResult) {
@@ -313,7 +313,7 @@ export const videoCaptionColumns = (
 export const videoColumns = {
   videoName: {
     title: (): ReactNode => {
-      return i18n.t("home.videoList.columns.videoName");
+      return i18n?.t("home.videoList.columns.videoName");
     },
     dataIndex: "name",
     key: "name",
@@ -334,7 +334,7 @@ export const videoColumns = {
   },
   captionCount: {
     title: (): ReactNode => {
-      return i18n.t("home.videoList.columns.captionCount");
+      return i18n?.t("home.videoList.columns.captionCount");
     },
     dataIndex: "captionCount",
     key: "captionCount",

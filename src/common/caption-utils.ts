@@ -23,6 +23,9 @@ export const getCaptionCues = (
  * Is the type an ass?
  * @param type the given type as a string
  */
-export const isAss = (type: string) => {
+export const isAss = (type: string | undefined) => {
+  if (!type) {
+    return false;
+  }
   return type === CaptionFileFormat.ass || type === CaptionFileFormat.ssa;
 };

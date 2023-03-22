@@ -49,7 +49,9 @@ export const ProfileSidebar = ({
   loggedInUser,
   isEditing,
   isLoading,
-  onSubmit,
+  onSubmit = () => {
+    /**/
+  },
   onCancel,
   onAssignReviewerManager,
   onAssignReviewer,
