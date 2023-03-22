@@ -1381,6 +1381,9 @@ var SubtitlesOctopus = function (options) {
   self.performBackgroundRequest = function (options) {
     const { method, url, responseType } = options;
     const onLoad = (response) => {
+      if (!self.worker) {
+        return;
+      }
       self.worker.postMessage(
         {
           target: "request-response",
@@ -1391,6 +1394,9 @@ var SubtitlesOctopus = function (options) {
       );
     };
     const onError = (error) => {
+      if (!self.worker) {
+        return;
+      }
       self.worker.postMessage({
         target: "request-response",
         url: url,
