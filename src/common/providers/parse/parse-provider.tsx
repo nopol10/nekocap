@@ -474,8 +474,13 @@ export class ParseProvider implements BackendProvider<ParseState> {
     const response = await this.Parse.Cloud.run<
       (params: { captionId: string }) => LoadSingleCaptionResponse
     >("loadCaption", { captionId });
+    if (!response) {
+      throw new Error(`[loadCaption] No response for captionId ${captionId}`);
+    }
     if (response.status === "error") {
-      throw new Error(response.error);
+      throw new Error(
+        `[loadCaption] Error for captionId ${captionId}:` + response.error
+      );
     }
     const {
       caption: serverCaption,
