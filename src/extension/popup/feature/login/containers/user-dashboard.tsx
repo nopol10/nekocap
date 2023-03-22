@@ -38,7 +38,14 @@ export const UserDashboard = () => {
     <PopupPage>
       <NekoLogoPopup />
       <HelloText>
-        Hello <b>{captionerData.captioner?.name}</b>
+        Hello{" "}
+        <a
+          href={`${process.env.NEXT_PUBLIC_WEBSITE_URL || ""}dashboard`}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <b>{captionerData.captioner?.name}</b>
+        </a>
       </HelloText>
       <div>
         Visit one of the supported sites to start viewing and creating captions:
