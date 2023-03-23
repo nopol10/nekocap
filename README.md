@@ -72,6 +72,7 @@ Website:
 
 ## Setup for local development
 
+1. Ensure you are using Node 16 (does not work with later versions yet)
 1. Run `npm install --legacy-peer-deps`
 1. Copy the contents of `.env.sample` to `.env` and fill in the details.
    - Firebase variables are used for auth
