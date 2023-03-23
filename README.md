@@ -72,7 +72,7 @@ Website:
 
 ## Setup for local development
 
-1. Run `npm install`
+1. Run `npm install --legacy-peer-deps`
 1. Copy the contents of `.env.sample` to `.env` and fill in the details.
    - Firebase variables are used for auth
 1. Run `npm run watch` to start the webpack dev server for both the extension
@@ -83,11 +83,14 @@ Website:
 
 ### Adding fonts to be hosted from the NekoCap site for SSA/ASS rendering
 
-1. Create a folder called `server-fonts` in the project root. (Webpack is
-   configured to copy fonts there to the website's output directory)
+1. Create a folder called `fonts` in the `public` folder.
 1. Add woff2 webfonts that you want to serve from the website into that folder
 1. Modify `src/common/substation-fonts.ts` to assign font names to the
    corresponding woff2 files in that folder.
+1. Run `npm run fontlist` to generate the `public/fontlist.json` file that will
+   be pulled by the extension and website to know which fonts are available. You
+   can serve this file and the fonts separately so that you don't have to
+   redeploy when new fonts are added.
 
 ### Creating a production build
 
@@ -96,8 +99,7 @@ Website:
 1. Run `npm run build` to build both the extension and the website
    - Run `npm run build:ext` to build just the extension
    - Run `npm run build:web` to build just the website
-1. The output will be in `dist/web` and `dist/extension`
-   1.
+1. The output will be in `.next/` and `dist/extension`
    1. License information of utilized packages will be in \*.licenses.txt next
       to the output javascript
 
