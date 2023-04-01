@@ -15,9 +15,9 @@ export const CreateCaptionWarningModal = ({
   const handleOpenEditor = () => {
     dispatch(
       generateCaptionAndShowEditor({
-        tabId: window.tabId,
-        videoId: window.videoId,
-        videoSource: window.videoSource,
+        tabId: globalThis.tabId,
+        videoId: globalThis.videoId,
+        videoSource: globalThis.videoSource,
       })
     );
     onCancel();

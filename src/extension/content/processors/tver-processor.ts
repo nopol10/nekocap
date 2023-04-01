@@ -34,7 +34,7 @@ export const TVerProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(TVER_URL_REGEX);
+    const matches = globalThis.location.href.match(TVER_URL_REGEX);
     if (!matches) {
       return "";
     }

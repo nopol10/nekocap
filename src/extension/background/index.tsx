@@ -13,7 +13,7 @@ import { backgroundStoreInitPromise } from "./common/store";
 import { performBackendProviderRequest } from "@/common/providers/provider-utils";
 import { LoginMethod, UserData } from "@/common/providers/backend-provider";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
-import { isInServiceWorker } from "@/common/client-utils";
+import { isFirefoxExtension, isInServiceWorker } from "@/common/client-utils";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -52,7 +52,7 @@ if (typeof self !== undefined && isInServiceWorker()) {
 
 // Firebase for auth
 const { auth } = initFirebase();
-if (isInServiceWorker()) {
+if (isInServiceWorker() || isFirefoxExtension()) {
   initStore().then(({ store }) => {
     onAuthStateChanged(auth, (user) => {
       if (user && user.uid && !globalThis.skipAutoLogin) {

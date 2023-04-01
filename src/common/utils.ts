@@ -38,8 +38,10 @@ export const getPaginationFromLimitOffset = (limit: number, offset: number) => {
 };
 
 export const clearSelection = (): void => {
-  // @ts-ignore
-  const sel = window.getSelection ? window.getSelection() : document.selection;
+  const sel = globalThis.getSelection
+    ? globalThis.getSelection()
+    : // @ts-ignore
+      document.selection;
   if (sel) {
     if (sel.removeAllRanges) {
       sel.removeAllRanges();
@@ -110,7 +112,7 @@ export const createElementAdditionObserver = (
     });
   });
 
-  mutationObserver.observe(window.document, {
+  mutationObserver.observe(globalThis.document, {
     childList: true,
     subtree: true,
   });
@@ -138,7 +140,7 @@ export const createElementRemovalObserver = (
     });
   });
 
-  mutationObserver.observe(window.document, {
+  mutationObserver.observe(globalThis.document, {
     childList: true,
     subtree: true,
   });

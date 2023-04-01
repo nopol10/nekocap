@@ -6,7 +6,7 @@ import { VideoAction } from "../types";
 export const VideoIframe = (): ReactElement => {
   useEffect(() => {
     if (
-      window.selectedProcessor?.getPageType(location.href) !==
+      globalThis.selectedProcessor?.getPageType(location.href) !==
       PageType.VideoIframe
     ) {
       return;
@@ -16,8 +16,8 @@ export const VideoIframe = (): ReactElement => {
         type: ChromeMessageType.VideoIframeToBackground,
         payload: {
           type: VideoAction.TimeUpdate,
-          time: window.videoElement.currentTime,
-          duration: window.videoElement.duration,
+          time: globalThis.videoElement.currentTime,
+          duration: globalThis.videoElement.duration,
         },
       });
     };
@@ -26,8 +26,8 @@ export const VideoIframe = (): ReactElement => {
         type: ChromeMessageType.VideoIframeToBackground,
         payload: {
           type: VideoAction.Play,
-          time: window.videoElement.currentTime,
-          duration: window.videoElement.duration,
+          time: globalThis.videoElement.currentTime,
+          duration: globalThis.videoElement.duration,
         },
       });
     };
@@ -36,25 +36,31 @@ export const VideoIframe = (): ReactElement => {
         type: ChromeMessageType.VideoIframeToBackground,
         payload: {
           type: VideoAction.Pause,
-          time: window.videoElement.currentTime,
-          duration: window.videoElement.duration,
+          time: globalThis.videoElement.currentTime,
+          duration: globalThis.videoElement.duration,
         },
       });
     };
-    window.videoElement.addEventListener("timeupdate", sendTimeUpdateToParent);
-    window.videoElement.addEventListener("play", sendPlayToParent);
-    window.videoElement.addEventListener("pause", sendPauseToParent);
-    window.videoElement.addEventListener("seeked", sendTimeUpdateToParent);
+    globalThis.videoElement.addEventListener(
+      "timeupdate",
+      sendTimeUpdateToParent
+    );
+    globalThis.videoElement.addEventListener("play", sendPlayToParent);
+    globalThis.videoElement.addEventListener("pause", sendPauseToParent);
+    globalThis.videoElement.addEventListener("seeked", sendTimeUpdateToParent);
     return () => {
-      window.videoElement.removeEventListener(
+      globalThis.videoElement.removeEventListener(
         "timeupdate",
         sendTimeUpdateToParent
       );
-      window.videoElement.removeEventListener("play", sendPlayToParent);
-      window.videoElement.removeEventListener("pause", sendPauseToParent);
-      window.videoElement.removeEventListener("seeked", sendTimeUpdateToParent);
+      globalThis.videoElement.removeEventListener("play", sendPlayToParent);
+      globalThis.videoElement.removeEventListener("pause", sendPauseToParent);
+      globalThis.videoElement.removeEventListener(
+        "seeked",
+        sendTimeUpdateToParent
+      );
     };
-  }, [window.videoElement]);
+  }, [globalThis.videoElement]);
 
   return <div style={{ display: "none" }}></div>;
 };

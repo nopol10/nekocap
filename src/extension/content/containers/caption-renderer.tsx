@@ -221,8 +221,8 @@ const CaptionRendererInternal = React.forwardRef(
     useEffect(() => {
       if (
         !isInExtension() ||
-        !window.selectedProcessor?.observer ||
-        !window.selectedProcessor.observer.shouldObserveMenuPlaceability
+        !globalThis.selectedProcessor?.observer ||
+        !globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability
       ) {
         return;
       }
@@ -235,8 +235,8 @@ const CaptionRendererInternal = React.forwardRef(
         }
       );
       const videoSelector =
-        typeof window.selectedProcessor.videoSelector == "string"
-          ? window.selectedProcessor.videoSelector
+        typeof globalThis.selectedProcessor.videoSelector == "string"
+          ? globalThis.selectedProcessor.videoSelector
           : "video";
       const additionObserver = createElementAdditionObserver(
         videoSelector,

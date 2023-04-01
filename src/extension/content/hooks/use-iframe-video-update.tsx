@@ -35,7 +35,8 @@ export const useIframeVideoUpdate = ({
   }, []);
   useEffect(() => {
     if (
-      window.selectedProcessor?.getPageType(location.href) !== PageType.Video
+      globalThis.selectedProcessor?.getPageType(location.href) !==
+      PageType.Video
     ) {
       return;
     }

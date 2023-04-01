@@ -30,7 +30,7 @@ export const VimeoProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(videoMatchingRegex);
+    const matches = globalThis.location.href.match(videoMatchingRegex);
     if (!matches) {
       return "";
     }

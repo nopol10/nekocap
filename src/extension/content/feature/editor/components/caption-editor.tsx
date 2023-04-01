@@ -1528,7 +1528,7 @@ const CaptionEditorInternal = ({
               <VideoPane>
                 <EditorVideoContainer
                   playerStyles={
-                    window.selectedProcessor?.editorVideoPlayerStyles || ""
+                    globalThis.selectedProcessor?.editorVideoPlayerStyles || ""
                   }
                   innerRef={editorVideoContainerRef}
                 ></EditorVideoContainer>

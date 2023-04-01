@@ -120,7 +120,7 @@ export interface BackendProvider<T extends RootState> {
   ) => Promise<PrivateCaptionerData>;
   submitCaption: (request: SubmitCaptionRequest) => Promise<UploadResponse>;
   updateCaption: (request: UpdateCaptionRequest) => Promise<UploadResponse>;
-  deleteCaption: (captionId) => Promise<ServerResponse>;
+  deleteCaption: (captionId: string) => Promise<ServerResponse>;
   loadLatestCaptions: () => Promise<CaptionsResponse>;
   loadLatestUserLanguageCaptions: (
     languageCode: string

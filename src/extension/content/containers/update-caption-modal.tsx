@@ -60,10 +60,10 @@ export const UpdateCaptionModal = ({
   if (isServer() || !caption) {
     return <></>;
   }
-  window.tabId = 0;
+  globalThis.tabId = 0;
   const dispatch = useDispatch();
   const isPendingSubmission = useSelector(
-    updateUploadedCaption.isLoading(window.tabId)
+    updateUploadedCaption.isLoading(globalThis.tabId)
   );
   const captioner = useSelector(captionerSelector);
   const { handleSubmit, control, errors, watch } = useForm<FormType>();
@@ -90,7 +90,7 @@ export const UpdateCaptionModal = ({
     );
     dispatch(
       updateUploadedCaption.request({
-        tabId: window.tabId,
+        tabId: globalThis.tabId,
         file: fileCopy,
         type: fileType,
         content: fileContent,

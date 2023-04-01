@@ -53,7 +53,7 @@ export const NetflixProcessor: Processor = {
   darkModeSelector: ".netflix-sans-font-loaded", // Netflix is always in dark mode without 3rd party modifications
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(
+    const matches = globalThis.location.href.match(
       /(http:|https:)\/\/(?:www\.)(netflix.com)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/
     );
     if (!matches) {

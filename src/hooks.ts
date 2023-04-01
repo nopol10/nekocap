@@ -137,9 +137,9 @@ export const useRerenderOnWindowResize = (
         callback();
       }
     };
-    window.addEventListener("resize", onResize);
+    globalThis.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("resize", onResize);
+      globalThis.removeEventListener("resize", onResize);
     };
   }, [...dependencies]);
 };
@@ -336,11 +336,13 @@ export const useCaptionContainerUpdate = (
   const [_, setDummy] = useState(0);
   useEffect(() => {
     if (
-      window.videoElement &&
-      window.videoElement.parentElement &&
-      window.captionContainerElement !== window.videoElement.parentElement
+      globalThis.videoElement &&
+      globalThis.videoElement.parentElement &&
+      globalThis.captionContainerElement !==
+        globalThis.videoElement.parentElement
     ) {
-      window.captionContainerElement = window.videoElement.parentElement;
+      globalThis.captionContainerElement =
+        globalThis.videoElement.parentElement;
       setDummy(Math.random());
     }
   }, [...dependencies, setDummy]);
@@ -351,12 +353,12 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
     const findVideoElement = () => {
-      if (!window.selectedProcessor) {
+      if (!globalThis.selectedProcessor) {
         console.warn("Selected processor not set");
         return;
       }
-      getVideoElement(window.selectedProcessor).then((element) => {
-        window.videoElement = element;
+      getVideoElement(globalThis.selectedProcessor).then((element) => {
+        globalThis.videoElement = element;
         setDummy(Math.random());
         detectElementRemoval();
       });
@@ -376,16 +378,16 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
           })
         );
       });
-      if (!window.videoElement.parentElement) {
+      if (!globalThis.videoElement.parentElement) {
         mutationObserver.current.disconnect();
         return;
       }
-      mutationObserver.current.observe(window.videoElement.parentElement, {
+      mutationObserver.current.observe(globalThis.videoElement.parentElement, {
         childList: true,
       });
     };
 
-    if (window.videoElement) {
+    if (globalThis.videoElement) {
       // Observe when the element gets removed
       detectElementRemoval();
     } else {
@@ -412,7 +414,7 @@ export const processorObserveUpdates = (
     if (mutations.length <= 0) {
       return;
     }
-    const observerSettings = window.selectedProcessor?.observer;
+    const observerSettings = globalThis.selectedProcessor?.observer;
     if (!observerSettings) {
       return;
     }
@@ -487,7 +489,7 @@ export const processorObserveUpdates = (
     });
   });
 
-  mutationObserver.observe(window.document, {
+  mutationObserver.observe(globalThis.document, {
     childList: true,
     subtree: true,
     attributes: true,
@@ -509,9 +511,9 @@ export const useMenuUIElementUpdate = (
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
     if (
-      !window.selectedProcessor?.observer ||
-      (!window.selectedProcessor.observer.shouldObserveMenuPlaceability &&
-        !window.selectedProcessor.observer.shouldObserveVideoMetaUpdate)
+      !globalThis.selectedProcessor?.observer ||
+      (!globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability &&
+        !globalThis.selectedProcessor.observer.shouldObserveVideoMetaUpdate)
     ) {
       return;
     }
@@ -574,7 +576,7 @@ const getScrollPosition = ({
     return { x: 0, y: 0 };
   }
   if (useWindow) {
-    return { x: window.scrollX, y: window.scrollY };
+    return { x: globalThis.scrollX, y: globalThis.scrollY };
   }
   const target = element ? element : document.body;
 
@@ -612,6 +614,8 @@ export const useScrollPosition = (
     return;
   }
 
+  // Intentionally disabled as it is always called on the client
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useLayoutEffect(() => {
     const handleScroll = () => {
       if (wait) {
@@ -664,7 +668,7 @@ export function useSSRMediaQuery(settings: { query?: string }) {
     if (!query) {
       return;
     }
-    const media = window.matchMedia(query);
+    const media = globalThis.matchMedia(query);
     if (media.matches !== matches) {
       setMatches(media.matches);
     }

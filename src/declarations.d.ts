@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 import type { FirebaseApp } from "firebase/app";
 import type { Auth } from "firebase/auth";
 import { Action } from "redux";
@@ -47,6 +48,8 @@ declare global {
       backendProvider: BackendProvider<any>;
     }
   }
+  var backupHotkeyParentElement: Node | null;
+  var backupHotkeyElement: Node | null;
 }
 
 declare module "redux-saga/effects" {

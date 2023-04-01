@@ -49,7 +49,7 @@ export const SubmitCaptionModal = (props: SubmitCaptionModalProps) => {
   const { visible, onCancel } = props;
   const dispatch = useDispatch();
   const isPendingSubmission = useSelector(
-    submitCaption.isLoading(window.tabId)
+    submitCaption.isLoading(globalThis.tabId)
   );
   const [newCaptionId, setNewCaptionId] = useState<string | undefined>(
     undefined
@@ -65,18 +65,18 @@ export const SubmitCaptionModal = (props: SubmitCaptionModalProps) => {
       translatedTitle,
       privacy,
     } = data;
-    if (window.selectedProcessor?.updateTitleOnSubmission) {
-      window.videoName = await getVideoTitle(window.selectedProcessor);
+    if (globalThis.selectedProcessor?.updateTitleOnSubmission) {
+      globalThis.videoName = await getVideoTitle(globalThis.selectedProcessor);
     }
     const video: VideoMeta = {
-      id: window.videoId,
-      source: window.videoSource,
-      name: window.videoName,
+      id: globalThis.videoId,
+      source: globalThis.videoSource,
+      name: globalThis.videoName,
       languageCode: videoLanguageCode,
     };
     dispatch(
       submitCaption.request({
-        tabId: window.tabId,
+        tabId: globalThis.tabId,
         languageCode,
         video,
         translatedTitle,
@@ -252,10 +252,10 @@ const SuccessLink = styled(Link)`
 
 function SuccessfulScreen({ captionId }: SuccessfulScreenProps) {
   const directViewUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}view/${captionId}`;
-  const extensionViewUrl = window.selectedProcessor
+  const extensionViewUrl = globalThis.selectedProcessor
     ? getDirectCaptionLoadLink(
-        window.selectedProcessor,
-        window.videoId,
+        globalThis.selectedProcessor,
+        globalThis.videoId,
         captionId
       )
     : undefined;

@@ -32,7 +32,7 @@ export const AbemaProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(ABEMA_URL_REGEX);
+    const matches = globalThis.location.href.match(ABEMA_URL_REGEX);
     if (!matches) {
       return "";
     }

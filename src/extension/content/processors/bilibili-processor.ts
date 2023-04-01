@@ -23,12 +23,12 @@ export const BilibiliProcessor: Processor = {
     if (!document.querySelector("#multi_page")) {
       return mainTitle;
     }
-    const matches = window.location.href.match(videoMatchingRegex);
+    const matches = globalThis.location.href.match(videoMatchingRegex);
     if (!matches) {
       return "";
     }
     const mainId = matches[3];
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.location.href);
     const partId = url.searchParams.get("p") || "1";
     const partTitleElement: HTMLElement | undefined = document.querySelector(
       `a[href="/video/${mainId}?p=${partId}"] .part`
@@ -62,8 +62,8 @@ export const BilibiliProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(videoMatchingRegex);
-    const url = new URL(window.location.href);
+    const matches = globalThis.location.href.match(videoMatchingRegex);
+    const url = new URL(globalThis.location.href);
     const partId = url.searchParams.get("p");
     let suffix = "";
     if (!!partId && partId != "1") {

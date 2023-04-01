@@ -7,20 +7,20 @@ import { createGlobalStyle } from "styled-components";
 import { VideoIframe } from "./video-iframe";
 
 export const ContentHome = (): ReactElement => {
-  const videoData = useSelector(tabVideoDataSelector(window.tabId));
+  const videoData = useSelector(tabVideoDataSelector(globalThis.tabId));
 
   const hasGlobalStyles =
-    window.selectedProcessor && window.selectedProcessor.globalStyles;
+    globalThis.selectedProcessor && globalThis.selectedProcessor.globalStyles;
   const GlobalStyle = hasGlobalStyles
     ? createGlobalStyle`
-    ${window.selectedProcessor && window.selectedProcessor.globalStyles}
+    ${globalThis.selectedProcessor && globalThis.selectedProcessor.globalStyles}
   `
     : () => <></>;
 
   if (!videoData) {
     return <></>;
   }
-  const pageType = window.selectedProcessor?.getPageType(location.href);
+  const pageType = globalThis.selectedProcessor?.getPageType(location.href);
   return (
     <>
       {hasGlobalStyles && <GlobalStyle />}

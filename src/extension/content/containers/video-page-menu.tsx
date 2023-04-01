@@ -164,20 +164,22 @@ export const VideoPageMenu = ({
 }: VideoPageMenuProps) => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(isLoggedInSelector);
-  const tabData = useSelector(tabVideoDataSelector(window.tabId));
-  const editorTabData = useSelector(tabEditorDataSelector(window.tabId));
+  const tabData = useSelector(tabVideoDataSelector(globalThis.tabId));
+  const editorTabData = useSelector(tabEditorDataSelector(globalThis.tabId));
   const isLoadingCaptionList = useSelector(
-    loadCaptions.isLoading(window.tabId)
+    loadCaptions.isLoading(globalThis.tabId)
   );
-  const loadingCaptionListError = useSelector(loadCaptions.error(window.tabId));
+  const loadingCaptionListError = useSelector(
+    loadCaptions.error(globalThis.tabId)
+  );
   const isUserCaptionLoaded = useSelector(
-    isUserCaptionLoadedSelector(window.tabId)
+    isUserCaptionLoadedSelector(globalThis.tabId)
   );
   const showEditorIfPossible = useSelector(
-    showEditorIfPossibleSelector(window.tabId)
+    showEditorIfPossibleSelector(globalThis.tabId)
   );
   const availableRenderers = useSelector(
-    availableRenderersSelector(window.tabId)
+    availableRenderersSelector(globalThis.tabId)
   );
   const shouldAutosave = useSelector(shouldAutosaveSelector);
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
@@ -196,9 +198,9 @@ export const VideoPageMenu = ({
     setIsConfirmSaveOpen(false);
     dispatch(
       saveLocalCaption.request({
-        tabId: window.tabId,
-        videoId: window.videoId,
-        videoSource: window.videoSource,
+        tabId: globalThis.tabId,
+        videoId: globalThis.videoId,
+        videoSource: globalThis.videoSource,
       })
     ).then(() => {
       message.success("Saved!");
@@ -206,7 +208,10 @@ export const VideoPageMenu = ({
   }, [setIsConfirmSaveOpen]);
 
   const handleSave = useCallback(async () => {
-    const hasSave = await hasSaveData(window.videoId, window.videoSource);
+    const hasSave = await hasSaveData(
+      globalThis.videoId,
+      globalThis.videoSource
+    );
     if (hasSave) {
       setIsConfirmSaveOpen(true);
       return;
@@ -218,7 +223,7 @@ export const VideoPageMenu = ({
     (fileFormat: keyof typeof CaptionFileFormat) => {
       dispatch(
         exportCaption.request({
-          tabId: window.tabId,
+          tabId: globalThis.tabId,
           format: fileFormat,
         })
       );
@@ -252,7 +257,7 @@ export const VideoPageMenu = ({
   const showCaption = tabData ? tabData.showCaption : true;
   const caption = editorTabData ? editorTabData.caption : tabData?.caption;
   const selectedRenderer = tabData?.renderer;
-  const editorEnabled = !window.selectedProcessor?.disableEditor;
+  const editorEnabled = !globalThis.selectedProcessor?.disableEditor;
 
   const handleClickFromFile = () => {
     setIsSelectFileOpen(true);
@@ -261,9 +266,9 @@ export const VideoPageMenu = ({
   const handleClickFromLocalSave = () => {
     dispatch(
       loadLocallySavedCaption.request({
-        videoId: window.videoId,
-        videoSource: window.videoSource,
-        tabId: window.tabId,
+        videoId: globalThis.videoId,
+        videoSource: globalThis.videoSource,
+        tabId: globalThis.tabId,
       })
     )
       .then(() => {
@@ -277,9 +282,9 @@ export const VideoPageMenu = ({
   const handleClickCreate = () => {
     dispatch(
       createNewCaption.request({
-        videoId: window.videoId,
-        videoSource: window.videoSource,
-        tabId: window.tabId,
+        videoId: globalThis.videoId,
+        videoSource: globalThis.videoSource,
+        tabId: globalThis.tabId,
       })
     );
   };
@@ -319,9 +324,9 @@ export const VideoPageMenu = ({
       file: fileCopy,
       type: fileType,
       content,
-      tabId: window.tabId,
-      videoId: window.videoId,
-      videoSource: window.videoSource,
+      tabId: globalThis.tabId,
+      videoId: globalThis.videoId,
+      videoSource: globalThis.videoSource,
     });
     /**
      * The action to load the file will be dispatched AFTER the modal has completely closed.
@@ -348,9 +353,9 @@ export const VideoPageMenu = ({
     setIsAutoCaptionListOpen(true);
     dispatch(
       fetchAutoCaptionList.request({
-        tabId: window.tabId,
-        videoId: window.videoId,
-        videoSource: window.videoSource,
+        tabId: globalThis.tabId,
+        videoId: globalThis.videoId,
+        videoSource: globalThis.videoSource,
       })
     );
   };
@@ -401,7 +406,7 @@ export const VideoPageMenu = ({
   const handleUpdateRenderer =
     (renderer: CaptionRendererType) =>
     (event: React.MouseEvent<HTMLAnchorElement>) => {
-      dispatch(updateRenderer({ tabId: window.tabId, renderer }));
+      dispatch(updateRenderer({ tabId: globalThis.tabId, renderer }));
       event.preventDefault();
     };
 
@@ -425,7 +430,9 @@ export const VideoPageMenu = ({
   };
 
   const handleClickShowHideCaption = () => {
-    dispatch(updateShowCaption({ tabId: window.tabId, show: !showCaption }));
+    dispatch(
+      updateShowCaption({ tabId: globalThis.tabId, show: !showCaption })
+    );
   };
 
   const handleClickOpenCloseEditor = () => {
@@ -437,7 +444,7 @@ export const VideoPageMenu = ({
       }
     }
     dispatch(
-      updateShowEditor({ tabId: window.tabId, show: !showEditorIfPossible })
+      updateShowEditor({ tabId: globalThis.tabId, show: !showEditorIfPossible })
     );
   };
 
@@ -452,7 +459,7 @@ export const VideoPageMenu = ({
   };
 
   const handleLoadServerCaption = (captionId) => {
-    dispatch(loadServerCaption.request({ tabId: window.tabId, captionId }));
+    dispatch(loadServerCaption.request({ tabId: globalThis.tabId, captionId }));
   };
 
   const handleToggleAutosave = (info) => {
@@ -491,7 +498,7 @@ export const VideoPageMenu = ({
   const renderAutoCaptionButton = () => {
     if (
       !inEditorScreen ||
-      !window.selectedProcessor?.supportAutoCaptions(window.videoId)
+      !globalThis.selectedProcessor?.supportAutoCaptions(globalThis.videoId)
     ) {
       return null;
     }
@@ -507,7 +514,7 @@ export const VideoPageMenu = ({
     dispatch(
       updateEditorCaption({
         action: fixOverlaps({}),
-        tabId: window.tabId,
+        tabId: globalThis.tabId,
       })
     );
   };
@@ -538,11 +545,11 @@ export const VideoPageMenu = ({
   };
 
   const handleClickLike = () => {
-    dispatch(likeCaption.request({ tabId: window.tabId }));
+    dispatch(likeCaption.request({ tabId: globalThis.tabId }));
   };
 
   const handleClickDislike = () => {
-    dispatch(dislikeCaption.request({ tabId: window.tabId }));
+    dispatch(dislikeCaption.request({ tabId: globalThis.tabId }));
   };
 
   const renderLikeButtons = () => {
@@ -644,7 +651,7 @@ export const VideoPageMenu = ({
   };
 
   const handleCloseMenuBar = () => {
-    dispatch(closeMenuBar({ tabId: window.tabId }));
+    dispatch(closeMenuBar({ tabId: globalThis.tabId }));
   };
 
   const handleEditorMenuVisibleChange = (visible: boolean) => {

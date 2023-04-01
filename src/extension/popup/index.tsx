@@ -13,7 +13,7 @@ import "@/extension/content/provider";
 import { PopupProvider } from "../common/popup-context";
 import { initFirebase } from "../background/firebase";
 import { storeInitPromise } from "@/common/store/store-non-background";
-window.isPopupScript = true;
+globalThis.isPopupScript = true;
 
 initFirebase();
 

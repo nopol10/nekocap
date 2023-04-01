@@ -1,7 +1,7 @@
 import { PassthroughProvider } from "@/common/providers/passthrough-provider";
 
 const initializeContentProviders = () => {
-  window.backendProvider = new PassthroughProvider();
+  globalThis.backendProvider = new PassthroughProvider();
 };
 
 initializeContentProviders();

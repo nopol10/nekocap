@@ -9,11 +9,11 @@ import { PassthroughProvider } from "../providers/passthrough-provider";
 export const Locator = {
   provider(): BackendProvider<RootState> {
     if (isClient()) {
-      if (!window.backendProvider) {
+      if (!globalThis.backendProvider) {
         if (isInBackgroundScript() || !isInExtension()) {
           globalThis.backendProvider = new ParseProvider(Parse);
         } else {
-          window.backendProvider = new PassthroughProvider();
+          globalThis.backendProvider = new PassthroughProvider();
         }
       }
       return globalThis.backendProvider;
