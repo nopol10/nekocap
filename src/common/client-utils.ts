@@ -52,7 +52,7 @@ export const isServer = () => {
 };
 
 export const isInServiceWorker = () => {
-  return globalThis.constructor?.name.indexOf("ServiceWorker") >= 0;
+  return globalThis.constructor?.name?.indexOf("ServiceWorker") >= 0 || false;
 };
 
 export const getNekoCapWebsiteUrl = () => {
