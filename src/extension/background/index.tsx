@@ -9,7 +9,7 @@ import debounce from "lodash/debounce";
 import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
 import { initFirebase } from "./firebase";
 import "./common/provider";
-import { storeInitPromise } from "./common/store";
+import { backgroundStoreInitPromise } from "./common/store";
 import { performBackendProviderRequest } from "@/common/providers/provider-utils";
 import { LoginMethod, UserData } from "@/common/providers/backend-provider";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
@@ -70,7 +70,7 @@ chrome.runtime.onMessageExternal.addListener(
         message.payload as FirebaseLoggedInUser;
       const credential = GoogleAuthProvider.credential(credentialIdToken);
       signInWithCredential(auth, credential).then(async () => {
-        const { store } = await storeInitPromise;
+        const { store } = await backgroundStoreInitPromise;
         const userData: UserData =
           await globalThis.backendProvider.completeDeferredLogin(
             LoginMethod.Google,
@@ -94,7 +94,7 @@ chrome.runtime.onMessageExternal.addListener(
 );
 
 async function initStore() {
-  return storeInitPromise;
+  return backgroundStoreInitPromise;
 }
 
 // const BackgroundPage = ({ children }: { children?: ReactNode }) => {

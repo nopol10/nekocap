@@ -28,7 +28,6 @@ import {
 import * as Parse from "parse";
 import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
 import "./provider";
-import { storeInitPromise } from "@/extension/background/common/store";
 import { PassthroughProvider } from "@/common/providers/passthrough-provider";
 import { saveCaptionToDisk } from "../common/saver";
 import { PageType } from "@/common/feature/video/types";
@@ -36,7 +35,7 @@ import {
   getEditorRawCaptionStorageKey,
   getRawCaptionStorageKey,
 } from "../common/raw-caption-keys";
-
+import { storeInitPromise } from "@/common/store/store-non-background";
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
 );
