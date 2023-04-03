@@ -5,10 +5,10 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
-
 import { CaptionContainer } from "@/common/feature/video/types";
 import {
   useMount,
@@ -24,7 +24,7 @@ import { SplitPane } from "react-multi-split-pane";
 import { EDITOR_PORTAL_ELEMENT_ID, TIME } from "@/common/constants";
 import { EditorTimeline, SetTimelineScroll } from "./editor-timeline";
 import { EditorToolbar } from "./editor-toolbar";
-import { Button, Col, message, Popover, Row, Slider, Space } from "antd";
+import { Button, message, Popover, Slider, Space } from "antd";
 import {
   CaptionFileFormat,
   Coords,
@@ -87,7 +87,7 @@ import { findClosestCaption } from "@/common/feature/video/utils";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
 import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
 import { DEVICE } from "@/common/style-constants";
-import { CaptionAlignment } from "@/common/caption-parsers/types";
+import { triggerEnterKeyupEvent } from "../utils/trigger-enter-keyup-event";
 
 dayjs.extend(duration);
 
@@ -183,7 +183,7 @@ type EditorVideoContainerProps = React.DetailedHTMLProps<
   innerRef: LegacyRef<HTMLDivElement>;
 };
 const EditorVideoContainer = styled(
-  ({ playerStyles, innerRef, ...rest }: EditorVideoContainerProps) => {
+  ({ innerRef, ...rest }: EditorVideoContainerProps) => {
     return <div {...rest} ref={innerRef} />;
   }
 )`
@@ -704,6 +704,32 @@ const CaptionEditorInternal = ({
 
   useResize(videoElement, updateVideoDimensions, 0, [videoElement]);
 
+  const setVideoTime = useCallback(
+    (timeInSeconds: number, scrollTimeline = true) => {
+      if (videoElement) {
+        videoElement.currentTime = timeInSeconds;
+      }
+      // Set timeline to scroll to the correct position
+      if (!scrollTimeline || !setTimelineScroll.current) {
+        return;
+      }
+      setTimelineScroll.current(timeInSeconds * 1000);
+    },
+    [videoElement]
+  );
+
+  const selectAndScrollToCaptionId = useCallback(
+    (captionId: number) => {
+      setSelectedCaption(captionId);
+      setTimeout(() => {
+        if (textEditorScrollRef.current) {
+          textEditorScrollRef.current.scrollToRow(captionId);
+        }
+      });
+    },
+    [textEditorScrollRef, setSelectedCaption]
+  );
+
   useEffect(() => {
     if (focusNewCaptionIndex.current >= 0) {
       selectAndScrollToCaptionId(focusNewCaptionIndex.current);
@@ -719,7 +745,7 @@ const CaptionEditorInternal = ({
       }
       focusNewCaptionIndex.current = -1;
     }
-  }, [data]);
+  }, [data, selectAndScrollToCaptionId, selectedTrack, setVideoTime]);
 
   // Effect for unfocusing previous element after opening/closing editor
   useEffect(() => {
@@ -805,7 +831,13 @@ const CaptionEditorInternal = ({
         })
       );
     },
-    [captionContainer, selectedTrack, data, selectedCaption, videoElement]
+    [
+      data,
+      selectedTrack,
+      selectedCaption,
+      videoElement.currentTime,
+      updateCaption,
+    ]
   );
 
   const handleSetEndToCurrentTime = useCallback(
@@ -840,19 +872,13 @@ const CaptionEditorInternal = ({
         })
       );
     },
-    [captionContainer, selectedTrack, data, selectedCaption, videoElement]
-  );
-
-  const selectAndScrollToCaptionId = useCallback(
-    (captionId: number) => {
-      setSelectedCaption(captionId);
-      setTimeout(() => {
-        if (textEditorScrollRef.current) {
-          textEditorScrollRef.current.scrollToRow(captionId);
-        }
-      });
-    },
-    [textEditorScrollRef, setSelectedCaption]
+    [
+      data,
+      selectedTrack,
+      selectedCaption,
+      videoElement.currentTime,
+      updateCaption,
+    ]
   );
 
   const handleGotoNextCaption = useCallback(
@@ -874,7 +900,13 @@ const CaptionEditorInternal = ({
       setVideoTime(startTime / 1000, true);
       focusCaptionTextArea(newId);
     },
-    [selectedCaption, selectedTrack, data]
+    [
+      data,
+      selectedCaption,
+      selectedTrack,
+      selectAndScrollToCaptionId,
+      setVideoTime,
+    ]
   );
 
   const handleGotoPreviousCaption = useCallback(
@@ -892,72 +924,104 @@ const CaptionEditorInternal = ({
       setVideoTime(startTime / 1000, true);
       focusCaptionTextArea(newId);
     },
-    [selectedCaption, selectedTrack, data]
+    [
+      data,
+      selectedCaption,
+      selectAndScrollToCaptionId,
+      selectedTrack,
+      setVideoTime,
+    ]
+  );
+  const debouncedUpdateCaption = useMemo(
+    () => debounce(updateCaption, 500),
+    [updateCaption]
   );
 
-  const handleNewCaptionFromShortcut = (event: Event) => {
-    if (!data || selectedTrack < 0) {
-      return;
-    }
-    event.preventDefault();
-    let newTime = videoElement.currentTime * 1000;
-    if (selectedCaption >= 0) {
-      newTime = Math.max(
-        newTime,
-        data.tracks[selectedTrack].cues[selectedCaption].end
+  const handleNewCaption = useCallback(
+    (trackId: number, newTime: number) => {
+      captionListKeySuffix.current++;
+      updateCaption(
+        addCaptionToTrackTime({
+          trackId,
+          timeMs: newTime,
+          skipValidityChecks: false,
+        })
       );
-    }
-    // Dry run adding it to see what the new id will be
-    const { newCaptionId } = CaptionMutators.addCaptionToTrackTime(
-      data,
-      selectedTrack,
-      newTime,
-      undefined,
-      false
-    );
-    if (isInputElementSelected()) {
-      // Running the update only after keyup is called to workaround an issue where keyup is not fired if the update happens too quickly and the subsequent
-      // rerender changes the elements (due to a key change)
-      // In that case, react hotkeys will treat the keys used to trigger this action as still pressed, preventing other
-      // hotkeys from working until a refocus
-      const inputElement = document.activeElement;
-      let batchUpdates = false;
-      if (debouncedUpdateCaption.pending()) {
-        // We'll do the update and creation of new caption together
-        batchUpdates = true;
-        debouncedUpdateCaption.cancel();
+    },
+    [updateCaption]
+  );
+
+  const handleNewCaptionFromShortcut = useCallback(
+    (event: Event) => {
+      if (!data || selectedTrack < 0) {
+        return;
+      }
+      event.preventDefault();
+      let newTime = videoElement.currentTime * 1000;
+      if (selectedCaption >= 0) {
+        newTime = Math.max(
+          newTime,
+          data.tracks[selectedTrack].cues[selectedCaption].end
+        );
+      }
+      // Dry run adding it to see what the new id will be
+      const { newCaptionId } = CaptionMutators.addCaptionToTrackTime(
+        data,
+        selectedTrack,
+        newTime,
+        undefined,
+        false
+      );
+      focusNewCaptionIndex.current = newCaptionId;
+      if (isInputElementSelected()) {
+        const inputElement = document.activeElement;
+        let batchUpdates = false;
+        if (debouncedUpdateCaption.pending()) {
+          // We'll do the update and creation of new caption together
+          batchUpdates = true;
+          debouncedUpdateCaption.cancel();
+        } else {
+          debouncedUpdateCaption.flush();
+        }
+
+        const dispatchUpdates = () => {
+          if (batchUpdates) {
+            captionListKeySuffix.current++;
+            updateCaption(
+              modifyCaptionWithMultipleActions({
+                actions: [
+                  lastDebouncedAction.current,
+                  addCaptionToTrackTime({
+                    trackId: selectedTrack,
+                    timeMs: newTime,
+                    skipValidityChecks: false,
+                  }),
+                ].filter(BooleanFilter),
+              })
+            );
+          } else {
+            handleNewCaption(selectedTrack, newTime);
+          }
+        };
+        // Force keyup now as we will trigger a rerender right after this, which causes the keyup to not be detected
+        // that leads to hotkeys not working until a refocus.
+        triggerEnterKeyupEvent(inputElement);
+        dispatchUpdates();
       } else {
         debouncedUpdateCaption.flush();
+        handleNewCaption(selectedTrack, newTime);
       }
-
-      const temporaryKeyupListener = () => {
-        if (batchUpdates) {
-          captionListKeySuffix.current++;
-          updateCaption(
-            modifyCaptionWithMultipleActions({
-              actions: [
-                lastDebouncedAction.current,
-                addCaptionToTrackTime({
-                  trackId: selectedTrack,
-                  timeMs: newTime,
-                  skipValidityChecks: false,
-                }),
-              ].filter(BooleanFilter),
-            })
-          );
-        } else {
-          handleNewCaption(selectedTrack, newTime);
-        }
-        focusNewCaptionIndex.current = newCaptionId;
-        inputElement?.removeEventListener("keyup", temporaryKeyupListener);
-      };
-      inputElement?.addEventListener("keyup", temporaryKeyupListener);
-    } else {
-      debouncedUpdateCaption.flush();
-      handleNewCaption(selectedTrack, newTime);
-      focusNewCaptionIndex.current = newCaptionId;
-    }
-  };
+    },
+    [
+      data,
+      debouncedUpdateCaption,
+      handleNewCaption,
+      selectedCaption,
+      selectedTrack,
+      updateCaption,
+      videoElement.currentTime,
+    ]
+  );
 
   const handleUndo = useCallback(() => {
     if (isInputElementSelected()) {
@@ -975,7 +1039,6 @@ const CaptionEditorInternal = ({
     if (onRedo) onRedo();
   }, [captionListKeySuffix, onRedo]);
 
-  const debouncedUpdateCaption = debounce(updateCaption, 500);
   const queueDebounceUpdateCaption = (action: PayloadAction<any>) => {
     lastDebouncedAction.current = { ...action };
     debouncedUpdateCaption(action);
@@ -1016,32 +1079,10 @@ const CaptionEditorInternal = ({
     }
   };
 
-  const setVideoTime = (timeInSeconds: number, scrollTimeline = true) => {
-    if (videoElement) {
-      videoElement.currentTime = timeInSeconds;
-    }
-    // Set timeline to scroll to the correct position
-    if (!scrollTimeline || !setTimelineScroll.current) {
-      return;
-    }
-    setTimelineScroll.current(timeInSeconds * 1000);
-  };
-
   const handleClickCaption = (trackId: number, captionId: number) => {
     captionListKeySuffix.current++;
     setSelectedTrack(trackId);
     selectAndScrollToCaptionId(captionId);
-  };
-
-  const handleNewCaption = (trackId: number, newTime: number) => {
-    captionListKeySuffix.current++;
-    updateCaption(
-      addCaptionToTrackTime({
-        trackId,
-        timeMs: newTime,
-        skipValidityChecks: false,
-      })
-    );
   };
 
   const handleUpdateCaptionTime = (
@@ -1143,42 +1184,38 @@ const CaptionEditorInternal = ({
     };
 
   const handleClickCaptionTextArea =
-    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+    (trackId: number, captionId: number) => () => {
       if (!textEditorScrollRef.current) {
         return;
       }
       setSelectedCaption(captionId);
     };
 
-  const handleJumpToCaption =
-    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
-      if (!data || !textEditorScrollRef.current) {
-        return;
-      }
-      const startTime = data.tracks[trackId].cues[captionId].start;
-      setVideoTime(startTime / 1000, true);
-      setSelectedCaption(captionId);
-    };
+  const handleJumpToCaption = (trackId: number, captionId: number) => () => {
+    if (!data || !textEditorScrollRef.current) {
+      return;
+    }
+    const startTime = data.tracks[trackId].cues[captionId].start;
+    setVideoTime(startTime / 1000, true);
+    setSelectedCaption(captionId);
+  };
 
-  const handleDeleteCaption =
-    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
-      if (!data) {
-        return;
+  const handleDeleteCaption = (trackId: number, captionId: number) => () => {
+    if (!data) {
+      return;
+    }
+    captionListKeySuffix.current++;
+    if (captionId === selectedCaption) {
+      if (selectedCaption >= data.tracks[trackId].cues.length - 1) {
+        // Is the last, we need to make the previous caption the selected one
+        setSelectedCaption(selectedCaption - 1 >= 0 ? selectedCaption - 1 : -1);
       }
-      captionListKeySuffix.current++;
-      if (captionId === selectedCaption) {
-        if (selectedCaption >= data.tracks[trackId].cues.length - 1) {
-          // Is the last, we need to make the previous caption the selected one
-          setSelectedCaption(
-            selectedCaption - 1 >= 0 ? selectedCaption - 1 : -1
-          );
-        }
-      }
-      updateCaption(deleteCaption({ trackId, captionId }));
-    };
+    }
+    updateCaption(deleteCaption({ trackId, captionId }));
+  };
 
   const handleClickAddCaptionBetweenCaptions =
-    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
+    (trackId: number, captionId: number) => () => {
       captionListKeySuffix.current++;
       updateCaption(addCaptionToTrackRelative({ trackId, captionId }));
     };
@@ -1432,7 +1469,7 @@ const CaptionEditorInternal = ({
         true
       );
     },
-    [videoFps]
+    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps]
   );
 
   const handleSeekPreviousFrame = useCallback(
@@ -1447,7 +1484,7 @@ const CaptionEditorInternal = ({
         true
       );
     },
-    [videoFps]
+    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps]
   );
 
   const renderInfoMessage = () => {
