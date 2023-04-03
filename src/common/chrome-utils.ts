@@ -19,7 +19,7 @@ export const requestBackgroundPageVariable = async (
         return;
       }
       variableNames.forEach((variableName) => {
-        window[variableName] = page[variableName];
+        globalThis[variableName] = page[variableName];
       });
       resolve();
     });
@@ -41,14 +41,14 @@ export const requestContentPageVariable = async (
         payload: variableNames,
       },
       (response) => {
-        window.tabId = response;
+        globalThis.tabId = response;
         // Initialize the tab data once we have the id
         if (!response) {
           resolve();
           return;
         }
         response.forEach((value, index) => {
-          window[variableNames[index]] = value;
+          globalThis[variableNames[index]] = value;
         });
         resolve();
       }
@@ -71,14 +71,15 @@ export const syncWindowVarsToPopup = async (tabId: number) => {
     "pageType",
     "tabId",
   ]);
-  window.selectedProcessor = videoSourceToProcessorMap[window.videoSource];
+  globalThis.selectedProcessor =
+    videoSourceToProcessorMap[globalThis.videoSource];
   // Restore loaded raw captions so that they can be submitted
   const rawCaptionKey = getRawCaptionStorageKey(tabId);
   const editorRawCaptionKey = getEditorRawCaptionStorageKey(tabId);
-  window.rawCaption = (await chromeProm.storage.local.get([rawCaptionKey]))?.[
-    rawCaptionKey
-  ];
-  window.editorRawCaption = (
+  globalThis.rawCaption = (
+    await chromeProm.storage.local.get([rawCaptionKey])
+  )?.[rawCaptionKey];
+  globalThis.editorRawCaption = (
     await chromeProm.storage.local.get([editorRawCaptionKey])
   )?.[editorRawCaptionKey];
 };

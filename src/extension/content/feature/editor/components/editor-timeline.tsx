@@ -296,7 +296,7 @@ export const EditorTimeline = ({
   }, [caption, scale, videoDurationMs]);
 
   const timelineVisibleWidth =
-    window.innerWidth - 2 * TIMELINE_PADDING - TRACK_INFO_WIDTH;
+    globalThis.innerWidth - 2 * TIMELINE_PADDING - TRACK_INFO_WIDTH;
 
   const scrollLeft = (() => {
     const { totalWidth } = getTimelineParameters(scale, videoDurationMs);

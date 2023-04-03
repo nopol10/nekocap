@@ -11,9 +11,9 @@ import { syncWindowVarsToPopup } from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
 import "@/extension/content/provider";
 import { PopupProvider } from "../common/popup-context";
-import { storeInitPromise } from "@/extension/background/common/store";
 import { initFirebase } from "../background/firebase";
-window.isPopupScript = true;
+import { storeInitPromise } from "@/common/store/store-non-background";
+globalThis.isPopupScript = true;
 
 initFirebase();
 

@@ -51,7 +51,7 @@ export const TwitterProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = window.location.href.match(TWITTER_STATUS_REGEX);
+    const matches = globalThis.location.href.match(TWITTER_STATUS_REGEX);
     if (!matches || matches.length < 4) {
       return "";
     }

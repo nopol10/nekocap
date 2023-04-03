@@ -68,8 +68,12 @@ const createCanvas = (
 };
 
 const getURL = (url: string) => {
-  if (window.chrome && window.chrome.runtime && window.chrome.runtime.getURL) {
-    return window.chrome.runtime.getURL(url);
+  if (
+    globalThis.chrome &&
+    globalThis.chrome.runtime &&
+    globalThis.chrome.runtime.getURL
+  ) {
+    return globalThis.chrome.runtime.getURL(url);
   } else if (
     globalThis &&
     globalThis.browser &&
@@ -118,8 +122,8 @@ const OctopusRendererInternal = React.forwardRef(
     useEffect(() => {
       if (
         !isInExtension() ||
-        !window.selectedProcessor?.observer ||
-        !window.selectedProcessor.observer.shouldObserveMenuPlaceability
+        !globalThis.selectedProcessor?.observer ||
+        !globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability
       ) {
         return;
       }
@@ -217,7 +221,8 @@ const OctopusRendererInternal = React.forwardRef(
 
       let canvas: HTMLCanvasElement | undefined;
       if (isIframe && iframeProps && captionContainerElement) {
-        const width: number = window.screen.width * window.devicePixelRatio;
+        const width: number =
+          globalThis.screen.width * globalThis.devicePixelRatio;
         const height: number = width * (iframeProps.height / iframeProps.width);
         const canvasElements = createCanvas(
           { width: width, height: height },

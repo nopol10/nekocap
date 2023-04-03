@@ -28,7 +28,6 @@ import {
 import * as Parse from "parse";
 import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
 import "./provider";
-import { storeInitPromise } from "@/extension/background/common/store";
 import { PassthroughProvider } from "@/common/providers/passthrough-provider";
 import { saveCaptionToDisk } from "../common/saver";
 import { PageType } from "@/common/feature/video/types";
@@ -36,7 +35,7 @@ import {
   getEditorRawCaptionStorageKey,
   getRawCaptionStorageKey,
 } from "../common/raw-caption-keys";
-
+import { storeInitPromise } from "@/common/store/store-non-background";
 const siteProcessors: Processor[] = processorOrder.map(
   (processorKey) => videoSourceToProcessorMap[processorKey]
 );
@@ -84,7 +83,7 @@ const createVideoUIPortalElement = () => {
 };
 
 const initialize = async () => {
-  window.isInExtension = true;
+  globalThis.isInExtension = true;
   const autoLoadCaptionId = new URL(location.href).searchParams.get("nekocap");
   createEditorPortalElement();
   createVideoUIPortalElement();
@@ -100,9 +99,9 @@ const initialize = async () => {
         refreshVideoMeta().then(() => {
           sendResponse({
             status: "alive",
-            videoId: window.videoId,
-            videoSource: window.videoSource,
-            pageType: window.pageType,
+            videoId: globalThis.videoId,
+            videoSource: globalThis.videoSource,
+            pageType: globalThis.pageType,
           });
         });
         return true;
@@ -114,53 +113,52 @@ const initialize = async () => {
         );
       } else if (message.type === ChromeMessageType.RawCaption) {
         if (message.payload.isEditor) {
-          window.editorRawCaption = message.payload.rawCaption;
+          globalThis.editorRawCaption = message.payload.rawCaption;
           chrome.storage.local.set({
-            [getEditorRawCaptionStorageKey(window.tabId)]:
-              window.editorRawCaption,
+            [getEditorRawCaptionStorageKey(globalThis.tabId)]:
+              globalThis.editorRawCaption,
           });
         } else {
-          window.rawCaption = message.payload.rawCaption;
+          globalThis.rawCaption = message.payload.rawCaption;
           chrome.storage.local.set({
-            [getRawCaptionStorageKey(window.tabId)]: window.rawCaption,
+            [getRawCaptionStorageKey(globalThis.tabId)]: globalThis.rawCaption,
           });
         }
         sendResponse(true);
       } else if (message.type === ChromeMessageType.GetContentScriptVariables) {
         const variables = message.payload.map((variableName) => {
-          return window[variableName];
+          return globalThis[variableName];
         });
         sendResponse(variables);
       }
     }
   );
 
-  window.selectedProcessor = siteProcessors.find((processor) => {
+  globalThis.selectedProcessor = siteProcessors.find((processor) => {
     return location.href.match(processor.urlRegex) !== null;
   });
-
-  if (!window.selectedProcessor) {
+  if (!globalThis.selectedProcessor) {
     return;
   }
 
   await refreshVideoMeta();
 
   const { store } = await storeInitPromise;
-  const pageType = window.selectedProcessor.getPageType(location.href);
+  const pageType = globalThis.selectedProcessor.getPageType(location.href);
 
   // Get and store the current tab id
   chrome.runtime.sendMessage(
     { type: ChromeMessageType.GetTabId },
     (response) => {
-      window.tabId = response;
+      globalThis.tabId = response;
       // Initialize the tab data once we have the id
       if (pageType !== PageType.VideoIframe) {
         store.dispatch(
           requestFreshTabData({
-            tabId: window.tabId,
-            newVideoId: window.videoId,
-            newVideoSource: window.videoSource,
-            newPageType: window.pageType,
+            tabId: globalThis.tabId,
+            newVideoId: globalThis.videoId,
+            newVideoSource: globalThis.videoSource,
+            newPageType: globalThis.pageType,
             newCaptionId: autoLoadCaptionId || undefined,
             currentUrl: location.href,
           })
@@ -171,7 +169,7 @@ const initialize = async () => {
 
   // Initialize a content copy of the provider
   // This is necessary to introduce introduce the right amount of delay before rendering the content
-  window.backendProvider = await new Promise((resolve) => {
+  globalThis.backendProvider = await new Promise((resolve) => {
     chrome.runtime.sendMessage(
       { type: ChromeMessageType.GetProviderType },
       (providerType: ProviderType) => {

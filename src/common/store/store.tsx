@@ -1,12 +1,15 @@
-import { Middleware, ReducersMapObject } from "@reduxjs/toolkit";
+import {
+  Middleware,
+  ReducersMapObject,
+  configureStore,
+} from "@reduxjs/toolkit";
 import { createRootReducer } from "../../extension/background/common/reducer";
 import { runSaga } from "redux-saga";
-import { applyMiddleware, compose, createStore } from "redux";
 import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
 import { reduxBatch } from "@manaflair/redux-batch";
 import logger from "redux-logger";
 import { persistStore } from "redux-persist";
-import storeCreatorFactory from "reduxed-chrome-storage";
+import { setupReduxed } from "reduxed-chrome-storage";
 import { stdChannel } from "redux-saga";
 import { ExtendedStore } from "reduxed-chrome-storage/dist/types/store";
 import { nekocapApi } from "./api";
@@ -33,7 +36,6 @@ export const initStore = async (
 }> => {
   // Setup saga in a way that works with reduxed-chrome-storage https://github.com/hindmost/reduxed-chrome-storage/issues/6#issuecomment-914874307
   const { channel, sagaMiddleware } = setupSaga();
-  const asyncStoreCreator = storeCreatorFactory({ createStore });
   const middlewares = [
     process.env.PRODUCTION ? undefined : logger,
     sagaThunkMiddleware,
@@ -42,12 +44,17 @@ export const initStore = async (
     ...(middleware || []),
   ].filter(Boolean);
   const enhancers = [reduxBatch];
-  const store = await asyncStoreCreator(
-    createRootReducer({
-      ...reducers,
-    }),
-    compose(applyMiddleware(...middlewares), ...enhancers)
-  );
+  const storeCreatorContainer = (preloadedState?: any) =>
+    configureStore({
+      reducer: createRootReducer({
+        ...reducers,
+      }),
+      preloadedState,
+      middleware: middlewares,
+      enhancers: enhancers,
+    });
+  const instantiate = setupReduxed(storeCreatorContainer);
+  const store = await instantiate();
   runSaga(
     {
       channel,

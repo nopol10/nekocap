@@ -34,7 +34,7 @@ const editorMenuComponent = <VideoPageMenu inEditorScreen={true} />;
 const useAutosave = () => {
   const dispatch = useDispatch();
   const shouldAutosave = useSelector(shouldAutosaveSelector);
-  const showEditor = useSelector(showEditorSelector(window.tabId));
+  const showEditor = useSelector(showEditorSelector(globalThis.tabId));
 
   useEffect(() => {
     let intervalId = 0;
@@ -42,9 +42,9 @@ const useAutosave = () => {
       intervalId = window.setInterval(() => {
         dispatch(
           saveLocalCaption.request({
-            tabId: window.tabId,
-            videoId: window.videoId,
-            videoSource: window.videoSource,
+            tabId: globalThis.tabId,
+            videoId: globalThis.videoId,
+            videoSource: globalThis.videoSource,
             mustHaveData: true,
           })
         ).then(() => {
@@ -60,16 +60,16 @@ const useAutosave = () => {
 
 export const EditorContainer = () => {
   const dispatch = useDispatch();
-  const videoData = useSelector(tabVideoDataSelector(window.tabId));
-  const editorData = useSelector(tabEditorDataSelector(window.tabId));
-  const showEditor = useSelector(showEditorSelector(window.tabId));
-  const canUndo = useSelector(canEditorUndoSelector(window.tabId));
-  const canRedo = useSelector(canEditorRedoSelector(window.tabId));
+  const videoData = useSelector(tabVideoDataSelector(globalThis.tabId));
+  const editorData = useSelector(tabEditorDataSelector(globalThis.tabId));
+  const showEditor = useSelector(showEditorSelector(globalThis.tabId));
+  const canUndo = useSelector(canEditorUndoSelector(globalThis.tabId));
+  const canRedo = useSelector(canEditorRedoSelector(globalThis.tabId));
   const keyboardShortcuts = useSelector(keyboardShortcutsSelector);
   const isUserCaptionLoaded = useSelector(
-    isUserCaptionLoadedSelector(window.tabId)
+    isUserCaptionLoadedSelector(globalThis.tabId)
   );
-  const isSubmitting = useSelector(submitCaption.isLoading(window.tabId));
+  const isSubmitting = useSelector(submitCaption.isLoading(globalThis.tabId));
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [skipSaveConfirmation, setSkipSaveConfirmation] = useState(false);
 
@@ -77,25 +77,25 @@ export const EditorContainer = () => {
 
   // Effect to clear and restore hotkeys present in the streaming site
   useEffect(() => {
-    if (!window.selectedProcessor) {
+    if (!globalThis.selectedProcessor) {
       return;
     }
     if (showEditor) {
       document.body.setAttribute(EDITOR_OPEN_ATTRIBUTE, "true");
-      window.selectedProcessor.onEditorOpen();
+      globalThis.selectedProcessor.onEditorOpen();
     } else {
       document.body.removeAttribute(EDITOR_OPEN_ATTRIBUTE);
-      window.selectedProcessor.onEditorClose();
+      globalThis.selectedProcessor.onEditorClose();
     }
   }, [showEditor]);
 
   const handleUndo = useCallback(() => {
-    dispatch(undoEditorTriggerAction({ tabId: window.tabId }));
-  }, []);
+    dispatch(undoEditorTriggerAction({ tabId: globalThis.tabId }));
+  }, [dispatch]);
 
   const handleRedo = useCallback(() => {
-    dispatch(redoEditorTriggerAction({ tabId: window.tabId }));
-  }, []);
+    dispatch(redoEditorTriggerAction({ tabId: globalThis.tabId }));
+  }, [dispatch]);
 
   const handleForceSave = useCallback(
     (skipConfirmation?: boolean) => {
@@ -105,19 +105,22 @@ export const EditorContainer = () => {
       setIsConfirmSaveOpen(false);
       dispatch(
         saveLocalCaption.request({
-          tabId: window.tabId,
-          videoId: window.videoId,
-          videoSource: window.videoSource,
+          tabId: globalThis.tabId,
+          videoId: globalThis.videoId,
+          videoSource: globalThis.videoSource,
         })
       ).then(() => {
         message.success("Saved!");
       });
     },
-    [setIsConfirmSaveOpen]
+    [dispatch]
   );
 
   const handleSave = useCallback(async () => {
-    const hasSave = await hasSaveData(window.videoId, window.videoSource);
+    const hasSave = await hasSaveData(
+      globalThis.videoId,
+      globalThis.videoSource
+    );
     if (hasSave && !skipSaveConfirmation) {
       setIsConfirmSaveOpen(true);
       return;
@@ -129,17 +132,17 @@ export const EditorContainer = () => {
     (fileFormat: keyof typeof CaptionFileFormat) => {
       dispatch(
         exportCaption.request({
-          tabId: window.tabId,
+          tabId: globalThis.tabId,
           format: fileFormat,
         })
       );
     },
-    []
+    [dispatch]
   );
 
   const handleUpdateCaption = useCallback(
     (action: PayloadAction<CaptionAction>, callback?: () => void) => {
-      dispatch(updateEditorCaption({ action, tabId: window.tabId })).then(
+      dispatch(updateEditorCaption({ action, tabId: globalThis.tabId })).then(
         () => {
           if (callback) {
             callback();
@@ -147,7 +150,7 @@ export const EditorContainer = () => {
         }
       );
     },
-    []
+    [dispatch]
   );
 
   const handleCancelConfirmSaveModal = useCallback(() => {
@@ -170,8 +173,8 @@ export const EditorContainer = () => {
       <CaptionEditor
         captionContainer={caption}
         showEditor={showEditor}
-        captionContainerElement={window.captionContainerElement}
-        videoElement={window.videoElement}
+        captionContainerElement={globalThis.captionContainerElement}
+        videoElement={globalThis.videoElement}
         videoMenuComponent={editorMenuComponent}
         updateCaption={handleUpdateCaption}
         onUndo={handleUndo}

@@ -9,8 +9,8 @@ const disableYoutubeHotkeys = () => {
   const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
 
   if (hotkeyManager) {
-    window.backupHotkeyParentElement = hotkeyManager.parentNode;
-    window.backupHotkeyElement = hotkeyManager;
+    globalThis.backupHotkeyParentElement = hotkeyManager.parentNode;
+    globalThis.backupHotkeyElement = hotkeyManager;
     const clone = hotkeyManager.cloneNode(false);
     hotkeyManager.parentNode?.replaceChild(clone, hotkeyManager);
     clone.parentNode?.removeChild(clone);
@@ -27,10 +27,15 @@ const disableYoutubeHotkeys = () => {
 };
 
 const enableYoutubeHotkeys = () => {
-  if (!window.backupHotkeyParentElement || !window.backupHotkeyElement) {
+  if (
+    !globalThis.backupHotkeyParentElement ||
+    !globalThis.backupHotkeyElement
+  ) {
     return;
   }
-  window.backupHotkeyParentElement.appendChild(window.backupHotkeyElement);
+  globalThis.backupHotkeyParentElement.appendChild(
+    globalThis.backupHotkeyElement
+  );
 };
 
 type YoutubeCaptionDetails = {
@@ -158,7 +163,7 @@ export const YoutubeProcessor: Processor = {
     };
   },
   getVideoId: () => {
-    const matches = window.location.href.match(
+    const matches = globalThis.location.href.match(
       /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
     );
     if (!matches) {
