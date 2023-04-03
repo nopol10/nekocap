@@ -9,7 +9,7 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "service_worker": "js/background.js"
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
@@ -30,19 +30,13 @@
         "https://*.nogidoga.com/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
-      "matches": [
-        "https://*.dailymotion.com/*"
-      ],
+      "matches": ["https://*.dailymotion.com/*"],
       "run_at": "document_end",
       "all_frames": true,
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -63,9 +57,7 @@
         "https://*.nogidoga.com/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -73,11 +65,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation",
-    "identity"
-  ],
+  "permissions": ["storage", "webNavigation", "identity"],
   "web_accessible_resources": [
     {
       "resources": [
@@ -107,13 +95,9 @@
       ]
     }
   ],
-  "externally_connectable": {
-    "matches": [
-      "http://localhost:12341/*",
-      "https://*.nekocap.com/*"
-    ]
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' *.google.com 'wasm-unsafe-eval'"
   },
-  "content_security_policy": "script-src 'self' https://*.google.com; object-src 'self'",
   "browser_specific_settings": {
     "gecko": {
       "id": "nekocaption@gmail.com"
