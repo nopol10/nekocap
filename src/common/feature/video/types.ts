@@ -33,6 +33,7 @@ export enum VideoSource {
   Abema = 13,
   Dailymotion = 14,
   BilibiliTV = 15,
+  ArchiveOrg = 16,
 }
 
 export type CaptionContainer = {
