@@ -48,13 +48,13 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
   const dispatch = useDispatch();
   const userData = useSelector(userDataSelector);
   const captioner = useSelector(captionerSelector);
-  if (!userData) {
-    return null;
-  }
+
   const { languageCodes, name, profileMessage, donationLink } =
     captioner.captioner || {};
   const { handleSubmit, errors, control } = useForm<FormType>();
-
+  if (!userData) {
+    return null;
+  }
   const onSubmit = (data: FormType) => {
     if (!data.languageCodes || data.languageCodes.length <= 0) {
       return;

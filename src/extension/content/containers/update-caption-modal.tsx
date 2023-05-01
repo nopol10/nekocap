@@ -51,15 +51,27 @@ type FormType = {
   selectedTagNames: string[];
 };
 
-export const UpdateCaptionModal = ({
+export const UpdateCaptionModal = (
+  props: UpdateCaptionModalProps
+): ReactElement => {
+  if (isServer() || !props.caption) {
+    return <></>;
+  }
+  return (
+    <UpdateCaptionModalClient
+      {...props}
+      caption={props.caption}
+    ></UpdateCaptionModalClient>
+  );
+};
+
+// For frontend use only
+export const UpdateCaptionModalClient = ({
   caption,
   visible,
   onCancel,
   onUpdated,
-}: UpdateCaptionModalProps): ReactElement => {
-  if (isServer() || !caption) {
-    return <></>;
-  }
+}: UpdateCaptionModalProps & { caption: CaptionListFields }): ReactElement => {
   globalThis.tabId = 0;
   const dispatch = useDispatch();
   const isPendingSubmission = useSelector(
