@@ -51,7 +51,7 @@ const SupportSiteList = () => {
 const features: Feature[] = [
   {
     title: "home.feature.easyToUse.title",
-    description: function description() {
+    description: function Description() {
       const [listOpened, setListOpened] = useState(false);
       const handleOpenList = () => {
         setListOpened(true);

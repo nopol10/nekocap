@@ -197,9 +197,10 @@ export const ViewerPage = ({
     useStateRef<HTMLDivElement>(undefined);
   const defaultRendererRef = useRef<CaptionRendererHandle>(null);
   const currentTimeGetter = useRef<() => number>();
-  const isLoading =
-    router.isFallback ||
-    useSelector(loadWebsiteViewerCaption.isLoading(TAB_ID));
+  const isCaptionLoading = useSelector(
+    loadWebsiteViewerCaption.isLoading(TAB_ID)
+  );
+  const isLoading = router.isFallback || isCaptionLoading;
   const fontList = useSelector(fontListSelector());
   const youtubePlayerRef = useRef<YouTubePlayer>();
   const fullScreenHandle = useFullScreenHandle();

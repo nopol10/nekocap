@@ -137,6 +137,7 @@ export const captionColumns = {
     dataIndex: "createdDate",
     key: "createdDate",
     render: (text) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useRouter();
       return getTooltippedDate(text, router.locale);
     },
@@ -192,6 +193,7 @@ export const captionColumns = {
     dataIndex: "updatedDate",
     key: "updatedDate",
     render: (value: number): ReactElement => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useRouter();
       return getTooltippedDate(value, router.locale);
     },
