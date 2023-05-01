@@ -113,6 +113,11 @@ Website:
    `docker/default.conf` and change the configuration to suit your needs.
 1. Run `docker build` with your desired options.
 
+## Environment variables
+
+Refer to the list of environment variables
+[here](./docs/environment-variables.md).
+
 ## Special thanks
 
 Many great packages helped to bring this to life but extra kudos go to these
