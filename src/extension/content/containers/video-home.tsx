@@ -232,7 +232,7 @@ export const VideoHome = () => {
         currentUrl: location.href,
       })
     );
-  }, []);
+  }, [dispatch]);
   const { menuUpdateToken, videoMetaUpdateToken } = useMenuUIElementUpdate([]);
 
   useEffect(() => {

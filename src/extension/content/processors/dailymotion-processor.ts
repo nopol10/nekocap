@@ -22,8 +22,8 @@ export const DailymotionProcessor: Processor = {
     const videoIframe = await waitForElement("#player-body");
     return videoIframe as unknown as HTMLVideoElement;
   },
-  videoPageUISelector: "div[class*=ResponsiveHeaderTab__tab]",
-  titleSelector: "*[class*=VideoInfoTitle__videoTitle]",
+  videoPageUISelector: "*[class*=NewVideoInfoActions__actionButton]",
+  titleSelector: "*[class*=NewVideoInfoTitle__videoTitle]",
   globalStyles: `
   .libassjs-canvas-parent {
     pointer-events: none;
@@ -32,13 +32,16 @@ export const DailymotionProcessor: Processor = {
       z-index: 10000 !important;
     }
   }
+  #nekocap-menu-container img {
+    filter: contrast(0);
+  }
   `,
   editorVideoPlayerStyles: ``,
   observer: {
     shouldObserveMenuPlaceability: true,
-    shouldObserveVideoMetaUpdate: false,
-    refreshTabDataAfterElementUpdate: false,
-    menuElementSelector: `div[class*=VideoInfoDescription__descriptionTextWith]`,
+    shouldObserveVideoMetaUpdate: true,
+    refreshTabDataAfterElementUpdate: true,
+    menuElementSelector: `*[class*=VideoListSectionTitle__sectionTitleWrapper]`,
   },
   inlineMenu: {
     insertPosition: "before",
