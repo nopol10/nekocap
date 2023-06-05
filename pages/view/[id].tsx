@@ -29,9 +29,12 @@ const TAB_ID = 0;
 
 type ViewCaptionPageProps = {
   rawCaption?: RawCaptionData;
+  hasRawCaption: boolean;
 };
 
-export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
+export default function ViewCaptionPage({
+  hasRawCaption = false,
+}: ViewCaptionPageProps) {
   const router = useRouter();
   const captionId = router.query.id as string;
   const isEmbed = router.query.embed === "true";
@@ -71,7 +74,7 @@ export default function ViewCaptionPage({ rawCaption }: ViewCaptionPageProps) {
   const viewerPage = (
     <ViewerPage
       captionId={captionId}
-      rawCaption={rawCaption}
+      hasRawCaption={hasRawCaption}
       isEmbed={isEmbed}
     />
   );
@@ -127,13 +130,13 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
         locale = "en-US",
         params = { id: "" },
       }: GetStaticPropsContext<PageParams>) => {
-        let rawCaption: RawCaptionData | null = null;
+        let hasRawCaption = false;
         try {
           const { id: captionId } = params;
           const response = await loadWebsiteViewerCaptionApi(captionId);
           const fontList = await loadFontListApi();
           const { caption, renderer } = response;
-          rawCaption = response.rawCaption;
+          hasRawCaption = !!response.rawCaption;
           const tabId = TAB_ID;
 
           const processor = videoSourceToProcessorMap[caption.videoSource];
@@ -154,7 +157,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
         return {
           props: {
             ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
-            rawCaption,
+            hasRawCaption,
           },
           revalidate: 60,
         };

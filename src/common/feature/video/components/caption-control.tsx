@@ -2,6 +2,7 @@ import * as React from "react";
 import { VideoPlayerPreferences } from "@/common/feature/video/types";
 import { colors } from "@/common/colors";
 import Slider from "antd/lib/slider";
+import Progress from "antd/lib/progress";
 import FontSizeOutlined from "@ant-design/icons/lib/icons/FontSizeOutlined";
 import { ReactNode, useCallback } from "react";
 import { styledNoPass } from "@/common/style-utils";
@@ -49,6 +50,8 @@ type CaptionControlMenuProps = {
   setFontSizeMultiplier: (multiplier: number) => void;
   rightContainer?: ReactNode;
   fullScreen?: boolean;
+  isLoadingFont: boolean;
+  fontLoadingProgess: number;
 };
 
 export const CaptionControl = ({
@@ -56,6 +59,8 @@ export const CaptionControl = ({
   setFontSizeMultiplier,
   rightContainer,
   fullScreen = false,
+  isLoadingFont,
+  fontLoadingProgess,
 }: CaptionControlMenuProps) => {
   const [isHidden, toggleHidden] = useToggle(false);
   const handleChangeFontMultiplier = useCallback(
@@ -85,6 +90,13 @@ export const CaptionControl = ({
             formatter: sizeTipFormatter,
           }}
         />
+        {isLoadingFont && (
+          <Progress
+            style={{ marginLeft: "16px" }}
+            percent={fontLoadingProgess}
+            showInfo={false}
+          ></Progress>
+        )}
         <div style={{ position: "relative", marginLeft: "auto" }}>
           {rightContainer}
         </div>

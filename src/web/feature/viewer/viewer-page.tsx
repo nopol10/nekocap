@@ -1,7 +1,13 @@
 import { message, Skeleton, Space, Tooltip, Typography } from "antd";
 import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
-import React, { useEffect, useReducer, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import type { YouTubePlayer } from "youtube-player/dist/types";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
@@ -9,7 +15,9 @@ import { faCode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "antd/lib/slider/style";
 import {
+  loadServerCaption,
   loadWebsiteViewerCaption,
+  setIsLoadingRawCaption,
   setPlayerFontSizeMultiplier,
 } from "@/common/feature/video/actions";
 import {
@@ -168,7 +176,7 @@ const FullScreenButton = styled.div`
 
 export type ViewerPageProps = {
   captionId: string;
-  rawCaption?: RawCaptionData;
+  hasRawCaption?: boolean;
   isEmbed: boolean;
 };
 
@@ -187,12 +195,16 @@ function videoPreferencesReducer(
 }
 
 export const ViewerPage = ({
-  rawCaption,
+  hasRawCaption,
   isEmbed,
 }: ViewerPageProps): JSX.Element => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
+  const [rawCaption, setRawCaption] = useState<RawCaptionData | undefined>(
+    undefined
+  );
   const [captionContainerElement, captionContainerElementRef] =
     useStateRef<HTMLDivElement>(undefined);
   const defaultRendererRef = useRef<CaptionRendererHandle>(null);
@@ -214,8 +226,44 @@ export const ViewerPage = ({
   useEffect(() => {
     // This is a website, no tabId is required
     window.tabId = TAB_ID;
+    // We'll download the raw caption here as some raws are too large to be transferred
+    // thru redux by hydration
+    if (!loadComplete && hasRawCaption && tabData?.caption?.id) {
+      dispatch(
+        loadServerCaption.request({
+          tabId: TAB_ID,
+          captionId: tabData?.caption?.id,
+        })
+      );
+    }
     setLoadComplete(true);
-  }, []);
+  }, [dispatch, hasRawCaption, loadComplete, tabData?.caption?.id]);
+  useEffect(() => {
+    if (rawCaption || !globalThis.rawCaption) {
+      return;
+    }
+    const savedRawCaption = globalThis.rawCaption;
+    delete globalThis.rawCaption;
+    setRawCaption(savedRawCaption);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawCaption, globalThis.rawCaption, tabData?.isLoadingRawCaption]);
+  const handleFontsLoaded = useCallback(
+    (progress: number) => {
+      if (progress < 1) {
+        dispatch(
+          setIsLoadingRawCaption({
+            loading: true,
+            percentage: progress * 100,
+            tabId: TAB_ID,
+          })
+        );
+      } else {
+        dispatch(setIsLoadingRawCaption({ loading: false, tabId: TAB_ID }));
+      }
+    },
+    [dispatch]
+  );
+
   const { t } = useTranslation("common");
 
   const noData =
@@ -239,12 +287,12 @@ export const ViewerPage = ({
 
   const { caption, videoDimensions, renderer } = tabData || {};
 
-  const getCurrentTime = (): number => {
+  const getCurrentTime = useCallback((): number => {
     if (currentTimeGetter.current) {
       return currentTimeGetter.current();
     }
     return 0;
-  };
+  }, []);
 
   const handleClickCopyEmbedLink = () => {
     const url = new URL(window.location.href);
@@ -356,7 +404,6 @@ export const ViewerPage = ({
     width: iframeWidth,
     getCurrentTime,
   };
-
   const processor = caption
     ? videoSourceToProcessorMap[caption.videoSource]
     : undefined;
@@ -400,6 +447,8 @@ export const ViewerPage = ({
               setFontSizeMultiplier={handleSetFontSizeMultiplier}
               rightContainer={fullScreenButton}
               fullScreen={fullScreenHandle.active || isEmbed}
+              isLoadingFont={!!tabData?.isLoadingRawCaption}
+              fontLoadingProgess={tabData?.rawLoadPercentage || 0}
             />
           </FullScreenWrapper>
         </FullScreen>
@@ -412,7 +461,7 @@ export const ViewerPage = ({
               <span dir="auto">{caption.translatedTitle}</span>{" "}
               <Tooltip title={t("viewer.copyEmbedCode")}>
                 <Link onClick={handleClickCopyEmbedLink}>
-                  <FontAwesomeIcon icon={faCode} />
+                  <FontAwesomeIcon icon={faCode} style={{ maxWidth: "38px" }} />
                 </Link>
               </Tooltip>
             </TranslatedTitle>
@@ -481,6 +530,7 @@ export const ViewerPage = ({
             isIframe={true}
             iframeProps={iframeProps}
             fontList={fontList}
+            onFontsLoaded={handleFontsLoaded}
           />
         )}
       </Skeleton>
