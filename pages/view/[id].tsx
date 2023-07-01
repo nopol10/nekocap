@@ -143,6 +143,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
           const dimensions: Dimension = await processor.retrieveVideoDimensions(
             caption.videoId
           );
+          console.log(`[view] retrieved props for: ${captionId}`);
           batch(() => {
             store.dispatch(setFontList({ list: fontList }));
             store.dispatch(setLoadedCaption({ tabId, caption }));
