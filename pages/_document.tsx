@@ -22,7 +22,7 @@ const getCSP = (props) => {
   if (process.env.NODE_ENV !== "production") {
     csp += `style-src 'self' https://fonts.googleapis.com ${commonStyleSrc} 'unsafe-inline' data:;`;
     csp += `script-src 'unsafe-eval' 'self' http://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
-      NextScript.getInlineScriptSource(props)
+      NextScript.getInlineScriptSource(props),
     )};`;
     csp += `connect-src 'self' http://localhost:* https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
     csp += `frame-src 'self' http://www.youtube.com/ ${commonFrameSrc};`;
@@ -30,7 +30,7 @@ const getCSP = (props) => {
     csp += `script-src 'self'${
       isViewer ? " 'wasm-unsafe-eval'" : ""
     } https://www.youtube.com/ ${commonScriptSrc} ${cspHashOf(
-      NextScript.getInlineScriptSource(props)
+      NextScript.getInlineScriptSource(props),
     )};`;
     csp += `connect-src 'self' https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
     csp += `frame-src 'self' https://www.youtube.com/ ${commonFrameSrc};`;
@@ -85,7 +85,7 @@ export default class MyDocument extends Document {
           />
           <meta
             name="keywords"
-            content="free,open source,community captions,chrome extension,firefox extension,browser extension,extension,youtube,niconico,vimeo,bilibili,tver,video,subtitle,subtitles,caption,captions,caption uploader,subtitles uploader,upload,editor,import,export,srt,sbv,vtt,ass,substation alpha,ssa,advanced substation alpha,advanced subtitles,aegisub,subtitleedit,amara"
+            content="free,open source,community captions,chrome extension,firefox extension,browser extension,extension,youtube,niconico,vimeo,bilibili,tbs free,tver,video,subtitle,subtitles,caption,captions,caption uploader,subtitles uploader,upload,editor,import,export,srt,sbv,vtt,ass,substation alpha,ssa,advanced substation alpha,advanced subtitles,aegisub,subtitleedit,amara"
           />
           <link
             href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Rambla:ital,wght@0,400;0,700;1,400;1,700&display=swap"

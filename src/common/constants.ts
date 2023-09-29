@@ -10,10 +10,10 @@ export const captionTags = {
 };
 
 export const Z_INDEX = {
-  EDITOR: 5000,
-  MODAL: 5500, // overridden in antd-override.css for antd
-  DROPDOWN_OPTIONS: 6000, // overridden in antd-override.css for antd
-  MESSAGE: 9000, // overridden in antd-override.css for antd
+  EDITOR: 15000,
+  MODAL: 15500, // overridden in antd-override.css for antd
+  DROPDOWN_OPTIONS: 16000, // overridden in antd-override.css for antd
+  MESSAGE: 19000, // overridden in antd-override.css for antd
 };
 
 export const TIME = {

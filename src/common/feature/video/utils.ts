@@ -21,6 +21,7 @@ import { AbemaProcessor } from "@/extension/content/processors/abema-processor";
 import { DailymotionProcessor } from "@/extension/content/processors/dailymotion-processor";
 import { BilibiliTVProcessor } from "@/extension/content/processors/bilibilitv-processor";
 import { ArchiveOrgProcessor } from "@/extension/content/processors/archive-org-processor";
+import { TBSFreeProcessor } from "@/extension/content/processors/tbs-free-processor";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -29,7 +30,7 @@ import { ArchiveOrgProcessor } from "@/extension/content/processors/archive-org-
  */
 export const findClosestCaption = (
   captions: NekoCaption[],
-  time: number
+  time: number,
 ): number => {
   let left = 0,
     right = captions.length - 1;
@@ -72,7 +73,7 @@ export const findClosestCaption = (
 export const convertToCaptionContainer = (
   captionData: CaptionDataContainer,
   videoId: string,
-  videoSource: VideoSource
+  videoSource: VideoSource,
 ): CaptionContainer => {
   const caption: CaptionContainer = {
     videoId,
@@ -121,7 +122,7 @@ export const getCaptionTagStrings = (tags: CaptionTag[]): string[] => {
 };
 
 export const getCaptionTagFromTagString = (
-  tag: string
+  tag: string,
 ): CaptionTag | undefined => {
   if (!tag.startsWith("g:")) {
     return undefined;
@@ -149,6 +150,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.Abema]: AbemaProcessor,
   [VideoSource.Dailymotion]: DailymotionProcessor,
   [VideoSource.BilibiliTV]: BilibiliTVProcessor,
+  [VideoSource.TBSFree]: TBSFreeProcessor,
   [VideoSource.ArchiveOrg]: ArchiveOrgProcessor,
 };
 
@@ -169,5 +171,6 @@ export const processorOrder = [
   VideoSource.Abema,
   VideoSource.Dailymotion,
   VideoSource.BilibiliTV,
+  VideoSource.TBSFree,
   VideoSource.ArchiveOrg,
 ];

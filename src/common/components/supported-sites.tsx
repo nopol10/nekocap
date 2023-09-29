@@ -67,6 +67,10 @@ const SUPPORTED_SITES: SupportedSite[] = [
     name: "Dailymotion",
   },
   {
+    url: "https://cu.tbs.co.jp/",
+    name: "TBS Free",
+  },
+  {
     url: "https://nogidoga.com/",
     name: "NogiDoga",
   },

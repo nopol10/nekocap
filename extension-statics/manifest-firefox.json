@@ -9,9 +9,7 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": [
-      "js/background.js"
-    ]
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
@@ -30,22 +28,17 @@
         "https://*.abema.tv/*",
         "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*",
+        "https://*.cu.tbs.co.jp/*",
         "https://*.archive.org/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
-      "matches": [
-        "https://*.dailymotion.com/*"
-      ],
+      "matches": ["https://*.dailymotion.com/*"],
       "run_at": "document_end",
       "all_frames": true,
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -64,12 +57,11 @@
         "https://*.dailymotion.com/*",
         "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*",
+        "https://*.cu.tbs.co.jp/*",
         "https://*.archive.org/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -77,11 +69,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation",
-    "identity"
-  ],
+  "permissions": ["storage", "webNavigation", "identity"],
   "web_accessible_resources": [
     {
       "resources": [
@@ -108,6 +96,7 @@
         "https://*.dailymotion.com/*",
         "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*",
+        "https://*.cu.tbs.co.jp/*",
         "https://*.archive.org/*"
       ]
     }
