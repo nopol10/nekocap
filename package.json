@@ -97,7 +97,7 @@
     "nodemon-webpack-plugin": "^4.3.2",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "patch-package": "^6.4.7",
-    "prettier": "^2.1.1",
+    "prettier": "3.0.3",
     "react-svg-loader": "^3.0.3",
     "release-it": "15.5.0",
     "remote-redux-devtools": "^0.5.16",
