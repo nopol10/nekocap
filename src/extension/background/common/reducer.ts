@@ -9,12 +9,12 @@ import { searchReducer } from "@/common/feature/search/reducers";
 import { captionEditorReducer } from "../feature/caption-editor/reducers";
 import { userExtensionPreferenceReducer } from "../feature/user-extension-preference/reducers";
 import { persistReducer } from "redux-persist";
-import { syncStorage } from "redux-persist-webextension-storage";
+import { localStorage } from "redux-persist-webextension-storage";
 import { nekocapApi } from "@/common/store/api";
 
-const userExtensionPreferenceSyncStorageConfig = {
-  key: "userExtensionPreferenceSyncStorage",
-  storage: syncStorage,
+const userExtensionPreferenceLocalStorageConfig = {
+  key: "userExtensionPreferenceLocalStorage",
+  storage: localStorage,
 };
 
 export const createRootReducer = (additionalReducers?: ReducersMapObject) => {
@@ -31,8 +31,8 @@ export const createRootReducer = (additionalReducers?: ReducersMapObject) => {
     search: searchReducer,
     captionEditor: captionEditorReducer,
     userExtensionPreference: persistReducer(
-      userExtensionPreferenceSyncStorageConfig,
-      userExtensionPreferenceReducer
+      userExtensionPreferenceLocalStorageConfig,
+      userExtensionPreferenceReducer,
     ),
     [nekocapApi.reducerPath]: nekocapApi.reducer,
   });
