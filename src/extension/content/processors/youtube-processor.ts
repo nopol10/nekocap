@@ -34,7 +34,7 @@ const enableYoutubeHotkeys = () => {
     return;
   }
   globalThis.backupHotkeyParentElement.appendChild(
-    globalThis.backupHotkeyElement
+    globalThis.backupHotkeyElement,
   );
 };
 
@@ -97,7 +97,7 @@ export const YoutubeProcessor: Processor = {
   supportAutoCaptions: () => true,
   getAutoCaptionList: async (videoId: string) => {
     const response = await fetch(
-      `https://youtube.com/get_video_info?html5=1&video_id=${videoId}`
+      `https://youtube.com/get_video_info?html5=1&video_id=${videoId}`,
     );
     const videoInfoText = decodeURIComponent(await response.text());
     if (!videoInfoText.includes("captionTracks")) {
@@ -129,7 +129,7 @@ export const YoutubeProcessor: Processor = {
   },
   getAutoCaption: async (
     videoId: string,
-    captionUrl: string
+    captionUrl: string,
   ): Promise<CaptionDataContainer> => {
     const youtubeCaptionResponse = await fetch(captionUrl);
     const captionString = await youtubeCaptionResponse.text();
@@ -163,14 +163,8 @@ export const YoutubeProcessor: Processor = {
     };
   },
   getVideoId: () => {
-    const matches = globalThis.location.href.match(
-      /(http:|https:|)\/\/(player.|www.)?(youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
-    );
-    if (!matches) {
-      return "";
-    }
-    const videoId = matches[6];
-    return videoId;
+    const urlParams = new URLSearchParams(globalThis.location.search);
+    return urlParams.get("v") || "";
   },
   generateVideoLink: (videoId: string) => {
     return `https://www.youtube.com/watch?v=${videoId}`;
@@ -179,12 +173,12 @@ export const YoutubeProcessor: Processor = {
     return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(
       videoId,
       this,
-      "https://www.youtube.com/oembed?url="
+      "https://www.youtube.com/oembed?url=",
     );
   },
   onEditorOpen: () => {
@@ -196,7 +190,7 @@ export const YoutubeProcessor: Processor = {
   getPageType: (url: string) => {
     if (
       url.match(
-        /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be.com\/\S*(?:watch|embed)(?:(?:(?=\/[^&\s?]+(?!\S))\/)|(?:\S*v=|v\/)))([^&\s?]+)/
+        /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be.com\/\S*(?:watch|embed)(?:(?:(?=\/[^&\s?]+(?!\S))\/)|(?:\S*v=|v\/)))([^&\s?]+)/,
       )
     ) {
       return PageType.Video;
