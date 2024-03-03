@@ -1,5 +1,5 @@
 import React from "react";
-import NekoLogoSvg from "-!react-svg-loader!@/assets/images/nekocap.svg";
+import NekoLogoSvg from "-!@svgr/webpack!@/assets/images/nekocap.svg";
 import styled from "styled-components";
 
 type NekoLogoProps = {

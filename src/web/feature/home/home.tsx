@@ -52,7 +52,7 @@ const MainLogo = styled.div`
       height: 80px;
     }
 
-    .cat-wrapper {
+    .nekocap_svg__cat-wrapper {
       transform-origin: center;
       animation: tilt 900ms infinite alternate;
     }
