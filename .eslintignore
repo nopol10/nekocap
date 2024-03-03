@@ -1,7 +1,6 @@
 node_modules
 dist
 webpack.extension.js
-webpack.web.js
 src/libs/*
 public/js/subtitle-octopus/*
 src/sass-vars-to-less.js

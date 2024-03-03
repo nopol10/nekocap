@@ -7,8 +7,7 @@ export const isInExtension = () => {
     globalThis.isInExtension ||
     (globalThis.chrome &&
       globalThis.chrome.runtime &&
-      globalThis.chrome.runtime.id) ||
-    globalThis.isInExtension
+      globalThis.chrome.runtime.id)
   );
 };
 

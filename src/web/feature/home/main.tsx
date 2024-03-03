@@ -8,7 +8,7 @@ import { webAutoLogin } from "@/common/feature/login/actions";
 import { useIsClient, useScrolledPastY } from "@/hooks";
 import { initFirebase } from "@/extension/background/firebase";
 import { AutoLoginContext } from "../common/contexts/auto-login-context";
-import { onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const { Content } = Layout;
 
@@ -24,18 +24,17 @@ export const Main = ({
   const dispatch = useDispatch();
   // Keep track of whether an auto login has been attempted to prevent anoter auto login after the auto login
   const autoLoggedIn = useRef<boolean>(false);
-  const [hasAttemptedAutoLogin, setHasAttemptedAutoLogin] = useState<boolean>(
-    false
-  );
+  const [hasAttemptedAutoLogin, setHasAttemptedAutoLogin] =
+    useState<boolean>(false);
   useEffect(() => {
     // Perform auto login if a user exists
     // Calling onAuthStateChanged at any time will always trigger the callback if a user exists,
     // even if the auth process completed before the addition of this callback
-    const { auth } = initFirebase();
+    const { auth } = initFirebase(getAuth);
     onAuthStateChanged(auth, (user) => {
       if (user && user.uid && !autoLoggedIn.current && !window.skipAutoLogin) {
         dispatch(
-          webAutoLogin.request({ withCaptions: withLoggedInUserCaptions })
+          webAutoLogin.request({ withCaptions: withLoggedInUserCaptions }),
         );
       }
       autoLoggedIn.current = true;

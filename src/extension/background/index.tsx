@@ -15,10 +15,11 @@ import { LoginMethod, UserData } from "@/common/providers/backend-provider";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
 import { isFirefoxExtension, isInServiceWorker } from "@/common/client-utils";
 import {
+  getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithCredential,
-} from "firebase/auth";
+} from "firebase/auth/web-extension";
 import { chromeProm } from "@/common/chrome-utils";
 import type { RootState } from "@/common/store/types";
 import { UserExtensionPreferenceState } from "./feature/user-extension-preference/types";
@@ -51,7 +52,7 @@ if (typeof self !== undefined && isInServiceWorker()) {
 }
 
 // Firebase for auth
-const { auth } = initFirebase();
+const { auth } = initFirebase(getAuth);
 if (isInServiceWorker() || isFirefoxExtension()) {
   initStore().then(({ store }) => {
     onAuthStateChanged(auth, (user) => {
@@ -82,7 +83,7 @@ chrome.runtime.onMessageExternal.addListener(
             {
               id,
               access_token: idToken,
-            }
+            },
           );
         store.dispatch(loginSuccess(userData));
         sendResponse(userData);
@@ -90,7 +91,7 @@ chrome.runtime.onMessageExternal.addListener(
       return true;
     }
     return false;
-  }
+  },
 );
 
 async function initStore() {
@@ -177,7 +178,7 @@ chrome.runtime.onMessage.addListener(
         type: ChromeMessageType.VideoIframeToContent,
       });
     }
-  }
+  },
 );
 
 chrome.tabs.onRemoved.addListener(async (tabId: number) => {
@@ -225,14 +226,14 @@ const debouncedHistoryUpdateListener = debounce(async (details) => {
           newVideoSource,
           newPageType,
           currentUrl: url,
-        })
+        }),
       );
-    }
+    },
   );
 }, 1000);
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(
-  debouncedHistoryUpdateListener
+  debouncedHistoryUpdateListener,
 );
 
 // storeInitPromise.then(({ store }) => {

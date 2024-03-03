@@ -34,14 +34,14 @@ const updateManifest = (manifestPath, isChrome) => {
   return originalManifestString;
 };
 
-module.exports = (env, argv, customEnv = {}) => {
+/** @type { import('webpack').ConfigurationFactory } */
+const createServiceWorkerConfig = (env, argv) => {
   const devMode = argv.mode !== "production";
-  const targetBrowser = argv.targetBrowser;
+  const targetBrowser = env.targetBrowser;
   const isChrome = targetBrowser === "chrome";
-  const isFirefox = targetBrowser === "firefox";
   const analyze = argv.analyze === "true";
   const envFile = dotenv.config(
-    devMode ? undefined : { path: "./.env.prod" }
+    devMode ? undefined : { path: "./.env.prod" },
   ).parsed;
 
   const envKeys = Object.keys(envFile).reduce((prev, next) => {
@@ -49,26 +49,14 @@ module.exports = (env, argv, customEnv = {}) => {
     return prev;
   }, {});
 
-  let originalManifestString = "";
-  const manifestPath = path.join(
-    __dirname,
-    "extension-statics",
-    `manifest-${targetBrowser}.json`
-  );
-  // Update manifest.json with key for build, remove it afterwards
-  if (!devMode && isChrome) {
-    originalManifestString = updateManifest(manifestPath, isChrome);
-  }
-
   return {
     mode: devMode ? "development" : "production",
+    target: "webworker",
     entry: {
-      "js/popup": path.join(__dirname, "src/extension/popup/index.tsx"),
       "js/background": path.join(
         __dirname,
-        "src/extension/background/index.tsx"
+        "src/extension/background/index.tsx",
       ),
-      "js/content": path.join(__dirname, "src/extension/content/index.tsx"),
     },
     output: {
       path: path.join(__dirname, "dist", "extension"),
@@ -81,6 +69,91 @@ module.exports = (env, argv, customEnv = {}) => {
     plugins: [
       ...getPlugins(devMode, envKeys, analyze),
       new CleanWebpackPlugin(),
+      new MiniCssExtractPlugin(),
+      devMode && new ForkTsCheckerWebpackPlugin(),
+    ].filter(Boolean),
+    resolve: {
+      plugins: resolvePlugins,
+      extensions: resolveExtensions,
+    },
+    // Dev server is only added to this one as adding to both is not supported yet
+    ...(devMode && {
+      devtool: "",
+      devServer: {
+        static: {
+          directory: path.join(__dirname, "dist", "extension"),
+          watch: true,
+        },
+        devMiddleware: {
+          writeToDisk: true,
+        },
+        compress: false,
+        // When used in dev mode, the local server should be started separately as well for the extension to connect to.
+        // The server at this port will not be used by the extension
+        port: 12345,
+        hot: false,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods":
+            "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "X-Requested-With, content-type, Authorization",
+        },
+        historyApiFallback: {
+          index: "/",
+        },
+      },
+    }),
+    ...(!devMode && {
+      optimization,
+    }),
+  };
+};
+
+/** @type { import('webpack').ConfigurationFactory } */
+const createContentAndPopupConfig = (env, argv) => {
+  const devMode = argv.mode !== "production";
+  const targetBrowser = env.targetBrowser;
+  const isChrome = targetBrowser === "chrome";
+  const analyze = argv.analyze === "true";
+  const envFile = dotenv.config(
+    devMode ? undefined : { path: "./.env.prod" },
+  ).parsed;
+
+  const envKeys = Object.keys(envFile).reduce((prev, next) => {
+    prev[`process.env.${next}`] = JSON.stringify(envFile[next]);
+    return prev;
+  }, {});
+
+  let originalManifestString = "";
+  const manifestPath = path.join(
+    __dirname,
+    "extension-statics",
+    `manifest-${targetBrowser}.json`,
+  );
+  // Update manifest.json with key for build, remove it afterwards
+  if (!devMode && isChrome) {
+    originalManifestString = updateManifest(manifestPath, isChrome);
+  }
+
+  return {
+    mode: devMode ? "development" : "production",
+    target: "web",
+    entry: {
+      "js/popup": path.join(__dirname, "src/extension/popup/index.tsx"),
+      "js/content": path.join(__dirname, "src/extension/content/index.tsx"),
+    },
+    output: {
+      path: path.join(__dirname, "dist", "extension"),
+      filename: "[name].js",
+      publicPath: "/",
+    },
+    module: {
+      rules: getRules(devMode, __dirname, "img"),
+    },
+    plugins: [
+      ...getPlugins(devMode, envKeys, analyze),
+      // Clean plugin is omitted here as the previous config will trigger it already
       new MiniCssExtractPlugin(),
       new CopyPlugin({
         patterns: [
@@ -95,7 +168,7 @@ module.exports = (env, argv, customEnv = {}) => {
             from: path.resolve(
               __dirname,
               "extension-statics",
-              `manifest-${targetBrowser}.json`
+              `manifest-${targetBrowser}.json`,
             ),
             to: path.resolve(__dirname, "dist", "extension", `manifest.json`),
           },
@@ -105,7 +178,7 @@ module.exports = (env, argv, customEnv = {}) => {
               "src",
               "extension",
               "popup",
-              "popup.html"
+              "popup.html",
             ),
             to: path.resolve(__dirname, "dist", "extension", "popup.html"),
           },
@@ -115,7 +188,7 @@ module.exports = (env, argv, customEnv = {}) => {
               "src",
               "extension",
               "background",
-              "background.html"
+              "background.html",
             ),
             to: path.resolve(__dirname, "dist", "extension", "background.html"),
           },
@@ -126,7 +199,7 @@ module.exports = (env, argv, customEnv = {}) => {
               "dist",
               "extension",
               "js",
-              "subtitle-octopus"
+              "subtitle-octopus",
             ),
             flatten: true,
           },
@@ -157,31 +230,15 @@ module.exports = (env, argv, customEnv = {}) => {
       plugins: resolvePlugins,
       extensions: resolveExtensions,
     },
-    ...(devMode && {
-      devtool: "",
-      devServer: {
-        contentBase: path.join(__dirname, "dist", "web"),
-        compress: false,
-        // When used in dev mode, the local server should be started separately as well for the extension to connect to.
-        // The server at this port will not be used by the extension
-        port: 12345,
-        watchContentBase: true,
-        hot: false,
-        writeToDisk: true,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods":
-            "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "X-Requested-With, content-type, Authorization",
-        },
-        historyApiFallback: {
-          index: "/",
-        },
-      },
-    }),
     ...(!devMode && {
       optimization,
     }),
   };
+};
+
+/** @type { import('webpack').MultiConfigurationFactory } */
+module.exports = (env, argv) => {
+  const serviceWorkerConfig = createServiceWorkerConfig(env, argv);
+  const contentAndPopupConfig = createContentAndPopupConfig(env, argv);
+  return [serviceWorkerConfig, contentAndPopupConfig];
 };
