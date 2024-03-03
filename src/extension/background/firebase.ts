@@ -3,10 +3,13 @@ import {
   isInExtension,
   isInServiceWorker,
 } from "@/common/client-utils";
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { Auth, getAuth } from "firebase/auth";
+import { initializeApp, getApps } from "firebase/app";
+import type { FirebaseApp } from "firebase/app";
+import type { Auth } from "firebase/auth";
 
-export const initFirebase = (): { auth: Auth; firebaseApp: FirebaseApp } => {
+export const initFirebase = (
+  getAuth: (app?: FirebaseApp | undefined) => Auth,
+): { auth: Auth; firebaseApp: FirebaseApp } => {
   const firebaseApps = getApps();
   if (firebaseApps.length > 0) {
     const firebaseApp = firebaseApps[0];

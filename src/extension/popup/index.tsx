@@ -11,11 +11,12 @@ import { syncWindowVarsToPopup } from "@/common/chrome-utils";
 import "@/extension/popup/common/styles/index.scss";
 import "@/extension/content/provider";
 import { PopupProvider } from "../common/popup-context";
+import { getAuth } from "firebase/auth/web-extension";
 import { initFirebase } from "../background/firebase";
 import { storeInitPromise } from "@/common/store/store-non-background";
 globalThis.isPopupScript = true;
 
-initFirebase();
+initFirebase(getAuth);
 
 chrome.runtime.onMessage.addListener((request: ChromeMessage) => {
   if (request.type === ChromeMessageType.Route) {
@@ -40,7 +41,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
           </PopupProvider>
         </Router>
       </Provider>,
-      document.getElementById("popup")
+      document.getElementById("popup"),
     );
   });
 });

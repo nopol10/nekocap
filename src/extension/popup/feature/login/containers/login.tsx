@@ -7,14 +7,13 @@ import { loginRoutes } from "@/common/feature/login/routes";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { PopupPage } from "@/extension/popup/common/components/popup-page";
-import { NekoLogo, NekoLogoPopup } from "@/common/components/neko-logo";
+import { NekoLogoPopup } from "@/common/components/neko-logo";
 import googleLoginImage from "@/assets/images/google/btn_google_signin_light_normal_web@2x.png";
 import { AuthButton } from "@/common/components/auth-button";
 import { ExtensionPreferences } from "./extension-preferences";
 import { getImageLink } from "@/common/chrome-utils";
 import styled from "styled-components";
 import { Divider, Spin } from "antd";
-import { VideoPageMenu } from "@/extension/content/containers/video-page-menu";
 import { PopupVideoMenu } from "./popup-video-menu";
 
 const Page = styled(PopupPage)`
@@ -42,7 +41,7 @@ export const Login = () => {
       setIsLoggingIn(false);
     }, 5000);
     dispatch(
-      loginWithGoogle.request({ background: false, withCaptions: false })
+      loginWithGoogle.request({ background: false, withCaptions: false }),
     );
   };
 

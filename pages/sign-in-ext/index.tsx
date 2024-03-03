@@ -12,6 +12,7 @@ import Text from "antd/lib/typography/Text";
 import { ChromeExternalMessageType } from "@/common/types";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
 import {
+  getAuth,
   getRedirectResult,
   GoogleAuthProvider,
   signInWithRedirect,
@@ -32,14 +33,14 @@ export default function ExtensionSignInPage(): JSX.Element {
   const metaTitle = "NekoCap - Extension Sign In";
   const metaDescription = STRING_CONSTANTS.metaDescription;
   const [loginState, setLogInState] = useState<LoginState>(
-    LoginState.Redirecting
+    LoginState.Redirecting,
   );
   const [isNewParseUser, setIsNewParseUser] = useState(false);
   const captionerData = useSelector(captionerSelector);
 
   useEffect(() => {
     (async () => {
-      const { auth } = initFirebase();
+      const { auth } = initFirebase(getAuth);
       try {
         const authResult = await getRedirectResult(auth);
         if (authResult && authResult.user && auth.currentUser) {
@@ -66,7 +67,7 @@ export default function ExtensionSignInPage(): JSX.Element {
             (response: UserData) => {
               setLogInState(LoginState.Completed);
               setIsNewParseUser(!!response.isNewUser);
-            }
+            },
           );
           return;
         }
@@ -137,5 +138,5 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
         ...(await serverSideTranslations(locale, TRANSLATION_NAMESPACES)),
       },
     };
-  })
+  }),
 );
