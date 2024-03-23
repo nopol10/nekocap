@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const webpack = require("webpack");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -152,6 +153,7 @@ const createContentAndPopupConfig = (env, argv) => {
       rules: getRules(devMode, __dirname, "img"),
     },
     plugins: [
+      new webpack.ProvidePlugin({ process: "process/browser" }),
       ...getPlugins(devMode, envKeys, analyze),
       // Clean plugin is omitted here as the previous config will trigger it already
       new MiniCssExtractPlugin(),
@@ -200,13 +202,18 @@ const createContentAndPopupConfig = (env, argv) => {
               "extension",
               "js",
               "subtitle-octopus",
+              "[name][ext]",
             ),
-            flatten: true,
           },
           {
             from: "src/libs/subtitle-octopus/assets/*.*",
-            to: path.resolve(__dirname, "dist", "extension", "sub-assets"),
-            flatten: true,
+            to: path.resolve(
+              __dirname,
+              "dist",
+              "extension",
+              "sub-assets",
+              "[name][ext]",
+            ),
           },
         ],
       }),
@@ -229,6 +236,9 @@ const createContentAndPopupConfig = (env, argv) => {
     resolve: {
       plugins: resolvePlugins,
       extensions: resolveExtensions,
+      alias: {
+        process: "process/browser",
+      },
     },
     ...(!devMode && {
       optimization,
