@@ -1,11 +1,11 @@
-FROM node:16.19.0-alpine as build
+FROM node:18.19.1-alpine as build
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json ./
 COPY package-lock.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 
 COPY . ./
 COPY .env.prod ./.env
@@ -13,7 +13,7 @@ ENV NODE_ENV production
 RUN npm run build:web
 
 # This uses NextJS's standalone output
-FROM node:16.19.0-alpine
+FROM node:18.19.1-alpine
 WORKDIR /app
 ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs

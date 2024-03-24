@@ -7,7 +7,8 @@ const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+// const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports.optimization = {
   minimize: true,
@@ -18,6 +19,7 @@ module.exports.optimization = {
         output: { ascii_only: true },
       },
     }),
+    new CssMinimizerPlugin(),
   ],
 };
 
@@ -62,11 +64,11 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
     ],
   },
   {
-    exclude: /node_modules/,
+    exclude: [/node_modules/, /\.less$/],
     test: /\.scss$/,
-    issuer: {
-      exclude: /\.less$/,
-    },
+    // issuer: {
+    //   exclude: /\.less$/,
+    // },
     use: [
       MiniCssExtractPlugin.loader,
       // "@teamsupercell/typings-for-css-modules-loader",
@@ -95,6 +97,7 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
         },
       },
     ],
+    type: "javascript/auto",
   },
 ];
 
@@ -106,6 +109,6 @@ module.exports.getPlugins = (devMode, envKeys, analyze) =>
         })
       : null,
     new webpack.DefinePlugin(envKeys),
-    new OptimizeCssAssetsPlugin(),
+    // new OptimizeCssAssetsPlugin(),
     analyze && new BundleAnalyzerPlugin(),
   ].filter(Boolean);

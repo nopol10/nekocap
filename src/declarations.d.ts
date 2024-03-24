@@ -10,7 +10,7 @@ import {
 } from "./common/feature/video/types";
 import { BackendProvider } from "./common/providers/backend-provider";
 import { Processor } from "./extension/content/processors/processor";
-import type * as Vimeo from "vimeo__player";
+import VimeoPlayer from "vimeo__player";
 
 declare global {
   interface Window {
@@ -37,7 +37,7 @@ declare global {
     kofiWidgetOverlay: {
       draw: (name: string, options: Record<string, string>) => void;
     };
-    Vimeo: typeof Vimeo;
+    Vimeo: { Player: typeof VimeoPlayer };
     dailymotion: {
       createPlayer: (videoId: string, options: { video: string }) => any;
     };
