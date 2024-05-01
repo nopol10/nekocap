@@ -42,6 +42,7 @@
       }
     },
     "browseAllCaptions": "瀏覽所有字幕",
+    "twitterSuspensionNotice": "Recently, the NekoCap X (Twitter) account has been wrongly suspended due to reports by apparently malicious person(s). Hence if you need to contact me, join the Discord or message me on Instagram.",
     "latestCaptions": "最新的字幕",
     "latestLanguageCaption": "最新的{{language}} 字幕",
     "noCaptions": "沒有字幕！你可以利用擴充功能創建字幕！",

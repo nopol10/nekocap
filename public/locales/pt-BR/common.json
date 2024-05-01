@@ -42,6 +42,7 @@
       }
     },
     "browseAllCaptions": "Explore todas legendas",
+    "twitterSuspensionNotice": "Recently, the NekoCap X (Twitter) account has been wrongly suspended due to reports by apparently malicious person(s). Hence if you need to contact me, join the Discord or message me on Instagram.",
     "latestCaptions": "Legendas mais recentes",
     "latestLanguageCaption": "Últimas legendas em {{language}}",
     "noCaptions": "Sem legendas! Você pode contribuir criando legendas com a extensão!",

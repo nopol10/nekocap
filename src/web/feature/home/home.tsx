@@ -4,7 +4,7 @@ import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
 import Layout from "antd/lib/layout";
 import { WSTitle } from "@/common/components/ws-title";
-import { Col, Row } from "antd";
+import { Alert, Col, Row } from "antd";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import discordLogo from "@/assets/images/discord.png";
@@ -178,6 +178,15 @@ export const Home = (): ReactElement => {
                 <img id="discord-badge" src={discordLogo.src} />
               </a>
             </Badges>
+            <Alert
+              style={{
+                margin: "0 auto 16px",
+                maxWidth: "650px",
+                fontSize: "1.05em",
+              }}
+              showIcon
+              message={t("home.twitterSuspensionNotice")}
+            />
             <FeatureList />
             <Instructions />
             <BrowseCaptionButton

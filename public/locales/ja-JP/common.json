@@ -42,6 +42,7 @@
       }
     },
     "browseAllCaptions": "全ての字幕を閲覧",
+    "twitterSuspensionNotice": "最近、NekoCap X（Twitter）のアカウントが悪意のある人々による報告で誤って停止されました。そのため、連絡が必要な場合は、Discordに参加するか、Instagramでメッセージを送ってください。",
     "latestCaptions": "最新の字幕",
     "latestLanguageCaption": "最新の {{language}} 字幕",
     "noCaptions": "字幕がありません！拡張機能で字幕を投稿できます",

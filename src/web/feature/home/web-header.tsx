@@ -1,5 +1,6 @@
 import Spin from "antd/lib/spin";
 import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
+import InstagramOutlined from "@ant-design/icons/InstagramOutlined";
 import GithubOutlined from "@ant-design/icons/GithubOutlined";
 import MenuOutlined from "@ant-design/icons/MenuOutlined";
 import CloseOutlined from "@ant-design/icons/CloseOutlined";
@@ -147,6 +148,13 @@ export const WebHeader = (): ReactElement => {
       )}
       <Socials>
         <a
+          href="https://www.instagram.com/nekocaption"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <InstagramOutlined />
+        </a>
+        <a
           href="https://www.twitter.com/nekocaption"
           target="_blank"
           rel="noreferrer"
@@ -188,7 +196,7 @@ export const WebHeader = (): ReactElement => {
                   <WSButton onClick={handleClickLogout}>Logout</WSButton>
                 )}
               </MobileMenu>,
-              document.body
+              document.body,
             )}
         </>
       )}
