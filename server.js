@@ -27,12 +27,25 @@ server.use(helmet({ contentSecurityPolicy: false, frameguard: false }));
 server.use(cors());
 server.use(compression());
 
+const CACHED_PATH_SUFFIXES = [
+  ".woff2",
+  ".wasm",
+  "/subtitles-octopus-worker.js",
+];
+
 app.prepare().then(() => {
   server.all("*", (req, res) => {
-    if (!!req.path && req.path.endsWith(".woff2")) {
+    if (!!req.path && isCachedPath(req.path)) {
       res.setHeader("Cache-Control", "public,max-age=31536000");
     }
     return handle(req, res);
   });
   spdy.createServer(options, server).listen(PORT);
 });
+
+function isCachedPath(path) {
+  const suffixIsCacheable = CACHED_PATH_SUFFIXES.some((suffix) => {
+    return path.endsWith(suffix);
+  });
+  return suffixIsCacheable;
+}
