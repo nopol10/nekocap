@@ -52,6 +52,7 @@ export const SUBSTATION_GROUPED_FONTS = {
     "lato black": "/fonts/Lato-Black.woff2",
     "liberation sans": "/fonts/LiberationSans-Regular.woff2",
     "liberation sans bold": "/fonts/LiberationSans-Bold.woff2",
+    "melancholy serif": "/fonts/Melancholy-Serif.woff2",
     "merriweather light": "/fonts/Merriweather-300.woff2",
     merriweather: "/fonts/Merriweather-Regular.woff2",
     "merriweather bold": "/fonts/Merriweather-700.woff2",
@@ -249,7 +250,7 @@ export const EXCLUDED_FONTS = [
 const flattenAndProcessFontList = (
   fontsObject: Record<string, Record<string, string> | string>,
   output: Record<string, string> = {},
-  websiteUrl = ""
+  websiteUrl = "",
 ) => {
   for (const key in fontsObject) {
     const fontObject = fontsObject[key];
@@ -266,5 +267,5 @@ const flattenAndProcessFontList = (
   return output;
 };
 export const SUBSTATION_FONT_LIST = flattenAndProcessFontList(
-  SUBSTATION_GROUPED_FONTS
+  SUBSTATION_GROUPED_FONTS,
 );
