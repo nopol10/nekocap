@@ -31,6 +31,7 @@ const CACHED_PATH_SUFFIXES = [
   ".woff2",
   ".wasm",
   "/subtitles-octopus-worker.js",
+  "/subtitles-octopus-worker-legacy.js",
 ];
 
 app.prepare().then(() => {
