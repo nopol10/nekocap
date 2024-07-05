@@ -16,7 +16,7 @@ const getCSP = (props) => {
   const commonConnectSrc = `https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.noembed.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
   const commonScriptSrc = `https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com ${dailymotionDomains}`;
   const commonStyleSrc = "https://*.ko-fi.com";
-  const commonFrameSrc = `https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/ ${dailymotionDomains}`;
+  const commonFrameSrc = `https://nekocap.com https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/ ${dailymotionDomains}`;
   const isViewer = props.url?.startsWith("/view/");
 
   if (process.env.NODE_ENV !== "production") {
