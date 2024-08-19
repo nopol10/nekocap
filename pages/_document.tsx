@@ -25,7 +25,7 @@ const getCSP = (props) => {
       NextScript.getInlineScriptSource(props),
     )};`;
     csp += `connect-src 'self' http://localhost:* https://nekocap.com:* https://*.nekocap.com:* ${commonConnectSrc};`;
-    csp += `frame-src 'self' http://www.youtube.com/ ${commonFrameSrc};`;
+    csp += `frame-src 'self' http://www.youtube.com/ https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN} ${commonFrameSrc};`;
   } else {
     csp += `script-src 'self'${
       isViewer ? " 'wasm-unsafe-eval'" : ""
