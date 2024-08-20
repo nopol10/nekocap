@@ -115,7 +115,7 @@ const VideoWrapper = styled.div`
 
 const DetailsWrapper = styledNoPass<{ width?: number }>(
   "div",
-  "DetailsWrapper"
+  "DetailsWrapper",
 )`
     ${({ width }) => (width !== undefined ? `width: ${width}px` : "")};
     margin-left: auto;
@@ -182,7 +182,7 @@ export type ViewerPageProps = {
 
 function videoPreferencesReducer(
   state: VideoPlayerPreferences,
-  action: ReturnType<typeof setPlayerFontSizeMultiplier>
+  action: ReturnType<typeof setPlayerFontSizeMultiplier>,
 ): VideoPlayerPreferences {
   switch (action.type) {
     case setPlayerFontSizeMultiplier.type:
@@ -195,7 +195,8 @@ function videoPreferencesReducer(
 }
 
 export const ViewerPage = ({
-  hasRawCaption,
+  hasRawCaption = undefined,
+  captionId,
   isEmbed,
 }: ViewerPageProps): JSX.Element => {
   const router = useRouter();
@@ -203,14 +204,14 @@ export const ViewerPage = ({
   const tabData = useSelector(tabVideoDataSelector(TAB_ID));
   const [loadComplete, setLoadComplete] = useState(false);
   const [rawCaption, setRawCaption] = useState<RawCaptionData | undefined>(
-    undefined
+    undefined,
   );
   const [captionContainerElement, captionContainerElementRef] =
     useStateRef<HTMLDivElement>(undefined);
   const defaultRendererRef = useRef<CaptionRendererHandle>(null);
   const currentTimeGetter = useRef<() => number>();
   const isCaptionLoading = useSelector(
-    loadWebsiteViewerCaption.isLoading(TAB_ID)
+    loadWebsiteViewerCaption.isLoading(TAB_ID),
   );
   const isLoading = router.isFallback || isCaptionLoading;
   const fontList = useSelector(fontListSelector());
@@ -223,21 +224,31 @@ export const ViewerPage = ({
     fontSizeMultiplier: 1,
   });
   useRerenderOnResize(captionContainerElement);
-  useEffect(() => {
-    // This is a website, no tabId is required
-    window.tabId = TAB_ID;
-    // We'll download the raw caption here as some raws are too large to be transferred
-    // thru redux by hydration
-    if (!loadComplete && hasRawCaption && tabData?.caption?.id) {
-      dispatch(
-        loadServerCaption.request({
-          tabId: TAB_ID,
-          captionId: tabData?.caption?.id,
-        })
-      );
-    }
-    setLoadComplete(true);
-  }, [dispatch, hasRawCaption, loadComplete, tabData?.caption?.id]);
+  useEffect(
+    function downloadRawCaption() {
+      // This is a website, no tabId is required
+      window.tabId = TAB_ID;
+      if (loadComplete || tabData?.caption?.id === undefined) {
+        return;
+      }
+      if (hasRawCaption === false) {
+        setLoadComplete(true);
+        return;
+      }
+      // We'll download the raw caption here as some raws are too large to be transferred
+      // thru redux by hydration
+      if (tabData?.caption?.id !== undefined) {
+        dispatch(
+          loadServerCaption.request({
+            tabId: TAB_ID,
+            captionId: tabData.caption.id,
+          }),
+        );
+        setLoadComplete(true);
+      }
+    },
+    [dispatch, hasRawCaption, loadComplete, tabData?.caption?.id],
+  );
   useEffect(() => {
     if (rawCaption || !globalThis.rawCaption) {
       return;
@@ -255,13 +266,13 @@ export const ViewerPage = ({
             loading: true,
             percentage: progress * 100,
             tabId: TAB_ID,
-          })
+          }),
         );
       } else {
         dispatch(setIsLoadingRawCaption({ loading: false, tabId: TAB_ID }));
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   const { t } = useTranslation("common");
@@ -299,7 +310,7 @@ export const ViewerPage = ({
     url.searchParams.append("embed", "true");
     if (navigator && navigator.clipboard) {
       navigator.clipboard.writeText(
-        `<iframe src="${url.toString()}" allowfullscreen="true" width="560" height="340" frameborder="0"></iframe>`
+        `<iframe src="${url.toString()}" allowfullscreen="true" width="560" height="340" frameborder="0"></iframe>`,
       );
     }
     message.success(t("viewer.copyEmbedCodeSuccess"));
@@ -379,7 +390,7 @@ export const ViewerPage = ({
     iframeWidth = Math.ceil(
       videoDimensions
         ? (videoDimensions.width * currentEmbedHeight) / videoDimensions.height
-        : 0
+        : 0,
     );
     iframeHeight = currentEmbedHeight;
   } else {
@@ -389,7 +400,7 @@ export const ViewerPage = ({
     iframeHeight = Math.ceil(
       videoDimensions
         ? (videoDimensions.height * currentEmbedWidth) / videoDimensions.width
-        : 0
+        : 0,
     );
     iframeWidth = currentEmbedWidth;
   }
@@ -398,6 +409,14 @@ export const ViewerPage = ({
     renderer === CaptionRendererType.AdvancedOctopus &&
     rawCaption &&
     isAss(rawCaption.type);
+
+  console.log(
+    "isUsingAdvancedRenderer",
+    isUsingAdvancedRenderer,
+    loadComplete,
+    renderer,
+    rawCaption,
+  );
 
   const iframeProps = {
     height: iframeHeight,
@@ -410,7 +429,7 @@ export const ViewerPage = ({
 
   const handleSetFontSizeMultiplier = (multiplier: number) => {
     dispatchVideoPreference(
-      setPlayerFontSizeMultiplier({ multiplier, tabId: globalThis.tabId })
+      setPlayerFontSizeMultiplier({ multiplier, tabId: globalThis.tabId }),
     );
   };
 
@@ -473,7 +492,7 @@ export const ViewerPage = ({
                     <Link
                       href={routeNames.profile.main.replace(
                         ":id",
-                        caption.creator || ""
+                        caption.creator || "",
                       )}
                     ></Link>
                   ),

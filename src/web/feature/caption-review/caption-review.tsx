@@ -92,11 +92,15 @@ const ReviewModal = ({
         <Form.Item label={"Reason"}>
           <Controller
             name={"reason"}
-            as={Input}
+            render={({ field }) => (
+              <Input
+                {...field}
+                placeholder={"Keep to 100 characters!"}
+                required={true}
+              />
+            )}
             control={control}
             defaultValue={""}
-            placeholder={"Keep to 100 characters!"}
-            required={true}
             rules={{
               required: true,
               maxLength: 100,
@@ -156,7 +160,7 @@ const rejectionColumns = [
 export const CaptionReview = () => {
   const dispatch = useDispatch();
   const isLoadingCaption = useSelector(
-    loadCaptionForReview.isLoading(undefined)
+    loadCaptionForReview.isLoading(undefined),
   );
   const isRejecting = useSelector(rejectCaption.isLoading(undefined));
   const isUnverifying = useSelector(verifyCaption.isLoading(undefined));
@@ -207,7 +211,7 @@ export const CaptionReview = () => {
     dispatch(
       verifyCaption.request({
         captionId: review.caption.id,
-      })
+      }),
     ).then(() => {
       message.success(verified ? "Caption unverified!" : "Caption verified!");
     });
@@ -233,7 +237,7 @@ export const CaptionReview = () => {
       rejectCaption.request({
         reason: rejectForm.reason,
         captionId: review.caption.id,
-      })
+      }),
     ).then(() => {
       message.success(rejected ? "Caption unrejected!" : "Caption rejected!");
       setShowReject(false);
@@ -248,7 +252,7 @@ export const CaptionReview = () => {
       verifyCaption.request({
         reason: form.reason,
         captionId: review.caption.id,
-      })
+      }),
     ).then(() => {
       message.success(verified ? "Caption unverified!" : "Caption verified!");
       setShowUnverify(false);

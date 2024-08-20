@@ -80,7 +80,11 @@ const SearchForm = ({
 }: {
   stickyTarget?: () => HTMLElement | null;
 }) => {
-  const { control, handleSubmit, errors } = useForm<SearchForm>();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SearchForm>();
   const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const isSearching = useSelector(search.isLoading(undefined));
@@ -90,7 +94,7 @@ const SearchForm = ({
   const onSearch = (form: SearchForm) => {
     const url = new URL(
       `/search/${encodeURIComponent(form.title)}`,
-      window.location.origin
+      window.location.origin,
     );
 
     if (showAdvanced && form.videoLanguageCode) {
@@ -108,7 +112,7 @@ const SearchForm = ({
         pageNumber: 1,
         pageSize: PAGE_SIZE,
         append: false,
-      })
+      }),
     );
   };
 
@@ -130,12 +134,16 @@ const SearchForm = ({
                 style={{ margin: 0 }}
               >
                 <Controller
-                  as={Input}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder={t("home.search.inputPlaceholder")}
+                      style={{ fontSize: "20px" }}
+                    />
+                  )}
                   control={control}
                   name="title"
                   defaultValue={""}
-                  placeholder={t("home.search.inputPlaceholder")}
-                  style={{ fontSize: "20px" }}
                   rules={{
                     required: true,
                   }}
@@ -171,27 +179,31 @@ const SearchForm = ({
                     labelAlign={"left"}
                   >
                     <Controller
-                      as={Select}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          showSearch
+                          size={"large"}
+                          style={{ fontSize: "20px", width: "100%" }}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0 ||
+                            option.props.value
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                        >
+                          <Select.Option key={"any"} value={"any"}>
+                            {t("home.search.anyLanguage")}
+                          </Select.Option>
+                          {languageOptions}
+                        </Select>
+                      )}
                       name={"videoLanguageCode"}
                       control={control}
-                      showSearch
-                      size={"large"}
                       defaultValue={"any"}
-                      style={{ fontSize: "20px", width: "100%" }}
-                      filterOption={(input, option) =>
-                        option.props.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0 ||
-                        option.props.value
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      }
-                    >
-                      <Select.Option key={"any"} value={"any"}>
-                        {t("home.search.anyLanguage")}
-                      </Select.Option>
-                      {languageOptions}
-                    </Controller>
+                    ></Controller>
                   </Form.Item>
                 </Col>
                 <Col span={24} md={8}>
@@ -201,27 +213,31 @@ const SearchForm = ({
                     labelAlign={"left"}
                   >
                     <Controller
-                      as={Select}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          showSearch
+                          size={"large"}
+                          style={{ fontSize: "20px", width: "100%" }}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0 ||
+                            option.props.value
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                        >
+                          <Select.Option key={"any"} value={"any"}>
+                            {t("home.search.anyLanguage")}
+                          </Select.Option>
+                          {languageOptions}
+                        </Select>
+                      )}
                       name={"captionLanguageCode"}
                       control={control}
-                      showSearch
-                      size={"large"}
                       defaultValue={"any"}
-                      style={{ fontSize: "20px", width: "100%" }}
-                      filterOption={(input, option) =>
-                        option.props.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0 ||
-                        option.props.value
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      }
-                    >
-                      <Select.Option key={"any"} value={"any"}>
-                        {t("home.search.anyLanguage")}
-                      </Select.Option>
-                      {languageOptions}
-                    </Controller>
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -253,7 +269,7 @@ export const SearchCaptions = ({
   const [isCaptionModalOpened, openCaptionModal, closeCaptionModal] =
     useOpenClose();
   const isLoadingCaptions = useSelector(
-    loadSearchResultVideoCaptions.isLoading(undefined)
+    loadSearchResultVideoCaptions.isLoading(undefined),
   );
   const [selectedVideo, setSelectedVideo] = useState<{
     videoId: string;
@@ -272,7 +288,7 @@ export const SearchCaptions = ({
         pageNumber: page,
         pageSize: pageSize || PAGE_SIZE,
         append: true,
-      })
+      }),
     );
   };
 
@@ -294,7 +310,7 @@ export const SearchCaptions = ({
     const { name, captionCount, captions, sourceId, source, thumbnailUrl } =
       video;
     const languageList = Object.keys(captions || []).filter(
-      (language) => captions[language] > 0
+      (language) => captions[language] > 0,
     );
 
     const handleClickVideo = () => {
@@ -303,7 +319,7 @@ export const SearchCaptions = ({
         loadSearchResultVideoCaptions.request({
           videoId: video.sourceId,
           videoSource,
-        })
+        }),
       );
       setSelectedVideo({ videoId: video.sourceId, videoSource });
       openCaptionModal();

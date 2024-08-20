@@ -1,9 +1,9 @@
 export default class XMLHttpRequestPolyfillBase {
-  public readonly DONE: number = 4;
-  public readonly HEADERS_RECEIVED: number = 2;
-  public readonly LOADING: number = 3;
-  public readonly OPENED: number = 1;
-  public readonly UNSENT: number = 0;
+  public readonly DONE: 4 = 4;
+  public readonly HEADERS_RECEIVED: 2 = 2;
+  public readonly LOADING: 3 = 3;
+  public readonly OPENED: 1 = 1;
+  public readonly UNSENT: 0 = 0;
 
   public readyState: number = this.UNSENT;
   public response: any;

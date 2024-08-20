@@ -68,12 +68,16 @@ export const BasicSearchBar = ({
         <SearchRow opened={actuallyOpened}>
           {
             <Controller
-              as={Input}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder={t("home.search.inputPlaceholder")}
+                  style={{ fontSize: "15px" }}
+                />
+              )}
               control={control}
               name="title"
               defaultValue={""}
-              placeholder={t("home.search.inputPlaceholder")}
-              style={{ fontSize: "15px" }}
               rules={{
                 required: true,
               }}

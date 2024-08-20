@@ -20,7 +20,6 @@ import {
 } from "@/hooks";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
-import { SplitPane } from "react-multi-split-pane";
 import { EDITOR_PORTAL_ELEMENT_ID, TIME } from "@/common/constants";
 import { EditorTimeline, SetTimelineScroll } from "./editor-timeline";
 import { EditorToolbar } from "./editor-toolbar";
@@ -88,6 +87,7 @@ import { ShiftTimingsModal } from "../containers/shift-timings-modal";
 import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
 import { DEVICE } from "@/common/style-constants";
 import { triggerEnterKeyupEvent } from "../utils/trigger-enter-keyup-event";
+import { SplitPane } from "@/common/components/multi-split-pane/split-pane";
 
 dayjs.extend(duration);
 
@@ -185,7 +185,7 @@ type EditorVideoContainerProps = React.DetailedHTMLProps<
 const EditorVideoContainer = styled(
   ({ innerRef, ...rest }: EditorVideoContainerProps) => {
     return <div {...rest} ref={innerRef} />;
-  }
+  },
 )`
   width: 100%;
   height: 100%;
@@ -568,7 +568,7 @@ const CaptionEditorInternal = ({
       }
       if (originalCaptionContainerParent.current) {
         originalCaptionContainerParent.current.appendChild(
-          captionContainerElement
+          captionContainerElement,
         );
       }
       document.body.style.overflow = "unset";
@@ -614,7 +614,7 @@ const CaptionEditorInternal = ({
               },
             },
           },
-        })
+        }),
       );
     } else if (currentMoveType === CaptionModificationState.Track) {
       const trackData = data.tracks[trackId];
@@ -634,7 +634,7 @@ const CaptionEditorInternal = ({
               },
             },
           },
-        })
+        }),
       );
     } else if (currentMoveType === CaptionModificationState.Global) {
       const globalSettings = data.settings;
@@ -651,7 +651,7 @@ const CaptionEditorInternal = ({
               },
             },
           },
-        })
+        }),
       );
     }
   };
@@ -692,7 +692,7 @@ const CaptionEditorInternal = ({
     videoDimensions,
     canDragCaption,
     handleDragCaptionEnd,
-    [captionContainer, selectedTrack, selectedCaption, currentMoveType]
+    [captionContainer, selectedTrack, selectedCaption, currentMoveType],
   );
 
   const updateVideoDimensions = (width: number, height: number) => {
@@ -715,7 +715,7 @@ const CaptionEditorInternal = ({
       }
       setTimelineScroll.current(timeInSeconds * 1000);
     },
-    [videoElement]
+    [videoElement],
   );
 
   const selectAndScrollToCaptionId = useCallback(
@@ -727,7 +727,7 @@ const CaptionEditorInternal = ({
         }
       });
     },
-    [textEditorScrollRef, setSelectedCaption]
+    [textEditorScrollRef, setSelectedCaption],
   );
 
   useEffect(() => {
@@ -796,7 +796,7 @@ const CaptionEditorInternal = ({
         videoElement.play();
       }
     },
-    [videoElement, isPlayingRef]
+    [videoElement, isPlayingRef],
   );
 
   const handleSetStartToCurrentTime = useCallback(
@@ -828,7 +828,7 @@ const CaptionEditorInternal = ({
           captionId: selectedCaption,
           startMs: newStartTime,
           endMs: newEndTime,
-        })
+        }),
       );
     },
     [
@@ -837,7 +837,7 @@ const CaptionEditorInternal = ({
       selectedCaption,
       videoElement.currentTime,
       updateCaption,
-    ]
+    ],
   );
 
   const handleSetEndToCurrentTime = useCallback(
@@ -869,7 +869,7 @@ const CaptionEditorInternal = ({
           captionId: selectedCaption,
           startMs: newStartTime,
           endMs: newEndTime,
-        })
+        }),
       );
     },
     [
@@ -878,7 +878,7 @@ const CaptionEditorInternal = ({
       selectedCaption,
       videoElement.currentTime,
       updateCaption,
-    ]
+    ],
   );
 
   const handleGotoNextCaption = useCallback(
@@ -906,7 +906,7 @@ const CaptionEditorInternal = ({
       selectedTrack,
       selectAndScrollToCaptionId,
       setVideoTime,
-    ]
+    ],
   );
 
   const handleGotoPreviousCaption = useCallback(
@@ -930,11 +930,11 @@ const CaptionEditorInternal = ({
       selectAndScrollToCaptionId,
       selectedTrack,
       setVideoTime,
-    ]
+    ],
   );
   const debouncedUpdateCaption = useMemo(
     () => debounce(updateCaption, 500),
-    [updateCaption]
+    [updateCaption],
   );
 
   const handleNewCaption = useCallback(
@@ -945,10 +945,10 @@ const CaptionEditorInternal = ({
           trackId,
           timeMs: newTime,
           skipValidityChecks: false,
-        })
+        }),
       );
     },
-    [updateCaption]
+    [updateCaption],
   );
 
   const handleNewCaptionFromShortcut = useCallback(
@@ -961,7 +961,7 @@ const CaptionEditorInternal = ({
       if (selectedCaption >= 0) {
         newTime = Math.max(
           newTime,
-          data.tracks[selectedTrack].cues[selectedCaption].end
+          data.tracks[selectedTrack].cues[selectedCaption].end,
         );
       }
       // Dry run adding it to see what the new id will be
@@ -970,7 +970,7 @@ const CaptionEditorInternal = ({
         selectedTrack,
         newTime,
         undefined,
-        false
+        false,
       );
       focusNewCaptionIndex.current = newCaptionId;
       if (isInputElementSelected()) {
@@ -997,7 +997,7 @@ const CaptionEditorInternal = ({
                     skipValidityChecks: false,
                   }),
                 ].filter(BooleanFilter),
-              })
+              }),
             );
           } else {
             handleNewCaption(selectedTrack, newTime);
@@ -1020,7 +1020,7 @@ const CaptionEditorInternal = ({
       selectedTrack,
       updateCaption,
       videoElement.currentTime,
-    ]
+    ],
   );
 
   const handleUndo = useCallback(() => {
@@ -1068,7 +1068,7 @@ const CaptionEditorInternal = ({
   const handleClickTimeline = (
     trackId: number,
     captionId: number,
-    currentTimeMs: number
+    currentTimeMs: number,
   ) => {
     if (!data) {
       return;
@@ -1090,7 +1090,7 @@ const CaptionEditorInternal = ({
     captionId: number,
     startMs: number,
     endMs: number,
-    finalTrackId: number
+    finalTrackId: number,
   ) => {
     if (!data) {
       return;
@@ -1103,7 +1103,7 @@ const CaptionEditorInternal = ({
         trackId,
         captionId,
         startMs,
-        endMs
+        endMs,
       );
       if (!caption) {
         console.warn("No caption data found");
@@ -1111,13 +1111,13 @@ const CaptionEditorInternal = ({
       }
       const newIndex = findClosestCaption(
         caption.tracks[trackId].cues,
-        startMs + (endMs - startMs) / 2
+        startMs + (endMs - startMs) / 2,
       );
       updateCaption(
         modifyCaptionTime({ trackId, captionId, startMs, endMs }),
         () => {
           setSelectedCaption(newIndex);
-        }
+        },
       );
     } else {
       captionListKeySuffix.current++;
@@ -1128,7 +1128,7 @@ const CaptionEditorInternal = ({
           startMs,
           endMs,
           finalTrackId,
-        })
+        }),
       );
     }
   };
@@ -1136,7 +1136,7 @@ const CaptionEditorInternal = ({
   const handleStartTimeKeyboardInput =
     (trackId: number, captionId: number) => (value: string) => {
       updateCaption(
-        modifyCaptionStartTime({ trackId, captionId, newFormattedTime: value })
+        modifyCaptionStartTime({ trackId, captionId, newFormattedTime: value }),
       );
     };
 
@@ -1148,14 +1148,14 @@ const CaptionEditorInternal = ({
           trackId,
           captionId,
           newFormattedTime: event.target.value,
-        })
+        }),
       );
     };
 
   const handleEndTimeKeyboardInput =
     (trackId: number, captionId: number) => (value: string) => {
       updateCaption(
-        modifyCaptionEndTime({ trackId, captionId, newFormattedTime: value })
+        modifyCaptionEndTime({ trackId, captionId, newFormattedTime: value }),
       );
     };
 
@@ -1167,7 +1167,7 @@ const CaptionEditorInternal = ({
           trackId,
           captionId,
           newFormattedTime: event.target.value,
-        })
+        }),
       );
     };
 
@@ -1179,7 +1179,7 @@ const CaptionEditorInternal = ({
           trackId,
           captionId,
           text: event.target.value,
-        })
+        }),
       );
     };
 
@@ -1347,7 +1347,7 @@ const CaptionEditorInternal = ({
                     onChange={handleChangeStartTime(selectedTrack, index)}
                     onKeyboardShortcutInput={handleStartTimeKeyboardInput(
                       selectedTrack,
-                      index
+                      index,
                     )}
                   />
                 </TimeInput>
@@ -1374,7 +1374,7 @@ const CaptionEditorInternal = ({
                     onChange={handleChangeEndTime(selectedTrack, index)}
                     onKeyboardShortcutInput={handleEndTimeKeyboardInput(
                       selectedTrack,
-                      index
+                      index,
                     )}
                   />
                 </TimeInput>
@@ -1387,7 +1387,7 @@ const CaptionEditorInternal = ({
               last={true}
               onClick={handleClickAddCaptionBetweenCaptions(
                 selectedTrack,
-                index + 1
+                index + 1,
               )}
             >
               <PlusCircleFilled />
@@ -1451,9 +1451,9 @@ const CaptionEditorInternal = ({
       clamp(
         videoElement.currentTime + duration * TIME.MS_TO_SECONDS,
         0,
-        videoElement.duration
+        videoElement.duration,
       ),
-      true
+      true,
     );
   };
 
@@ -1464,12 +1464,12 @@ const CaptionEditorInternal = ({
         clamp(
           videoElement.currentTime + 1 / videoFps,
           0,
-          videoElement.duration
+          videoElement.duration,
         ),
-        true
+        true,
       );
     },
-    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps]
+    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps],
   );
 
   const handleSeekPreviousFrame = useCallback(
@@ -1479,12 +1479,12 @@ const CaptionEditorInternal = ({
         clamp(
           videoElement.currentTime - 1 / videoFps,
           0,
-          videoElement.duration
+          videoElement.duration,
         ),
-        true
+        true,
       );
     },
-    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps]
+    [setVideoTime, videoElement.currentTime, videoElement.duration, videoFps],
   );
 
   const renderInfoMessage = () => {
@@ -1519,7 +1519,7 @@ const CaptionEditorInternal = ({
   const handleShiftTimings = (
     shiftMs: number,
     startMs: number,
-    endMs: number
+    endMs: number,
   ) => {
     updateCaption(shiftTimings({ duration: shiftMs, startMs, endMs }));
   };
@@ -1672,7 +1672,7 @@ const CaptionEditorInternal = ({
         videoElement={videoElement}
       />
     </>,
-    editorPortalElement
+    editorPortalElement,
   );
 };
 
@@ -1681,11 +1681,11 @@ export const CaptionEditor = React.memo(
   (prevProps, nextProps) => {
     const isSubEqual = isEqual(
       prevProps.captionContainer,
-      nextProps.captionContainer
+      nextProps.captionContainer,
     );
     const isShortcutEqual = isEqual(
       prevProps.keyboardShortcuts,
-      nextProps.keyboardShortcuts
+      nextProps.keyboardShortcuts,
     );
 
     return (
@@ -1703,5 +1703,5 @@ export const CaptionEditor = React.memo(
       isShortcutEqual &&
       isSubEqual
     );
-  }
+  },
 );

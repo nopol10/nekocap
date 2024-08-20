@@ -153,7 +153,7 @@ export const FeatureList = () => {
                   {typeof feature.description !== "function" &&
                     feature.description}
                   {typeof feature.description === "function" &&
-                    feature.description()}
+                    feature.description({})}
                 </main>
               </div>
             </FeatureItem>

@@ -48,7 +48,7 @@ const WebViewerStyle = createGlobalStyle`
 
 const createCanvas = (
   dimension: Dimension,
-  captionContainerElement: HTMLElement
+  captionContainerElement: HTMLElement,
 ): [HTMLCanvasElement | undefined, HTMLDivElement | undefined] => {
   if (!captionContainerElement) {
     return [undefined, undefined];
@@ -97,7 +97,7 @@ const OctopusRendererInternal = React.forwardRef(
       fontList,
       onFontsLoaded,
     }: OctopusRendererProps,
-    ref: MutableRefObject<CaptionRendererHandle>
+    ref: MutableRefObject<CaptionRendererHandle>,
   ) => {
     /**
      * We'll create our own container element to prevent modifying the original page too much
@@ -111,7 +111,7 @@ const OctopusRendererInternal = React.forwardRef(
 
     useEffect(() => {
       const canvas = document.querySelector(
-        `.${CANVAS_PARENT_CLASS_NAME}`
+        `.${CANVAS_PARENT_CLASS_NAME}`,
       ) as HTMLElement;
       if (canvas) {
         canvas.style.visibility = showCaption ? "visible" : "hidden";
@@ -134,7 +134,7 @@ const OctopusRendererInternal = React.forwardRef(
             octopusInstance.current.dispose();
             octopusInstance.current = null;
           }
-        }
+        },
       );
       return () => {
         detector.disconnect();
@@ -148,23 +148,23 @@ const OctopusRendererInternal = React.forwardRef(
       }
     }, []);
 
-    const handleVideoPlay = () => {
+    const handleVideoPlay = useCallback(() => {
       if (octopusInstance.current) {
         octopusInstance.current.setIsPaused(
           false,
-          iframeProps?.getCurrentTime()
+          iframeProps?.getCurrentTime(),
         );
       }
-    };
+    }, [iframeProps]);
 
-    const handleVideoPause = () => {
+    const handleVideoPause = useCallback(() => {
       if (octopusInstance.current) {
         octopusInstance.current.setIsPaused(
           true,
-          iframeProps?.getCurrentTime()
+          iframeProps?.getCurrentTime(),
         );
       }
-    };
+    }, []);
 
     const handleVideoSeek = () => {
       // do nothing
@@ -178,7 +178,7 @@ const OctopusRendererInternal = React.forwardRef(
           onVideoPause: handleVideoPause,
           onVideoSeeked: handleVideoSeek,
         };
-      }
+      },
     );
 
     // Register video listener
@@ -212,7 +212,7 @@ const OctopusRendererInternal = React.forwardRef(
           canvasElement.remove();
         }
         const canvasParentElement = document.querySelector(
-          `.${CANVAS_PARENT_CLASS_NAME}`
+          `.${CANVAS_PARENT_CLASS_NAME}`,
         );
         if (canvasParentElement) {
           canvasParentElement.remove();
@@ -226,7 +226,7 @@ const OctopusRendererInternal = React.forwardRef(
         const height: number = width * (iframeProps.height / iframeProps.width);
         const canvasElements = createCanvas(
           { width: width, height: height },
-          captionContainerElement
+          captionContainerElement,
         );
         canvas = canvasElements[0];
       }
@@ -235,7 +235,7 @@ const OctopusRendererInternal = React.forwardRef(
       }
       const fallbackFontUrl = new URL(
         "/fonts/Open-Sans-Regular.woff2",
-        process.env.NEXT_PUBLIC_FONTS_URL
+        process.env.NEXT_PUBLIC_FONTS_URL,
       ).href;
 
       const options = {
@@ -245,7 +245,7 @@ const OctopusRendererInternal = React.forwardRef(
         availableFonts: fontList,
         workerUrl: getURL("js/subtitle-octopus/subtitles-octopus-worker.js"),
         legacyWorkerUrl: getURL(
-          "js/subtitle-octopus/subtitles-octopus-worker-legacy.js"
+          "js/subtitle-octopus/subtitles-octopus-worker-legacy.js",
         ),
         fallbackFont: fallbackFontUrl,
         lossyRender: true,
@@ -258,7 +258,7 @@ const OctopusRendererInternal = React.forwardRef(
       octopusInstance.current.setCurrentTime(
         isIframe && iframeProps && iframeProps.getCurrentTime
           ? iframeProps.getCurrentTime()
-          : videoElement?.currentTime
+          : videoElement?.currentTime,
       );
       // Update the caption container's width and height to match the video to prevent subs from going into the black bars
       if (localCaptionContainer.current) {
@@ -284,6 +284,10 @@ const OctopusRendererInternal = React.forwardRef(
       isIframe,
       iframeProps,
       onFontsLoaded,
+      fontList,
+      handleFontsLoaded,
+      handleVideoPause,
+      handleVideoPlay,
     ]);
 
     const handleTimeUpdate = useCallback(() => {
@@ -303,7 +307,7 @@ const OctopusRendererInternal = React.forwardRef(
     const inExtension = isInExtension();
 
     return <>{!inExtension && <WebViewerStyle />}</>;
-  }
+  },
 );
 
 export const OctopusRenderer = React.memo(
@@ -318,5 +322,5 @@ export const OctopusRenderer = React.memo(
       isEqual(prevProps.rawCaption, nextProps.rawCaption) &&
       isEqual(prevProps.iframeProps, nextProps.iframeProps)
     );
-  }
+  },
 );

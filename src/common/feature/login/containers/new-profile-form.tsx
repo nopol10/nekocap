@@ -51,7 +51,11 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
 
   const { languageCodes, name, profileMessage, donationLink } =
     captioner.captioner || {};
-  const { handleSubmit, errors, control } = useForm<FormType>();
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<FormType>();
   if (!userData) {
     return null;
   }
@@ -66,7 +70,7 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
         languageCodes,
         profileMessage,
         donationLink,
-      })
+      }),
     ).then(() => {
       onSubmitSuccess();
     });
@@ -87,10 +91,9 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
       <Form onFinish={handleSubmit(onSubmit)}>
         <Form.Item label="Display name" labelCol={labelSpan}>
           <Controller
-            as={Input}
+            render={({ field }) => <Input required {...field} />}
             name={"name"}
             control={control}
-            required={true}
             defaultValue={name}
             rules={{ required: true }}
           ></Controller>
@@ -108,32 +111,39 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
           labelCol={labelSpan}
         >
           <Controller
-            as={Select}
+            render={({ field }) => (
+              <Select
+                mode="multiple"
+                showSearch
+                size={"large"}
+                placeholder={"You can select more than 1!"}
+                filterOption={(input, option) =>
+                  option.props.children
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0 ||
+                  option.props.value
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0
+                }
+                {...field}
+              >
+                {languageOptions}
+              </Select>
+            )}
             name={"languageCodes"}
             control={control}
-            mode={"multiple"}
-            showSearch
-            size={"large"}
-            placeholder={"You can select more than 1!"}
             defaultValue={languageCodes}
-            filterOption={(input, option) =>
-              option.props.children
-                .toLowerCase()
-                .indexOf(input.toLowerCase()) >= 0 ||
-              option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
             rules={{ required: true, minLength: 1 }}
-          >
-            {languageOptions}
-          </Controller>
+          />
         </Form.Item>
         <Form.Item label={profileMessageLabel} labelCol={labelSpan}>
           <Controller
             name={"profileMessage"}
-            as={TextArea}
+            render={({ field }) => (
+              <TextArea style={{ height: "300px" }} {...field} />
+            )}
             control={control}
             defaultValue={profileMessage}
-            style={{ height: "300px" }}
           />
         </Form.Item>
         <Form.Item
@@ -141,7 +151,7 @@ export const NewProfileForm = ({ onSubmitSuccess }: NewProfileFormProps) => {
           labelCol={labelSpan}
         >
           <Controller
-            as={Input}
+            render={({ field }) => <Input {...field} />}
             name={"donationLink"}
             control={control}
             defaultValue={donationLink}
