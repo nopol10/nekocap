@@ -8,7 +8,7 @@ const getCSP = (props) => {
   csp += `base-uri 'self';`;
   csp += `form-action 'self';`;
   csp += `default-src 'self';`;
-  csp += `img-src 'self' https://*.ko-fi.com https://*.youtube.com https://*.tenor.com data:;`;
+  csp += `img-src 'self' https://*.ko-fi.com https://*.youtube.com https://*.dmcdn.net https://*.tenor.com data:;`;
   csp += `font-src 'self' https://nekocap.com https://*.nekocap.com data: https://fonts.gstatic.com;`;
 
   const dailymotionDomains =

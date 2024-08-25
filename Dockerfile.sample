@@ -1,4 +1,4 @@
-FROM node:18.19.1-alpine as build
+FROM node:18.20.4-alpine as build
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
@@ -13,7 +13,7 @@ ENV NODE_ENV production
 RUN npm run build:web
 
 # This uses NextJS's standalone output
-FROM node:18.19.1-alpine
+FROM node:18.20.4-alpine
 WORKDIR /app
 ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
