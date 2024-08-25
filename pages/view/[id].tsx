@@ -141,9 +141,11 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
 
           const processor = videoSourceToProcessorMap[caption.videoSource];
           const dimensions: Dimension = await processor.retrieveVideoDimensions(
-            caption.videoId
+            caption.videoId,
           );
-          console.log(`[view] retrieved props for: ${captionId}`);
+          console.log(
+            `[view] retrieved props for: ${captionId}, has raw caption: ${hasRawCaption}`,
+          );
           batch(() => {
             store.dispatch(setFontList({ list: fontList }));
             store.dispatch(setLoadedCaption({ tabId, caption }));
@@ -162,6 +164,6 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
           },
           revalidate: 60,
         };
-      }
-  )
+      },
+  ),
 );

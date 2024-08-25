@@ -10,6 +10,7 @@ import {
   Controller,
   DeepMap,
   FieldError,
+  FieldErrors,
   useForm,
 } from "react-hook-form";
 import styled from "styled-components";
@@ -49,13 +50,17 @@ export const SubmitCaptionModal = (props: SubmitCaptionModalProps) => {
   const { visible, onCancel } = props;
   const dispatch = useDispatch();
   const isPendingSubmission = useSelector(
-    submitCaption.isLoading(globalThis.tabId)
+    submitCaption.isLoading(globalThis.tabId),
   );
   const [newCaptionId, setNewCaptionId] = useState<string | undefined>(
-    undefined
+    undefined,
   );
 
-  const { handleSubmit, control, errors } = useForm<FormType>();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<FormType>();
 
   const onSubmit = async (data: FormType) => {
     const {
@@ -82,7 +87,7 @@ export const SubmitCaptionModal = (props: SubmitCaptionModalProps) => {
         translatedTitle,
         hasAudioDescription,
         privacy,
-      })
+      }),
     )
       .then((response: UploadResult) => {
         setNewCaptionId(response.captionId);
@@ -139,7 +144,7 @@ function FormScreen({
   errors,
 }: {
   control: Control<FormType>;
-  errors: DeepMap<FormType, FieldError>;
+  errors: FieldErrors<FormType>;
 }) {
   const captioner = useSelector(captionerSelector);
 
@@ -147,53 +152,65 @@ function FormScreen({
     <Form>
       <Form.Item label="Caption Language" labelCol={{ span: 24 }}>
         <Controller
-          as={Select}
+          render={({ field }) => (
+            <Select
+              {...field}
+              showSearch
+              size={"large"}
+              placeholder={"Language"}
+              filterOption={(input, option) =>
+                option.props.children
+                  .toLowerCase()
+                  .indexOf(input.toLowerCase()) >= 0 ||
+                option.props.value.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+              }
+            >
+              {languageOptions}
+            </Select>
+          )}
           name={"languageCode"}
           control={control}
-          showSearch
-          size={"large"}
-          placeholder={"Language"}
-          filterOption={(input, option) =>
-            option.props.children.toLowerCase().indexOf(input.toLowerCase()) >=
-              0 ||
-            option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
           rules={{ required: true }}
-        >
-          {languageOptions}
-        </Controller>
+        ></Controller>
       </Form.Item>
       <Form.Item label="Original Video Language" labelCol={{ span: 24 }}>
         <Controller
-          as={Select}
+          render={({ field }) => (
+            <Select
+              {...field}
+              showSearch
+              size={"large"}
+              placeholder={"Original Video Language"}
+              filterOption={(input, option) =>
+                option.props.children
+                  .toLowerCase()
+                  .indexOf(input.toLowerCase()) >= 0 ||
+                option.props.value.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+              }
+            >
+              {languageOptions}
+            </Select>
+          )}
           name={"videoLanguageCode"}
           control={control}
-          showSearch
-          size={"large"}
-          placeholder={"Original Video Language"}
-          filterOption={(input, option) =>
-            option.props.children.toLowerCase().indexOf(input.toLowerCase()) >=
-              0 ||
-            option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-        >
-          {languageOptions}
-        </Controller>
+        ></Controller>
       </Form.Item>
       <Form.Item label="Translated Title" labelCol={{ span: 24 }}>
         <Controller
-          as={Input}
+          render={({ field }) => (
+            <Input {...field} dir={"auto"} placeholder={"Translated Title"} />
+          )}
           name={"translatedTitle"}
-          dir={"auto"}
           defaultValue={""}
           control={control}
-          placeholder={"Translated Title"}
           rules={{ required: true }}
         />
       </Form.Item>
       <Form.Item label="Has Audio Description">
         <Controller
-          render={({ onChange, name, value, ref }) => (
+          render={({ field: { onChange, name, value, ref } }) => (
             <Checkbox
               onChange={(event) => {
                 onChange(event.target.checked);
@@ -211,15 +228,15 @@ function FormScreen({
       </Form.Item>
       <Form.Item label="Privacy">
         <Controller
-          as={Select}
+          render={({ field }) => (
+            <Select {...field} placeholder={"Privacy"} size={"middle"}>
+              {getPrivacyEnums()}
+            </Select>
+          )}
           name={"privacy"}
           control={control}
-          size={"middle"}
           defaultValue={CaptionPrivacy.Public}
-          placeholder={"Privacy"}
-        >
-          {getPrivacyEnums()}
-        </Controller>
+        />
       </Form.Item>
       {errors.languageCode && (
         <div style={{ color: colors.error }}>Language code is required!</div>
@@ -256,7 +273,7 @@ function SuccessfulScreen({ captionId }: SuccessfulScreenProps) {
     ? getDirectCaptionLoadLink(
         globalThis.selectedProcessor,
         globalThis.videoId,
-        captionId
+        captionId,
       )
     : undefined;
   const handleClickCopyDirectLink = () => {

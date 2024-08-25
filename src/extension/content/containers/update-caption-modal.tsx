@@ -52,7 +52,7 @@ type FormType = {
 };
 
 export const UpdateCaptionModal = (
-  props: UpdateCaptionModalProps
+  props: UpdateCaptionModalProps,
 ): ReactElement => {
   if (isServer() || !props.caption) {
     return <></>;
@@ -75,10 +75,17 @@ export const UpdateCaptionModalClient = ({
   globalThis.tabId = 0;
   const dispatch = useDispatch();
   const isPendingSubmission = useSelector(
-    updateUploadedCaption.isLoading(globalThis.tabId)
+    updateUploadedCaption.isLoading(globalThis.tabId),
   );
   const captioner = useSelector(captionerSelector);
-  const { handleSubmit, control, errors, watch } = useForm<FormType>();
+  const {
+    handleSubmit,
+    control,
+    getValues,
+    setValue,
+    formState: { errors },
+    watch,
+  } = useForm<FormType>();
   const [fileContent, setFileContent] = useState<string>("");
   const [file, setFile] = useState<RcFile>();
 
@@ -98,7 +105,7 @@ export const UpdateCaptionModalClient = ({
     const fileType =
       file && nameParts ? nameParts[nameParts.length - 1] : undefined;
     const selectedTags = getCaptionTagStrings(
-      userCaptionTags.filter((tag) => selectedTagNames.indexOf(tag.name) >= 0)
+      userCaptionTags.filter((tag) => selectedTagNames.indexOf(tag.name) >= 0),
     );
     dispatch(
       updateUploadedCaption.request({
@@ -111,7 +118,7 @@ export const UpdateCaptionModalClient = ({
         translatedTitle,
         selectedTags,
         privacy,
-      })
+      }),
     )
       .then(() => {
         message.success("Caption successfully updated!");
@@ -151,7 +158,7 @@ export const UpdateCaptionModalClient = ({
     setUserCaptionTags(
       (captioner.captioner?.captionTags || [])
         .map(getCaptionTagFromTagString)
-        .filter(BooleanFilter)
+        .filter(BooleanFilter),
     );
   }, [captioner]);
 
@@ -163,12 +170,12 @@ export const UpdateCaptionModalClient = ({
     } else {
       updatedTags.push({ name: tagName, color });
     }
-    const selectedTagNames = control.getValues("selectedTagNames") || [];
+    const selectedTagNames = getValues("selectedTagNames") || [];
     if (selectedTagNames.indexOf(tagName) >= 0) {
       return;
     }
     // This updates the control
-    control.setValue("selectedTagNames", [...selectedTagNames, tagName]);
+    setValue("selectedTagNames", [...selectedTagNames, tagName]);
     setUserCaptionTags(updatedTags);
   };
 
@@ -192,12 +199,12 @@ export const UpdateCaptionModalClient = ({
       <Form key={caption?.id}>
         <Form.Item label="Translated Title" labelCol={{ span: 24 }}>
           <Controller
-            as={Input}
+            render={({ field }) => (
+              <Input {...field} dir={"auto"} placeholder={"Translated Title"} />
+            )}
             name={"translatedTitle"}
-            dir={"auto"}
             defaultValue={caption?.translatedTitle}
             control={control}
-            placeholder={"Translated Title"}
             rules={{ required: true }}
           />
         </Form.Item>
@@ -211,7 +218,7 @@ export const UpdateCaptionModalClient = ({
         />
         <Form.Item label="Has Audio Description">
           <Controller
-            render={({ onChange, name, value, ref }) => (
+            render={({ field: { onChange, name, value, ref } }) => (
               <Checkbox
                 onChange={(event) => {
                   onChange(event.target.checked);
@@ -247,15 +254,15 @@ export const UpdateCaptionModalClient = ({
         <Divider />
         <Form.Item label="Privacy">
           <Controller
-            as={Select}
+            render={({ field }) => (
+              <Select {...field} size={"middle"} placeholder={"Privacy"}>
+                {getPrivacyEnums()}
+              </Select>
+            )}
             name={"privacy"}
             control={control}
-            size={"middle"}
             defaultValue={caption?.privacy}
-            placeholder={"Privacy"}
-          >
-            {getPrivacyEnums()}
-          </Controller>
+          ></Controller>
         </Form.Item>
         {errors.translatedTitle && (
           <div style={{ color: colors.error }}>

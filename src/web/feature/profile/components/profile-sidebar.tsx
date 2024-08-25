@@ -171,10 +171,11 @@ export const ProfileSidebar = ({
               <>
                 <Controller
                   name={"profileMessage"}
-                  as={TextArea}
+                  render={({ field }) => (
+                    <TextArea {...field} style={{ height: "400px" }} />
+                  )}
                   control={control}
                   defaultValue={profileMessage}
-                  style={{ height: "400px" }}
                 />
               </>
             )}
@@ -193,28 +194,32 @@ export const ProfileSidebar = ({
             )}
             {isEditing && (
               <Controller
-                as={Select}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    mode={"multiple"}
+                    showSearch
+                    size={"large"}
+                    style={{ width: "100%" }}
+                    placeholder={t("profile.languageSelectionPlaceholder")}
+                    filterOption={(input, option) =>
+                      option.props.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0 ||
+                      option.props.value
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {languageOptions}
+                  </Select>
+                )}
                 name={"languageCodes"}
                 control={control}
-                mode={"multiple"}
-                showSearch
-                size={"large"}
-                style={{ width: "100%" }}
-                placeholder={t("profile.languageSelectionPlaceholder")}
                 defaultValue={languageCodes}
                 disabled={!isEditing}
-                filterOption={(input, option) =>
-                  option.props.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0 ||
-                  option.props.value
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0
-                }
                 rules={{ required: true, minLength: 1 }}
-              >
-                {languageOptions}
-              </Controller>
+              />
             )}
           </ProfileField>
 
@@ -241,8 +246,7 @@ export const ProfileSidebar = ({
               <div style={{ marginBottom: "20px" }}>
                 <Controller
                   name={"donationLink"}
-                  as={Input}
-                  type={"url"}
+                  render={({ field }) => <Input {...field} type={"url"} />}
                   control={control}
                   defaultValue={donationLink}
                 />

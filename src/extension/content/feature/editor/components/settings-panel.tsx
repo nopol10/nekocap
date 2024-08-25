@@ -13,7 +13,7 @@ import {
 import { DEFAULT_COORDS_SETTINGS, DEFAULT_LAYOUT_SETTINGS } from "../constants";
 import { PositionControl } from "./position-control";
 import { CaptionModificationState } from "@/common/feature/caption-editor/types";
-import { AnyAction } from "@reduxjs/toolkit";
+import type { AnyAction } from "@reduxjs/toolkit";
 import styled from "styled-components";
 import { WSText } from "@/common/components/ws-text";
 const { TabPane } = Tabs;

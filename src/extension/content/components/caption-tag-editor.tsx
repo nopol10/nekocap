@@ -3,7 +3,7 @@ import type { CustomTagProps } from "rc-select/lib/BaseSelect";
 import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
 import { Input, message, Popover, Space } from "antd";
-import { Control, Controller } from "react-hook-form";
+import { Control, Controller, FieldValue, FieldValues } from "react-hook-form";
 import { ColorResult, SketchPicker } from "react-color";
 import { CaptionTag } from "@/common/feature/video/types";
 import styled from "styled-components";
@@ -84,7 +84,7 @@ export type CaptionTagEditorProps = {
   defaultTags: string[];
   existingTags: CaptionTag[];
   selectedTagNames: string[];
-  control: Control;
+  control: Control<any>;
   onAddTag: (tagName: string, color: string) => void;
 };
 
@@ -102,7 +102,7 @@ export const CaptionTagEditor = ({
         disabled:
           selectedTagNames?.length >= MAX_CAPTION_GROUP_TAG_LIMIT &&
           !selectedTagNames?.find(
-            (selectedTag) => selectedTag.indexOf(tag.name) >= 0
+            (selectedTag) => selectedTag.indexOf(tag.name) >= 0,
           ),
       };
     });
@@ -137,19 +137,23 @@ export const CaptionTagEditor = ({
     <>
       <Space direction="vertical" style={{ width: "100%" }}>
         <Controller
-          as={Select}
+          render={({ ...field }) => (
+            <Select
+              {...field}
+              mode="multiple"
+              showSearch
+              showArrow
+              tagRender={renderTag}
+              placeholder={"Tags"}
+              options={tagOptions}
+              style={{ width: "100%" }}
+              notFoundContent={"No tags"}
+            />
+          )}
           name={"selectedTagNames"}
-          mode="multiple"
           control={control}
-          showSearch
-          showArrow
-          tagRender={renderTag}
-          placeholder={"Tags"}
           defaultValue={defaultTags}
-          options={tagOptions}
-          style={{ width: "100%" }}
           rules={{ required: false }}
-          notFoundContent={"No tags"}
         />
         <NewTag
           disabled={selectedTagNames?.length >= MAX_CAPTION_GROUP_TAG_LIMIT}

@@ -36,11 +36,11 @@ const BORDER_STYLE = "1px solid #f3f3f3";
 
 export const UserSettings = (): ReactElement => {
   const { t } = useTranslation("common");
+  // TODO: Look into this later, deep type instantiation typescript issue
+  // @ts-ignore
   const { data, isFetching: isFetchingTags } = useGetOwnProfileTagsQuery([]);
-  const [
-    deleteProfileTag,
-    { isLoading: isDeletingTag },
-  ] = useDeleteProfileTagMutation();
+  const [deleteProfileTag, { isLoading: isDeletingTag }] =
+    useDeleteProfileTagMutation();
 
   const breakpoints = useBreakpoint();
 
