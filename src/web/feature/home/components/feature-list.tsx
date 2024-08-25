@@ -100,11 +100,9 @@ const features: Feature[] = [
           ></Trans>
           <br />
           <Link href="/fontlist">
-            <a>
-              <Translation>
-                {(t) => t("home.feature.advancedEffects.viewSupportedFonts")}
-              </Translation>
-            </a>
+            <Translation>
+              {(t) => t("home.feature.advancedEffects.viewSupportedFonts")}
+            </Translation>
           </Link>
         </span>
       );
