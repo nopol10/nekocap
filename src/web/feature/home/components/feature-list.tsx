@@ -5,8 +5,7 @@ import { Col, Row } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import Title from "antd/lib/typography/Title";
 import { SupportedSites } from "@/common/components/supported-sites";
-import { Trans, useTranslation } from "next-i18next";
-import { Translation } from "react-i18next";
+import { Trans, useTranslation, Translation } from "next-i18next";
 import Link from "next/link";
 
 const Wrapper = styled.div`
