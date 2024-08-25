@@ -119,13 +119,12 @@ export const ShiftTimingsModal = ({
     const shiftMs = (isForwards ? 1 : -1) * parseDurationToMs(shiftDuration);
     const startMs = parseDurationToMs(startTime);
     const endMs = parseDurationToMs(endTime);
-    console.log(startTime, endTime);
     onShift(shiftMs, startMs, endMs);
     onCancel();
   };
 
   const handleChangeStartTime = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setStartTime(event.target.value);
   };
@@ -135,7 +134,7 @@ export const ShiftTimingsModal = ({
   };
 
   const handleChangeShiftDuration = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setShiftDuration(event.target.value);
   };

@@ -410,14 +410,6 @@ export const ViewerPage = ({
     rawCaption &&
     isAss(rawCaption.type);
 
-  console.log(
-    "isUsingAdvancedRenderer",
-    isUsingAdvancedRenderer,
-    loadComplete,
-    renderer,
-    rawCaption,
-  );
-
   const iframeProps = {
     height: iframeHeight,
     width: iframeWidth,
