@@ -1,6 +1,6 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
-import { truncate } from "lodash";
+import { truncate } from "lodash-es";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const PART_SEPARATOR = "/";
@@ -52,7 +52,7 @@ export const TikTokProcessor: Processor = {
     return "";
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },

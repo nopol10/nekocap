@@ -11,15 +11,6 @@
     [
       "import",
       {
-        "libraryName": "lodash",
-        "libraryDirectory": "",
-        "camel2DashComponentName": false
-      },
-      "import-lodash"
-    ],
-    [
-      "import",
-      {
         "libraryName": "@fortawesome/free-solid-svg-icons",
         "libraryDirectory": "",
         "camel2DashComponentName": false,

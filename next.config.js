@@ -1,6 +1,9 @@
 const { i18n } = require("./next-i18next.config");
 const withAntdLess = require("next-plugin-antd-less");
 const { withSentryConfig } = require("@sentry/nextjs");
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /**
  * @type {import('next').NextConfig}
@@ -26,7 +29,8 @@ const sentryWebpackPluginOptions = {};
 
 const sentrylessConfig = withAntdLess(moduleExports);
 
-module.exports =
+module.exports = withBundleAnalyzer(
   process.env.NODE_ENV === "production"
     ? withSentryConfig(sentrylessConfig, sentryWebpackPluginOptions)
-    : sentrylessConfig;
+    : sentrylessConfig,
+);

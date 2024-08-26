@@ -1,7 +1,7 @@
 import { SUBSTATION_GROUPED_FONTS } from "@/common/substation-fonts";
 import { Col, Row } from "antd";
 import Text from "antd/lib/typography/Text";
-import { startCase } from "lodash";
+import { startCase } from "lodash-es";
 import React from "react";
 import Link from "antd/lib/typography/Link";
 import styled, { CSSProperties } from "styled-components";

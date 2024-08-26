@@ -7,7 +7,7 @@ import {
   useImperativeHandle,
   useRef,
 } from "react";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
 import type { Dimension } from "@/common/types";
 import type { IFrameProps } from "@/common/feature/video/types";
