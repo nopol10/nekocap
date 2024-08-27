@@ -243,21 +243,28 @@ export const ViewerPage = ({
             tabId: TAB_ID,
             captionId: tabData.caption.id,
           }),
-        );
-        setLoadComplete(true);
+        ).then(() => {
+          console.log("Raw caption loaded");
+          setLoadComplete(true);
+        });
       }
     },
     [dispatch, hasRawCaption, loadComplete, tabData?.caption?.id],
   );
   useEffect(() => {
-    if (rawCaption || !globalThis.rawCaption) {
+    if (rawCaption || !globalThis.rawCaption || !loadComplete) {
       return;
     }
     const savedRawCaption = globalThis.rawCaption;
-    delete globalThis.rawCaption;
     setRawCaption(savedRawCaption);
+    delete globalThis.rawCaption;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawCaption, globalThis.rawCaption, tabData?.isLoadingRawCaption]);
+  }, [
+    rawCaption,
+    globalThis.rawCaption,
+    tabData?.isLoadingRawCaption,
+    loadComplete,
+  ]);
   const handleFontsLoaded = useCallback(
     (progress: number) => {
       if (progress < 1) {

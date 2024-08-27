@@ -144,7 +144,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
             caption.videoId,
           );
           console.log(
-            `[view] retrieved props for: ${captionId}, has raw caption: ${hasRawCaption}`,
+            `[view] retrieved props for: ${captionId}, has raw caption: ${hasRawCaption}, renderer type: ${renderer}`,
           );
           batch(() => {
             store.dispatch(setFontList({ list: fontList }));
