@@ -18,7 +18,7 @@ import {
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { Dimension } from "@/common/types";
-import { truncate } from "lodash";
+import { truncate } from "lodash-es";
 import { Main } from "@/web/feature/home/main";
 import { RawCaptionData } from "@/common/feature/video/types";
 import { loadFontListApi } from "@/common/feature/video/api";
@@ -144,7 +144,7 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
             caption.videoId,
           );
           console.log(
-            `[view] retrieved props for: ${captionId}, has raw caption: ${hasRawCaption}`,
+            `[view] retrieved props for: ${captionId}, has raw caption: ${hasRawCaption}, renderer type: ${renderer}`,
           );
           batch(() => {
             store.dispatch(setFontList({ list: fontList }));

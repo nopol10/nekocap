@@ -31,7 +31,7 @@ dayjs.extend(relativeTime);
 
 export const getTooltippedDate = (
   unixSeconds: number,
-  locale = "en"
+  locale = "en",
 ): ReactElement => {
   const dayjsDate = dayjs.unix(unixSeconds);
   const date = dayjsDate.locale(locale).format("YYYY-MM-DD HH:mm:ss");
@@ -65,7 +65,7 @@ export const captionColumns = {
       const link = getDirectCaptionLoadLink(
         processor,
         record.videoId,
-        record.id
+        record.id,
       );
       return (
         <>
@@ -79,21 +79,24 @@ export const captionColumns = {
           <div>
             <WSSpace $size="6px">
               {processor.canWatchInNekoCapSite && (
-                <Tooltip title="Watch here">
+                <Tooltip title={i18n?.t("home.watchHere") || ""}>
                   <Link
                     href={`${routeNames.caption.view.replace(
                       ":id",
-                      record.id
+                      record.id,
                     )}`}
+                    target="_blank"
                     passHref
                   >
-                    <AntdLink target="_blank">
-                      <EyeOutlined />
-                    </AntdLink>
+                    <EyeOutlined />
                   </Link>
                 </Tooltip>
               )}
-              <Tooltip title={`Watch on ${processor.name}`}>
+              <Tooltip
+                title={i18n?.t("home.watchOnService", {
+                  service: processor.name,
+                })}
+              >
                 <AntdLink href={link} target="_blank" rel="noreferrer">
                   <PlayCircleOutlined />
                 </AntdLink>
@@ -232,7 +235,7 @@ export const captionColumns = {
 
 export const videoCaptionColumns = (
   videoId: string,
-  videoSource: VideoSource
+  videoSource: VideoSource,
 ) => ({
   language: {
     title: (): ReactNode => {
@@ -265,7 +268,7 @@ export const videoCaptionColumns = (
                   <AntdLink
                     href={`${routeNames.caption.view.replace(
                       ":id",
-                      record.id
+                      record.id,
                     )}`}
                     target="_blank"
                   >

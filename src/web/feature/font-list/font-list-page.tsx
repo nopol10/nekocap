@@ -5,7 +5,7 @@ import {
 import { Slider, Input } from "antd";
 import FontSizeOutlined from "@ant-design/icons/FontSizeOutlined";
 import Title from "antd/lib/typography/Title";
-import { omit, startCase } from "lodash";
+import { omit, startCase } from "lodash-es";
 import React, {
   useCallback,
   useEffect,
@@ -56,7 +56,7 @@ const Page = styled.div`
 
 export const FontListPage = (): JSX.Element => {
   const fontList: typeof SUBSTATION_GROUPED_FONTS = Object.keys(
-    SUBSTATION_GROUPED_FONTS
+    SUBSTATION_GROUPED_FONTS,
   ).reduce((acc, groupName) => {
     // Prepend the fonts url to the font list
     const group = SUBSTATION_GROUPED_FONTS[groupName];
@@ -67,7 +67,7 @@ export const FontListPage = (): JSX.Element => {
         const newPath = fontPath.startsWith("/")
           ? `${(process.env.NEXT_PUBLIC_FONTS_URL || "")?.replace(
               /\/+$/,
-              ""
+              "",
             )}${fontPath}`
           : fontPath;
         return {
@@ -90,7 +90,7 @@ export const FontListPage = (): JSX.Element => {
           });
       });
       return initialState;
-    }
+    },
   );
 
   const [fontSize, setFontSize] = useState(16);
@@ -123,7 +123,7 @@ export const FontListPage = (): JSX.Element => {
               },
             });
           });
-      }
+      },
     );
     return rows;
   }, [fontList, searchString]);
@@ -148,11 +148,11 @@ export const FontListPage = (): JSX.Element => {
     new CellMeasurerCache({
       defaultHeight: 60,
       fixedWidth: true,
-    })
+    }),
   );
   const downloadedFonts = useRef<Set<string>>(new Set());
   const [fontQueue, setFontQueue] = useState<{ [id: string]: FontItemType }>(
-    {}
+    {},
   );
   const [fontsBeingDownloaded, setFontsBeingDownloaded] = useState<{
     [id: string]: boolean;
@@ -181,14 +181,14 @@ export const FontListPage = (): JSX.Element => {
             // @ts-ignore
             document.fonts.add(loadedFont);
             setFontsBeingDownloaded((previousState) =>
-              omit(previousState, [fontName])
+              omit(previousState, [fontName]),
             );
             downloadedFonts.current.add(fontName);
             cache.current.clearAll();
           })
           .catch((err) => {
             setFontsBeingDownloaded((previousState) =>
-              omit(previousState, [fontName])
+              omit(previousState, [fontName]),
             );
             console.warn("Failed to download font", err);
           });

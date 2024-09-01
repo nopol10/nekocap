@@ -13,7 +13,7 @@ export const NetflixProcessor: Processor = {
   videoSelector: ".watch-video video",
   videoPageUISelector: async () => {
     const controlsWrapper = await waitForElement(
-      `.watch-video--bottom-controls-container button[data-uia="control-audio-subtitle"]`
+      `.watch-video--bottom-controls-container button[data-uia="control-audio-subtitle"]`,
     );
     if (controlsWrapper.parentElement?.parentElement) {
       return controlsWrapper.parentElement.parentElement as HTMLElement;
@@ -40,6 +40,10 @@ export const NetflixProcessor: Processor = {
     left: 0 !important;
   }
   `,
+  globalStyles: `
+  .libassjs-canvas-parent, .nekocap-cap-container {
+    max-height: 100%;
+  }`,
   observer: {
     shouldObserveMenuPlaceability: true,
     shouldObserveVideoMetaUpdate: false,
@@ -54,7 +58,7 @@ export const NetflixProcessor: Processor = {
   supportAutoCaptions: () => false,
   getVideoId: () => {
     const matches = globalThis.location.href.match(
-      /(http:|https:)\/\/(?:www\.)(netflix.com)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/
+      /(http:|https:)\/\/(?:www\.)(netflix.com)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/,
     );
     if (!matches) {
       return "";
@@ -68,7 +72,7 @@ export const NetflixProcessor: Processor = {
     return ``;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },
@@ -81,7 +85,7 @@ export const NetflixProcessor: Processor = {
   getPageType: (url: string) => {
     if (
       url.match(
-        /(http:|https:)\/\/(?:www\.)(netflix.com)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/
+        /(http:|https:)\/\/(?:www\.)(netflix.com)\/((watch)\/([A-Za-z0-9._%-]*))(&\S+)?/,
       )
     ) {
       return PageType.Video;

@@ -23,7 +23,7 @@ import {
 } from "@/common/feature/caption-editor/selectors";
 import { SHORTCUT_NAME } from "@/common/feature/caption-editor/shortcut-constants";
 import { ColumnsType } from "antd/lib/table";
-import { isArray, startCase } from "lodash";
+import { isArray, startCase } from "lodash-es";
 import { WSButton } from "@/common/components/ws-button";
 import { MouseTrapKeySequence, KeyMapOptions } from "react-hotkeys-ce";
 
@@ -65,7 +65,7 @@ const shortcutColumns: ColumnsType<ShortcutItem> = [
 ];
 
 const formatShortcut = (
-  shortcut: string | MouseTrapKeySequence | KeyMapOptions
+  shortcut: string | MouseTrapKeySequence | KeyMapOptions,
 ) => {
   let normalizedName = shortcut.toString();
   normalizedName = normalizedName.replace(/([a-zA-Z]+)/g, (value) => {
@@ -149,14 +149,14 @@ export const EditorToolbar = ({
     throttle(() => {
       if (onUndo) onUndo();
     }, 100),
-    []
+    [],
   );
 
   const throttledRedo = useCallback(
     throttle(() => {
       if (onRedo) onRedo();
     }, 100),
-    []
+    [],
   );
 
   const handleClickShortcutsHelp = () => {

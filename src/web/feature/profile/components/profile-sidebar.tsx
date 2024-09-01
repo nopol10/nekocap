@@ -25,6 +25,9 @@ const { Sider } = Layout;
 const { TextArea } = Input;
 
 const ProfileSider = styled(Sider)`
+  img {
+    max-width: 100%;
+  }
   &.ant-layout-sider {
     padding: 0 20px 20px;
     background-color: ${colors.white};

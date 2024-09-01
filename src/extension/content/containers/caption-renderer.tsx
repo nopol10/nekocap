@@ -23,7 +23,7 @@ import {
   MAX_CONCURRENT_CAPTIONS,
   MAX_TRACKS,
 } from "@/common/feature/video/constants";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { Coords, Dimension } from "@/common/types";
 import { useAnimationFrame, useResize } from "@/hooks";
 import {
@@ -151,7 +151,7 @@ const alignContainer = (
   container: HTMLElement,
   alignment: CaptionAlignment,
   coords?: Coords,
-  coordType = "none"
+  coordType = "none",
 ) => {
   const alignmentData = alignmentDataMap[alignment];
   const leftValue = coords ? coords.x * 100 : alignmentData.leftDefault;
@@ -168,7 +168,7 @@ const alignContainer = (
   `;
   container.setAttribute(
     "data-coords",
-    JSON.stringify({ left: leftValue, top: topValue })
+    JSON.stringify({ left: leftValue, top: topValue }),
   );
   container.setAttribute("data-layout-type", coordType);
 };
@@ -187,7 +187,7 @@ const CaptionRendererInternal = React.forwardRef(
         fontSizeMultiplier: 1,
       },
     }: CaptionRendererProps,
-    ref: MutableRefObject<CaptionRendererHandle>
+    ref: MutableRefObject<CaptionRendererHandle>,
   ) => {
     const currentCaptionIds = useRef<number[]>([]);
     const captionWrapperElements = useRef<HTMLElement[]>();
@@ -232,7 +232,7 @@ const CaptionRendererInternal = React.forwardRef(
         () => {
           recreateContainer = true;
           setRecreateLocalCaptionContainer(false);
-        }
+        },
       );
       const videoSelector =
         typeof globalThis.selectedProcessor.videoSelector == "string"
@@ -246,7 +246,7 @@ const CaptionRendererInternal = React.forwardRef(
             recreateContainer = false;
             setRecreateLocalCaptionContainer(true);
           }
-        }
+        },
       );
       return () => {
         removalObserver.disconnect();
@@ -273,11 +273,11 @@ const CaptionRendererInternal = React.forwardRef(
       try {
         captionContainerElement.insertBefore(
           localCaptionContainer.current,
-          videoElement?.nextSibling || null
+          videoElement?.nextSibling || null,
         );
       } catch (e) {
         console.warn(
-          "Could not insert caption container right after the video element. Defaulting to last child"
+          "Could not insert caption container right after the video element. Defaulting to last child",
         );
         captionContainerElement.appendChild(localCaptionContainer.current);
       }
@@ -332,7 +332,7 @@ const CaptionRendererInternal = React.forwardRef(
       }
 
       currentCaptionIds.current = Array(
-        caption?.data?.tracks?.length || 0
+        caption?.data?.tracks?.length || 0,
       ).fill(0);
 
       // Update the caption container's width and height to match the video to prevent subs from going into the black bars
@@ -366,12 +366,12 @@ const CaptionRendererInternal = React.forwardRef(
       currentCaption: NekoCaption,
       currentCaptionId: number,
       captionData: CaptionDataContainer,
-      trackSettings: TrackSettings
+      trackSettings: TrackSettings,
     ) => {
       // Set layout
       captionContainerElement.setAttribute(
         "data-caption",
-        currentCaptionId.toString(10)
+        currentCaptionId.toString(10),
       );
       const activeLayout =
         currentCaption.layout ||
@@ -387,7 +387,7 @@ const CaptionRendererInternal = React.forwardRef(
           captionContainerElement,
           activeLayout.alignment,
           activeLayout.position,
-          coordType
+          coordType,
         );
       } else {
         // Default alignment is bottom center
@@ -395,7 +395,7 @@ const CaptionRendererInternal = React.forwardRef(
           captionContainerElement,
           CaptionAlignment.BottomCenter,
           undefined,
-          coordType
+          coordType,
         );
       }
       // Set text styles
@@ -520,7 +520,7 @@ const CaptionRendererInternal = React.forwardRef(
                 currentCaption,
                 i,
                 caption.data,
-                track.settings || {}
+                track.settings || {},
               );
               totalCaptionsSet++;
             } else if (currentTimeMs > currentCaption.end) {
@@ -543,7 +543,7 @@ const CaptionRendererInternal = React.forwardRef(
           }
         }
       },
-      [videoElement, caption, iframeProps, isIframe]
+      [videoElement, caption, iframeProps, isIframe],
     );
 
     useResize(videoElement, updateCaptionContainerStyles, 0, [
@@ -617,11 +617,11 @@ const CaptionRendererInternal = React.forwardRef(
           onVideoPause: handleVideoPause,
           onVideoSeeked: handleVideoSeeked,
         };
-      }
+      },
     );
 
     return <></>;
-  }
+  },
 );
 
 export const CaptionRenderer = React.memo(
@@ -636,5 +636,5 @@ export const CaptionRenderer = React.memo(
       isEqual(prevProps.caption, nextProps.caption) &&
       isEqual(prevProps.iframeProps, nextProps.iframeProps)
     );
-  }
+  },
 );

@@ -1,6 +1,6 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
-import _, { sortBy, uniq } from "lodash";
+import { sortBy, uniq } from "lodash-es";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 /**
@@ -43,7 +43,7 @@ export const AmazonPrimeProcessor: Processor = {
   getVideoId: () => {
     let titleId = "";
     const downloadButton = document.querySelector(
-      `a[data-automation-id="download-button"]`
+      `a[data-automation-id="download-button"]`,
     );
     if (downloadButton) {
       const downloadElement = downloadButton as HTMLAnchorElement;
@@ -56,8 +56,8 @@ export const AmazonPrimeProcessor: Processor = {
         (input) => {
           const inputElement = input as HTMLInputElement;
           return inputElement.value;
-        }
-      )
+        },
+      ),
     );
     // For each title ids, find the number of occurences of that id and sort them in descending order
     const seriesWithCount = seriesIds.map((seriesId) => {
@@ -82,7 +82,7 @@ export const AmazonPrimeProcessor: Processor = {
     return ``;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },

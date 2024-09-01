@@ -35,7 +35,7 @@ import { DurationInput } from "@/common/components/duration-input";
 import * as dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import debounce from "@/common/debounce";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { colors } from "@/common/colors";
 import { CaptionMutators, useCaptionDrag } from "../utils";
 import ClockCircleOutlined from "@ant-design/icons/ClockCircleOutlined";

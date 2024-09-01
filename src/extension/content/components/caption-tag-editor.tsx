@@ -137,19 +137,21 @@ export const CaptionTagEditor = ({
     <>
       <Space direction="vertical" style={{ width: "100%" }}>
         <Controller
-          render={({ ...field }) => (
-            <Select
-              {...field}
-              mode="multiple"
-              showSearch
-              showArrow
-              tagRender={renderTag}
-              placeholder={"Tags"}
-              options={tagOptions}
-              style={{ width: "100%" }}
-              notFoundContent={"No tags"}
-            />
-          )}
+          render={({ field }) => {
+            return (
+              <Select
+                {...field}
+                mode="multiple"
+                showSearch
+                showArrow
+                tagRender={renderTag}
+                placeholder={"Tags"}
+                options={tagOptions}
+                style={{ width: "100%" }}
+                notFoundContent={"No tags"}
+              />
+            );
+          }}
           name={"selectedTagNames"}
           control={control}
           defaultValue={defaultTags}

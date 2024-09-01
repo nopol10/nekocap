@@ -1,4 +1,4 @@
-import { DebounceSettings, isObject } from "lodash";
+import { DebounceSettings, isObject } from "lodash-es";
 /**
  * Debounce function with additional pending function taken from the latest lodash commit.
  * This update has not been released yet.

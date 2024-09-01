@@ -1,6 +1,6 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
-import { last } from "lodash";
+import { last } from "lodash-es";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const videoMatchingRegex =
@@ -31,7 +31,7 @@ export const BilibiliTVProcessor: Processor = {
       return mainTitle;
     }
     const partTitleElement: HTMLElement | undefined = document.querySelector(
-      `.breadcrumb__item-text`
+      `.breadcrumb__item-text`,
     ) as HTMLElement;
     const partTitle = partTitleElement?.innerText || "";
     return [mainTitle, partTitle].join(" ");
@@ -55,7 +55,7 @@ export const BilibiliTVProcessor: Processor = {
       const firstEpisodeHref =
         (
           document.querySelector(
-            ".ep-list > .ep-item:first-child a"
+            ".ep-list > .ep-item:first-child a",
           ) as HTMLAnchorElement
         )?.href || "";
       episodeId = last(firstEpisodeHref.split("/"))?.split("?")[0] || "";
@@ -70,7 +70,7 @@ export const BilibiliTVProcessor: Processor = {
     return "";
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },

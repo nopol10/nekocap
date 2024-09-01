@@ -4,7 +4,7 @@ const webpack = require("webpack");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const WebpackShellPlugin = require("webpack-shell-plugin");
+const WebpackShellPluginNext = require("webpack-shell-plugin-next");
 const dotenv = require("dotenv");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const {
@@ -219,8 +219,12 @@ const createContentAndPopupConfig = (env, argv) => {
       }),
       devMode && new ForkTsCheckerWebpackPlugin(),
       !devMode &&
-        new WebpackShellPlugin({
-          onBuildEnd: [`node zip-extension.js --target=${targetBrowser}`],
+        new WebpackShellPluginNext({
+          onBuildEnd: {
+            scripts: [`node zip-extension.js --target=${targetBrowser}`],
+            blocking: true,
+            parallel: false,
+          },
         }),
       !devMode && {
         apply: (compiler) => {
