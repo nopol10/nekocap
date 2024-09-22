@@ -1,0 +1,12 @@
+diff --git a/node_modules/lodash-es/_root.js b/node_modules/lodash-es/_root.js
+index 281f812..50794b2 100644
+--- a/node_modules/lodash-es/_root.js
++++ b/node_modules/lodash-es/_root.js
+@@ -4,6 +4,6 @@ import freeGlobal from './_freeGlobal.js';
+ var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+ 
+ /** Used as a reference to the global object. */
+-var root = freeGlobal || freeSelf || Function('return this')();
++var root = freeGlobal || freeSelf;
+ 
+ export default root;
