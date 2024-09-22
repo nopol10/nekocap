@@ -20,7 +20,9 @@ zip.addLocalFolder("../nekocap", "", (filename) => {
     ".env",
     ".env.prod",
     "dist/",
+    "dist\\",
     "docker/",
+    "docker\\",
     ".git",
     ".vscode",
     "node_modules",
@@ -33,7 +35,9 @@ zip.addLocalFolder("../nekocap", "", (filename) => {
     "zip-source.js",
     ".next",
     "pages/",
+    "pages\\",
     "public/",
+    "public\\",
     "next-env.d.ts",
     "next-i18next.config.js",
     "next.config.js",
@@ -51,11 +55,11 @@ zip.addLocalFolder("../nekocap", "", (filename) => {
 const filename = `./nekocap-source-${date.getFullYear()}-${pad(
   date.getMonth() + 1,
   2,
-  "0"
+  "0",
 )}-${pad(date.getDate(), 2, "0")}-${pad(date.getHours(), 2, "0")}-${pad(
   date.getMinutes(),
   2,
-  "0"
+  "0",
 )}.zip`;
 
 if (fs.existsSync(filename)) {
