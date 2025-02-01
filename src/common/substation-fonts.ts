@@ -92,6 +92,10 @@ export const SUBSTATION_GROUPED_FONTS = {
     tinos: "/fonts/Tinos-Regular.woff2",
     "tinos bold": "/fonts/Tinos-700.woff2",
     "waiting for the sunrise": "/fonts/Waiting-for-the-Sunrise-Regular.woff2",
+    warownia: "/fonts/Warownia.woff2",
+    "warownia bold": "/fonts/WarowniaBd.woff2",
+    "warownia black": "/fonts/WarowniaBlk.woff2",
+    "warownia ultra": "/fonts/WarowniaUlt.woff2",
     zerogothic: "/fonts/ZeroGothic.woff2",
     arial: "/fonts/Arial-Liberation.woff2", // Arial is not free
     "arial bold": "/fonts/Arial-Liberation-Bold.woff2",
