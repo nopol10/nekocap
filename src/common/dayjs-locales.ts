@@ -5,4 +5,5 @@ export const DAYJS_LOCALES = {
   "fa-IR": "fa",
   "vi-VN": "vi",
   "zh-TW": "zh-tw",
+  "zh-CN": "zh-cn",
 };
