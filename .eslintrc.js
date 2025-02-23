@@ -11,5 +11,7 @@ module.exports = {
   ],
   rules: {
     "@typescript-eslint/ban-ts-comment": "off",
+    "react/jsx-uses-react": 0,
+    "react/react-in-jsx-scope": 0,
   },
 };
