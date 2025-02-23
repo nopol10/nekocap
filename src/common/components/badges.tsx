@@ -22,15 +22,6 @@ export const Badges = styled.div`
 
   #chrome-badge {
     width: 200px;
-    @media ${DEVICE.mobileOnly} {
-      width: 128px;
-    }
-  }
-
-  #firefox-badge {
-    @media ${DEVICE.mobileOnly} {
-      width: 128px;
-    }
   }
 
   #discord-badge {
