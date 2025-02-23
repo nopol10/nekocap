@@ -3,6 +3,9 @@
   "tagline": "Meow",
   "home": {
     "summary": "<bold>動画を見る</bold>, <bold>字幕を作成</bold> そして <bold>共有</bold> する事が出来る<br /> <open>オープンソース</open> ブラウザーです",
+    "chromeBadgeAlt": "Chrome Web Store link",
+    "firefoxBadgeAlt": "Firefox Add-on link",
+    "discordBadgeAlt": "Discord link",
     "feature": {
       "easyToUse": {
         "title": "使いやすい",

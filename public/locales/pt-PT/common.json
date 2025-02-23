@@ -3,6 +3,9 @@
   "tagline": "Meow",
   "home": {
     "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
+    "chromeBadgeAlt": "Chrome Web Store link",
+    "firefoxBadgeAlt": "Firefox Add-on link",
+    "discordBadgeAlt": "Discord link",
     "feature": {
       "easyToUse": {
         "title": "Easy to use",

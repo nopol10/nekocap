@@ -3,6 +3,9 @@
   "tagline": "Meow",
   "home": {
     "summary": "<bold>观看</bold>、<bold>创建</bold>与<bold>分享</bold>你的字幕<br />在此<open>开源</open>浏览器扩展程序",
+    "chromeBadgeAlt": "Chrome Web Store link",
+    "firefoxBadgeAlt": "Firefox Add-on link",
+    "discordBadgeAlt": "Discord link",
     "feature": {
       "easyToUse": {
         "title": "简单使用",
