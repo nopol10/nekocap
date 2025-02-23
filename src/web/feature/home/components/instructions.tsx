@@ -1,16 +1,17 @@
-import { colors } from "@/common/colors";
-import React, { ReactElement } from "react";
-import styled from "styled-components";
+import browseVideoImage from "@/assets/images/instructions/browse-videos.jpg";
 import captionSelectImage from "@/assets/images/instructions/caption-dropdown.jpg";
 import downloadExtensionImage from "@/assets/images/instructions/download-extension.jpg";
-import browseVideoImage from "@/assets/images/instructions/browse-videos.jpg";
 import loginToNekocapImage from "@/assets/images/instructions/login-to-nekocap.jpg";
-import useEditorImage from "@/assets/images/instructions/use-editor.jpg";
 import noCaptionImage from "@/assets/images/instructions/no-caption-page.jpg";
+import useEditorImage from "@/assets/images/instructions/use-editor.jpg";
 import { getImageLink } from "@/common/chrome-utils";
-import { Col, Collapse, Row } from "antd";
+import { colors } from "@/common/colors";
 import { CHROME_DOWNLOAD_URL } from "@/common/constants";
+import { Col, Collapse, Row } from "antd";
 import { Trans, useTranslation } from "next-i18next";
+import Image from "next/image";
+import { ReactElement } from "react";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -77,21 +78,36 @@ export const Instructions = (): ReactElement => {
                   ></Trans>
                 </span>
               </div>
-              <img src={getImageLink(downloadExtensionImage)} />
+              <Image
+                src={getImageLink(downloadExtensionImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.view.step1")}
+              />
             </Step>
             <Step>
               <div>
                 <StepNumber>2</StepNumber>
                 <span>{t("home.instructions.view.step2")}</span>
               </div>
-              <img src={getImageLink(browseVideoImage)} />
+              <Image
+                src={getImageLink(browseVideoImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.view.step2")}
+              />
             </Step>
             <Step>
               <div>
                 <StepNumber>3</StepNumber>
                 <span>{t("home.instructions.view.step3")}</span>
               </div>
-              <img src={getImageLink(captionSelectImage)} />
+              <Image
+                src={getImageLink(captionSelectImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.view.step3")}
+              />
             </Step>
           </Row>
         </Panel>
@@ -113,38 +129,50 @@ export const Instructions = (): ReactElement => {
                       ),
                     }}
                   ></Trans>
-                  {/* Download the extension for{" "}
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={CHROME_DOWNLOAD_URL}
-                  >
-                    Chrome
-                  </a> */}
                 </span>
               </div>
-              <img src={getImageLink(downloadExtensionImage)} />
+              <Image
+                src={getImageLink(downloadExtensionImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.create.step1")}
+              />
             </Step>
             <Step>
               <div>
                 <StepNumber>2</StepNumber>
                 <span>{t("home.instructions.create.step2")}</span>
               </div>
-              <img src={getImageLink(loginToNekocapImage)} />
+              <Image
+                src={getImageLink(loginToNekocapImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.create.step2")}
+              />
             </Step>
             <Step>
               <div>
                 <StepNumber>3</StepNumber>{" "}
                 <span>{t("home.instructions.create.step3")}</span>
               </div>
-              <img src={getImageLink(noCaptionImage)} />
+              <Image
+                src={getImageLink(noCaptionImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.create.step3")}
+              />
             </Step>
             <Step>
               <div>
                 <StepNumber>4</StepNumber>
                 <span>{t("home.instructions.create.step4")}</span>
               </div>
-              <img src={getImageLink(useEditorImage)} />
+              <Image
+                src={getImageLink(useEditorImage)}
+                width={575}
+                height={350}
+                alt={t("home.instructions.create.step4")}
+              />
             </Step>
           </Row>
         </Panel>

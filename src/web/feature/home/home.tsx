@@ -1,30 +1,31 @@
-import React, { ReactElement } from "react";
-import styled from "styled-components";
-import { colors } from "@/common/colors";
-import { WSLayout } from "@/common/components/ws-layout";
-import Layout from "antd/lib/layout";
-import { WSTitle } from "@/common/components/ws-title";
-import { Alert, Col, Row } from "antd";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
-import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import discordLogo from "@/assets/images/discord.png";
-import { LatestCaptions } from "./containers/latest-captions";
-import { LatestUserLanguageCaptions } from "./containers/latest-user-language-caps";
+import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
+import { colors } from "@/common/colors";
+import { Badges } from "@/common/components/badges";
 import { NekoLogo } from "@/common/components/neko-logo";
-import { Instructions } from "./components/instructions";
-import { FeatureList } from "./components/feature-list";
+import { WSLayout } from "@/common/components/ws-layout";
+import { WSLinkButton } from "@/common/components/ws-link-button";
+import { WSTitle } from "@/common/components/ws-title";
 import {
   CHROME_DOWNLOAD_URL,
   DISCORD_INVITE_URL,
   FIREFOX_DOWNLOAD_URL,
   GITHUB_URL,
 } from "@/common/constants";
-import { routeNames } from "../route-types";
-import { Badges } from "@/common/components/badges";
 import { DEVICE } from "@/common/style-constants";
+import { Alert, Col, Row } from "antd";
+import Layout from "antd/lib/layout";
 import { Trans, useTranslation } from "next-i18next";
+import Image from "next/image";
+import { ReactElement } from "react";
+import styled from "styled-components";
 import { KofiWidget } from "../common/containers/kofi-widget";
-import { WSLinkButton } from "@/common/components/ws-link-button";
+import { routeNames } from "../route-types";
+import { FeatureList } from "./components/feature-list";
+import { Instructions } from "./components/instructions";
+import { LatestCaptions } from "./containers/latest-captions";
+import { LatestUserLanguageCaptions } from "./containers/latest-user-language-caps";
 
 const { Content } = Layout;
 
@@ -167,15 +168,33 @@ export const Home = (): ReactElement => {
             </WSTitle>
             <Badges>
               <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
-                <img id="chrome-badge" src={chromeLogo.src} />
+                <Image
+                  id="chrome-badge"
+                  src={chromeLogo.src}
+                  width={200}
+                  height={60}
+                  alt={t("home.chromeBadgeAlt")}
+                />
               </a>
               <a target="_blank" rel="noreferrer" href={FIREFOX_DOWNLOAD_URL}>
-                <img id="firefox-badge" src={firefoxLogo.src} />
+                <Image
+                  id="firefox-badge"
+                  src={firefoxLogo.src}
+                  width={172}
+                  height={60}
+                  alt={t("home.firefoxBadgeAlt")}
+                />
               </a>
             </Badges>
             <Badges>
               <a target="_blank" rel="noreferrer" href={DISCORD_INVITE_URL}>
-                <img id="discord-badge" src={discordLogo.src} />
+                <Image
+                  id="discord-badge"
+                  src={discordLogo.src}
+                  width={188}
+                  height={60}
+                  alt={t("home.discordBadgeAlt")}
+                />
               </a>
             </Badges>
             <Alert
