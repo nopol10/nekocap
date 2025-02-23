@@ -3,6 +3,9 @@
   "tagline": "Meow",
   "home": {
     "summary": "<bold>Xem</bold>, <bold>tạo</bold> và <bold>khoe</bold> phụ đề bạn làm<br />với<open>tiện ích trình duyệt</open> mã nguồn mở này",
+    "chromeBadgeAlt": "Chrome Web Store link",
+    "firefoxBadgeAlt": "Firefox Add-on link",
+    "discordBadgeAlt": "Discord link",
     "feature": {
       "easyToUse": {
         "title": "Dùng dễ thôi",
