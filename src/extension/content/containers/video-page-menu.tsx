@@ -1,79 +1,75 @@
-import message from "antd/lib/message";
-import Dropdown from "antd/lib/dropdown/dropdown";
-import Menu from "antd/lib/menu";
-import Space from "antd/lib/space";
-import { MenuClickEventHandler } from "rc-menu/lib/interface";
-import * as React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";
-import { RcFile } from "antd/lib/upload";
-import {
-  loadCaptions,
-  updateLoadedCaptionFromFile,
-  updateShowCaption,
-  loadServerCaption,
-  likeCaption,
-  dislikeCaption,
-  updateRenderer,
-  closeMenuBar,
-} from "@/common/feature/video/actions";
-import { isLoggedInSelector } from "@/common/feature/login/selectors";
-import {
-  availableRenderersSelector,
-  tabVideoDataSelector,
-} from "@/common/feature/video/selectors";
-import { SelectFileModal } from "./upload-caption-modal";
-import { SubmitCaptionModal } from "./submit-caption-modal";
-import Select from "antd/lib/select";
-import { languages } from "@/common/languages";
-import Spin from "antd/lib/spin";
-import Tooltip from "antd/lib/tooltip";
-import {
-  CaptionRendererType,
-  LoadCaptionsResult,
-  UpdateLoadedCaptionFromFile,
-} from "@/common/feature/video/types";
-import DislikeTwoTone from "@ant-design/icons/DislikeTwoTone";
-import LikeTwoTone from "@ant-design/icons/LikeTwoTone";
-import CheckOutlined from "@ant-design/icons/CheckOutlined";
-import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import { colors } from "@/common/colors";
 import { Expandable } from "@/common/components/expandable";
-import { captionTags } from "@/common/constants";
-import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
+import { WSButton } from "@/common/components/ws-button";
+import { WSSelect } from "@/common/components/ws-select";
+import { WSSpace } from "@/common/components/ws-space";
+import {
+  createNewCaption,
+  exportCaption,
+  fetchAutoCaptionList,
+  loadLocallySavedCaption,
+  saveLocalCaption,
+  updateShowEditor,
+} from "@/common/feature/caption-editor/actions";
 import {
   isUserCaptionLoadedSelector,
   showEditorIfPossibleSelector,
   tabEditorDataSelector,
 } from "@/common/feature/caption-editor/selectors";
+import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import {
-  createNewCaption,
-  exportCaption,
-  fetchAutoCaptionList,
-  fixOverlaps,
-  loadLocallySavedCaption,
-  saveLocalCaption,
-  updateEditorCaption,
-  updateShowEditor,
-} from "@/common/feature/caption-editor/actions";
+  closeMenuBar,
+  dislikeCaption,
+  likeCaption,
+  loadCaptions,
+  loadServerCaption,
+  updateLoadedCaptionFromFile,
+  updateRenderer,
+  updateShowCaption,
+} from "@/common/feature/video/actions";
+import { CaptionTags } from "@/common/feature/video/components/caption-tags";
 import { CAPTION_RENDERER_DATA } from "@/common/feature/video/constants";
-import { CaptionFileFormat } from "@/common/types";
-import { WSButton } from "@/common/components/ws-button";
-import styled, { css } from "styled-components";
-import { styledNoPass } from "@/common/style-utils";
+import {
+  availableRenderersSelector,
+  tabVideoDataSelector,
+} from "@/common/feature/video/selectors";
+import {
+  CaptionRendererType,
+  LoadCaptionsResult,
+  UpdateLoadedCaptionFromFile,
+} from "@/common/feature/video/types";
+import { languages } from "@/common/languages";
 import { darkModeSelector } from "@/common/processor-utils";
-import { WSSelect } from "@/common/components/ws-select";
-import { CreateCaptionWarningModal } from "../feature/editor/containers/create-caption-warning-modal";
-import { AutoCaptionsModal } from "../feature/editor/containers/auto-captions-modal";
 import { ThunkedPayloadAction } from "@/common/store/action";
-import { Switch } from "antd";
+import { styledNoPass } from "@/common/style-utils";
+import { CaptionFileFormat } from "@/common/types";
+import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
 import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
-import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
-import { ConfirmSaveModal } from "./confirm-save-modal";
 import { useIsInPopup } from "@/hooks";
-import { CaptionTags } from "@/common/feature/video/components/caption-tags";
-import { WSSpace } from "@/common/components/ws-space";
+import CheckOutlined from "@ant-design/icons/CheckOutlined";
+import CloseOutlined from "@ant-design/icons/CloseOutlined";
+import DislikeTwoTone from "@ant-design/icons/DislikeTwoTone";
+import LikeTwoTone from "@ant-design/icons/LikeTwoTone";
+import { Switch } from "antd";
+import Dropdown from "antd/lib/dropdown/dropdown";
+import Menu from "antd/lib/menu";
+import message from "antd/lib/message";
+import Select from "antd/lib/select";
+import Space from "antd/lib/space";
+import Spin from "antd/lib/spin";
+import Tooltip from "antd/lib/tooltip";
+import { RcFile } from "antd/lib/upload";
+import { MenuClickEventHandler } from "rc-menu/lib/interface";
+import * as React from "react";
+import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
+import { AutoCaptionsModal } from "../feature/editor/containers/auto-captions-modal";
+import { CreateCaptionWarningModal } from "../feature/editor/containers/create-caption-warning-modal";
+import { ConfirmSaveModal } from "./confirm-save-modal";
+import { SubmitCaptionModal } from "./submit-caption-modal";
+import { SelectFileModal } from "./upload-caption-modal";
 const { OptGroup } = Select;
 
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
@@ -167,19 +163,19 @@ export const VideoPageMenu = ({
   const tabData = useSelector(tabVideoDataSelector(globalThis.tabId));
   const editorTabData = useSelector(tabEditorDataSelector(globalThis.tabId));
   const isLoadingCaptionList = useSelector(
-    loadCaptions.isLoading(globalThis.tabId)
+    loadCaptions.isLoading(globalThis.tabId),
   );
   const loadingCaptionListError = useSelector(
-    loadCaptions.error(globalThis.tabId)
+    loadCaptions.error(globalThis.tabId),
   );
   const isUserCaptionLoaded = useSelector(
-    isUserCaptionLoadedSelector(globalThis.tabId)
+    isUserCaptionLoadedSelector(globalThis.tabId),
   );
   const showEditorIfPossible = useSelector(
-    showEditorIfPossibleSelector(globalThis.tabId)
+    showEditorIfPossibleSelector(globalThis.tabId),
   );
   const availableRenderers = useSelector(
-    availableRenderersSelector(globalThis.tabId)
+    availableRenderersSelector(globalThis.tabId),
   );
   const shouldAutosave = useSelector(shouldAutosaveSelector);
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
@@ -201,7 +197,7 @@ export const VideoPageMenu = ({
         tabId: globalThis.tabId,
         videoId: globalThis.videoId,
         videoSource: globalThis.videoSource,
-      })
+      }),
     ).then(() => {
       message.success("Saved!");
     });
@@ -210,7 +206,7 @@ export const VideoPageMenu = ({
   const handleSave = useCallback(async () => {
     const hasSave = await hasSaveData(
       globalThis.videoId,
-      globalThis.videoSource
+      globalThis.videoSource,
     );
     if (hasSave) {
       setIsConfirmSaveOpen(true);
@@ -225,10 +221,10 @@ export const VideoPageMenu = ({
         exportCaption.request({
           tabId: globalThis.tabId,
           format: fileFormat,
-        })
+        }),
       );
     },
-    []
+    [dispatch],
   );
 
   const captionOptions = useMemo(() => {
@@ -269,7 +265,7 @@ export const VideoPageMenu = ({
         videoId: globalThis.videoId,
         videoSource: globalThis.videoSource,
         tabId: globalThis.tabId,
-      })
+      }),
     )
       .then(() => {
         /* no content */
@@ -285,7 +281,7 @@ export const VideoPageMenu = ({
         videoId: globalThis.videoId,
         videoSource: globalThis.videoSource,
         tabId: globalThis.tabId,
-      })
+      }),
     );
   };
 
@@ -315,7 +311,7 @@ export const VideoPageMenu = ({
     }
     const fileCopy = Object.assign(
       Object.create(Object.getPrototypeOf(file)),
-      file
+      file,
     );
     const nameParts = file.name.split(".");
     const fileType = nameParts[nameParts.length - 1];
@@ -356,7 +352,7 @@ export const VideoPageMenu = ({
         tabId: globalThis.tabId,
         videoId: globalThis.videoId,
         videoSource: globalThis.videoSource,
-      })
+      }),
     );
   };
 
@@ -431,7 +427,7 @@ export const VideoPageMenu = ({
 
   const handleClickShowHideCaption = () => {
     dispatch(
-      updateShowCaption({ tabId: globalThis.tabId, show: !showCaption })
+      updateShowCaption({ tabId: globalThis.tabId, show: !showCaption }),
     );
   };
 
@@ -444,14 +440,17 @@ export const VideoPageMenu = ({
       }
     }
     dispatch(
-      updateShowEditor({ tabId: globalThis.tabId, show: !showEditorIfPossible })
+      updateShowEditor({
+        tabId: globalThis.tabId,
+        show: !showEditorIfPossible,
+      }),
     );
   };
 
   const handleClickSubmitCaption = () => {
     if (!isLoggedIn) {
       message.info(
-        "Login from the NekoCap extension icon to use this feature!"
+        "Login from the NekoCap extension icon to use this feature!",
       );
       return;
     }
@@ -507,15 +506,6 @@ export const VideoPageMenu = ({
       <Menu.Item onClick={handleFetchAutoCaptionList}>
         Use auto-captions
       </Menu.Item>
-    );
-  };
-
-  const handleClickFixOverlaps = () => {
-    dispatch(
-      updateEditorCaption({
-        action: fixOverlaps({}),
-        tabId: globalThis.tabId,
-      })
     );
   };
 
