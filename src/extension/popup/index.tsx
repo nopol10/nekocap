@@ -1,19 +1,18 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { Switch, Router } from "react-router-dom";
-import LoginRoutes from "./feature/login/containers/routes";
-import { ChromeMessage, ChromeMessageType } from "@/common/types";
-import { appHistory } from "./common/store";
-import "../../ant.less";
 import "@/antd-override.css";
 import { syncWindowVarsToPopup } from "@/common/chrome-utils";
-import "@/extension/popup/common/styles/index.scss";
-import "@/extension/content/provider";
-import { PopupProvider } from "../common/popup-context";
-import { getAuth } from "firebase/auth/web-extension";
-import { initFirebase } from "../background/firebase";
 import { storeInitPromise } from "@/common/store/store-non-background";
+import { ChromeMessage, ChromeMessageType } from "@/common/types";
+import "@/extension/content/provider";
+import "@/extension/popup/common/styles/index.scss";
+import { getAuth } from "firebase/auth/web-extension";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import { Router, Switch } from "react-router-dom";
+import "../../ant.less";
+import { initFirebase } from "../background/firebase";
+import { PopupProvider } from "../common/popup-context";
+import { appHistory } from "./common/store";
+import LoginRoutes from "./feature/login/containers/routes";
 globalThis.isPopupScript = true;
 
 initFirebase(getAuth);
@@ -31,7 +30,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
       throw new Error("No tab id found!");
     }
     await syncWindowVarsToPopup(tabId);
-    ReactDOM.render(
+    const container = document.getElementById("popup");
+    const root = createRoot(container!);
+    root.render(
       <Provider store={store}>
         <Router history={appHistory}>
           <PopupProvider>
@@ -41,7 +42,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
           </PopupProvider>
         </Router>
       </Provider>,
-      document.getElementById("popup"),
     );
   });
 });

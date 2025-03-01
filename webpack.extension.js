@@ -153,7 +153,7 @@ const createContentAndPopupConfig = (env, argv) => {
       rules: getRules(devMode, __dirname, "img"),
     },
     plugins: [
-      new webpack.ProvidePlugin({ process: "process/browser" }),
+      new webpack.ProvidePlugin({ process: "process/browser", React: "react" }),
       ...getPlugins(devMode, envKeys, analyze),
       // Clean plugin is omitted here as the previous config will trigger it already
       new MiniCssExtractPlugin(),

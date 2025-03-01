@@ -1,43 +1,42 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { message as notificationMessage } from "antd";
-import { Processor } from "./processors/processor";
 import "@/antd-override.css";
+import {
+  EDITOR_PORTAL_ELEMENT_ID,
+  VIDEO_ELEMENT_CONTAINER_ID,
+  Z_INDEX,
+} from "@/common/constants";
+import { requestFreshTabData } from "@/common/feature/video/actions";
+import { PageType } from "@/common/feature/video/types";
+import {
+  processorOrder,
+  videoSourceToProcessorMap,
+} from "@/common/feature/video/utils";
+import { PassthroughProvider } from "@/common/providers/passthrough-provider";
+import { storeInitPromise } from "@/common/store/store-non-background";
 import {
   ChromeMessage,
   ChromeMessageType,
   NotificationMessage,
   ProviderType,
 } from "@/common/types";
-import { ContentHome } from "./containers/content-home";
-import "../../ant-global-scoped.less";
-import "../../ant-content.less";
-import "react-virtualized/styles.css";
-import {
-  EDITOR_PORTAL_ELEMENT_ID,
-  VIDEO_ELEMENT_CONTAINER_ID,
-  Z_INDEX,
-} from "@/common/constants";
-import "../../libs/patch-worker/patch-worker";
-import { requestFreshTabData } from "@/common/feature/video/actions";
-import {
-  processorOrder,
-  videoSourceToProcessorMap,
-} from "@/common/feature/video/utils";
+import { message as notificationMessage } from "antd";
 import * as Parse from "parse";
-import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
-import "./provider";
-import { PassthroughProvider } from "@/common/providers/passthrough-provider";
-import { saveCaptionToDisk } from "../common/saver";
-import { PageType } from "@/common/feature/video/types";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import "react-virtualized/styles.css";
+import "../../ant-content.less";
+import "../../ant-global-scoped.less";
+import "../../libs/patch-worker/patch-worker";
 import {
   getEditorRawCaptionStorageKey,
   getRawCaptionStorageKey,
 } from "../common/raw-caption-keys";
-import { storeInitPromise } from "@/common/store/store-non-background";
+import { saveCaptionToDisk } from "../common/saver";
+import { ContentHome } from "./containers/content-home";
+import { Processor } from "./processors/processor";
+import "./provider";
+import { createInpageMenuPortalElement, refreshVideoMeta } from "./utils";
 const siteProcessors: Processor[] = processorOrder.map(
-  (processorKey) => videoSourceToProcessorMap[processorKey]
+  (processorKey) => videoSourceToProcessorMap[processorKey],
 );
 
 const providerMap = {
@@ -109,7 +108,7 @@ const initialize = async () => {
         const infoMessage = message.payload as NotificationMessage;
         notificationMessage.info(
           infoMessage.message,
-          infoMessage.duration || 4
+          infoMessage.duration || 4,
         );
       } else if (message.type === ChromeMessageType.RawCaption) {
         if (message.payload.isEditor) {
@@ -131,7 +130,7 @@ const initialize = async () => {
         });
         sendResponse(variables);
       }
-    }
+    },
   );
 
   globalThis.selectedProcessor = siteProcessors.find((processor) => {
@@ -161,10 +160,10 @@ const initialize = async () => {
             newPageType: globalThis.pageType,
             newCaptionId: autoLoadCaptionId || undefined,
             currentUrl: location.href,
-          })
+          }),
         );
       }
-    }
+    },
   );
 
   // Initialize a content copy of the provider
@@ -178,7 +177,7 @@ const initialize = async () => {
           default:
             resolve(new providerMap[providerType](Parse));
         }
-      }
+      },
     );
   });
 
@@ -191,11 +190,11 @@ const initialize = async () => {
    * Child elements will render through portals to various parts of the page
    * This allows us to have one content script managing all the different page variations for sites that use pushState for navigation
    */
-  ReactDOM.render(
+  const root = createRoot(container);
+  root.render(
     <Provider store={store}>
       <ContentHome />
     </Provider>,
-    container
   );
 };
 
