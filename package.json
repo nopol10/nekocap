@@ -17,7 +17,7 @@
     "watch:firefox": "concurrently \"npm:watch:ext:firefox\" \"npm:watch:web\"",
     "watch:ext:chrome": "webpack-dev-server --config webpack.extension.js --mode=development --env targetBrowser=chrome --no-devtool",
     "watch:ext:firefox": "webpack-dev-server --config webpack.extension.js --mode=development --env targetBrowser=firefox --no-devtool",
-    "watch:web": "next dev -p 12341",
+    "watch:web": "next dev -p 12341 --experimental-https",
     "analyze:ext": "webpack --config webpack.extension.js --mode=production --analyze=true",
     "analyze:web": "cross-env ANALYZE=true npm run build:web",
     "lint": "eslint --ext .ts,.tsx ./src",

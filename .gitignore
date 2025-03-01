@@ -19,3 +19,4 @@ Dockerfile
 .next/
 .sentryclirc
 public/fonts/*
+certificates
