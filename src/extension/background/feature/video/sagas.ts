@@ -1,56 +1,64 @@
+import { isAss } from "@/common/caption-utils";
 import {
-  fork,
-  takeLatest,
-  call,
-  put,
-  select,
-  takeEvery,
-  take,
-} from "redux-saga/effects";
-import { message as notificationMessage } from "antd";
+  isInBackgroundScript,
+  isInExtension,
+  isInServiceWorker,
+} from "@/common/client-utils";
 import {
-  loadCaptions,
-  setLoadedCaption,
-  setShowCaption,
-  setServerCaptions,
-  loadServerCaption,
+  clearHistory,
+  setEditorCaptionAfterEdit,
+  setShowEditor,
+} from "@/common/feature/caption-editor/actions";
+import { videoActionTypes } from "@/common/feature/video/action-types";
+import {
+  clearTabData,
+  closeMenuBar,
+  closeTab,
   dislikeCaption,
   likeCaption,
-  requestFreshTabData,
-  clearTabData,
-  updateLoadedCaptionFromFile,
-  updateRenderer,
-  setRenderer,
-  setContentPageType,
-  closeTab,
-  unsetTabData,
-  closeMenuBar,
-  setMenuHidden,
-  openMenuBar,
+  loadCaptions,
+  loadServerCaption,
   loadWebsiteViewerCaption,
-  setVideoDimensions,
+  openMenuBar,
+  requestFreshTabData,
+  setContentPageType,
   setFontList,
   setIsLoadingRawCaption,
+  setLoadedCaption,
+  setMenuHidden,
+  setRenderer,
+  setServerCaptions,
+  setShowCaption,
+  setVideoDimensions,
+  unsetTabData,
+  updateLoadedCaptionFromFile,
+  updateRenderer,
 } from "@/common/feature/video/actions";
-import { videoActionTypes } from "@/common/feature/video/action-types";
-import { Action, PayloadAction } from "@reduxjs/toolkit";
+import { loadFontListApi } from "@/common/feature/video/api";
 import {
-  LoadServerCaption,
-  LoadSingleCaptionResult,
+  loadedCaptionSelector,
+  tabVideoDataSelector,
+} from "@/common/feature/video/selectors";
+import {
+  CaptionContainer,
+  CaptionRendererType,
   LoadCaptions,
   LoadCaptionsResult,
-  RequestFreshTabData,
-  SetShowCaption,
-  CaptionContainer,
-  UpdateLoadedCaptionFromFile,
-  RawCaptionData,
-  SetRenderer,
-  CaptionRendererType,
+  LoadServerCaption,
+  LoadSingleCaptionResult,
   PageType,
-  TabVideoData,
+  RawCaptionData,
+  RequestFreshTabData,
+  SetRenderer,
   SetServerCaptions,
+  SetShowCaption,
+  TabVideoData,
+  UpdateLoadedCaptionFromFile,
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { Locator } from "@/common/locator/locator";
+import { safe } from "@/common/redux-utils";
+import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 import {
   CaptionFileFormat,
   ChromeMessageType,
@@ -58,33 +66,25 @@ import {
   NotificationMessage,
   TabbedType,
 } from "@/common/types";
-import {
-  loadedCaptionSelector,
-  tabVideoDataSelector,
-} from "@/common/feature/video/selectors";
-import { safe } from "@/common/redux-utils";
-import {
-  clearHistory,
-  setEditorCaptionAfterEdit,
-  setShowEditor,
-} from "@/common/feature/caption-editor/actions";
+import { PayloadAction } from "@reduxjs/toolkit";
+import { message as notificationMessage } from "antd";
 import { decompressFromBase64 as lzDecompress } from "lz-string";
-import { isAss } from "@/common/caption-utils";
-import { Locator } from "@/common/locator/locator";
-import { loadFontListApi } from "@/common/feature/video/api";
-import { SUBSTATION_FONT_LIST } from "@/common/substation-fonts";
 import {
-  isFirefoxExtension,
-  isInBackgroundScript,
-  isInExtension,
-} from "@/common/client-utils";
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { removeTemporaryRawCaptions } from "../../remove-temporary-raw-caption";
 import { getCaptionContainersFromFile } from "../caption-editor/utils";
 import { userExtensionPreferenceSelector } from "../user-extension-preference/selectors";
 import {
   AutoloadMethod,
   UserExtensionPreferenceState,
 } from "../user-extension-preference/types";
-import { removeTemporaryRawCaptions } from "../../remove-temporary-raw-caption";
 
 function sendInfoMessage(tabId: number, message: NotificationMessage) {
   if (isInExtension() && isInBackgroundScript()) {
@@ -179,7 +179,7 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
     {
       videoId,
       videoSource,
-    }
+    },
   );
   if (
     isInBackgroundScript() &&
@@ -204,9 +204,9 @@ function* loadCaptionSaga({ payload }: PayloadAction<LoadCaptions>) {
 async function storeRawCaption(
   tabId: number,
   rawCaption: RawCaptionData,
-  isEditor
+  isEditor,
 ): Promise<void> {
-  if (isInBackgroundScript()) {
+  if (isInBackgroundScript() || isInServiceWorker()) {
     if (isEditor) {
       if (!globalThis.backgroundEditorRawCaption) {
         globalThis.backgroundEditorRawCaption = {};
@@ -232,7 +232,7 @@ async function storeRawCaption(
         },
         () => {
           resolve();
-        }
+        },
       );
     });
   }
@@ -271,7 +271,7 @@ async function clearRawCaption(tabId: number, isEditor): Promise<void> {
         },
         () => {
           resolve();
-        }
+        },
       );
     });
   }
@@ -293,7 +293,7 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
     [Locator.provider(), "loadCaption"],
     {
       captionId,
-    }
+    },
   );
   if (!response) {
     throw new Error("Could not load the caption.");
@@ -345,7 +345,7 @@ function* loadServerCaptionSaga({ payload }: PayloadAction<LoadServerCaption>) {
 }
 
 function* loadWebsiteViewerCaptionSaga(
-  action: PayloadAction<LoadServerCaption>
+  action: PayloadAction<LoadServerCaption>,
 ) {
   const { tabId } = action.payload;
   yield call(loadServerCaptionSaga, action);
@@ -356,7 +356,7 @@ function* loadWebsiteViewerCaptionSaga(
   const processor = videoSourceToProcessorMap[data.caption.videoSource];
   const dimensions: Dimension = yield call(
     [processor, "retrieveVideoDimensions"],
-    data.caption.videoId
+    data.caption.videoId,
   );
   yield put(setVideoDimensions({ tabId, dimensions }));
 }
@@ -364,7 +364,7 @@ function* loadWebsiteViewerCaptionSaga(
 function* likeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
   const { tabId } = payload;
   const { id: captionId }: CaptionContainer = yield select(
-    loadedCaptionSelector(tabId)
+    loadedCaptionSelector(tabId),
   );
   if (!captionId) {
     throw new Error("Tried to like caption without id");
@@ -379,7 +379,7 @@ function* likeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
 function* dislikeCaptionSaga({ payload }: PayloadAction<TabbedType>) {
   const { tabId } = payload;
   const { id: captionId, userDislike }: CaptionContainer = yield select(
-    loadedCaptionSelector(tabId)
+    loadedCaptionSelector(tabId),
   );
   if (!captionId) {
     throw new Error("Tried to dislike caption without id");
@@ -421,7 +421,7 @@ function* requestFreshTabDataSaga({
         videoId: newVideoId,
         videoSource: newVideoSource,
         tabId,
-      })
+      }),
     );
   }
   const { autoloadMethod, preferredLanguage }: UserExtensionPreferenceState =
@@ -456,7 +456,7 @@ function* requestFreshTabDataSaga({
       loadServerCaption.request({
         captionId: preferredLanguageCaption.id,
         tabId,
-      })
+      }),
     );
   }
 
@@ -472,29 +472,29 @@ function* closeTabSaga({ payload }: PayloadAction<TabbedType>) {
 function* videoSaga() {
   yield takeLatest(
     updateLoadedCaptionFromFile.type,
-    updateLoadedCaptionFromFileSaga
+    updateLoadedCaptionFromFileSaga,
   );
   yield takeLatest(videoActionTypes.updateShowCaption, updateShowCaptionSaga);
   yield takeEvery(
     loadCaptions.REQUEST,
-    safe(loadCaptions.requestSaga(loadCaptionSaga))
+    safe(loadCaptions.requestSaga(loadCaptionSaga)),
   );
 
   yield takeLatest(
     loadServerCaption.REQUEST,
-    loadServerCaption.requestSaga(loadServerCaptionSaga)
+    loadServerCaption.requestSaga(loadServerCaptionSaga),
   );
   yield takeLatest(
     loadWebsiteViewerCaption.REQUEST,
-    loadWebsiteViewerCaption.requestSaga(loadWebsiteViewerCaptionSaga)
+    loadWebsiteViewerCaption.requestSaga(loadWebsiteViewerCaptionSaga),
   );
   yield takeLatest(
     likeCaption.REQUEST,
-    likeCaption.requestSaga(likeCaptionSaga)
+    likeCaption.requestSaga(likeCaptionSaga),
   );
   yield takeLatest(
     dislikeCaption.REQUEST,
-    dislikeCaption.requestSaga(dislikeCaptionSaga)
+    dislikeCaption.requestSaga(dislikeCaptionSaga),
   );
   yield takeLatest(requestFreshTabData, safe(requestFreshTabDataSaga));
   yield takeLatest(closeTab, safe(closeTabSaga));
