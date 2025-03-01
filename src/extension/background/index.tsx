@@ -1,28 +1,28 @@
+import { chromeProm } from "@/common/chrome-utils";
+import { isFirefoxExtension, isInServiceWorker } from "@/common/client-utils";
+import { autoLogin, loginSuccess } from "@/common/feature/login/actions";
+import { FirebaseLoggedInUser } from "@/common/feature/login/types";
+import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
+import { LoginMethod, UserData } from "@/common/providers/backend-provider";
+import { performBackendProviderRequest } from "@/common/providers/provider-utils";
+import type { RootState } from "@/common/store/types";
 import {
   BackgroundRequest,
   ChromeExternalMessageType,
   ChromeMessage,
   ChromeMessageType,
 } from "@/common/types";
-import { autoLogin, loginSuccess } from "@/common/feature/login/actions";
-import debounce from "lodash/debounce";
-import { closeTab, requestFreshTabData } from "@/common/feature/video/actions";
-import { initFirebase } from "./firebase";
-import "./common/provider";
-import { backgroundStoreInitPromise } from "./common/store";
-import { performBackendProviderRequest } from "@/common/providers/provider-utils";
-import { LoginMethod, UserData } from "@/common/providers/backend-provider";
-import { FirebaseLoggedInUser } from "@/common/feature/login/types";
-import { isFirefoxExtension, isInServiceWorker } from "@/common/client-utils";
 import {
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithCredential,
 } from "firebase/auth/web-extension";
-import { chromeProm } from "@/common/chrome-utils";
-import type { RootState } from "@/common/store/types";
+import debounce from "lodash/debounce";
+import "./common/provider";
+import { backgroundStoreInitPromise } from "./common/store";
 import { UserExtensionPreferenceState } from "./feature/user-extension-preference/types";
+import { initFirebase } from "./firebase";
 import { removeAllTemporaryRawCaptions } from "./remove-temporary-raw-caption";
 
 // Clear redux but keep user preferences

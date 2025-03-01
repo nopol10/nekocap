@@ -7,15 +7,14 @@ import { getVideoElement, getVideoTitle } from "./processors/processor";
 
 export const refreshVideoMeta = async () => {
   const pageType = globalThis.selectedProcessor.getPageType(
-    globalThis.location.href
+    globalThis.location.href,
   );
   globalThis.pageType = pageType;
   globalThis.videoId = "";
   const isInIFrame = pageType === PageType.VideoIframe;
-
   if (pageType === PageType.Video || isInIFrame) {
     globalThis.videoElement = await getVideoElement(
-      globalThis.selectedProcessor
+      globalThis.selectedProcessor,
     );
     /**
      * The captionContainerElement might not be correct when using the video's parent
@@ -33,7 +32,7 @@ export const refreshVideoMeta = async () => {
     }
 
     const extensionContainer = document.getElementById(
-      VIDEO_ELEMENT_CONTAINER_ID
+      VIDEO_ELEMENT_CONTAINER_ID,
     );
     return extensionContainer;
   }

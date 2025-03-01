@@ -1,51 +1,51 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled, { css } from "styled-components";
-import ReactDOM from "react-dom";
-import { ErrorBoundary } from "react-error-boundary";
-import {
-  isUserCaptionLoadedSelector,
-  tabEditorDataSelector,
-  tabEditorRawDataSelector,
-} from "@/common/feature/caption-editor/selectors";
-import {
-  fontListSelector,
-  tabVideoDataSelector,
-} from "@/common/feature/video/selectors";
-import { CaptionRendererType } from "@/common/feature/video/types";
+import nekoFace from "@/assets/images/neko-face-dark.svg";
+import { isAss } from "@/common/caption-utils";
+import { getImageLink } from "@/common/chrome-utils";
 import { colors } from "@/common/colors";
-import { CaptionRenderer, CaptionRendererHandle } from "./caption-renderer";
-import { VideoPageMenu } from "./video-page-menu";
-import { OctopusRenderer } from "./octopus-renderer";
 import { NekoLogo } from "@/common/components/neko-logo";
 import {
   IN_PAGE_MENU_CONTAINER_ID,
   VIDEO_ELEMENT_CONTAINER_ID,
 } from "@/common/constants";
 import {
-  getUIElement,
-  getVideoTitle,
-  isInaccurateTitle,
-} from "../processors/processor";
+  isUserCaptionLoadedSelector,
+  tabEditorDataSelector,
+  tabEditorRawDataSelector,
+} from "@/common/feature/caption-editor/selectors";
+import {
+  requestFreshTabData,
+  setIsLoadingRawCaption,
+} from "@/common/feature/video/actions";
+import {
+  fontListSelector,
+  tabVideoDataSelector,
+} from "@/common/feature/video/selectors";
+import { CaptionRendererType } from "@/common/feature/video/types";
+import { darkModeSelector } from "@/common/processor-utils";
+import { styledNoPass } from "@/common/style-utils";
+import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import {
   useCaptionContainerUpdate,
   useMenuUIElementUpdate,
   useVideoElementUpdate,
 } from "@/hooks";
-import { EditorContainer } from "./editor-container";
-import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
-import { darkModeSelector } from "@/common/processor-utils";
-import { isAss } from "@/common/caption-utils";
-import nekoFace from "@/assets/images/neko-face-dark.svg";
 import { Popover } from "antd";
-import { getImageLink } from "@/common/chrome-utils";
-import { styledNoPass } from "@/common/style-utils";
-import {
-  requestFreshTabData,
-  setIsLoadingRawCaption,
-} from "@/common/feature/video/actions";
-import { refreshVideoMeta } from "../utils";
+import { useCallback, useEffect, useRef } from "react";
+import ReactDOM from "react-dom";
+import { ErrorBoundary } from "react-error-boundary";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
 import { useIframeVideoUpdate } from "../hooks/use-iframe-video-update";
+import {
+  getUIElement,
+  getVideoTitle,
+  isInaccurateTitle,
+} from "../processors/processor";
+import { refreshVideoMeta } from "../utils";
+import { CaptionRenderer, CaptionRendererHandle } from "./caption-renderer";
+import { EditorContainer } from "./editor-container";
+import { OctopusRenderer } from "./octopus-renderer";
+import { VideoPageMenu } from "./video-page-menu";
 
 type InlineMenuWrapperProps = {
   isInline: boolean;
@@ -53,7 +53,7 @@ type InlineMenuWrapperProps = {
 
 const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">(
   "div",
-  "InlineMenuWrapper"
+  "InlineMenuWrapper",
 )`
   box-sizing: border-box;
   display: flex;
@@ -71,11 +71,9 @@ const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">(
   & > div:first-child {
     margin-right: auto;
   }
-  ${darkModeSelector(
-    css`
-      background-color: transparent;
-    `
-  )}
+  ${darkModeSelector(css`
+    background-color: transparent;
+  `)}
 `;
 
 const InlineLogoWrapper = styled.div`
@@ -108,7 +106,7 @@ const RawLoadingIndicator = styled.div`
 const InPageMenuContainer = () => {
   const isInlineMenu = !!globalThis.selectedProcessor?.inlineMenu;
   const inPageMenuContainer = document.getElementById(
-    IN_PAGE_MENU_CONTAINER_ID
+    IN_PAGE_MENU_CONTAINER_ID,
   );
   if (!inPageMenuContainer) {
     return <></>;
@@ -132,7 +130,7 @@ const InPageMenuContainer = () => {
         </InlineMenuWrapper>
       }
     </>,
-    inPageMenuContainer
+    inPageMenuContainer,
   );
 };
 
@@ -173,10 +171,10 @@ export const VideoHome = () => {
   const editorData = useSelector(tabEditorDataSelector(globalThis.tabId));
   const rawEditorData = useSelector(tabEditorRawDataSelector(globalThis.tabId));
   const isUserCaptionLoaded = useSelector(
-    isUserCaptionLoadedSelector(globalThis.tabId)
+    isUserCaptionLoadedSelector(globalThis.tabId),
   );
   const shouldHideVideoPageMenu = useSelector(
-    shouldHideVideoPageMenuSelector(globalThis.tabId)
+    shouldHideVideoPageMenuSelector(globalThis.tabId),
   );
   const fontList = useSelector(fontListSelector());
   const handleFontsLoaded = useCallback(
@@ -187,15 +185,15 @@ export const VideoHome = () => {
             loading: true,
             percentage: progress * 100,
             tabId: globalThis.tabId,
-          })
+          }),
         );
       } else {
         dispatch(
-          setIsLoadingRawCaption({ loading: false, tabId: globalThis.tabId })
+          setIsLoadingRawCaption({ loading: false, tabId: globalThis.tabId }),
         );
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   const { renderer, showCaption = true } = videoData || {};
@@ -230,7 +228,7 @@ export const VideoHome = () => {
         newVideoSource: globalThis.videoSource,
         newPageType: globalThis.pageType,
         currentUrl: location.href,
-      })
+      }),
     );
   }, [dispatch]);
   const { menuUpdateToken, videoMetaUpdateToken } = useMenuUIElementUpdate([]);
@@ -264,11 +262,11 @@ export const VideoHome = () => {
         isInaccurateTitle(globalThis.videoName, globalThis.selectedProcessor)
       ) {
         globalThis.videoName = await getVideoTitle(
-          globalThis.selectedProcessor
+          globalThis.selectedProcessor,
         );
       }
       const extensionUIElement: HTMLElement | undefined = await getUIElement(
-        globalThis.selectedProcessor
+        globalThis.selectedProcessor,
       );
       if (!extensionUIElement) {
         return;
@@ -322,7 +320,7 @@ export const VideoHome = () => {
     ? undefined
     : globalThis.videoElement;
   const videoContainerElement = document.getElementById(
-    VIDEO_ELEMENT_CONTAINER_ID
+    VIDEO_ELEMENT_CONTAINER_ID,
   );
   if (!videoContainerElement) {
     return <></>;
@@ -360,6 +358,6 @@ export const VideoHome = () => {
         />
       )}
     </>,
-    videoContainerElement
+    videoContainerElement,
   );
 };
