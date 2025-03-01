@@ -1,3 +1,69 @@
+import NekoLogoSvg from "@/assets/images/nekocap.svg";
+import { getImageLink } from "@/common/chrome-utils";
+import { colors } from "@/common/colors";
+import { DurationInput } from "@/common/components/duration-input";
+import { SplitPane } from "@/common/components/multi-split-pane/split-pane";
+import { WarningText } from "@/common/components/warning-text";
+import { EDITOR_PORTAL_ELEMENT_ID, TIME } from "@/common/constants";
+import debounce from "@/common/debounce";
+import {
+  addCaptionToTrackRelative,
+  addCaptionToTrackTime,
+  addTrack,
+  changeCaptionTrackId,
+  deleteCaption,
+  fixOverlaps,
+  modifyCaption,
+  modifyCaptionEndTime,
+  modifyCaptionGlobalSettings,
+  modifyCaptionStartTime,
+  modifyCaptionText,
+  modifyCaptionTime,
+  modifyCaptionTrackSettings,
+  modifyCaptionWithMultipleActions,
+  removeTrack,
+  shiftTimings,
+} from "@/common/feature/caption-editor/actions";
+import {
+  CaptionModificationState,
+  EDITOR_KEYS,
+  EditorShortcutHandlers,
+} from "@/common/feature/caption-editor/types";
+import { CaptionContainer } from "@/common/feature/video/types";
+import { findClosestCaption } from "@/common/feature/video/utils";
+import { DEVICE } from "@/common/style-constants";
+import {
+  CaptionFileFormat,
+  Coords,
+  CSSPosition,
+  UndoComponentProps,
+} from "@/common/types";
+import { BooleanFilter, clamp, isInputElementSelected } from "@/common/utils";
+import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
+import {
+  useMount,
+  useResize,
+  useStateRef,
+  useVideoDurationChange,
+  useVideoPlayPause,
+  useVideoVolumeChange,
+} from "@/hooks";
+import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
+import ClockCircleOutlined from "@ant-design/icons/ClockCircleOutlined";
+import CompressOutlined from "@ant-design/icons/CompressOutlined";
+import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
+import LoginOutlined from "@ant-design/icons/LoginOutlined";
+import LogoutOutlined from "@ant-design/icons/LogoutOutlined";
+import PauseOutlined from "@ant-design/icons/PauseOutlined";
+import PlusCircleFilled from "@ant-design/icons/PlusCircleFilled";
+import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
+import { Button, message, Popover, Slider, Space } from "antd";
+import { Gutter } from "antd/lib/grid/row";
+import * as dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import { isEqual } from "lodash-es";
 import * as React from "react";
 import {
   ChangeEvent,
@@ -9,85 +75,19 @@ import {
   useRef,
   useState,
 } from "react";
-import { CaptionContainer } from "@/common/feature/video/types";
-import {
-  useMount,
-  useResize,
-  useStateRef,
-  useVideoDurationChange,
-  useVideoPlayPause,
-  useVideoVolumeChange,
-} from "@/hooks";
 import ReactDOM from "react-dom";
+import { HotKeys, KeySequence, ObserveKeys } from "react-hotkeys-ce";
+import NumberFormat from "react-number-format";
+import { AutoSizer, List, ListRowProps } from "react-virtualized";
 import styled from "styled-components";
-import { EDITOR_PORTAL_ELEMENT_ID, TIME } from "@/common/constants";
+import { DEFAULT_LAYOUT_SETTINGS, MAX_VOLUME } from "../constants";
+import { ShiftTimingsModal } from "../containers/shift-timings-modal";
+import { CaptionMutators, useCaptionDrag } from "../utils";
+import { triggerEnterKeyupEvent } from "../utils/trigger-enter-keyup-event";
 import { EditorTimeline, SetTimelineScroll } from "./editor-timeline";
 import { EditorToolbar } from "./editor-toolbar";
-import { Button, message, Popover, Slider, Space } from "antd";
-import {
-  CaptionFileFormat,
-  Coords,
-  CSSPosition,
-  UndoComponentProps,
-} from "@/common/types";
-import { AutoSizer, List, ListRowProps } from "react-virtualized";
-import { DurationInput } from "@/common/components/duration-input";
-import * as dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-import debounce from "@/common/debounce";
-import { isEqual } from "lodash-es";
-import { colors } from "@/common/colors";
-import { CaptionMutators, useCaptionDrag } from "../utils";
-import ClockCircleOutlined from "@ant-design/icons/ClockCircleOutlined";
-import LoginOutlined from "@ant-design/icons/LoginOutlined";
-import LogoutOutlined from "@ant-design/icons/LogoutOutlined";
-import PlusCircleFilled from "@ant-design/icons/PlusCircleFilled";
-import CompressOutlined from "@ant-design/icons/CompressOutlined";
-import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
-import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
-import PauseOutlined from "@ant-design/icons/PauseOutlined";
-import NumberFormat from "react-number-format";
-import { HotKeys, KeySequence, ObserveKeys } from "react-hotkeys-ce";
-import {
-  CaptionModificationState,
-  EditorShortcutHandlers,
-  EDITOR_KEYS,
-} from "@/common/feature/caption-editor/types";
-import { DEFAULT_LAYOUT_SETTINGS, MAX_VOLUME } from "../constants";
-import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { VideoScrubber } from "./video-scrubber";
 import { SettingsPanel } from "./settings-panel";
-import { Gutter } from "antd/lib/grid/row";
-import { WarningText } from "@/common/components/warning-text";
-import { BooleanFilter, clamp, isInputElementSelected } from "@/common/utils";
-import NekoLogoSvg from "@/assets/images/nekocap.svg";
-import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
-import {
-  modifyCaption,
-  modifyCaptionGlobalSettings,
-  modifyCaptionTrackSettings,
-  addCaptionToTrackRelative,
-  addCaptionToTrackTime,
-  changeCaptionTrackId,
-  modifyCaptionStartTime,
-  modifyCaptionEndTime,
-  modifyCaptionText,
-  modifyCaptionTime,
-  deleteCaption,
-  addTrack,
-  removeTrack,
-  modifyCaptionWithMultipleActions,
-  fixOverlaps,
-  shiftTimings,
-} from "@/common/feature/caption-editor/actions";
-import { getImageLink } from "@/common/chrome-utils";
-import { findClosestCaption } from "@/common/feature/video/utils";
-import { ShiftTimingsModal } from "../containers/shift-timings-modal";
-import { useGetVideoFrameRate } from "@/extension/content/hooks/use-get-video-frame-rate";
-import { DEVICE } from "@/common/style-constants";
-import { triggerEnterKeyupEvent } from "../utils/trigger-enter-keyup-event";
-import { SplitPane } from "@/common/components/multi-split-pane/split-pane";
+import { VideoScrubber } from "./video-scrubber";
 
 dayjs.extend(duration);
 
@@ -835,7 +835,7 @@ const CaptionEditorInternal = ({
       data,
       selectedTrack,
       selectedCaption,
-      videoElement.currentTime,
+      videoElement?.currentTime,
       updateCaption,
     ],
   );
