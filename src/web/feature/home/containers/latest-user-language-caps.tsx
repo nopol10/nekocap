@@ -1,16 +1,15 @@
-import Table from "antd/lib/table/Table";
-import React, { ReactElement, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { loadLatestUserLanguageCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
-import { captionColumns } from "../../common/components/data-columns";
-import { DataCard } from "../components/data-card";
 import { getBaseLanguageName } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
-import { MobileCaptionList } from "../components/mobile-caption-list";
-import { Typography } from "antd";
 import { useSSRMediaQuery } from "@/hooks";
+import { Table, Typography } from "antd";
 import { useTranslation } from "next-i18next";
+import { ReactElement, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { captionColumns } from "../../common/components/data-columns";
+import { DataCard } from "../components/data-card";
+import { MobileCaptionList } from "../components/mobile-caption-list";
 
 const { Title } = Typography;
 
@@ -19,7 +18,7 @@ export const LatestUserLanguageCaptions = (): ReactElement => {
   const { latestUserLanguageCaptions: latestUserLanguageCaptions } =
     useSelector(publicDashboardSelector);
   const isLoading = useSelector(
-    loadLatestUserLanguageCaptions.isLoading(undefined)
+    loadLatestUserLanguageCaptions.isLoading(undefined),
   );
   const [baseLanguageName, setBaseLanguageName] = useState("");
   useEffect(() => {

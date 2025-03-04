@@ -1,17 +1,14 @@
-import { Button, Input, Typography } from "antd";
-import Form from "antd/lib/form";
-import Select from "antd/lib/select";
-import * as React from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useSelector, useDispatch } from "react-redux";
-import { userDataSelector } from "@/common/feature/login/selectors";
+import { DISCORD_INVITE_URL } from "@/common/constants";
 import { updateCaptionerProfile } from "@/common/feature/captioner/actions";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
+import { userDataSelector } from "@/common/feature/login/selectors";
 import { languageOptions } from "@/common/language-utils";
+import { Button, Form, Input, Select, Typography } from "antd";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import TextArea from "antd/lib/input/TextArea";
-import { DISCORD_INVITE_URL } from "@/common/constants";
 const { Title, Text, Link } = Typography;
+const { TextArea } = Input;
 
 const Page = styled.div``;
 

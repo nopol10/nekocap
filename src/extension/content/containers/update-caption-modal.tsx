@@ -1,40 +1,36 @@
-import Form from "antd/lib/form";
-import message from "antd/lib/message";
-import Modal from "antd/lib/modal/Modal";
-import React, { ReactElement, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  CaptionListFields,
-  CaptionPrivacy,
-  CaptionTag,
-} from "@/common/feature/video/types";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
-import Checkbox from "antd/lib/checkbox";
+import { hasTag } from "@/common/caption-utils";
 import { getImageLink } from "@/common/chrome-utils";
-import { MediumTag } from "@/common/components/ws-tag";
-import { updateUploadedCaption } from "@/common/feature/caption-editor/actions";
-import { Divider, Input, Select } from "antd";
+import { isServer } from "@/common/client-utils";
 import { colors } from "@/common/colors";
+import { MediumTag } from "@/common/components/ws-tag";
 import { captionTags, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
-import { UploadCaptionBlock } from "../components/upload-caption-block";
-import { RcFile } from "antd/lib/upload";
+import { updateUploadedCaption } from "@/common/feature/caption-editor/actions";
 import {
   MAX_CAPTION_FILE_BYTES,
   MAX_VERIFIED_CAPTION_FILE_BYTES,
   SUPPORTED_FILE_TYPES_STRING,
   VALID_FILE_TYPES,
 } from "@/common/feature/caption-editor/constants";
-import { hasTag } from "@/common/caption-utils";
-import { isServer } from "@/common/client-utils";
 import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
-import { CaptionTagEditor } from "../components/caption-tag-editor";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
+import {
+  CaptionListFields,
+  CaptionPrivacy,
+  CaptionTag,
+} from "@/common/feature/video/types";
 import {
   getCaptionTagFromTagString,
   getCaptionTagStrings,
 } from "@/common/feature/video/utils";
 import { BooleanFilter } from "@/common/utils";
+import { Checkbox, Divider, Form, Input, message, Modal, Select } from "antd";
+import type { RcFile } from "antd/lib/upload";
+import { ReactElement, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { CaptionTagEditor } from "../components/caption-tag-editor";
+import { UploadCaptionBlock } from "../components/upload-caption-block";
 
 interface UpdateCaptionModalProps {
   caption?: CaptionListFields;

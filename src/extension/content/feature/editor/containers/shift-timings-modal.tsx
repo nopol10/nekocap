@@ -1,13 +1,12 @@
-import * as React from "react";
-import Modal from "antd/lib/modal";
-import * as dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-import { Button, Space } from "antd";
-import { useEffect, useState } from "react";
-import styled from "styled-components";
 import { DurationInput } from "@/common/components/duration-input";
 import { TIME } from "@/common/constants";
 import { parseDurationToMs } from "@/common/date-utils";
+import { Button, Modal, Space } from "antd";
+import * as dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import styled from "styled-components";
 dayjs.extend(duration);
 
 const StyledDurationInput = styled(DurationInput)`

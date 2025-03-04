@@ -1,18 +1,16 @@
-import * as React from "react";
-import { VideoPlayerPreferences } from "@/common/feature/video/types";
 import { colors } from "@/common/colors";
-import Slider from "antd/lib/slider";
-import Progress from "antd/lib/progress";
-import FontSizeOutlined from "@ant-design/icons/lib/icons/FontSizeOutlined";
-import { ReactNode, useCallback } from "react";
+import { VideoPlayerPreferences } from "@/common/feature/video/types";
 import { styledNoPass } from "@/common/style-utils";
-import CaretUpOutlined from "@ant-design/icons/lib/icons/CaretUpOutlined";
-import CaretDownOutlined from "@ant-design/icons/lib/icons/CaretDownOutlined";
 import { useToggle } from "@/hooks";
+import CaretDownOutlined from "@ant-design/icons/lib/icons/CaretDownOutlined";
+import CaretUpOutlined from "@ant-design/icons/lib/icons/CaretUpOutlined";
+import FontSizeOutlined from "@ant-design/icons/lib/icons/FontSizeOutlined";
+import { Progress, Slider } from "antd";
+import { ReactNode, useCallback } from "react";
 
 const Wrapper = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
   "div",
-  "Wrapper"
+  "Wrapper",
 )`
   display: ${({ isHidden, fullScreen }) =>
     isHidden && fullScreen ? "none" : "flex"};
@@ -26,7 +24,7 @@ const Wrapper = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
 
 const Hider = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
   "div",
-  "Hider"
+  "Hider",
 )`
   position: absolute;
   display: flex;
@@ -67,7 +65,7 @@ export const CaptionControl = ({
     (newSize: number) => {
       setFontSizeMultiplier(newSize);
     },
-    [setFontSizeMultiplier]
+    [setFontSizeMultiplier],
   );
 
   const sizeTipFormatter = useCallback((value: number) => `${value}x`, []);

@@ -1,12 +1,12 @@
 import { colors } from "@/common/colors";
+import { SupportedSites } from "@/common/components/supported-sites";
+import { Col, Modal, Row, Typography } from "antd";
+import { Trans, Translation, useTranslation } from "next-i18next";
+import Link from "next/link";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
-import { Col, Row } from "antd";
-import Modal from "antd/lib/modal/Modal";
-import Title from "antd/lib/typography/Title";
-import { SupportedSites } from "@/common/components/supported-sites";
-import { Trans, useTranslation, Translation } from "next-i18next";
-import Link from "next/link";
+
+const { Title } = Typography;
 
 const Wrapper = styled.div`
   margin-bottom: 20px;
@@ -16,8 +16,15 @@ const FeatureItem = styled(Col)`
   & > div {
     height: 100%;
     padding: 20px;
-    border: 1px solid ${colors.divider};
+    border: none;
+    border-radius: 6px;
     background-color: ${colors.white};
+    box-shadow: 0px 0px 0px 0px transparent;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: 3px 4px 0px 3px ${colors.alternate};
+    }
 
     header {
       font-size: 18px;

@@ -1,45 +1,38 @@
-import React, {
-  ReactElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 import { colors } from "@/common/colors";
-import Layout from "antd/lib/layout";
-import { message, Select, Space, Tag, Tooltip, Typography } from "antd";
 import {
   CaptionerFields,
   CaptionerPrivateFields,
 } from "@/common/feature/captioner/types";
-import EditOutlined from "@ant-design/icons/EditOutlined";
+import { EditProfileFields } from "@/common/feature/profile/types";
+import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
+import { CaptionListFields } from "@/common/feature/video/types";
+import {
+  getCaptionGroupTagName,
+  getCaptionTagFromTagString,
+} from "@/common/feature/video/utils";
+import { DEVICE } from "@/common/style-constants";
+import { useIsClient } from "@/hooks";
 import CopyOutlined from "@ant-design/icons/CopyOutlined";
+import EditOutlined from "@ant-design/icons/EditOutlined";
 import SettingOutlined from "@ant-design/icons/SettingOutlined";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBan,
   faCheck,
   faUserCheck,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  CaptionList,
-  CAPTION_LIST_PAGE_SIZE,
-} from "../../common/components/caption-list";
-import { CaptionListFields } from "@/common/feature/video/types";
-import { EditProfileFields } from "@/common/feature/profile/types";
-import styled from "styled-components";
-import { ProfileSidebar } from "./profile-sidebar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Layout, message, Select, Space, Tag, Tooltip, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import { DEVICE } from "@/common/style-constants";
+import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
+import styled from "styled-components";
 import {
-  getCaptionGroupTagName,
-  getCaptionTagFromTagString,
-} from "@/common/feature/video/utils";
-import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
-import { useIsClient } from "@/hooks";
+  CAPTION_LIST_PAGE_SIZE,
+  CaptionList,
+} from "../../common/components/caption-list";
 import { routeNames } from "../../route-types";
+import { ProfileSidebar } from "./profile-sidebar";
 
 const { Title } = Typography;
 const { Content, Header } = Layout;
@@ -232,7 +225,7 @@ export const Profile = ({
       navigator.clipboard.writeText(
         `${window.location.protocol + "//" + window.location.hostname}/capper/${
           loggedInUser.userId
-        }`
+        }`,
       );
     }
     message.info(t("profile.profileLinkCopiedMessage"));

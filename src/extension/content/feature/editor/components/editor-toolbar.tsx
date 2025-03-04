@@ -1,31 +1,39 @@
-import Space from "antd/lib/space";
-import * as React from "react";
-import { Button, Dropdown, Menu, message, Select, Slider, Table } from "antd";
-import styled from "styled-components";
-import ZoomInOutlined from "@ant-design/icons/ZoomInOutlined";
-import ZoomOutOutlined from "@ant-design/icons/ZoomOutOutlined";
-import UndoOutlined from "@ant-design/icons/UndoOutlined";
-import RedoOutlined from "@ant-design/icons/RedoOutlined";
-import { CaptionFileFormat, UndoComponentProps } from "@/common/types";
 import { DisablebleIcon } from "@/common/components/disableble-icon";
-import throttle from "lodash/throttle";
-import { useCallback, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faKeyboard } from "@fortawesome/free-solid-svg-icons";
-import Modal, { ModalProps } from "antd/lib/modal/Modal";
-import { SHORTCUT_TYPES } from "@/common/feature/caption-editor/types";
-import { useDispatch } from "react-redux";
+import { WSButton } from "@/common/components/ws-button";
 import { updateKeyboardShortcutType } from "@/common/feature/caption-editor/actions";
-import { useSelector } from "react-redux";
 import {
   currentShortcutTypeSelector,
   keyboardShortcutsSelector,
 } from "@/common/feature/caption-editor/selectors";
 import { SHORTCUT_NAME } from "@/common/feature/caption-editor/shortcut-constants";
-import { ColumnsType } from "antd/lib/table";
+import { SHORTCUT_TYPES } from "@/common/feature/caption-editor/types";
+import { CaptionFileFormat, UndoComponentProps } from "@/common/types";
+import RedoOutlined from "@ant-design/icons/RedoOutlined";
+import UndoOutlined from "@ant-design/icons/UndoOutlined";
+import ZoomInOutlined from "@ant-design/icons/ZoomInOutlined";
+import ZoomOutOutlined from "@ant-design/icons/ZoomOutOutlined";
+import { faKeyboard } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  Button,
+  Dropdown,
+  Menu,
+  message,
+  Modal,
+  ModalProps,
+  Select,
+  Slider,
+  Space,
+  Table,
+  TableColumnsType,
+} from "antd";
 import { isArray, startCase } from "lodash-es";
-import { WSButton } from "@/common/components/ws-button";
-import { MouseTrapKeySequence, KeyMapOptions } from "react-hotkeys-ce";
+import throttle from "lodash/throttle";
+import * as React from "react";
+import { useCallback, useState } from "react";
+import { KeyMapOptions, MouseTrapKeySequence } from "react-hotkeys-ce";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 
 const TimelineSlider = styled(Slider)`
   width: 200px;
@@ -51,7 +59,7 @@ type ShortcutItem = {
   shortcut: string;
 };
 
-const shortcutColumns: ColumnsType<ShortcutItem> = [
+const shortcutColumns: TableColumnsType<ShortcutItem> = [
   {
     key: "name",
     dataIndex: "name",
@@ -87,7 +95,7 @@ const KeyboardShortcutModal = ({ modalProps }: KeyboardShortcutModalProps) => {
     });
   };
 
-  const handleOk = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  const handleOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (onCancel) {
       onCancel(e);
     }

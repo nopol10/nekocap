@@ -1,14 +1,12 @@
-import React, { ReactElement, useMemo, useState } from "react";
-import type { CustomTagProps } from "rc-select/lib/BaseSelect";
-import Select from "antd/lib/select";
-import Tag from "antd/lib/tag";
-import { Input, message, Popover, Space } from "antd";
-import { Control, Controller, FieldValue, FieldValues } from "react-hook-form";
-import { ColorResult, SketchPicker } from "react-color";
-import { CaptionTag } from "@/common/feature/video/types";
-import styled from "styled-components";
 import { WSButton } from "@/common/components/ws-button";
 import { MAX_CAPTION_GROUP_TAG_LIMIT } from "@/common/feature/video/constants";
+import { CaptionTag } from "@/common/feature/video/types";
+import { Input, message, Popover, Select, Space, Tag } from "antd";
+import type { CustomTagProps } from "rc-select/lib/BaseSelect";
+import React, { ReactElement, useMemo, useState } from "react";
+import { ColorResult, SketchPicker } from "react-color";
+import { Control, Controller } from "react-hook-form";
+import styled from "styled-components";
 
 const ColorPickerTrigger = styled.div<{ $color: string }>`
   width: 20px;

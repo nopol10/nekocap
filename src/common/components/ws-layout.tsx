@@ -1,5 +1,4 @@
-import Layout, { LayoutProps } from "antd/lib/layout";
-import React from "react";
+import { Layout, LayoutProps } from "antd";
 import styled from "styled-components";
 import { colors } from "../colors";
 

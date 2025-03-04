@@ -1,10 +1,10 @@
-import Table from "antd/lib/table/Table";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { loadPopularCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
-import { captionColumns } from "../../common/components/data-columns";
+import { Table } from "antd";
 import { useTranslation } from "next-i18next";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { captionColumns } from "../../common/components/data-columns";
 
 export const PopularCaptions = () => {
   const dispatch = useDispatch();

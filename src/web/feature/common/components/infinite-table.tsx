@@ -1,11 +1,10 @@
-import React, { ReactNode } from "react";
-import { ColumnsType } from "antd/lib/table/Table";
+import type { ListProps, TableColumnsType } from "antd";
+import { ReactNode } from "react";
 import InfiniteScroll from "react-infinite-scroller";
-import { ListProps } from "antd/lib/list";
 
 type InfiniteTableProps<T> = {
   data: T[];
-  columns: ColumnsType<T>;
+  columns: TableColumnsType<T>;
   currentPage: number;
   pageSize: number;
   hasMore: boolean;

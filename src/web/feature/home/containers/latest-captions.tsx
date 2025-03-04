@@ -1,15 +1,14 @@
-import Table from "antd/lib/table/Table";
-import { Typography } from "antd";
-import React, { ReactElement, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { loadLatestCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
-import { captionColumns } from "../../common/components/data-columns";
 import { DEVICE } from "@/common/style-constants";
+import { useSSRMediaQuery } from "@/hooks";
+import { Table, Typography } from "antd";
+import { useTranslation } from "next-i18next";
+import { ReactElement, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { captionColumns } from "../../common/components/data-columns";
 import { DataCard } from "../components/data-card";
 import { MobileCaptionList } from "../components/mobile-caption-list";
-import { loadLatestCaptions } from "@/common/feature/public-dashboard/actions";
-import { useSSRMediaQuery } from "@/hooks";
-import { useTranslation } from "next-i18next";
 
 const { Title } = Typography;
 

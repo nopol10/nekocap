@@ -1,5 +1,4 @@
 const { i18n } = require("./next-i18next.config");
-const withAntdLess = require("next-plugin-antd-less");
 const { withSentryConfig } = require("@sentry/nextjs");
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -14,7 +13,16 @@ const moduleExports = {
   cssLoaderOptions: {
     modules: true,
   },
-  modifyVars: { "@primary-color": "#ffa62b" },
+  transpilePackages: [
+    "@ant-design",
+    "antd",
+    "rc-util",
+    "rc-pagination",
+    "rc-picker",
+    "rc-input",
+    "rc-tree",
+    "rc-table",
+  ],
   async headers() {
     return [
       {
@@ -27,7 +35,7 @@ const moduleExports = {
 
 const sentryWebpackPluginOptions = {};
 
-const sentrylessConfig = withAntdLess(moduleExports);
+const sentrylessConfig = moduleExports;
 
 module.exports = withBundleAnalyzer(
   process.env.NODE_ENV === "production"

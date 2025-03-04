@@ -1,8 +1,7 @@
-import React from "react";
+import { Typography } from "antd";
+import type { TitleProps } from "antd/lib/typography/Title";
 import styled from "styled-components";
 import { colors } from "../colors";
-import { Typography } from "antd";
-import { TitleProps } from "antd/lib/typography/Title";
 import { DEVICE } from "../style-constants";
 
 const { Title } = Typography;
