@@ -93,10 +93,16 @@ export default class MyDocument extends Document {
             name="keywords"
             content="free,open source,community captions,chrome extension,firefox extension,browser extension,extension,youtube,niconico,vimeo,bilibili,tbs free,tver,video,subtitle,subtitles,caption,captions,caption uploader,subtitles uploader,upload,editor,import,export,srt,sbv,vtt,ass,substation alpha,ssa,advanced substation alpha,advanced subtitles,aegisub,subtitleedit,amara"
           />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link
-            href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Rambla:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-            rel="stylesheet"
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin={"anonymous"}
           />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap"
+            rel="stylesheet"
+          ></link>
         </Head>
         <body dir="auto">
           <Main />

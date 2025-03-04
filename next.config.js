@@ -13,7 +13,6 @@ const moduleExports = {
   cssLoaderOptions: {
     modules: true,
   },
-  modifyVars: { "@primary-color": "#ffa62b" },
   transpilePackages: [
     "@ant-design",
     "antd",

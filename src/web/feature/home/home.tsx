@@ -146,7 +146,7 @@ export const Home = (): ReactElement => {
             <div>(alpha)</div>
           </MainLogo>
         </div>
-        <WSLayout style={{ height: "100%", paddingBottom: 20 }}>
+        <HomeLayout>
           <Content style={{ padding: "0 40px", overflowX: "hidden" }}>
             <WaveDivider />
             <WSTitle level={2} textAlign={"center"}>
@@ -206,8 +206,46 @@ export const Home = (): ReactElement => {
             </BrowseCaptionButton>
             <CaptionDigestGrid />
           </Content>
-        </WSLayout>
+        </HomeLayout>
       </div>
     </>
   );
 };
+
+const HomeLayout = styled(WSLayout)`
+  @property --gradientX {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 20%;
+  }
+  @property --gradientY {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 10%;
+  }
+
+  height: 100%;
+  padding-bottom: 20px;
+  animation: wave 6s infinite alternate;
+  background: radial-gradient(
+    ellipse at var(--gradientX) var(--gradientY),
+    #f5f5f5 0,
+    #b6b6b629 32%,
+    #75d8ff31 100%
+  );
+
+  @keyframes wave {
+    0% {
+      --gradientX: 20%;
+      --gradientY: 10%;
+    }
+    50% {
+      --gradientX: 60%;
+      --gradientY: 30%;
+    }
+    100% {
+      --gradientX: 45%;
+      --gradientY: 20%;
+    }
+  }
+`;

@@ -14,16 +14,12 @@ function NekoCapApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useDayjsLocale(router.locale);
   return (
-    <>
-      <ConfigProvider
-        locale={
-          ANTD_LOCALES[router?.locale || "en-US"] || ANTD_LOCALES["en-US"]
-        }
-        theme={ANTD_THEME_CONFIG}
-      >
-        <Component {...pageProps} />
-      </ConfigProvider>
-    </>
+    <ConfigProvider
+      locale={ANTD_LOCALES[router?.locale || "en-US"] || ANTD_LOCALES["en-US"]}
+      theme={ANTD_THEME_CONFIG}
+    >
+      <Component {...pageProps} />
+    </ConfigProvider>
   );
 }
 
