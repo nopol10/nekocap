@@ -1,7 +1,6 @@
-import { ButtonProps } from "antd/lib/button";
-import React from "react";
-import { WSButton } from "./ws-button";
+import { ButtonProps } from "antd";
 import Link from "next/link";
+import { WSButton } from "./ws-button";
 
 export const WSLinkButton = ({ children, href, ...props }: ButtonProps) => {
   return (

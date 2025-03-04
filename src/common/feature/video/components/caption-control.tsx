@@ -1,33 +1,29 @@
-import * as React from "react";
-import { VideoPlayerPreferences } from "@/common/feature/video/types";
 import { colors } from "@/common/colors";
-import Slider from "antd/lib/slider";
-import Progress from "antd/lib/progress";
-import FontSizeOutlined from "@ant-design/icons/lib/icons/FontSizeOutlined";
-import { ReactNode, useCallback } from "react";
-import { styledNoPass } from "@/common/style-utils";
-import CaretUpOutlined from "@ant-design/icons/lib/icons/CaretUpOutlined";
-import CaretDownOutlined from "@ant-design/icons/lib/icons/CaretDownOutlined";
+import { VideoPlayerPreferences } from "@/common/feature/video/types";
 import { useToggle } from "@/hooks";
+import CaretDownOutlined from "@ant-design/icons/lib/icons/CaretDownOutlined";
+import CaretUpOutlined from "@ant-design/icons/lib/icons/CaretUpOutlined";
+import FontSizeOutlined from "@ant-design/icons/lib/icons/FontSizeOutlined";
+import { Progress, Slider } from "antd";
+import { ReactNode, useCallback } from "react";
+import styled from "styled-components";
 
-const Wrapper = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
-  "div",
-  "Wrapper"
-)`
-  display: ${({ isHidden, fullScreen }) =>
-    isHidden && fullScreen ? "none" : "flex"};
+const Wrapper = styled.div<{ $fullScreen: boolean; $isHidden: boolean }>`
+  display: ${({ $isHidden, $fullScreen }) =>
+    $isHidden && $fullScreen ? "none" : "flex"};
   flex-direction: row;
   align-items: center;
   position: relative;
   padding: 10px 0px 10px 20px;
   background-color: ${colors.captionControlBackground};
   border-top: 1px solid ${colors.captionControlBorder};
+
+  & .ant-slider-rail {
+    background-color: rgb(255 255 255 / 47%) !important;
+  }
 `;
 
-const Hider = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
-  "div",
-  "Hider"
-)`
+const Hider = styled.div<{ $fullScreen: boolean; $isHidden: boolean }>`
   position: absolute;
   display: flex;
   justify-content: center;
@@ -41,8 +37,8 @@ const Hider = styledNoPass<{ fullScreen: boolean; isHidden: boolean }>(
   border-left: 1px solid ${colors.captionControlBorder};
   border-right: 1px solid ${colors.captionControlBorder};
   background-color: ${colors.captionControlBackground};
-  opacity: ${({ isHidden, fullScreen }) =>
-    isHidden && fullScreen ? "0.35" : "1"};
+  opacity: ${({ $isHidden, $fullScreen }) =>
+    $isHidden && $fullScreen ? "0.35" : "1"};
 `;
 
 type CaptionControlMenuProps = {
@@ -67,14 +63,14 @@ export const CaptionControl = ({
     (newSize: number) => {
       setFontSizeMultiplier(newSize);
     },
-    [setFontSizeMultiplier]
+    [setFontSizeMultiplier],
   );
 
   const sizeTipFormatter = useCallback((value: number) => `${value}x`, []);
 
   return (
     <div style={{ position: "relative" }}>
-      <Wrapper fullScreen={fullScreen} isHidden={isHidden}>
+      <Wrapper $fullScreen={fullScreen} $isHidden={isHidden}>
         <FontSizeOutlined
           style={{ color: colors.white, marginRight: "10px", fontSize: "20px" }}
         />
@@ -103,8 +99,8 @@ export const CaptionControl = ({
       </Wrapper>
       {fullScreen && (
         <Hider
-          fullScreen={fullScreen}
-          isHidden={isHidden}
+          $fullScreen={fullScreen}
+          $isHidden={isHidden}
           onClick={toggleHidden}
         >
           {isHidden && <CaretUpOutlined></CaretUpOutlined>}

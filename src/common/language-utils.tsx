@@ -1,9 +1,8 @@
-import Select from "antd/lib/select";
-import React from "react";
+import { Select } from "antd";
 import { languages } from "./languages";
 
 export const generateCustomLanguageOptions = (
-  languageNameFilter?: (name: string) => string
+  languageNameFilter?: (name: string) => string,
 ) => {
   return [
     ...Object.keys(languages).map((languageId) => {

@@ -60,7 +60,7 @@ import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
 import { Button, message, Popover, Slider, Space } from "antd";
-import { Gutter } from "antd/lib/grid/row";
+import type { Gutter } from "antd/lib/grid/row";
 import * as dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { isEqual } from "lodash-es";

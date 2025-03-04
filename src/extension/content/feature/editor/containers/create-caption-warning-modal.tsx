@@ -1,6 +1,6 @@
+import { Modal } from "antd";
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import Modal from "antd/lib/modal";
 
 import { generateCaptionAndShowEditor } from "@/common/feature/caption-editor/actions";
 
@@ -18,7 +18,7 @@ export const CreateCaptionWarningModal = ({
         tabId: globalThis.tabId,
         videoId: globalThis.videoId,
         videoSource: globalThis.videoSource,
-      })
+      }),
     );
     onCancel();
   };

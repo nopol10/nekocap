@@ -1,36 +1,34 @@
-import CopyOutlined from "@ant-design/icons/CopyOutlined";
-import CheckCircleFilled from "@ant-design/icons/CheckCircleFilled";
-import Form from "antd/lib/form";
-import message from "antd/lib/message";
-import Modal from "antd/lib/modal/Modal";
-import Select from "antd/lib/select";
-import React, { useCallback, useState } from "react";
-import {
-  Control,
-  Controller,
-  DeepMap,
-  FieldError,
-  FieldErrors,
-  useForm,
-} from "react-hook-form";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, Input, Tooltip, Typography } from "antd";
-import Checkbox from "antd/lib/checkbox";
-import { CaptionPrivacy, VideoMeta } from "@/common/feature/video/types";
 import audioDescriptionImage from "@/assets/images/audio-description.jpg";
 import { getImageLink } from "@/common/chrome-utils";
-import { MediumTag } from "@/common/components/ws-tag";
-import { languageOptions } from "@/common/language-utils";
-import { submitCaption } from "@/common/feature/caption-editor/actions";
 import { colors } from "@/common/colors";
-import { DISCORD_INVITE_URL, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
-import { getVideoTitle } from "../processors/processor";
-import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
 import { WSSpace } from "@/common/components/ws-space";
-import { UploadResult } from "@/common/types";
+import { MediumTag } from "@/common/components/ws-tag";
+import { DISCORD_INVITE_URL, WEBEXT_ERROR_MESSAGE } from "@/common/constants";
+import { submitCaption } from "@/common/feature/caption-editor/actions";
+import { getPrivacyEnums } from "@/common/feature/caption-editor/get-privacy-enums";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
+import { CaptionPrivacy, VideoMeta } from "@/common/feature/video/types";
+import { languageOptions } from "@/common/language-utils";
 import { getDirectCaptionLoadLink } from "@/common/processor-utils";
+import { UploadResult } from "@/common/types";
+import CheckCircleFilled from "@ant-design/icons/CheckCircleFilled";
+import CopyOutlined from "@ant-design/icons/CopyOutlined";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useCallback, useState } from "react";
+import { Control, Controller, FieldErrors, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { getVideoTitle } from "../processors/processor";
 
 const { Text, Link } = Typography;
 interface SubmitCaptionModalProps {

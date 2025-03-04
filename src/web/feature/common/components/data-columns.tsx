@@ -1,10 +1,8 @@
-import Typography from "antd/lib/typography";
-import * as dayjs from "dayjs";
-import "dayjs/locale/ja";
-import relativeTime from "dayjs/plugin/relativeTime";
-import React, { ReactElement, ReactNode } from "react";
-import { useRouter } from "next/router";
-import { i18n } from "next-i18next";
+import { hasTag } from "@/common/caption-utils";
+import { WSSpace } from "@/common/components/ws-space";
+import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
+import { captionTags } from "@/common/constants";
+import { CaptionTags } from "@/common/feature/video/components/caption-tags";
 import {
   CaptionListFields,
   LoadCaptionsResult,
@@ -13,19 +11,20 @@ import {
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { languages } from "@/common/languages";
+import { getDirectCaptionLoadLink } from "@/common/processor-utils";
+import { Processor } from "@/extension/content/processors/processor";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
 import PlayCircleOutlined from "@ant-design/icons/PlayCircleOutlined";
-import { Tooltip } from "antd";
-import { getDirectCaptionLoadLink } from "@/common/processor-utils";
-import { hasTag } from "@/common/caption-utils";
-import { captionTags } from "@/common/constants";
-import { AudioDescribedTag, YTExternalCCTag } from "@/common/components/ws-tag";
-import { routeNames } from "../../route-types";
-import { Processor } from "@/extension/content/processors/processor";
+import { Tooltip, Typography } from "antd";
+import * as dayjs from "dayjs";
+import "dayjs/locale/ja";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { i18n } from "next-i18next";
 import Link from "next/link";
-import { WSSpace } from "@/common/components/ws-space";
-import { CaptionTags } from "@/common/feature/video/components/caption-tags";
+import { useRouter } from "next/router";
+import { ReactElement, ReactNode } from "react";
+import { routeNames } from "../../route-types";
 const { Link: AntdLink } = Typography;
 dayjs.extend(relativeTime);
 

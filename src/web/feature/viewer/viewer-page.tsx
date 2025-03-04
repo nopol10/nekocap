@@ -1,59 +1,53 @@
-import { message, Skeleton, Space, Tooltip, Typography } from "antd";
 import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
-import React, {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { faCode } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { message, Skeleton, Space, Tooltip, Typography } from "antd";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import type { YouTubePlayer } from "youtube-player/dist/types";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
-import { faCode } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "antd/lib/slider/style";
+// import "antd/lib/slider/style";
+import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
+import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
+import { isAss } from "@/common/caption-utils";
+import { isClient, isServer } from "@/common/client-utils";
+import { colors } from "@/common/colors";
+import { Badges } from "@/common/components/badges";
+import { WSText } from "@/common/components/ws-text";
+import { CHROME_DOWNLOAD_URL, FIREFOX_DOWNLOAD_URL } from "@/common/constants";
 import {
   loadServerCaption,
   loadWebsiteViewerCaption,
   setIsLoadingRawCaption,
   setPlayerFontSizeMultiplier,
 } from "@/common/feature/video/actions";
+import { CaptionControl } from "@/common/feature/video/components/caption-control";
 import {
   fontListSelector,
   tabVideoDataSelector,
 } from "@/common/feature/video/selectors";
-import { routeNames } from "@/web/feature/route-types";
 import {
   CaptionRendererType,
   RawCaptionData,
   VideoPlayerPreferences,
   VideoSource,
 } from "@/common/feature/video/types";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { DEVICE } from "@/common/style-constants";
+import { styledNoPass } from "@/common/style-utils";
 import {
   CaptionRenderer,
   CaptionRendererHandle,
 } from "@/extension/content/containers/caption-renderer";
 import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
 import { useRerenderOnResize, useSSRMediaQuery, useStateRef } from "@/hooks";
-import { isAss } from "@/common/caption-utils";
-import { styledNoPass } from "@/common/style-utils";
-import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { CHROME_DOWNLOAD_URL, FIREFOX_DOWNLOAD_URL } from "@/common/constants";
-import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
-import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
-import { Badges } from "@/common/components/badges";
-import { DEVICE } from "@/common/style-constants";
-import { isClient, isServer } from "@/common/client-utils";
-import { WSText } from "@/common/components/ws-text";
-import { CaptionControl } from "@/common/feature/video/components/caption-control";
-import { colors } from "@/common/colors";
+import { routeNames } from "@/web/feature/route-types";
 import { Trans, useTranslation } from "next-i18next";
-import { YoutubeViewer } from "./container/youtube-viewer";
-import { VimeoViewer } from "./container/vimeo-viewer";
-import { DailymotionViewer } from "./container/dailymotion-viewer";
 import { useRouter } from "next/router";
+import { DailymotionViewer } from "./container/dailymotion-viewer";
+import { VimeoViewer } from "./container/vimeo-viewer";
+import { YoutubeViewer } from "./container/youtube-viewer";
 
 const { Title, Text, Link } = Typography;
 

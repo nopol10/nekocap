@@ -1,21 +1,13 @@
+import { colors } from "@/common/colors";
 import {
   EXCLUDED_FONTS,
   SUBSTATION_GROUPED_FONTS,
 } from "@/common/substation-fonts";
-import { Slider, Input } from "antd";
 import FontSizeOutlined from "@ant-design/icons/FontSizeOutlined";
-import Title from "antd/lib/typography/Title";
+import { Input, Slider, Typography } from "antd";
 import { omit, startCase } from "lodash-es";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import Link from "antd/lib/typography/Link";
-import styled from "styled-components";
-import { colors } from "@/common/colors";
+import { useTranslation } from "next-i18next";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AutoSizer,
   CellMeasurer,
@@ -24,8 +16,10 @@ import {
   ListRowProps,
 } from "react-virtualized";
 import "react-virtualized/styles.css";
+import styled from "styled-components";
 import { FontItem, FontItemType } from "./font-item";
-import { useTranslation } from "next-i18next";
+
+const { Link, Title } = Typography;
 
 const MAX_CONCURRENT_FONT_DOWNLOADS = 3;
 

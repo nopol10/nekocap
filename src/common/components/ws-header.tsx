@@ -1,5 +1,4 @@
-import Layout from "antd/lib/layout";
-import styled from "styled-components";
+import { Layout } from "antd";
 import { colors } from "../colors";
 import { DEVICE } from "../style-constants";
 import { styledNoPass } from "../style-utils";
@@ -10,7 +9,7 @@ export type WSHeaderProps = {
 
 export const WSHeader = styledNoPass<WSHeaderProps, typeof Layout.Header>(
   Layout.Header,
-  "WSHeader"
+  "WSHeader",
 )`
   &.ant-layout-header {
     position: fixed;

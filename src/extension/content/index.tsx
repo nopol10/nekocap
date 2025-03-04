@@ -23,9 +23,8 @@ import * as Parse from "parse";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import "react-virtualized/styles.css";
-import "../../ant-content.less";
-import "../../ant-global-scoped.less";
 import "../../libs/patch-worker/patch-worker";
+import { ExtensionProvider } from "../common/extension-provider";
 import {
   getEditorRawCaptionStorageKey,
   getRawCaptionStorageKey,
@@ -192,9 +191,11 @@ const initialize = async () => {
    */
   const root = createRoot(container);
   root.render(
-    <Provider store={store}>
-      <ContentHome />
-    </Provider>,
+    <ExtensionProvider>
+      <Provider store={store}>
+        <ContentHome />
+      </Provider>
+    </ExtensionProvider>,
   );
 };
 
