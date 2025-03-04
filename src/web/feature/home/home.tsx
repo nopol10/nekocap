@@ -14,8 +14,7 @@ import {
   GITHUB_URL,
 } from "@/common/constants";
 import { DEVICE } from "@/common/style-constants";
-import { Alert, Col, Row } from "antd";
-import Layout from "antd/lib/layout";
+import { Col, Layout, Row } from "antd";
 import { Trans, useTranslation } from "next-i18next";
 import Image from "next/image";
 import { ReactElement } from "react";
@@ -197,15 +196,6 @@ export const Home = (): ReactElement => {
                 />
               </a>
             </Badges>
-            <Alert
-              style={{
-                margin: "0 auto 16px",
-                maxWidth: "650px",
-                fontSize: "1.05em",
-              }}
-              showIcon
-              message={t("home.twitterSuspensionNotice")}
-            />
             <FeatureList />
             <Instructions />
             <BrowseCaptionButton
