@@ -1,10 +1,12 @@
-import type { RcFile } from "antd/lib/upload";
-import Dragger from "antd/lib/upload/Dragger";
-import type { UploadRequestOption } from "rc-upload/lib/interface";
-import React, { ReactElement } from "react";
-import Link from "antd/lib/typography/Link";
 import { DISCORD_INVITE_URL } from "@/common/constants";
 import { SUPPORTED_FILE_TYPES_STRING } from "@/common/feature/caption-editor/constants";
+import { Typography, Upload } from "antd";
+import type { RcFile } from "antd/lib/upload";
+import type { UploadRequestOption } from "rc-upload/lib/interface";
+import { ReactElement } from "react";
+
+const { Dragger } = Upload;
+const { Link } = Typography;
 
 export type UploadCaptionBlockProps = {
   beforeUpload: (file: RcFile) => boolean;

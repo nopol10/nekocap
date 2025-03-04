@@ -1,6 +1,6 @@
 import { Checkbox, Modal } from "antd";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import React, { useState } from "react";
+import type { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { useState } from "react";
 
 interface ConfirmSaveModalProps {
   visible: boolean;

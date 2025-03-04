@@ -1,12 +1,11 @@
-import { SUBSTATION_GROUPED_FONTS } from "@/common/substation-fonts";
-import { Col, Row } from "antd";
-import Text from "antd/lib/typography/Text";
-import { startCase } from "lodash-es";
-import React from "react";
-import Link from "antd/lib/typography/Link";
-import styled, { CSSProperties } from "styled-components";
 import { colors } from "@/common/colors";
+import { SUBSTATION_GROUPED_FONTS } from "@/common/substation-fonts";
+import { Col, Row, Typography } from "antd";
+import { startCase } from "lodash-es";
 import { useTranslation } from "next-i18next";
+import styled, { CSSProperties } from "styled-components";
+
+const { Link, Text } = Typography;
 
 export type FontGroup = keyof typeof SUBSTATION_GROUPED_FONTS;
 

@@ -1,7 +1,7 @@
-import Document, { Html, Head, Main, NextScript } from "next/document";
-import React from "react";
-import { ServerStyleSheet } from "styled-components";
+import { createCache, extractStyle, StyleProvider } from "@ant-design/cssinjs";
 import { createHash } from "crypto";
+import Document, { Head, Html, Main, NextScript } from "next/document";
+import { ServerStyleSheet } from "styled-components";
 
 const getCSP = (props) => {
   let csp = "";
@@ -48,6 +48,7 @@ const cspHashOf = (text) => {
 };
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
+    const cache = createCache();
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
     const url = ctx.req.url;
@@ -55,17 +56,22 @@ export default class MyDocument extends Document {
       ctx.renderPage = () =>
         originalRenderPage({
           enhanceApp: (App) => (props) =>
-            sheet.collectStyles(<App {...props} />),
+            sheet.collectStyles(
+              <StyleProvider cache={cache}>
+                <App {...props} />
+              </StyleProvider>,
+            ),
         });
 
       const initialProps = await Document.getInitialProps(ctx);
-
+      const antdStyles = extractStyle(cache, true);
       return {
         ...initialProps,
         url,
         styles: (
           <>
             {initialProps.styles}
+            <style dangerouslySetInnerHTML={{ __html: antdStyles }} />
             {sheet.getStyleElement()}
           </>
         ),

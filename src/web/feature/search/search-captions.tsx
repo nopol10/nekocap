@@ -1,45 +1,47 @@
-import React, { useRef, useState } from "react";
-import styled from "styled-components";
+import emptyVideoImage from "@/assets/images/empty-video.jpg";
 import { colors } from "@/common/colors";
-import {
-  Button,
-  Input,
-  List,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Popover,
-  Card,
-  Form,
-  Affix,
-  Select,
-  Divider,
-} from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  searchSelector,
-  searchVideoCaptionResultsSelector,
-} from "@/common/feature/search/selectors";
 import {
   loadSearchResultVideoCaptions,
   search,
 } from "@/common/feature/search/actions";
-import { InfiniteList } from "../common/components/infinite-table";
-import { videoColumns } from "../common/components/data-columns";
+import {
+  searchSelector,
+  searchVideoCaptionResultsSelector,
+} from "@/common/feature/search/selectors";
 import { VideoFields, VideoSource } from "@/common/feature/video/types";
-import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
-import { languages } from "@/common/languages";
-import { Controller, useForm } from "react-hook-form";
-import SearchOutlined from "@ant-design/icons/SearchOutlined";
-import Title from "antd/lib/typography/Title";
 import { languageOptions } from "@/common/language-utils";
+import { languages } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
-import emptyVideoImage from "@/assets/images/empty-video.jpg";
 import { useOpenClose } from "@/hooks";
-import { VideoCaptionModal } from "./video-caption-modal";
-import { useRouter } from "next/router";
+import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
+import SearchOutlined from "@ant-design/icons/SearchOutlined";
+import {
+  Affix,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  Input,
+  List,
+  Popover,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import { useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { videoColumns } from "../common/components/data-columns";
+import { InfiniteList } from "../common/components/infinite-table";
+import { VideoCaptionModal } from "./video-caption-modal";
+
+const { Title } = Typography;
 
 const PAGE_SIZE = 20;
 

@@ -51,15 +51,17 @@ import CheckOutlined from "@ant-design/icons/CheckOutlined";
 import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import DislikeTwoTone from "@ant-design/icons/DislikeTwoTone";
 import LikeTwoTone from "@ant-design/icons/LikeTwoTone";
-import { Switch } from "antd";
-import Dropdown from "antd/lib/dropdown/dropdown";
-import Menu from "antd/lib/menu";
-import message from "antd/lib/message";
-import Select from "antd/lib/select";
-import Space from "antd/lib/space";
-import Spin from "antd/lib/spin";
-import Tooltip from "antd/lib/tooltip";
-import { RcFile } from "antd/lib/upload";
+import {
+  Dropdown,
+  Menu,
+  message,
+  Select,
+  Space,
+  Spin,
+  Switch,
+  Tooltip,
+} from "antd";
+import type { RcFile } from "antd/lib/upload";
 import { MenuClickEventHandler } from "rc-menu/lib/interface";
 import * as React from "react";
 import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";

@@ -1,12 +1,12 @@
 import { colors } from "@/common/colors";
+import { SupportedSites } from "@/common/components/supported-sites";
+import { Col, Modal, Row, Typography } from "antd";
+import { Trans, Translation, useTranslation } from "next-i18next";
+import Link from "next/link";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
-import { Col, Row } from "antd";
-import Modal from "antd/lib/modal/Modal";
-import Title from "antd/lib/typography/Title";
-import { SupportedSites } from "@/common/components/supported-sites";
-import { Trans, useTranslation, Translation } from "next-i18next";
-import Link from "next/link";
+
+const { Title } = Typography;
 
 const Wrapper = styled.div`
   margin-bottom: 20px;

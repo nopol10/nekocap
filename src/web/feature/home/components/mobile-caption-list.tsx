@@ -1,14 +1,14 @@
-import { message, Typography } from "antd";
-import React, { ReactElement } from "react";
-import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
+import emptyVideoImage from "@/assets/images/empty-video.jpg";
+import { colors } from "@/common/colors";
 import { CaptionListFields } from "@/common/feature/video/types";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { languages } from "@/common/languages";
+import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
+import { message, Typography } from "antd";
+import { useTranslation } from "next-i18next";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { routeNames } from "../../route-types";
-import { colors } from "@/common/colors";
-import { languages } from "@/common/languages";
-import emptyVideoImage from "@/assets/images/empty-video.jpg";
-import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { useTranslation } from "next-i18next";
 
 const { Link } = Typography;
 
@@ -68,7 +68,7 @@ export const MobileCaptionList = ({
 }: MobileCaptionListProps): ReactElement => {
   const { t } = useTranslation("common");
   const handleCaptionerLinkClick: React.MouseEventHandler<HTMLAnchorElement> = (
-    event
+    event,
   ) => {
     event.stopPropagation();
   };
@@ -89,7 +89,7 @@ export const MobileCaptionList = ({
 
         const handleClickCaption = () => {
           if (!canWatchInWebsite) {
-            message.warn(t("home.viewingCaptionInWebNotSupported"));
+            message.warning(t("home.viewingCaptionInWebNotSupported"));
             return;
           }
           window.open(url, "_blank");
@@ -115,7 +115,7 @@ export const MobileCaptionList = ({
                     onClick={handleCaptionerLinkClick}
                     href={`${routeNames.profile.main.replace(
                       ":id",
-                      caption.creatorId
+                      caption.creatorId,
                     )}`}
                   >
                     {caption.creatorName}

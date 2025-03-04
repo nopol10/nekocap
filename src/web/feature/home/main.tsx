@@ -1,14 +1,14 @@
-import Layout from "antd/lib/layout";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { WSHeader } from "@/common/components/ws-header";
 import { WSLayout } from "@/common/components/ws-layout";
-import { WebHeader } from "./web-header";
 import { webAutoLogin } from "@/common/feature/login/actions";
-import { useIsClient, useScrolledPastY } from "@/hooks";
 import { initFirebase } from "@/extension/background/firebase";
-import { AutoLoginContext } from "../common/contexts/auto-login-context";
+import { useIsClient, useScrolledPastY } from "@/hooks";
+import { Layout } from "antd";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { AutoLoginContext } from "../common/contexts/auto-login-context";
+import { WebHeader } from "./web-header";
 
 const { Content } = Layout;
 

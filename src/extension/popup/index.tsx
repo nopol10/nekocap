@@ -8,8 +8,8 @@ import { getAuth } from "firebase/auth/web-extension";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { Router, Switch } from "react-router-dom";
-import "../../ant.less";
 import { initFirebase } from "../background/firebase";
+import { ExtensionProvider } from "../common/extension-provider";
 import { PopupProvider } from "../common/popup-context";
 import { appHistory } from "./common/store";
 import LoginRoutes from "./feature/login/containers/routes";
@@ -33,15 +33,17 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
     const container = document.getElementById("popup");
     const root = createRoot(container!);
     root.render(
-      <Provider store={store}>
-        <Router history={appHistory}>
-          <PopupProvider>
-            <Switch>
-              <LoginRoutes />
-            </Switch>
-          </PopupProvider>
-        </Router>
-      </Provider>,
+      <ExtensionProvider>
+        <Provider store={store}>
+          <Router history={appHistory}>
+            <PopupProvider>
+              <Switch>
+                <LoginRoutes />
+              </Switch>
+            </PopupProvider>
+          </Router>
+        </Provider>
+      </ExtensionProvider>,
     );
   });
 });

@@ -1,5 +1,10 @@
-import React, { ReactElement } from "react";
-import { useTranslation } from "next-i18next";
+import { WSCaptionTag } from "@/common/components/ws-caption-tag";
+import {
+  useDeleteProfileTagMutation,
+  useGetOwnProfileTagsQuery,
+} from "@/common/feature/profile/api";
+import { getCaptionTagFromTagString } from "@/common/feature/video/utils";
+import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import {
   Card,
   Col,
@@ -12,15 +17,10 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
+import { useTranslation } from "next-i18next";
 import VirtualList from "rc-virtual-list";
-import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
-import { WSCaptionTag } from "@/common/components/ws-caption-tag";
-import {
-  useDeleteProfileTagMutation,
-  useGetOwnProfileTagsQuery,
-} from "@/common/feature/profile/api";
-import { getCaptionTagFromTagString } from "@/common/feature/video/utils";
-import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import { ReactElement } from "react";
 
 const { Title, Text } = Typography;
 

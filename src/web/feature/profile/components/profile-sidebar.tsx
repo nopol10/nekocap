@@ -1,24 +1,31 @@
-import React, { ReactElement } from "react";
-import styled from "styled-components";
 import { colors } from "@/common/colors";
-import Layout from "antd/lib/layout";
-import { Button, Input, Select, Skeleton, Space, Typography } from "antd";
+import { WSButton } from "@/common/components/ws-button";
+import { WSMarkdown } from "@/common/components/ws-markdown";
 import {
   CaptionerFields,
   CaptionerPrivateFields,
 } from "@/common/feature/captioner/types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandHoldingUsd } from "@fortawesome/free-solid-svg-icons";
-import Form from "antd/lib/form/Form";
-import { Controller, useForm } from "react-hook-form";
 import { EditProfileFields } from "@/common/feature/profile/types";
-import { WSButton } from "@/common/components/ws-button";
-import { WSMarkdown } from "@/common/components/ws-markdown";
 import { languageOptions } from "@/common/language-utils";
 import { languages } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
 import { useSSRMediaQuery } from "@/hooks";
+import { faHandHoldingUsd } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  Button,
+  Form,
+  Input,
+  Layout,
+  Select,
+  Skeleton,
+  Space,
+  Typography,
+} from "antd";
 import { useTranslation } from "next-i18next";
+import { ReactElement } from "react";
+import { Controller, useForm } from "react-hook-form";
+import styled from "styled-components";
 
 const { Title, Text, Link } = Typography;
 const { Sider } = Layout;

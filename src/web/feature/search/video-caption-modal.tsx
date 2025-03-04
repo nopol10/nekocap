@@ -1,10 +1,9 @@
-import { Modal, Table } from "antd";
-import React, { ReactElement } from "react";
-import { ColumnsType } from "antd/lib/table/Table";
 import { isServer } from "@/common/client-utils";
 import { LoadCaptionsResult, VideoSource } from "@/common/feature/video/types";
-import { videoCaptionColumns } from "../common/components/data-columns";
+import { Modal, Table, TableColumnsType } from "antd";
 import { useTranslation } from "next-i18next";
+import { ReactElement } from "react";
+import { videoCaptionColumns } from "../common/components/data-columns";
 
 interface VideoCaptionModalProps {
   captions: LoadCaptionsResult[];
@@ -29,7 +28,7 @@ export const VideoCaptionModal = ({
     return <></>;
   }
   const videoColumns = videoCaptionColumns(videoId, videoSource);
-  const tableColumns: ColumnsType<LoadCaptionsResult> = [
+  const tableColumns: TableColumnsType<LoadCaptionsResult> = [
     videoColumns.language,
     videoColumns.captioner,
   ].filter(Boolean);
