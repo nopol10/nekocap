@@ -16,8 +16,15 @@ const FeatureItem = styled(Col)`
   & > div {
     height: 100%;
     padding: 20px;
-    border: 1px solid ${colors.divider};
+    border: none;
+    border-radius: 6px;
     background-color: ${colors.white};
+    box-shadow: 0px 0px 0px 0px transparent;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: 3px 4px 0px 3px ${colors.alternate};
+    }
 
     header {
       font-size: 18px;
