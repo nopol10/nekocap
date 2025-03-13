@@ -1,7 +1,6 @@
-import Document, { Html, Head, Main, NextScript } from "next/document";
-import React from "react";
-import { ServerStyleSheet } from "styled-components";
 import { createHash } from "crypto";
+import Document, { Head, Html, Main, NextScript } from "next/document";
+import { ServerStyleSheet } from "styled-components";
 
 const getCSP = (props) => {
   let csp = "";
@@ -13,8 +12,8 @@ const getCSP = (props) => {
 
   const dailymotionDomains =
     "https://*.dailymotion.com https://*.dmcdn.net https://*.dm-event.net";
-  const commonConnectSrc = `https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.noembed.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
-  const commonScriptSrc = `https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com ${dailymotionDomains}`;
+  const commonConnectSrc = `cloudflareinsights.com https://www.googleapis.com https://*.google.com/ https://securetoken.googleapis.com/ https://identitytoolkit.googleapis.com/ https://*.noembed.com/ https://*.sentry.io/ https://vimeo.com/ ${dailymotionDomains}`;
+  const commonScriptSrc = `ajax.cloudflare.com static.cloudflareinsights.com https://*.google.com/ https://*.ko-fi.com https://*.vimeo.com ${dailymotionDomains}`;
   const commonStyleSrc = "https://*.ko-fi.com";
   const commonFrameSrc = `https://nekocap.com https://nekocap-42.firebaseapp.com https://ko-fi.com/ https://*.vimeo.com/ ${dailymotionDomains}`;
   const isViewer = props.url?.startsWith("/view/");
