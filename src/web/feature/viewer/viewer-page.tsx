@@ -1,7 +1,17 @@
 import FullscreenOutlined from "@ant-design/icons/FullscreenOutlined";
+import UserOutlined from "@ant-design/icons/UserOutlined";
 import { faCode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { message, Skeleton, Space, Tooltip, Typography } from "antd";
+import {
+  Card,
+  Col,
+  message,
+  Row,
+  Skeleton,
+  Space,
+  Tooltip,
+  Typography,
+} from "antd";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,7 +45,6 @@ import {
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { DEVICE } from "@/common/style-constants";
-import { styledNoPass } from "@/common/style-utils";
 import {
   CaptionRenderer,
   CaptionRendererHandle,
@@ -43,7 +52,7 @@ import {
 import { OctopusRenderer } from "@/extension/content/containers/octopus-renderer";
 import { useRerenderOnResize, useSSRMediaQuery, useStateRef } from "@/hooks";
 import { routeNames } from "@/web/feature/route-types";
-import { Trans, useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { DailymotionViewer } from "./container/dailymotion-viewer";
 import { VimeoViewer } from "./container/vimeo-viewer";
@@ -107,55 +116,41 @@ const VideoWrapper = styled.div`
   }
 `;
 
-const DetailsWrapper = styledNoPass<{ width?: number }>(
-  "div",
-  "DetailsWrapper",
-)`
-    ${({ width }) => (width !== undefined ? `width: ${width}px` : "")};
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 20px;
-    padding-right: 20px;
+const DetailsWrapper = styled.div<{ $width?: number }>`
+  margin-block: 16px;
+  ${({ $width: width }) => (width !== undefined ? `width: ${width}px` : "")};
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
 
-    h1.ant-typography {
-      margin-top: 0.3em;
-      margin-bottom: 0;
-    }
+  h1.ant-typography {
+    margin-top: 0.3em;
+    margin-bottom: 0;
+  }
 
-    h2.ant-typography {
-      margin-top: 0.2em;
-    }
-`;
-
-const ViewerTitle = styled(Title)`
-  &.ant-typography {
-    font-weight: 700;
-    font-style: normal;
-    @media ${DEVICE.mobileOnly} {
-      font-size: 1.2em;
-    }
+  h2.ant-typography {
+    margin-top: 0.2em;
   }
 `;
 
-const TranslatedTitle = styled(Title)`
-  &.ant-typography {
-    font-weight: 600;
-    font-style: normal;
-    @media ${DEVICE.mobileOnly} {
-      font-size: 1.1em;
-    }
-  }
+const ViewerTitle = styled.div`
+  margin-bottom: 8px;
+`;
+
+const TranslatedTitle = styled.span`
+  white-space: break-spaces;
 `;
 
 const CaptionerMessage = styled(Text)`
-  font-size: 1.2em;
+  margin-top: 0.3em;
+  font-size: 1em;
   @media ${DEVICE.mobileOnly} {
     font-size: 1em;
   }
 `;
 
 const ExtensionMessage = styled.div`
-  margin-top: 0.5em;
   font-size: 1.3em;
 
   ${Badges} {
@@ -190,7 +185,6 @@ function videoPreferencesReducer(
 
 export const ViewerPage = ({
   hasRawCaption = undefined,
-  captionId,
   isEmbed,
 }: ViewerPageProps): JSX.Element => {
   const router = useRouter();
@@ -466,58 +460,70 @@ export const ViewerPage = ({
         </FullScreen>
         {caption && !isEmbed && (
           <DetailsWrapper>
-            <ViewerTitle>
-              <span dir="auto">{caption.originalTitle}</span>
-            </ViewerTitle>
-            <TranslatedTitle level={2}>
-              <span dir="auto">{caption.translatedTitle}</span>{" "}
-              <Tooltip title={t("viewer.copyEmbedCode")}>
-                <Link onClick={handleClickCopyEmbedLink}>
-                  <FontAwesomeIcon icon={faCode} style={{ maxWidth: "38px" }} />
-                </Link>
-              </Tooltip>
-            </TranslatedTitle>
-            <CaptionerMessage>
-              <Trans
-                i18nKey={"viewer.captionSubmittedBy"}
-                components={{
-                  captioner: (
+            <Row gutter={[16, 16]}>
+              <Col md={16}>
+                <Card
+                  title={
+                    <TranslatedTitle>
+                      <span dir="auto">{caption.translatedTitle}</span>{" "}
+                      <Tooltip title={t("viewer.copyEmbedCode")}>
+                        <Link onClick={handleClickCopyEmbedLink}>
+                          <FontAwesomeIcon
+                            icon={faCode}
+                            style={{ maxWidth: "38px" }}
+                          />
+                        </Link>
+                      </Tooltip>
+                    </TranslatedTitle>
+                  }
+                  style={{ height: "100%" }}
+                >
+                  <ViewerTitle>
+                    <span dir="auto">{caption.originalTitle}</span>
+                  </ViewerTitle>
+                  <CaptionerMessage>
+                    <UserOutlined />{" "}
                     <Link
                       href={routeNames.profile.main.replace(
                         ":id",
                         caption.creator || "",
                       )}
-                    ></Link>
-                  ),
-                }}
-                values={{ creatorName: caption.creatorName }}
-              ></Trans>
-            </CaptionerMessage>
-            <ExtensionMessage>
-              <WSText>
-                {t("viewer.downloadNekocapMessage", {
-                  site: processor ? processor.name : "YouTube",
-                })}
-              </WSText>
-              <Badges style={{ justifyContent: "left" }}>
-                <Space direction={isDesktop ? "horizontal" : "vertical"}>
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={CHROME_DOWNLOAD_URL}
-                  >
-                    <img id="chrome-badge" src={chromeLogo.src} />
-                  </a>
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={FIREFOX_DOWNLOAD_URL}
-                  >
-                    <img id="firefox-badge" src={firefoxLogo.src} />
-                  </a>
-                </Space>
-              </Badges>
-            </ExtensionMessage>
+                    >
+                      {caption.creatorName}
+                    </Link>
+                  </CaptionerMessage>
+                </Card>
+              </Col>
+              <Col md={8}>
+                <Card>
+                  <ExtensionMessage>
+                    <WSText>
+                      {t("viewer.downloadNekocapMessage", {
+                        site: processor ? processor.name : "YouTube",
+                      })}
+                    </WSText>
+                    <Badges style={{ justifyContent: "left" }}>
+                      <Space direction={isDesktop ? "horizontal" : "vertical"}>
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          href={CHROME_DOWNLOAD_URL}
+                        >
+                          <img id="chrome-badge" src={chromeLogo.src} />
+                        </a>
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          href={FIREFOX_DOWNLOAD_URL}
+                        >
+                          <img id="firefox-badge" src={firefoxLogo.src} />
+                        </a>
+                      </Space>
+                    </Badges>
+                  </ExtensionMessage>
+                </Card>
+              </Col>
+            </Row>
           </DetailsWrapper>
         )}
         {loadComplete && renderer === CaptionRendererType.Default && (
