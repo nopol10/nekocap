@@ -133,14 +133,6 @@ const features: Feature[] = [
       </span>
     ),
   },
-  {
-    title: "home.feature.community.title",
-    description: (
-      <span>
-        <Trans i18nKey={"home.feature.community.description"} />
-      </span>
-    ),
-  },
 ];
 
 export const FeatureList = () => {
@@ -150,7 +142,7 @@ export const FeatureList = () => {
       <Row gutter={[16, 16]} justify="center">
         {features.map((feature, index) => {
           return (
-            <FeatureItem key={index} lg={8} md={16} xs={24}>
+            <FeatureItem key={index} lg={12} md={16} xs={24}>
               <div>
                 <header>{t(feature.title || "")}</header>
                 <main>
