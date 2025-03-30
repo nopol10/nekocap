@@ -115,6 +115,7 @@ type ProfileProps = {
   hasMore: boolean; // has more captions to load
   onChangePage?: (page: number, pageSize?: number, tags?: string[]) => void;
   onDelete?: (caption: CaptionListFields) => void;
+  onDownloadCaption?: (captionId: string) => void;
   onSetEditing?: (isEditing: boolean) => void;
   onSubmitEdit?: (form: EditProfileFields) => void;
   onCancelEdit?: () => void;
@@ -131,6 +132,7 @@ export const Profile = ({
   privateData,
   onChangePage,
   onDelete,
+  onDownloadCaption,
   currentCaptionPage: currentCaptionPage,
   captions,
   captioner = EMPTY_PROFILE,
@@ -387,6 +389,7 @@ export const Profile = ({
                   currentPage={currentCaptionPage}
                   onChangePage={handleOnChangePage}
                   onDelete={onDelete}
+                  onDownloadCaption={onDownloadCaption}
                   listContainsCurrentPageOnly={true}
                   onUpdateCaption={onUpdateCaption}
                   onSelectTag={handleChangeTagFilter}

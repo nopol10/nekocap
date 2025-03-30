@@ -1,20 +1,22 @@
-import { fork, takeLatest, put, call, select } from "redux-saga/effects";
 import {
-  PayloadAction,
+  CaptionContainer,
+  CaptionRendererType,
+  RawCaptionData,
+  SetShowEditorIfPossible,
+  SubmitCaption,
+  UpdateUploadedCaption,
+} from "@/common/feature/video/types";
+import {
   AnyAction,
+  PayloadAction,
   PayloadActionCreator,
 } from "@reduxjs/toolkit";
-import {
-  SubmitCaption,
-  CaptionContainer,
-  SetShowEditorIfPossible,
-  CaptionRendererType,
-  UpdateUploadedCaption,
-  RawCaptionData,
-} from "@/common/feature/video/types";
+import { call, fork, put, select, takeLatest } from "redux-saga/effects";
 
-import { getStringByteLength } from "@/common/utils";
-import { safe } from "@/common/redux-utils";
+import { parseCaption, stringifyCaption } from "@/common/caption-parsers";
+import { CaptionDataContainer } from "@/common/caption-parsers/types";
+import { chromeProm } from "@/common/chrome-utils";
+import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
 import {
   addCaptionToTrackRelative,
   addCaptionToTrackTime,
@@ -24,11 +26,12 @@ import {
   createNewCaption,
   deleteCaption,
   exportCaption,
-  FetchAutoCaptionList,
-  fetchAutoCaptionList,
-  generateCaptionAndShowEditor,
   FetchAutoCaption,
   fetchAutoCaption,
+  FetchAutoCaptionList,
+  fetchAutoCaptionList,
+  fixOverlaps,
+  generateCaptionAndShowEditor,
   loadLocallySavedCaption,
   modifyCaption,
   modifyCaptionEndTime,
@@ -50,6 +53,7 @@ import {
   setEditorShortcuts,
   setLoadedCaptionLanguage,
   setShowEditor,
+  shiftTimings,
   submitCaption,
   undoEditorAction,
   undoEditorTriggerAction,
@@ -57,11 +61,10 @@ import {
   updateEditorCaption,
   updateKeyboardShortcutType,
   updateShowEditor,
-  fixOverlaps,
-  shiftTimings,
   updateUploadedCaption,
 } from "@/common/feature/caption-editor/actions";
-import { ThunkedPayloadAction } from "@/common/store/action";
+import { EDITOR_CUTOFF_BYTES } from "@/common/feature/caption-editor/constants";
+import { saveCaptionToDisk } from "@/common/feature/caption-editor/saver";
 import {
   canEditorRedoSelector,
   canEditorUndoSelector,
@@ -70,6 +73,7 @@ import {
   tabEditorDataSelector,
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
+import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
 import {
   CaptionEditorLocalSave,
   CaptionEditorStorage,
@@ -83,6 +87,14 @@ import {
   TabEditorData,
   TabRawCaptionData,
 } from "@/common/feature/caption-editor/types";
+import { loadCaptions, setRenderer } from "@/common/feature/video/actions";
+import {
+  convertToCaptionContainer,
+  videoSourceToProcessorMap,
+} from "@/common/feature/video/utils";
+import { Locator } from "@/common/locator/locator";
+import { safe } from "@/common/redux-utils";
+import { ThunkedPayloadAction } from "@/common/store/action";
 import {
   CaptionFileFormat,
   ChromeMessageType,
@@ -90,34 +102,22 @@ import {
   UploadResponse,
   UploadResult,
 } from "@/common/types";
-import { loadCaptions, setRenderer } from "@/common/feature/video/actions";
-import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
-import { EDITOR_CUTOFF_BYTES } from "@/common/feature/caption-editor/constants";
-import { chromeProm } from "@/common/chrome-utils";
-import { isInBackgroundScript, isInExtension } from "@/common/client-utils";
-import { parseCaption, stringifyCaption } from "@/common/caption-parsers";
-import {
-  convertToCaptionContainer,
-  videoSourceToProcessorMap,
-} from "@/common/feature/video/utils";
-import { compressToBase64 as lzCompress } from "lz-string";
-import { CaptionDataContainer } from "@/common/caption-parsers/types";
+import { getStringByteLength } from "@/common/utils";
 import { CaptionMutators } from "@/extension/content/feature/editor/utils";
+import { compressToBase64 as lzCompress } from "lz-string";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
-import { Locator } from "@/common/locator/locator";
 import { getCaptionContainersFromFile } from "./utils";
-import { saveCaptionToDisk } from "@/extension/common/saver";
 
 const isActionType = <T>(
   action: AnyAction,
-  creator: PayloadActionCreator<T>
+  creator: PayloadActionCreator<T>,
 ): action is PayloadAction<T> => {
   return action.type === creator.type;
 };
 
 const generateNewCaptionData = (
   action: PayloadAction<any>,
-  caption: CaptionContainer
+  caption: CaptionContainer,
 ) => {
   let error: string | undefined = "";
   let newCaptionData: CaptionDataContainer | undefined;
@@ -127,7 +127,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       captionId,
-      newCaption
+      newCaption,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -136,7 +136,7 @@ const generateNewCaptionData = (
     const result = CaptionMutators.modifyCaptionTrackSettings(
       caption.data,
       trackId,
-      settings
+      settings,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -144,7 +144,7 @@ const generateNewCaptionData = (
     const { settings } = action.payload;
     const result = CaptionMutators.modifyCaptionGlobalSettings(
       caption.data,
-      settings
+      settings,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -154,7 +154,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       captionId,
-      newTime
+      newTime,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -164,7 +164,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       captionId,
-      newTime
+      newTime,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -174,7 +174,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       captionId,
-      newFormattedTime
+      newFormattedTime,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -184,7 +184,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       captionId,
-      newFormattedTime
+      newFormattedTime,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -194,7 +194,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       captionId,
-      text
+      text,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -205,7 +205,7 @@ const generateNewCaptionData = (
       trackId,
       captionId,
       startMs,
-      endMs
+      endMs,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -217,7 +217,7 @@ const generateNewCaptionData = (
       captionId,
       startMs,
       endMs,
-      finalTrackId
+      finalTrackId,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -226,7 +226,7 @@ const generateNewCaptionData = (
     const result = CaptionMutators.deleteCaption(
       caption.data,
       trackId,
-      captionId
+      captionId,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -235,7 +235,7 @@ const generateNewCaptionData = (
     const result = CaptionMutators.addCaptionToTrackRelative(
       caption,
       trackId,
-      captionId
+      captionId,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -245,7 +245,7 @@ const generateNewCaptionData = (
       caption.data,
       trackId,
       timeMs,
-      newCue
+      newCue,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -260,7 +260,7 @@ const generateNewCaptionData = (
       caption.data,
       duration,
       startMs,
-      endMs
+      endMs,
     );
     error = result.error;
     newCaptionData = result.caption;
@@ -282,7 +282,7 @@ function* updateEditorCaptionSaga({
 }: ThunkedPayloadAction<UpdateCaption>) {
   const { action, tabId } = payload;
   const tabEditorData: TabEditorData = yield select(
-    tabEditorDataSelector(tabId)
+    tabEditorDataSelector(tabId),
   );
   const { caption } = tabEditorData;
   const actions = isActionType(action, modifyCaptionWithMultipleActions)
@@ -295,7 +295,7 @@ function* updateEditorCaptionSaga({
   for (let i = 0; i < actions.length; i++) {
     const { error, newCaptionData } = generateNewCaptionData(
       actions[i],
-      updatedCaption
+      updatedCaption,
     );
     if (error || !newCaptionData) {
       // TODO send error message to content script
@@ -346,7 +346,7 @@ function* saveLocalCaptionSaga({
   const { tabId, videoId, videoSource, mustHaveData = false } = payload;
   if (mustHaveData) {
     const hasEditorCaptionData: boolean = yield select(
-      hasEditorCaptionDataSelector(tabId)
+      hasEditorCaptionDataSelector(tabId),
     );
     if (!hasEditorCaptionData) {
       throw new Error("No data to autosave.");
@@ -362,7 +362,7 @@ function* saveLocalCaptionSaga({
   }
   let result: { editor: CaptionEditorStorage } | undefined = yield call(
     chromeProm.storage.local.get,
-    ["editor"]
+    ["editor"],
   );
 
   if (!result || !result.editor) {
@@ -403,7 +403,7 @@ function* loadLocallySavedCaptionSaga({
 }: ThunkedPayloadAction<CreateNewCaption>) {
   const result: { editor: CaptionEditorStorage } | undefined = yield call(
     chromeProm.storage.local.get,
-    ["editor"]
+    ["editor"],
   );
   if (!result || !result.editor) {
     throw new Error("No save found");
@@ -477,7 +477,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
   }
   yield put(setLoadedCaptionLanguage({ tabId, languageCode }));
   let { caption: updatedCaption }: TabEditorData = yield select(
-    tabEditorDataSelector(tabId)
+    tabEditorDataSelector(tabId),
   );
   if (!updatedCaption) {
     throw new Error("No caption data found");
@@ -504,7 +504,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
       video: video,
       hasAudioDescription,
       privacy,
-    }
+    },
   );
   if (response.status === "error") {
     throw new Error(response.error);
@@ -515,7 +515,7 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
       tabId,
       videoId: updatedCaption.videoId,
       videoSource: updatedCaption.videoSource,
-    })
+    }),
   );
   return { payload: response };
 }
@@ -564,7 +564,7 @@ function* updateUploadedCaptionSaga({
       translatedTitle,
       selectedTags,
       privacy,
-    }
+    },
   );
   if (response.status === "error") {
     throw new Error(response.error);
@@ -606,7 +606,7 @@ function* updateShowEditorSaga({
 }: PayloadAction<SetShowEditorIfPossible>) {
   const { show, tabId } = payload;
   const rawData: TabRawCaptionData = yield select(
-    tabEditorRawDataSelector(tabId)
+    tabEditorRawDataSelector(tabId),
   );
   if (rawData && rawData.rawCaption) {
     if (getStringByteLength(rawData.rawCaption.data) >= EDITOR_CUTOFF_BYTES) {
@@ -629,7 +629,7 @@ function* fetchAutoCaptionListSaga({
     {
       videoId,
       videoSource,
-    }
+    },
   );
   yield put(setAutoCaptionList({ tabId, captions: autoCaptions.captions }));
 }
@@ -649,7 +649,7 @@ function* fetchAutoCaptionSaga({
   const autoCaption: CaptionDataContainer = yield call(
     processor.getAutoCaption,
     videoId,
-    captionId
+    captionId,
   );
   const { caption }: TabEditorData = yield select(tabEditorDataSelector(tabId));
   if (!caption) {
@@ -667,19 +667,19 @@ function* generateCaptionAndShowEditorSaga({
 }: PayloadAction<GenerateCaption>) {
   const { tabId, videoId, videoSource } = payload;
   const rawData: TabRawCaptionData = yield select(
-    tabEditorRawDataSelector(tabId)
+    tabEditorRawDataSelector(tabId),
   );
   if (!rawData || !rawData.rawCaption) {
     return;
   }
   const parsedCaption = parseCaption(
     rawData.rawCaption.type,
-    rawData.rawCaption.data
+    rawData.rawCaption.data,
   );
   const caption: CaptionContainer = convertToCaptionContainer(
     parsedCaption,
     videoId,
-    videoSource
+    videoSource,
   );
   const processor = videoSourceToProcessorMap[videoSource];
   // @ts-ignore
@@ -699,52 +699,52 @@ function* captionEditorSaga() {
 
   yield takeLatest(
     updateKeyboardShortcutType.type,
-    safe(updateKeyboardShortcutTypeSaga)
+    safe(updateKeyboardShortcutTypeSaga),
   );
 
   yield takeLatest(
     saveLocalCaption.REQUEST,
-    saveLocalCaption.requestSaga(saveLocalCaptionSaga)
+    saveLocalCaption.requestSaga(saveLocalCaptionSaga),
   );
 
   yield takeLatest(
     loadLocallySavedCaption.REQUEST,
-    loadLocallySavedCaption.requestSaga(loadLocallySavedCaptionSaga)
+    loadLocallySavedCaption.requestSaga(loadLocallySavedCaptionSaga),
   );
 
   yield takeLatest(
     exportCaption.REQUEST,
-    exportCaption.requestSaga(exportCaptionSaga)
+    exportCaption.requestSaga(exportCaptionSaga),
   );
 
   yield takeLatest(
     submitCaption.REQUEST,
-    submitCaption.requestSaga(submitCaptionSaga)
+    submitCaption.requestSaga(submitCaptionSaga),
   );
 
   yield takeLatest(
     updateUploadedCaption.REQUEST,
-    updateUploadedCaption.requestSaga(updateUploadedCaptionSaga)
+    updateUploadedCaption.requestSaga(updateUploadedCaptionSaga),
   );
 
   yield takeLatest(
     createNewCaption.REQUEST,
-    createNewCaption.requestSaga(createNewCaptionSaga)
+    createNewCaption.requestSaga(createNewCaptionSaga),
   );
   yield takeLatest(updateShowEditor.type, safe(updateShowEditorSaga));
   yield takeLatest(
     generateCaptionAndShowEditor.type,
-    safe(generateCaptionAndShowEditorSaga)
+    safe(generateCaptionAndShowEditorSaga),
   );
 
   yield takeLatest(
     fetchAutoCaptionList.REQUEST,
-    fetchAutoCaptionList.requestSaga(fetchAutoCaptionListSaga)
+    fetchAutoCaptionList.requestSaga(fetchAutoCaptionListSaga),
   );
 
   yield takeLatest(
     fetchAutoCaption.REQUEST,
-    fetchAutoCaption.requestSaga(fetchAutoCaptionSaga)
+    fetchAutoCaption.requestSaga(fetchAutoCaptionSaga),
   );
 }
 

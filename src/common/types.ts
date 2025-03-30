@@ -100,7 +100,7 @@ export const CaptionFileFormat = {
   vtt: "vtt",
   sbv: "sbv",
   txt: "txt",
-};
+} as const;
 
 export type Dimension = {
   width: number;

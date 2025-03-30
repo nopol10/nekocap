@@ -1,3 +1,4 @@
+import { exportCaption } from "@/common/feature/caption-editor/export-caption";
 import { deleteServerCaption } from "@/common/feature/captioner/actions";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
 import {
@@ -12,6 +13,7 @@ import { message, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
+import { loadWebsiteViewerCaptionApi } from "../../viewer/api";
 import {
   handleAssignReviewer,
   handleAssignReviewerManager,
@@ -77,6 +79,16 @@ export const CaptionerProfile = () => {
       });
   };
 
+  const handleDownloadCaption = async (captionId: string) => {
+    try {
+      const caption = await loadWebsiteViewerCaptionApi(captionId);
+      exportCaption(caption);
+    } catch (error) {
+      void message.error("Error downloading caption");
+      console.error("Error downloading caption", error);
+    }
+  };
+
   const handleSetFilteredTags = (tags: string[]) => {
     handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
   };
@@ -98,6 +110,7 @@ export const CaptionerProfile = () => {
       captions={captions}
       currentCaptionPage={currentCaptionPage}
       onDelete={handleConfirmDelete}
+      onDownloadCaption={handleDownloadCaption}
       onChangePage={handleChangeCaptionPage}
       isLoading={isLoading}
       isLoadingCaptionPage={isLoadingCaptionPage}

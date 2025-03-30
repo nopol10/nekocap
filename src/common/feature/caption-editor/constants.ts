@@ -10,7 +10,7 @@ export const MAX_VIDEO_TITLE_LENGTH = 280;
  */
 export const EDITOR_CUTOFF_BYTES = 800000; // 800 KB
 
-export const VALID_FILE_TYPES = [
+export const VALID_FILE_TYPES: string[] = [
   CaptionFileFormat.srt,
   CaptionFileFormat.vtt,
   CaptionFileFormat.sbv,
@@ -20,5 +20,5 @@ export const VALID_FILE_TYPES = [
 ];
 
 export const SUPPORTED_FILE_TYPES_STRING = VALID_FILE_TYPES.map((fileType) =>
-  fileType.toUpperCase()
+  fileType.toUpperCase(),
 ).join(", ");
