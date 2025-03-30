@@ -1,30 +1,39 @@
-import { Popconfirm, Table, Tooltip, Pagination, Tag } from "antd";
-import React, { ReactNode, useState } from "react";
-import { CaptionListFields } from "@/common/feature/video/types";
-import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
-import EyeOutlined from "@ant-design/icons/EyeOutlined";
-import EditOutlined from "@ant-design/icons/EditOutlined";
-import { captionColumns } from "./data-columns";
-import { CaptionerFields } from "@/common/feature/captioner/types";
-import { ColumnsType } from "antd/lib/table/Table";
-import { routeNames } from "../../route-types";
-import styled from "styled-components";
 import { colors } from "@/common/colors";
-import { DEVICE } from "@/common/style-constants";
-import { MobileCaptionList } from "../../home/components/mobile-caption-list";
-import { PaginationProps } from "antd/lib/pagination";
-import { useSSRMediaQuery } from "@/hooks";
-import { UpdateCaptionModal } from "@/extension/content/containers/update-caption-modal";
-import { i18n, useTranslation } from "next-i18next";
-import { useRouter } from "next/router";
+import { CaptionerFields } from "@/common/feature/captioner/types";
+import { CaptionListFields } from "@/common/feature/video/types";
 import {
   getCaptionGroupTagColor,
   getCaptionGroupTagName,
 } from "@/common/feature/video/utils";
-import Text from "antd/lib/typography/Text";
-import { WSSpace } from "@/common/components/ws-space";
+// import { CaptionListFields} from "@/common/feature/video/types"
+import { DEVICE } from "@/common/style-constants";
 import { BooleanFilter } from "@/common/utils";
+import { UpdateCaptionModal } from "@/extension/content/containers/update-caption-modal";
+import { useSSRMediaQuery } from "@/hooks";
+import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
+import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
+import EditOutlined from "@ant-design/icons/EditOutlined";
+import EyeOutlined from "@ant-design/icons/EyeOutlined";
+import {
+  Flex,
+  Pagination,
+  PaginationProps,
+  Popconfirm,
+  Table,
+  TableColumnsType,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
+import { i18n, useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import React, { ReactNode, useState } from "react";
+import styled from "styled-components";
+import { MobileCaptionList } from "../../home/components/mobile-caption-list";
+import { routeNames } from "../../route-types";
+import { captionColumns } from "./data-columns";
 
+const { Text } = Typography;
 export const CAPTION_LIST_PAGE_SIZE = 20;
 
 const CaptionTable = styled(Table)`
@@ -34,7 +43,7 @@ const CaptionTable = styled(Table)`
       background-color: ${colors.lightDislike};
     }
   }
-`;
+` as typeof Table;
 
 type CaptionListProps = {
   captions: CaptionListFields[];
@@ -46,10 +55,11 @@ type CaptionListProps = {
   isLoadingCaptionPage?: boolean;
   onChangePage?: (page: number, pageSize?: number) => void;
   onDelete?: (caption: CaptionListFields) => void;
+  onDownloadCaption?: (captionId: string) => void;
   renderPagination?: (
     page: number,
     type: "page" | "prev" | "next" | "jump-prev" | "jump-next",
-    originalElement: React.ReactElement<HTMLElement>
+    originalElement: React.ReactElement<HTMLElement>,
   ) => React.ReactNode;
   renderTotal?: (total: number, range: number[]) => string;
   onUpdateCaption?: (captionId: string) => void;
@@ -69,6 +79,7 @@ export const CaptionList = ({
   captionerId,
   currentPage,
   onDelete,
+  onDownloadCaption,
   onChangePage,
   isLoadingCaptionPage,
   loggedInUser,
@@ -106,11 +117,15 @@ export const CaptionList = ({
     setIsUpdateModalOpen({ open: true, caption });
   };
 
+  const handleClickDownloadCaption = (caption: CaptionListFields) => {
+    onDownloadCaption?.(caption.id);
+  };
+
   const handleCancelUpdateCaptionModal = () => {
     setIsUpdateModalOpen({ open: false, caption: undefined });
   };
 
-  const tableColumns: ColumnsType<CaptionListFields> = [
+  const tableColumns: TableColumnsType<CaptionListFields> = [
     captionColumns.videoName,
     isOwner || isLoggedInUserAdmin ? captionColumns.views : undefined,
     captionColumns.videoSource,
@@ -130,7 +145,7 @@ export const CaptionList = ({
       render: function render(text, record, index) {
         return (
           <>
-            <WSSpace>
+            <Flex gap={8} wrap="wrap" justify="center">
               {canDelete && (
                 <Popconfirm
                   title={t("review.deleteCaptionConfirmMessage")}
@@ -155,7 +170,14 @@ export const CaptionList = ({
                   />
                 </Tooltip>
               )}
-            </WSSpace>
+              {canUpdate && (
+                <Tooltip title={t("review.download")}>
+                  <DownloadOutlined
+                    onClick={() => handleClickDownloadCaption(record)}
+                  />
+                </Tooltip>
+              )}
+            </Flex>
           </>
         );
       },
@@ -196,7 +218,7 @@ export const CaptionList = ({
               ? captions
               : captions.slice(
                   (currentPage - 1) * CAPTION_LIST_PAGE_SIZE,
-                  currentPage * CAPTION_LIST_PAGE_SIZE
+                  currentPage * CAPTION_LIST_PAGE_SIZE,
                 )
           }
         />

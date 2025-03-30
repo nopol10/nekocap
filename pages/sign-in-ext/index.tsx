@@ -1,25 +1,26 @@
-import Head from "next/head";
-import React, { useEffect, useState } from "react";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { wrapper } from "@/web/store/store";
-import { NextWrapper } from "@/web/next-helpers/page-wrapper";
-import { GetStaticProps } from "next";
-import { Main } from "@/web/feature/home/main";
-import { STRING_CONSTANTS } from "@/common/string-constants";
-import { initFirebase } from "@/extension/background/firebase";
-import Title from "antd/lib/typography/Title";
-import Text from "antd/lib/typography/Text";
-import { ChromeExternalMessageType } from "@/common/types";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { FirebaseLoggedInUser } from "@/common/feature/login/types";
+import type { UserData } from "@/common/providers/backend-provider";
+import { STRING_CONSTANTS } from "@/common/string-constants";
+import { ChromeExternalMessageType } from "@/common/types";
+import { initFirebase } from "@/extension/background/firebase";
+import { Main } from "@/web/feature/home/main";
+import { NextWrapper } from "@/web/next-helpers/page-wrapper";
+import { wrapper } from "@/web/store/store";
+import { Typography } from "antd";
 import {
   getAuth,
   getRedirectResult,
   GoogleAuthProvider,
   signInWithRedirect,
 } from "firebase/auth";
-import type { UserData } from "@/common/providers/backend-provider";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import Head from "next/head";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
+
+const { Title, Text } = Typography;
 
 const TRANSLATION_NAMESPACES = ["common"];
 

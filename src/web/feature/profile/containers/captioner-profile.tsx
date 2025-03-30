@@ -1,38 +1,40 @@
-import React, { useEffect } from "react";
-import { message } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { profileSelector } from "@/common/feature/profile/selectors";
+import { exportCaption } from "@/common/feature/caption-editor/export-caption";
+import { deleteServerCaption } from "@/common/feature/captioner/actions";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 import {
   assignReviewer,
   assignReviewerManager,
   loadProfile,
   loadUserCaptions,
 } from "@/common/feature/profile/actions";
-import { deleteServerCaption } from "@/common/feature/captioner/actions";
+import { profileSelector } from "@/common/feature/profile/selectors";
 import { CaptionListFields } from "@/common/feature/video/types";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
-import { EMPTY_PROFILE, Profile } from "../components/profile";
+import { message, Typography } from "antd";
+import { useTranslation } from "next-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
+import { loadWebsiteViewerCaptionApi } from "../../viewer/api";
 import {
   handleAssignReviewer,
   handleAssignReviewerManager,
   handleBanCaptioner,
   handleVerifyCaptioner,
 } from "../admin-utils";
-import Title from "antd/lib/typography/Title";
-import { useTranslation } from "next-i18next";
-import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
+import { EMPTY_PROFILE, Profile } from "../components/profile";
+
+const { Title } = Typography;
 
 export const CaptionerProfile = () => {
   const dispatch = useDispatch();
   const profileData = useSelector(profileSelector);
   const isLoadingProfile = useSelector(loadProfile.isLoading(undefined));
   const isLoadingCaptionPage = useSelector(
-    loadUserCaptions.isLoading(undefined)
+    loadUserCaptions.isLoading(undefined),
   );
   const captionerState = useSelector(captionerSelector);
   const isAssigningReviewer = useSelector(assignReviewer.isLoading(undefined));
   const isAssigningReviewerManager = useSelector(
-    assignReviewerManager.isLoading(undefined)
+    assignReviewerManager.isLoading(undefined),
   );
   const { t } = useTranslation("common");
 
@@ -55,7 +57,7 @@ export const CaptionerProfile = () => {
   const handleChangeCaptionPage = (
     page: number,
     pageSize: number = CAPTION_LIST_PAGE_SIZE,
-    tags?: string[]
+    tags?: string[],
   ) => {
     dispatch(
       loadUserCaptions.request({
@@ -63,7 +65,7 @@ export const CaptionerProfile = () => {
         pageNumber: page,
         captionerId,
         tags,
-      })
+      }),
     );
   };
 
@@ -77,6 +79,16 @@ export const CaptionerProfile = () => {
       });
   };
 
+  const handleDownloadCaption = async (captionId: string) => {
+    try {
+      const caption = await loadWebsiteViewerCaptionApi(captionId);
+      exportCaption(caption);
+    } catch (error) {
+      void message.error("Error downloading caption");
+      console.error("Error downloading caption", error);
+    }
+  };
+
   const handleSetFilteredTags = (tags: string[]) => {
     handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
   };
@@ -87,7 +99,7 @@ export const CaptionerProfile = () => {
       loadProfile.request({
         profileId: captionerId,
         withCaptions: true,
-      })
+      }),
     );
   };
 
@@ -98,13 +110,14 @@ export const CaptionerProfile = () => {
       captions={captions}
       currentCaptionPage={currentCaptionPage}
       onDelete={handleConfirmDelete}
+      onDownloadCaption={handleDownloadCaption}
       onChangePage={handleChangeCaptionPage}
       isLoading={isLoading}
       isLoadingCaptionPage={isLoadingCaptionPage}
       hasMore={hasMore}
       onAssignReviewerManager={handleAssignReviewerManager(
         captionerId,
-        dispatch
+        dispatch,
       )}
       onAssignReviewer={handleAssignReviewer(captionerId, dispatch)}
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}

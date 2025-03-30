@@ -1,42 +1,43 @@
-import React, { useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
+import { NekoCaption } from "@/common/caption-parsers/types";
+import { getCaptionCues } from "@/common/caption-utils";
 import { colors } from "@/common/colors";
 import { WSLayout } from "@/common/components/ws-layout";
-import Layout from "antd/lib/layout";
-import {
-  Input,
-  message,
-  Skeleton,
-  Tooltip,
-  Typography,
-  Table,
-  Form,
-  Space,
-  Popconfirm,
-} from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { Controller, useForm } from "react-hook-form";
-import { useRouter } from "next/router";
 import {
   loadCaptionForReview,
   rejectCaption,
   verifyCaption,
 } from "@/common/feature/caption-review/actions";
 import { captionReviewSelector } from "@/common/feature/caption-review/selectors";
-import { captionDataColumns } from "./caption-columns";
-import CloseSquareOutlined from "@ant-design/icons/CloseSquareOutlined";
-import CheckSquareOutlined from "@ant-design/icons/CheckSquareOutlined";
-import { languages } from "@/common/languages";
-import Modal, { ModalProps } from "antd/lib/modal/Modal";
-import { getTooltippedDate } from "../common/components/data-columns";
 import {
   ReviewActionDetails,
   ReviewStatus,
 } from "@/common/feature/caption-review/types";
-import { routeNames } from "../route-types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { NekoCaption } from "@/common/caption-parsers/types";
-import { getCaptionCues } from "@/common/caption-utils";
+import { languages } from "@/common/languages";
+import CheckSquareOutlined from "@ant-design/icons/CheckSquareOutlined";
+import CloseSquareOutlined from "@ant-design/icons/CloseSquareOutlined";
+import {
+  Form,
+  Input,
+  Layout,
+  message,
+  Modal,
+  ModalProps,
+  Popconfirm,
+  Skeleton,
+  Space,
+  Table,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { getTooltippedDate } from "../common/components/data-columns";
+import { routeNames } from "../route-types";
+import { captionDataColumns } from "./caption-columns";
 
 const { Title, Link, Paragraph } = Typography;
 const { Content, Sider } = Layout;

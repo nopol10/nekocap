@@ -1,11 +1,11 @@
+import { searchFromBasicBar } from "@/common/feature/search/actions";
+import { styledNoPass } from "@/common/style-utils";
+import SearchOutlined from "@ant-design/icons/SearchOutlined";
 import { Button, Form, Input } from "antd";
-import React, { useState } from "react";
+import { useTranslation } from "next-i18next";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { searchFromBasicBar } from "@/common/feature/search/actions";
-import SearchOutlined from "@ant-design/icons/SearchOutlined";
-import { styledNoPass } from "@/common/style-utils";
-import { useTranslation } from "next-i18next";
 
 type SearchRowProps = {
   opened?: boolean;
@@ -83,7 +83,7 @@ export const BasicSearchBar = ({
               }}
             />
           }
-          <Button style={{ height: "100%" }} htmlType={"submit"}>
+          <Button htmlType={"submit"}>
             <SearchOutlined style={{ fontSize: "16px" }} />
           </Button>
         </SearchRow>

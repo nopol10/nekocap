@@ -23,14 +23,13 @@ import * as Parse from "parse";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import "react-virtualized/styles.css";
-import "../../ant-content.less";
-import "../../ant-global-scoped.less";
+import { saveCaptionToDisk } from "../../common/feature/caption-editor/saver";
 import "../../libs/patch-worker/patch-worker";
+import { ExtensionProvider } from "../common/extension-provider";
 import {
   getEditorRawCaptionStorageKey,
   getRawCaptionStorageKey,
 } from "../common/raw-caption-keys";
-import { saveCaptionToDisk } from "../common/saver";
 import { ContentHome } from "./containers/content-home";
 import { Processor } from "./processors/processor";
 import "./provider";
@@ -192,9 +191,11 @@ const initialize = async () => {
    */
   const root = createRoot(container);
   root.render(
-    <Provider store={store}>
-      <ContentHome />
-    </Provider>,
+    <ExtensionProvider>
+      <Provider store={store}>
+        <ContentHome />
+      </Provider>
+    </ExtensionProvider>,
   );
 };
 

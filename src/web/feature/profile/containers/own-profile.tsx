@@ -1,42 +1,44 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { message } from "antd";
-import { useDispatch, useSelector } from "react-redux";
+import { exportCaption } from "@/common/feature/caption-editor/export-caption";
+import {
+  deleteServerCaption,
+  loadUserCaptions as loadLoggedInUserCaptions,
+  loadPrivateCaptionerData,
+} from "@/common/feature/captioner/actions";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 import {
   assignReviewer,
   assignReviewerManager,
   updateProfile,
 } from "@/common/feature/profile/actions";
-import {
-  loadPrivateCaptionerData,
-  loadUserCaptions as loadLoggedInUserCaptions,
-} from "@/common/feature/captioner/actions";
-import { deleteServerCaption } from "@/common/feature/captioner/actions";
-import { CaptionListFields } from "@/common/feature/video/types";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { EditProfileFields } from "@/common/feature/profile/types";
-import { EMPTY_PROFILE, Profile } from "../components/profile";
+import { CaptionListFields } from "@/common/feature/video/types";
+import { message } from "antd";
+import { useTranslation } from "next-i18next";
+import { ReactElement, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
+import { loadWebsiteViewerCaptionApi } from "../../viewer/api";
 import {
   handleAssignReviewer,
   handleAssignReviewerManager,
   handleBanCaptioner,
   handleVerifyCaptioner,
 } from "../admin-utils";
-import { useTranslation } from "next-i18next";
-import { CAPTION_LIST_PAGE_SIZE } from "../../common/components/caption-list";
+import { EMPTY_PROFILE, Profile } from "../components/profile";
 
 export const OwnProfile = (): ReactElement => {
   const captionerState = useSelector(captionerSelector);
 
   const isLoadingProfile = useSelector(
-    loadPrivateCaptionerData.isLoading(undefined)
+    loadPrivateCaptionerData.isLoading(undefined),
   );
   const isUpdatingProfile = useSelector(updateProfile.isLoading(undefined));
   const isAssigningReviewer = useSelector(assignReviewer.isLoading(undefined));
   const isLoadingCaptionPage = useSelector(
-    loadLoggedInUserCaptions.isLoading(undefined)
+    loadLoggedInUserCaptions.isLoading(undefined),
   );
   const isAssigningReviewerManager = useSelector(
-    assignReviewerManager.isLoading(undefined)
+    assignReviewerManager.isLoading(undefined),
   );
 
   const dispatch = useDispatch();
@@ -74,7 +76,7 @@ export const OwnProfile = (): ReactElement => {
           pageSize: CAPTION_LIST_PAGE_SIZE,
           pageNumber: 1,
           captionerId,
-        })
+        }),
       );
     }
   }, [captioner.captionCount]);
@@ -82,7 +84,7 @@ export const OwnProfile = (): ReactElement => {
   const handleChangeCaptionPage = (
     page: number,
     pageSize = 1,
-    tags?: string[]
+    tags?: string[],
   ) => {
     dispatch(
       loadLoggedInUserCaptions.request({
@@ -90,7 +92,7 @@ export const OwnProfile = (): ReactElement => {
         pageNumber: page,
         captionerId,
         tags,
-      })
+      }),
     );
   };
 
@@ -102,6 +104,16 @@ export const OwnProfile = (): ReactElement => {
       .catch((error) => {
         message.error(t("profile.captionDeletionFailed", { error: error }));
       });
+  };
+
+  const handleDownloadCaption = async (captionId: string) => {
+    try {
+      const caption = await loadWebsiteViewerCaptionApi(captionId);
+      exportCaption(caption);
+    } catch (error) {
+      void message.error("Error downloading caption");
+      console.error("Error downloading caption", error);
+    }
   };
 
   const handleSubmitEdit = (form: EditProfileFields) => {
@@ -128,7 +140,7 @@ export const OwnProfile = (): ReactElement => {
     dispatch(
       loadPrivateCaptionerData.request({
         withCaptions: true,
-      })
+      }),
     );
   };
   return (
@@ -139,6 +151,7 @@ export const OwnProfile = (): ReactElement => {
       captions={captions || []}
       currentCaptionPage={currentCaptionPage}
       onDelete={handleConfirmDelete}
+      onDownloadCaption={handleDownloadCaption}
       onChangePage={handleChangeCaptionPage}
       isLoading={isLoading}
       isLoadingCaptionPage={isLoadingCaptionPage}
@@ -150,7 +163,7 @@ export const OwnProfile = (): ReactElement => {
       onCancelEdit={handleCancelEdit}
       onAssignReviewerManager={handleAssignReviewerManager(
         captionerId,
-        dispatch
+        dispatch,
       )}
       onAssignReviewer={handleAssignReviewer(captionerId, dispatch)}
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}

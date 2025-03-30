@@ -1,10 +1,3 @@
-import Form from "antd/lib/form";
-import message from "antd/lib/message";
-import Modal from "antd/lib/modal/Modal";
-import type { RcFile } from "antd/lib/upload";
-import React, { ReactElement } from "react";
-import { useState } from "react";
-import { useSelector } from "react-redux";
 import {
   MAX_CAPTION_FILE_BYTES,
   MAX_VERIFIED_CAPTION_FILE_BYTES,
@@ -12,6 +5,10 @@ import {
   VALID_FILE_TYPES,
 } from "@/common/feature/caption-editor/constants";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
+import { Form, message, Modal } from "antd";
+import type { RcFile } from "antd/lib/upload";
+import { ReactElement, useState } from "react";
+import { useSelector } from "react-redux";
 import { UploadCaptionBlock } from "../components/upload-caption-block";
 
 interface SelectFileModalProps {

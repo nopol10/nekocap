@@ -1,15 +1,14 @@
+import { Modal } from "antd";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Modal from "antd/lib/modal";
 
 import {
-  fetchAutoCaptionList,
   fetchAutoCaption,
+  fetchAutoCaptionList,
 } from "@/common/feature/caption-editor/actions";
 import { tabEditorDataSelector } from "@/common/feature/caption-editor/selectors";
-import { Collapse, Radio, Skeleton } from "antd";
+import { Collapse, Radio, RadioChangeEvent, Skeleton } from "antd";
 import { useState } from "react";
-import { RadioChangeEvent } from "antd/lib/radio";
 import styled from "styled-components";
 
 const { Panel } = Collapse;
@@ -32,7 +31,7 @@ export const AutoCaptionsModal = ({
   const [selectedCaptionId, setSelectedCaptionId] = useState<string>(
     editorData?.autoCaptions && editorData.autoCaptions.length > 0
       ? editorData.autoCaptions[0].id
-      : ""
+      : "",
   );
 
   const handleFetchAutoCaption = () => {
@@ -42,7 +41,7 @@ export const AutoCaptionsModal = ({
         captionId: selectedCaptionId,
         videoSource,
         videoId,
-      })
+      }),
     );
     onCancel();
   };
@@ -55,7 +54,7 @@ export const AutoCaptionsModal = ({
 
   const autoCaptions = captions.filter((caption) => caption.isAutomaticCaption);
   const userCaptions = captions.filter(
-    (caption) => !caption.isAutomaticCaption
+    (caption) => !caption.isAutomaticCaption,
   );
   const hasAutoCaptions = autoCaptions.length > 0;
   const hasUserCaptions = userCaptions.length > 0;
