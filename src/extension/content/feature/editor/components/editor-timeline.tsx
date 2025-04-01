@@ -1,12 +1,6 @@
-import * as React from "react";
-import styled from "styled-components";
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { colors } from "@/common/colors";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Range } from "react-range";
-import { Collection, CollectionCellRendererParams } from "react-virtualized";
-import * as dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
+import { clearSelection, roundMs } from "@/common/utils";
 import {
   useAnimationFrame,
   useResize,
@@ -15,16 +9,21 @@ import {
 } from "@/hooks";
 import MinusCircleOutlined from "@ant-design/icons/MinusCircleOutlined";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
-import { TimelinePointer } from "./timeline-pointer";
-import { DraggableCue } from "./draggable-cue";
+import * as dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import * as React from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Range } from "react-range";
+import { Collection, CollectionCellRendererParams } from "react-virtualized";
+import styled from "styled-components";
 import {
   CUE_HEIGHT,
   TIMEBAR_HEIGHT,
   TRACK_BASE_HEIGHT,
   TRACK_INFO_WIDTH,
 } from "../constants";
-import { BooleanFilter, clearSelection, roundMs } from "@/common/utils";
-import { styledNoPass } from "@/common/style-utils";
+import { DraggableCue } from "./draggable-cue";
+import { TimelinePointer } from "./timeline-pointer";
 dayjs.extend(duration);
 
 const TIMELINE_PADDING = 20;
@@ -45,11 +44,8 @@ const Timebar = styled.div`
   height: ${TIMEBAR_HEIGHT}px;
 `;
 
-const TimebarCanvas = styledNoPass<{ actualWidth: string | number }, "canvas">(
-  "canvas",
-  "TimebarCanvas"
-)`
-  width: ${(props) => props.actualWidth}px;
+const TimebarCanvas = styled.canvas<{ $actualWidth: string | number }>`
+  width: ${(props) => props.$actualWidth}px;
   height: 100%;
 `;
 
@@ -220,7 +216,7 @@ type EditorTimelineProps = {
   onClickTimeline?: (
     trackId: number,
     captionId: number,
-    timeMs: number
+    timeMs: number,
   ) => void;
   onClickCaption?: (trackId: number, captionId: number) => void;
   onNewCaption?: (trackId: number, time: number) => void;
@@ -230,7 +226,7 @@ type EditorTimelineProps = {
     captionId: number,
     startMs: number,
     endMs: number,
-    finalTrackId: number
+    finalTrackId: number,
   ) => void;
 };
 
@@ -276,7 +272,7 @@ export const EditorTimeline = ({
       setTimelineYOffset(trackY + scrollOffset);
     },
     500,
-    []
+    [],
   );
 
   // Effect to set the timeline
@@ -332,7 +328,7 @@ export const EditorTimeline = ({
         break;
       }
       const currentTimeMs = Math.ceil(
-        ((markerX + visibleStartX) / totalWidth) * videoDurationMs
+        ((markerX + visibleStartX) / totalWidth) * videoDurationMs,
       );
 
       let lineHeight = 10;
@@ -340,7 +336,7 @@ export const EditorTimeline = ({
         lineHeight = 15;
         const durationHelper = dayjs.duration(
           roundMs(currentTimeMs),
-          "milliseconds"
+          "milliseconds",
         );
         const text = durationHelper.format("HH:mm:ss");
         context.font = "14px Segoe UI";
@@ -358,7 +354,7 @@ export const EditorTimeline = ({
     if (videoElement) {
       const normalizedTime = videoElement.currentTime / videoElement.duration;
       const currentTimeX = Math.floor(
-        normalizedTime * totalWidth - visibleStartX
+        normalizedTime * totalWidth - visibleStartX,
       );
 
       if (currentTimeX >= 0) {
@@ -380,7 +376,7 @@ export const EditorTimeline = ({
           const normalizedMoveDistance =
             moveDistance / (totalWidth - timelineVisibleWidth);
           setViewRangeStart(
-            Math.min(1, viewRangeStartRef.current + normalizedMoveDistance)
+            Math.min(1, viewRangeStartRef.current + normalizedMoveDistance),
           );
         }
       }
@@ -442,7 +438,7 @@ export const EditorTimeline = ({
         <TimebarCanvas
           ref={timebarCanvasRef}
           width={timelineVisibleWidth}
-          actualWidth={timelineVisibleWidth}
+          $actualWidth={timelineVisibleWidth}
           height="30"
         />
       </Timebar>
@@ -470,7 +466,7 @@ export const EditorTimeline = ({
   const updateTimeIndicatorPositions = (
     startX: number,
     endX: number,
-    trackId: number
+    trackId: number,
   ) => {
     trackId = Math.min(Math.max(0, trackId), caption.tracks.length - 1);
     const scrollOffset = trackContainerRef.current
@@ -487,7 +483,7 @@ export const EditorTimeline = ({
       startTimeIndicatorRef.current.style.opacity = "1";
       startTimeIndicatorRef.current.style.left = `${Math.max(
         0,
-        startX - scrollLeft
+        startX - scrollLeft,
       )}px`;
       startTimeIndicatorRef.current.style.top = `${startY}px`;
     }
@@ -495,7 +491,7 @@ export const EditorTimeline = ({
       endTimeIndicatorRef.current.style.opacity = "1";
       endTimeIndicatorRef.current.style.left = `${Math.max(
         0,
-        endX - scrollLeft
+        endX - scrollLeft,
       )}px`;
       if (endX - startX <= 100) {
         endTimeIndicatorRef.current.style.top = `${
@@ -510,7 +506,7 @@ export const EditorTimeline = ({
   const setIndicatorText = (
     element: HTMLDivElement,
     x: number,
-    timelineWidth: number
+    timelineWidth: number,
   ) => {
     const time = (x / timelineWidth) * videoDurationMs;
     const text = dayjs
@@ -668,7 +664,7 @@ export const EditorTimeline = ({
             trackId,
             captionId,
             totalWidth,
-            index
+            index,
           )}
           onCueDrag={handleCaptionDrag(trackId, captionId, totalWidth, index)}
           onCueDragEnd={handleCaptionDragEnd(trackId, captionId)}

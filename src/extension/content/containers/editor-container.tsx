@@ -1,15 +1,12 @@
-import { message } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { CaptionFileFormat } from "@/common/types";
+import { EDITOR_OPEN_ATTRIBUTE } from "@/common/constants";
 import {
-  undoEditorTriggerAction,
-  redoEditorTriggerAction,
-  updateEditorCaption,
-  saveLocalCaption,
-  exportCaption,
-  submitCaption,
   CaptionAction,
+  exportCaption,
+  redoEditorTriggerAction,
+  saveLocalCaption,
+  submitCaption,
+  undoEditorTriggerAction,
+  updateEditorCaption,
 } from "@/common/feature/caption-editor/actions";
 import {
   canEditorRedoSelector,
@@ -20,14 +17,17 @@ import {
   tabEditorDataSelector,
 } from "@/common/feature/caption-editor/selectors";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
-import { CaptionEditor } from "../feature/editor/components/caption-editor";
-import { VideoPageMenu } from "./video-page-menu";
-import { PayloadAction } from "@reduxjs/toolkit";
-import { EDITOR_OPEN_ATTRIBUTE } from "@/common/constants";
-import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
-import { AUTOSAVE_INTERVAL } from "../feature/editor/constants";
+import { CaptionFileFormat } from "@/common/types";
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
+import { shouldAutosaveSelector } from "@/extension/background/feature/user-extension-preference/selectors";
+import { PayloadAction } from "@reduxjs/toolkit";
+import { message } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { CaptionEditor } from "../feature/editor/components/caption-editor";
+import { AUTOSAVE_INTERVAL } from "../feature/editor/constants";
 import { ConfirmSaveModal } from "./confirm-save-modal";
+import { VideoPageMenu } from "./video-page-menu";
 
 const editorMenuComponent = <VideoPageMenu inEditorScreen={true} />;
 
@@ -46,10 +46,14 @@ const useAutosave = () => {
             videoId: globalThis.videoId,
             videoSource: globalThis.videoSource,
             mustHaveData: true,
+          }),
+        )
+          .then(() => {
+            message.success("Autosaved!");
           })
-        ).then(() => {
-          message.success("Autosaved!");
-        });
+          .catch(() => {
+            /* intentionally empty */
+          });
       }, AUTOSAVE_INTERVAL);
     }
     return () => {
@@ -67,7 +71,7 @@ export const EditorContainer = () => {
   const canRedo = useSelector(canEditorRedoSelector(globalThis.tabId));
   const keyboardShortcuts = useSelector(keyboardShortcutsSelector);
   const isUserCaptionLoaded = useSelector(
-    isUserCaptionLoadedSelector(globalThis.tabId)
+    isUserCaptionLoadedSelector(globalThis.tabId),
   );
   const isSubmitting = useSelector(submitCaption.isLoading(globalThis.tabId));
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
@@ -108,18 +112,18 @@ export const EditorContainer = () => {
           tabId: globalThis.tabId,
           videoId: globalThis.videoId,
           videoSource: globalThis.videoSource,
-        })
+        }),
       ).then(() => {
         message.success("Saved!");
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSave = useCallback(async () => {
     const hasSave = await hasSaveData(
       globalThis.videoId,
-      globalThis.videoSource
+      globalThis.videoSource,
     );
     if (hasSave && !skipSaveConfirmation) {
       setIsConfirmSaveOpen(true);
@@ -134,10 +138,10 @@ export const EditorContainer = () => {
         exportCaption.request({
           tabId: globalThis.tabId,
           format: fileFormat,
-        })
+        }),
       );
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleUpdateCaption = useCallback(
@@ -147,10 +151,10 @@ export const EditorContainer = () => {
           if (callback) {
             callback();
           }
-        }
+        },
       );
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleCancelConfirmSaveModal = useCallback(() => {

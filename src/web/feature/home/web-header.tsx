@@ -5,7 +5,6 @@ import { GITHUB_URL } from "@/common/constants";
 import { webLogout } from "@/common/feature/login/actions";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { DEVICE } from "@/common/style-constants";
-import { styledNoPass } from "@/common/style-utils";
 import { useSSRMediaQuery } from "@/hooks";
 import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import GithubOutlined from "@ant-design/icons/GithubOutlined";
@@ -32,13 +31,13 @@ const Socials = styled.div`
   a {
     font-size: 26px;
     color: ${colors.socialIcon};
-    :hover {
+    &:hover {
       color: ${colors.socialIconHovered};
     }
   }
 `;
 
-const MobileMenu = styledNoPass<{ open: boolean }>("div", "MobileMenu")`
+const MobileMenu = styled.div<{ $open: boolean }>`
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -49,10 +48,12 @@ const MobileMenu = styledNoPass<{ open: boolean }>("div", "MobileMenu")`
   overflow: hidden;
   background-color: ${colors.white};
   opacity: 0;
-  pointer-events: ${({ open }) => (open ? "unset" : "none")};
-  transition: height 300ms, opacity 300ms;
+  pointer-events: ${({ $open }) => ($open ? "unset" : "none")};
+  transition:
+    height 300ms,
+    opacity 300ms;
   padding: 16px;
-  ${({ open }) => (open ? "opacity: 1" : "")};
+  ${({ $open }) => ($open ? "opacity: 1" : "")};
   box-sizing: border-box;
   z-index: 10;
 `;
@@ -172,7 +173,7 @@ export const WebHeader = (): ReactElement => {
           </WSButton>
           {isClient() &&
             ReactDOM.createPortal(
-              <MobileMenu open={showMobileMenu}>
+              <MobileMenu $open={showMobileMenu}>
                 <div style={{ textAlign: "right" }}>
                   <CloseButton onClick={handleClickCloseMobileMenu}>
                     <CloseOutlined />

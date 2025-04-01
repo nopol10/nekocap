@@ -2,10 +2,8 @@ import styled from "styled-components";
 import { colors } from "../colors";
 
 type WarningTextProp = {
-  warn?: boolean;
+  $warn?: boolean;
 };
-export const WarningText = styled("div").withConfig<WarningTextProp>({
-  shouldForwardProp: (prop, defPropValFn) => !["warn"].includes(prop),
-})`
-  color: ${({ warn }) => (warn ? colors.captionWarning : colors.darkText)};
+export const WarningText = styled.div<WarningTextProp>`
+  color: ${({ $warn }) => ($warn ? colors.captionWarning : colors.darkText)};
 `;

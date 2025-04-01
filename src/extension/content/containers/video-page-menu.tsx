@@ -41,7 +41,6 @@ import {
 import { languages } from "@/common/languages";
 import { darkModeSelector } from "@/common/processor-utils";
 import { ThunkedPayloadAction } from "@/common/store/action";
-import { styledNoPass } from "@/common/style-utils";
 import { CaptionFileFormat } from "@/common/types";
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
@@ -77,7 +76,7 @@ const { OptGroup } = Select;
 const AUTOSAVE_TOGGLE_KEY = "autosave-toggle";
 
 type LikeTextProps = {
-  activated?: boolean;
+  $activated?: boolean;
 };
 
 const MenuRow = styled.div`
@@ -89,21 +88,21 @@ const MenuRow = styled.div`
   align-items: center;
 `;
 
-const LikeText = styledNoPass<LikeTextProps, "span">("span", "LikeText")`
-  color: ${({ activated }: LikeTextProps) =>
-    activated ? colors.like : undefined};
+const LikeText = styled.span<LikeTextProps>`
+  color: ${({ $activated }: LikeTextProps) =>
+    $activated ? colors.like : undefined};
   ${darkModeSelector(css`
-    color: ${({ activated }: LikeTextProps) =>
-      activated ? colors.darkModeLike : colors.white};
+    color: ${({ $activated }: LikeTextProps) =>
+      $activated ? colors.darkModeLike : colors.white};
   `)}
 `;
 
-const DislikeText = styledNoPass<LikeTextProps, "span">("span", "DislikeText")`
-  color: ${({ activated }: LikeTextProps) =>
-    activated ? colors.dislike : undefined};
+const DislikeText = styled.span<LikeTextProps>`
+  color: ${({ $activated }: LikeTextProps) =>
+    $activated ? colors.dislike : undefined};
   ${darkModeSelector(css`
-    color: ${({ activated }: LikeTextProps) =>
-      activated ? colors.darkModeDislike : colors.white};
+    color: ${({ $activated }: LikeTextProps) =>
+      $activated ? colors.darkModeDislike : colors.white};
   `)}
 `;
 
@@ -203,7 +202,7 @@ export const VideoPageMenu = ({
     ).then(() => {
       message.success("Saved!");
     });
-  }, [setIsConfirmSaveOpen]);
+  }, [dispatch]);
 
   const handleSave = useCallback(async () => {
     const hasSave = await hasSaveData(
@@ -564,7 +563,7 @@ export const VideoPageMenu = ({
                 }}
               />
             </Expandable>
-            <LikeText activated={!!userLike}>{likes}</LikeText>
+            <LikeText $activated={!!userLike}>{likes}</LikeText>
           </div>
         </Tooltip>
         <Tooltip placement={"top"} title={"I dislike this caption"}>
@@ -579,7 +578,7 @@ export const VideoPageMenu = ({
                 }}
               />
             </Expandable>
-            <DislikeText activated={!!userDislike}>{dislikes}</DislikeText>
+            <DislikeText $activated={!!userDislike}>{dislikes}</DislikeText>
           </div>
         </Tooltip>
       </Space>

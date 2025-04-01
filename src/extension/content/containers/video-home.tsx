@@ -22,7 +22,6 @@ import {
 } from "@/common/feature/video/selectors";
 import { CaptionRendererType } from "@/common/feature/video/types";
 import { darkModeSelector } from "@/common/processor-utils";
-import { styledNoPass } from "@/common/style-utils";
 import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import {
   useCaptionContainerUpdate,
@@ -48,26 +47,23 @@ import { OctopusRenderer } from "./octopus-renderer";
 import { VideoPageMenu } from "./video-page-menu";
 
 type InlineMenuWrapperProps = {
-  isInline: boolean;
+  $isInline: boolean;
 };
 
-const InlineMenuWrapper = styledNoPass<InlineMenuWrapperProps, "div">(
-  "div",
-  "InlineMenuWrapper",
-)`
+const InlineMenuWrapper = styled.div<InlineMenuWrapperProps>`
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
-  margin-top: ${({ isInline }: InlineMenuWrapperProps) =>
-    isInline ? "0" : "5px"};
-  padding: ${({ isInline }: InlineMenuWrapperProps) =>
-    isInline ? "0" : "5px"};
-  border: ${({ isInline }: InlineMenuWrapperProps) =>
-    isInline ? "none" : `1px solid ${colors.divider}`};
-  background-color: ${({ isInline }: InlineMenuWrapperProps) =>
-    isInline ? "transparent" : colors.white + "59"};
+  margin-top: ${({ $isInline }: InlineMenuWrapperProps) =>
+    $isInline ? "0" : "5px"};
+  padding: ${({ $isInline }: InlineMenuWrapperProps) =>
+    $isInline ? "0" : "5px"};
+  border: ${({ $isInline }: InlineMenuWrapperProps) =>
+    $isInline ? "none" : `1px solid ${colors.divider}`};
+  background-color: ${({ $isInline }: InlineMenuWrapperProps) =>
+    $isInline ? "transparent" : colors.white + "59"};
   & > div:first-child {
     margin-right: auto;
   }
@@ -116,7 +112,7 @@ const InPageMenuContainer = () => {
       {
         <InlineMenuWrapper
           className="scoped-antd use-site-dark-mode"
-          isInline={isInlineMenu}
+          $isInline={isInlineMenu}
         >
           {isInlineMenu && <InlineVideoPageMenu />}
           {!isInlineMenu && (

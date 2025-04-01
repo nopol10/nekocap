@@ -59,7 +59,7 @@ export const Main = ({
       >
         <WSLayout>
           {isClient && (
-            <WSHeader scrolled={scrolled}>
+            <WSHeader $scrolled={scrolled}>
               <WebHeader />
             </WSHeader>
           )}
