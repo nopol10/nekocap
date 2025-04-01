@@ -1,15 +1,16 @@
-import * as React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { NekoLogoPopup } from "@/common/components/neko-logo";
+import { SupportedSites } from "@/common/components/supported-sites";
+import { captionerSelector } from "@/common/feature/captioner/selectors";
 import { logout } from "@/common/feature/login/actions";
 import { userDataSelector } from "@/common/feature/login/selectors";
-import { captionerSelector } from "@/common/feature/captioner/selectors";
-import styled from "styled-components";
-import { Button, Divider } from "antd";
-import { NekoLogoPopup } from "@/common/components/neko-logo";
 import { PopupPage } from "@/extension/popup/common/components/popup-page";
-import { SupportedSites } from "@/common/components/supported-sites";
+import { Button, Divider, Typography } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 import { ExtensionPreferences } from "./extension-preferences";
 import { PopupVideoMenu } from "./popup-video-menu";
+
+const { Link } = Typography;
 
 const HelloText = styled.div`
   font-size: 14px;
@@ -39,13 +40,13 @@ export const UserDashboard = () => {
       <NekoLogoPopup />
       <HelloText>
         Hello{" "}
-        <a
+        <Link
           href={`${process.env.NEXT_PUBLIC_WEBSITE_URL || ""}dashboard`}
           rel="noreferrer"
           target="_blank"
         >
           <b>{captionerData.captioner?.name}</b>
-        </a>
+        </Link>
       </HelloText>
       <div>
         Visit one of the supported sites to start viewing and creating captions:
