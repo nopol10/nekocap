@@ -147,12 +147,11 @@ const VolumeSlider = styled(Slider)`
   width: 100px;
 `;
 
-const TextEditorColumn = styled.div.withConfig<{ justify?: string }>({
-  shouldForwardProp: (prop) => !["justify"].includes(prop),
-})`
+const TextEditorColumn = styled.div<{ $justify?: string }>`
   display: flex !important;
   flex-direction: column !important;
-  ${({ justify }) => (justify ? `justify-content: ${justify} !important;` : "")}
+  ${({ $justify }) =>
+    $justify ? `justify-content: ${$justify} !important;` : ""}
 
   & > div,button:not(:last-child) {
     margin-bottom: 5px;
@@ -179,7 +178,7 @@ type EditorVideoContainerProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 > & {
-  playerStyles: string;
+  $playerStyles: string;
   innerRef: LegacyRef<HTMLDivElement>;
 };
 const EditorVideoContainer = styled(
@@ -191,8 +190,8 @@ const EditorVideoContainer = styled(
   height: 100%;
   position: relative;
 
-  ${({ playerStyles }) => {
-    return playerStyles;
+  ${({ $playerStyles }) => {
+    return $playerStyles;
   }}
 `;
 
@@ -203,18 +202,17 @@ const RootSplitPane = styled(SplitPane)`
 `;
 
 type RootPaneType = {
-  show: boolean;
-  captionMoveType?: CaptionModificationState;
+  $show: boolean;
+  $captionMoveType?: CaptionModificationState;
 };
 
-const RootPane = styled("div").withConfig<RootPaneType>({
-  shouldForwardProp: (prop, defPropValFn) => defPropValFn(prop),
-})`
-  display: ${({ show }: RootPaneType) => (show ? "flex" : "none")} !important;
+const RootPane = styled.div<RootPaneType>`
+  display: ${({ $show }: RootPaneType) => ($show ? "flex" : "none")} !important;
   background-color: white;
   flex-direction: column;
   height: 100vh;
   pointer-events: all;
+  font-size: 14px;
 
   .nekocap-cap-container {
     // Override the caption container to allow dragging of captions in the editor
@@ -227,8 +225,8 @@ const RootPane = styled("div").withConfig<RootPaneType>({
   }
 
   .nekocap-caption {
-    ${({ captionMoveType }: RootPaneType) => {
-      if (captionMoveType === CaptionModificationState.Global) {
+    ${({ $captionMoveType }: RootPaneType) => {
+      if ($captionMoveType === CaptionModificationState.Global) {
         return `
           &[data-layout-type="global"] {
             .nekocap-caption-text:not(:empty)::before {
@@ -237,7 +235,7 @@ const RootPane = styled("div").withConfig<RootPaneType>({
             }
           }
     `;
-      } else if (captionMoveType === CaptionModificationState.Track) {
+      } else if ($captionMoveType === CaptionModificationState.Track) {
         return `
           &[data-layout-type="track"] {
             .nekocap-caption-text:not(:empty)::before {
@@ -246,7 +244,7 @@ const RootPane = styled("div").withConfig<RootPaneType>({
             }
           }
 `;
-      } else if (captionMoveType === CaptionModificationState.Caption) {
+      } else if ($captionMoveType === CaptionModificationState.Caption) {
         return `
           &[data-layout-type="caption"] {
             .nekocap-caption-text:not(:empty)::before {
@@ -388,6 +386,8 @@ const NoTextInTrack = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  gap: 8px;
 `;
 
 type AddBetweenProps = {
@@ -1318,7 +1318,7 @@ const CaptionEditorInternal = ({
                   onChange={handleChangeCaptionText(selectedTrack, index)}
                 />
               </EditorTextAreaWrapper>
-              <WarningText warn={characterPerSecond > 25}>
+              <WarningText $warn={characterPerSecond > 25}>
                 {charPerSecString} char/s
               </WarningText>
             </TextEditorColumn>
@@ -1555,8 +1555,8 @@ const CaptionEditorInternal = ({
         allowChanges={true}
       >
         <RootPane
-          show={showEditor}
-          captionMoveType={currentMoveType}
+          $show={showEditor}
+          $captionMoveType={currentMoveType}
           className="scoped-antd"
         >
           <RootSplitPane split="horizontal" defaultSizes={[1, 1]}>
@@ -1564,7 +1564,7 @@ const CaptionEditorInternal = ({
               {renderTrackList()}
               <VideoPane>
                 <EditorVideoContainer
-                  playerStyles={
+                  $playerStyles={
                     globalThis.selectedProcessor?.editorVideoPlayerStyles || ""
                   }
                   innerRef={editorVideoContainerRef}

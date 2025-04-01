@@ -349,7 +349,8 @@ function* saveLocalCaptionSaga({
       hasEditorCaptionDataSelector(tabId),
     );
     if (!hasEditorCaptionData) {
-      throw new Error("No data to autosave.");
+      console.warn("No data to autosave.");
+      return;
     }
   }
   const tabData: TabEditorData = yield select(tabEditorDataSelector(tabId));
@@ -358,7 +359,8 @@ function* saveLocalCaptionSaga({
   }
   const { caption } = tabData;
   if (!caption) {
-    throw new Error("No caption data to save.");
+    console.warn("No caption data to save.");
+    return;
   }
   let result: { editor: CaptionEditorStorage } | undefined = yield call(
     chromeProm.storage.local.get,

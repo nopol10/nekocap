@@ -5,7 +5,7 @@ export const Expandable = styled.span`
   transition: transform 300ms;
   transform: scale(1);
 
-  :hover {
+  &:hover {
     transform: scale(1.15);
   }
 `;

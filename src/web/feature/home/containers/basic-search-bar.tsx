@@ -1,27 +1,30 @@
 import { searchFromBasicBar } from "@/common/feature/search/actions";
-import { styledNoPass } from "@/common/style-utils";
 import SearchOutlined from "@ant-design/icons/SearchOutlined";
 import { Button, Form, Input } from "antd";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
+import styled from "styled-components";
 
 type SearchRowProps = {
-  opened?: boolean;
+  $opened?: boolean;
 };
 
-const SearchRow = styledNoPass<SearchRowProps>("div", "SearchRow")`
+const SearchRow = styled.div<SearchRowProps>`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
 
   input {
-      width: ${({ opened }) => (opened ? "100%" : "0px")};
-      padding-left: ${({ opened }) => (opened ? "11px" : "0px")};
-      padding-right: ${({ opened }) => (opened ? "11px" : "0px")};
-      opacity: ${({ opened }) => (opened ? "1" : "0")};
-      transition: width 300ms ease-out, padding-left 300ms ease-out, padding-right 300ms ease-out;
+    width: ${({ $opened }) => ($opened ? "100%" : "0px")};
+    padding-left: ${({ $opened }) => ($opened ? "11px" : "0px")};
+    padding-right: ${({ $opened }) => ($opened ? "11px" : "0px")};
+    opacity: ${({ $opened }) => ($opened ? "1" : "0")};
+    transition:
+      width 300ms ease-out,
+      padding-left 300ms ease-out,
+      padding-right 300ms ease-out;
   }
 
   > *:not(:last-child) {
@@ -65,7 +68,7 @@ export const BasicSearchBar = ({
   return (
     <div>
       <Form onSubmitCapture={handleClickSearch}>
-        <SearchRow opened={actuallyOpened}>
+        <SearchRow $opened={actuallyOpened}>
           {
             <Controller
               render={({ field }) => (
