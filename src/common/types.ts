@@ -24,6 +24,10 @@ export enum ChromeMessageType {
   VideoIframeToContent, // Message sent from a video page's inner iframe containing the video element to the parent page
 }
 
+export const CustomEvents = {
+  PageMetaRefreshed: "PageMetaRefreshed",
+};
+
 export enum ChromeExternalMessageType {
   GoogleAuthCredentials,
 }

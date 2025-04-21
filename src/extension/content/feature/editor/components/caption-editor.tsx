@@ -31,6 +31,7 @@ import {
 } from "@/common/feature/caption-editor/types";
 import { CaptionContainer } from "@/common/feature/video/types";
 import { findClosestCaption } from "@/common/feature/video/utils";
+import { darkModeSelector } from "@/common/processor-utils";
 import { DEVICE } from "@/common/style-constants";
 import {
   CaptionFileFormat,
@@ -60,7 +61,6 @@ import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
 import { Button, message, Popover, Slider, Space } from "antd";
-import type { Gutter } from "antd/lib/grid/row";
 import * as dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { isEqual } from "lodash-es";
@@ -97,6 +97,13 @@ const VideoPane = styled.div`
   justify-content: space-evenly;
   width: 100%;
   height: 100%;
+  background-color: ${colors.white};
+  color: ${colors.text};
+
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: #e0e0e0;
+  `)}
 `;
 
 const SettingsPane = styled.div`
@@ -107,6 +114,13 @@ const SettingsPane = styled.div`
   height: 100%;
   padding: 0 20px 20px;
   box-sizing: border-box;
+  background-color: ${colors.white};
+  color: ${colors.text};
+
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: #e0e0e0;
+  `)}
 
   &::before {
     content: "";
@@ -197,8 +211,14 @@ const EditorVideoContainer = styled(
 
 const RootSplitPane = styled(SplitPane)`
   position: relative !important;
-  background-color: white;
+  background-color: ${colors.white};
   min-height: unset !important;
+  color: ${colors.text};
+
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: #e0e0e0;
+  `)}
 `;
 
 type RootPaneType = {
@@ -208,11 +228,17 @@ type RootPaneType = {
 
 const RootPane = styled.div<RootPaneType>`
   display: ${({ $show }: RootPaneType) => ($show ? "flex" : "none")} !important;
-  background-color: white;
+  background-color: ${colors.white};
+  color: ${colors.text};
   flex-direction: column;
   height: 100vh;
   pointer-events: all;
   font-size: 14px;
+
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: #e0e0e0;
+  `)}
 
   .nekocap-cap-container {
     // Override the caption container to allow dragging of captions in the editor
@@ -341,14 +367,28 @@ const TimelineContainer = styled.div`
   padding-top: 20px;
   height: 100%;
   box-sizing: border-box;
+  background-color: ${colors.white};
+  color: ${colors.text};
+
   * {
     box-sizing: border-box;
   }
+
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: ${colors.textDark};
+  `)}
 `;
 
 const TextEditorPane = styled.div`
   display: block;
   width: 100%;
+  background-color: ${colors.white};
+
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: ${colors.textDark};
+  `)}
 `;
 
 type CaptionTextRowProps = {
@@ -361,6 +401,13 @@ const CaptionTextRow = styled.div<CaptionTextRowProps>`
   padding: 10px;
   background-color: ${({ selected }: CaptionTextRowProps) =>
     selected ? colors.lightHighlight : "unset"};
+  color: ${colors.text};
+
+  ${({ selected }) =>
+    darkModeSelector(`
+      background-color: ${selected ? "#333333" : "unset"};
+      color: ${colors.white};
+    `)}
 `;
 
 const ScrollingTime = styled.div`
@@ -426,6 +473,10 @@ const TimeInputLabel = styled.div`
   border-right: none;
   padding: 10px;
   background-color: white;
+  ${darkModeSelector(`
+    background-color: ${colors.disabledFieldDark};
+    color: ${colors.textDark};
+  `)}
 `;
 
 const TimeInput = styled.div`
@@ -444,6 +495,11 @@ const EditorTextArea = styled.textarea`
   border: 1px solid #d9d9d9;
   resize: none !important;
   transition: none;
+
+  ${darkModeSelector(`
+    background-color: #1f1f1f;
+    color: #e0e0e0;
+  `)}
 `;
 
 const CueActionButton = styled(Button)`
@@ -466,9 +522,11 @@ const DisabledNumberFormat = styled(NumberFormat<unknown>)`
   @media ${DEVICE.largeDesktop} {
     font-size: 14px;
   }
+  ${darkModeSelector(`
+    background-color: ${colors.disabledFieldDark};
+    color: ${colors.textDark};
+  `)}
 `;
-
-const GRID_GUTTER: [Gutter, Gutter] = [20, 20];
 
 const focusCaptionTextArea = (captionId: number, delay = 0) => {
   setTimeout(() => {
@@ -1304,7 +1362,7 @@ const CaptionEditorInternal = ({
           >
             <PlusCircleFilled />
           </AddBetween>
-          <TextEditorRow /* gutter={GRID_GUTTER} */>
+          <TextEditorRow>
             <TextEditorColumn>
               <EditorTextAreaWrapper>
                 <EditorTextArea

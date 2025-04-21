@@ -23,6 +23,6 @@ export const WSTitle = styled(({ textAlign, ...rest }: WSTitleProps) => {
       font-style: normal;
     }
   }
-  color: ${colors.darkText};
+  color: ${colors.text};
   text-align: ${({ textAlign = "left" }) => textAlign};
 `;

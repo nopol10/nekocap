@@ -2,7 +2,9 @@ import * as dayjs from "dayjs";
 import React, { useEffect, useRef } from "react";
 import NumberFormat, { NumberFormatProps } from "react-number-format";
 import styled from "styled-components";
+import { colors } from "../colors";
 import { parseDurationToMs } from "../date-utils";
+import { darkModeSelector } from "../processor-utils";
 import { DEVICE } from "../style-constants";
 
 const convertRawValueToMomentFormat = (value: string) => {
@@ -27,6 +29,10 @@ const StyledNumberFormat = styled(NumberFormat<unknown>)`
       font-size: 14px;
     }
   }
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: ${colors.textDark};
+  `)}
 `;
 
 type DurationInputProps = {
@@ -72,7 +78,9 @@ export const DurationInput = ({
     const isRepeat = event.repeat;
     if (event.key === "ArrowUp") {
       const ms = parseDurationToMs(
-        isRepeat ? inputRef.current.value : convertRawValueToMomentFormat(value)
+        isRepeat
+          ? inputRef.current.value
+          : convertRawValueToMomentFormat(value),
       );
       let duration = dayjs.duration(ms, "ms");
       duration = duration.add(100, "milliseconds");
@@ -87,7 +95,9 @@ export const DurationInput = ({
       event.preventDefault();
     } else if (event.key === "ArrowDown") {
       const ms = parseDurationToMs(
-        isRepeat ? inputRef.current.value : convertRawValueToMomentFormat(value)
+        isRepeat
+          ? inputRef.current.value
+          : convertRawValueToMomentFormat(value),
       );
       let duration = dayjs.duration(ms, "ms");
       duration = duration.subtract(100, "milliseconds");
