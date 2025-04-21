@@ -1,10 +1,10 @@
-import { Select } from "antd";
-import styled, { css } from "styled-components";
-import { darkModeSelector } from "../processor-utils";
 import { colors } from "@/common/colors";
+import { Select } from "antd";
+import styled from "styled-components";
+import { darkModeSelector } from "../processor-utils";
 
 export const WSSelect = styled(Select)`
-  ${darkModeSelector(css`
+  ${darkModeSelector(`
     .ant-select-selector {
       color: ${colors.white};
       background: transparent;

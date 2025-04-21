@@ -3,6 +3,7 @@ import {
   VIDEO_ELEMENT_CONTAINER_ID,
 } from "@/common/constants";
 import { PageType } from "@/common/feature/video/types";
+import { CustomEvents } from "@/common/types";
 import { getVideoElement, getVideoTitle } from "./processors/processor";
 
 export const refreshVideoMeta = async () => {
@@ -34,6 +35,11 @@ export const refreshVideoMeta = async () => {
     const extensionContainer = document.getElementById(
       VIDEO_ELEMENT_CONTAINER_ID,
     );
+    const pageMetaRefreshedEvent = new CustomEvent(
+      CustomEvents.PageMetaRefreshed,
+      {},
+    );
+    document.body.dispatchEvent(pageMetaRefreshedEvent);
     return extensionContainer;
   }
   return;

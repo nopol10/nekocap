@@ -94,7 +94,7 @@ export const YoutubeProcessor: Processor = {
       }
     }
   `,
-  darkModeSelector: 'html[dark="true"]',
+  darkModeSelector: "html[dark]",
   supportAutoCaptions: () => true,
   getAutoCaptionList: async (videoId: string) => {
     const response = await fetch(

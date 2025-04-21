@@ -9,7 +9,7 @@ import { videoSourceToProcessorMap } from "./feature/video/utils";
 
 export const getVideoSourceIcon = (
   videoSource: VideoSource,
-  props?: AntdIconProps & React.RefAttributes<HTMLSpanElement>
+  props?: AntdIconProps & React.RefAttributes<HTMLSpanElement>,
 ): ReactNode => {
   switch (videoSource) {
     case VideoSource.Youtube:
@@ -21,7 +21,7 @@ export const getVideoSourceIcon = (
 export const getClickableVideoLink = (
   videoName: string,
   sourceId: string,
-  processor: Processor
+  processor: Processor,
 ) => {
   if (!processor) {
     return videoName;
@@ -37,7 +37,7 @@ export const getClickableVideoLink = (
 export const getDirectCaptionLoadLink = (
   processor: Processor,
   videoId: string,
-  captionId: string
+  captionId: string,
 ): string => {
   const linkString = processor.generateVideoLink(videoId);
   try {
@@ -50,18 +50,26 @@ export const getDirectCaptionLoadLink = (
 };
 
 export const darkModeSelector = (
-  styles: ReturnType<typeof css> | string
+  styles: ReturnType<typeof css> | string,
 ): ReturnType<typeof css> | string => {
   const selector = Object.values(videoSourceToProcessorMap)
     .map((processor) => processor.darkModeSelector)
-    .filter(Boolean)
-    .join(",");
-  if (!selector) {
-    return "";
+    .filter(Boolean);
+
+  if (!selector || selector.length === 0) {
+    return css`
+      @media (prefers-color-scheme: dark) {
+        ${styles}
+      }
+    `;
   }
   return css`
-    ${selector} .use-site-dark-mode&, ${selector} .use-site-dark-mode & {
+    ${selector
+      .map(
+        (s) => `${s}&, ${s} & {
       ${styles}
-    }
+    }`,
+      )
+      .join("\n")}
   `;
 };

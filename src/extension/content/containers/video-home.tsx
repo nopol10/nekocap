@@ -1,7 +1,6 @@
 import nekoFace from "@/assets/images/neko-face-dark.svg";
 import { isAss } from "@/common/caption-utils";
 import { getImageLink } from "@/common/chrome-utils";
-import { colors } from "@/common/colors";
 import { NekoLogo } from "@/common/components/neko-logo";
 import {
   IN_PAGE_MENU_CONTAINER_ID,
@@ -33,7 +32,7 @@ import { useCallback, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import { useDispatch, useSelector } from "react-redux";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { useIframeVideoUpdate } from "../hooks/use-iframe-video-update";
 import {
   getUIElement,
@@ -60,16 +59,16 @@ const InlineMenuWrapper = styled.div<InlineMenuWrapperProps>`
     $isInline ? "0" : "5px"};
   padding: ${({ $isInline }: InlineMenuWrapperProps) =>
     $isInline ? "0" : "5px"};
-  border: ${({ $isInline }: InlineMenuWrapperProps) =>
-    $isInline ? "none" : `1px solid ${colors.divider}`};
+  border-radius: 8px;
   background-color: ${({ $isInline }: InlineMenuWrapperProps) =>
-    $isInline ? "transparent" : colors.white + "59"};
+    $isInline ? "transparent" : "rgb(0 0 0 / 5%)"};
   & > div:first-child {
     margin-right: auto;
   }
-  ${darkModeSelector(css`
-    background-color: transparent;
-  `)}
+  ${({ $isInline }) =>
+    darkModeSelector(`
+      background-color: ${$isInline ? "transparent" : "rgb(255 255 255 / 5%)"};
+    `)}
 `;
 
 const InlineLogoWrapper = styled.div`
@@ -110,10 +109,7 @@ const InPageMenuContainer = () => {
   return ReactDOM.createPortal(
     <>
       {
-        <InlineMenuWrapper
-          className="scoped-antd use-site-dark-mode"
-          $isInline={isInlineMenu}
-        >
+        <InlineMenuWrapper className="scoped-antd" $isInline={isInlineMenu}>
           {isInlineMenu && <InlineVideoPageMenu />}
           {!isInlineMenu && (
             <>

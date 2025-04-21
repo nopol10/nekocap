@@ -65,7 +65,7 @@ import { MenuClickEventHandler } from "rc-menu/lib/interface";
 import * as React from "react";
 import { CSSProperties, useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { AutoCaptionsModal } from "../feature/editor/containers/auto-captions-modal";
 import { CreateCaptionWarningModal } from "../feature/editor/containers/create-caption-warning-modal";
 import { ConfirmSaveModal } from "./confirm-save-modal";
@@ -90,17 +90,17 @@ const MenuRow = styled.div`
 
 const LikeText = styled.span<LikeTextProps>`
   color: ${({ $activated }) => ($activated ? colors.like : undefined)};
-  ${darkModeSelector(css<LikeTextProps>`
-    color: ${({ $activated }) =>
-      $activated ? colors.darkModeLike : colors.white};
+  ${({ $activated }) =>
+    darkModeSelector(`
+    color: ${$activated ? colors.darkModeLike : colors.white};
   `)}
 `;
 
 const DislikeText = styled.span<LikeTextProps>`
   color: ${({ $activated }) => ($activated ? colors.dislike : undefined)};
-  ${darkModeSelector(css<LikeTextProps>`
-    color: ${({ $activated }) =>
-      $activated ? colors.darkModeDislike : colors.white};
+  ${({ $activated }) =>
+    darkModeSelector(`
+    color: ${$activated ? colors.darkModeDislike : colors.white};
   `)}
 `;
 

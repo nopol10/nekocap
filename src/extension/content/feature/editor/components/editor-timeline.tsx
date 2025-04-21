@@ -1,5 +1,7 @@
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { colors } from "@/common/colors";
+import { useAppTheme } from "@/common/contexts/theme-context";
+import { darkModeSelector } from "@/common/processor-utils";
 import { clearSelection, roundMs } from "@/common/utils";
 import {
   useAnimationFrame,
@@ -56,6 +58,10 @@ const TrackContainer = styled.div`
   min-height: 0;
   overflow-y: scroll;
   background-color: ${colors.white};
+  ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: ${colors.textDark};
+  `)}
 
   .ReactVirtualized__Collection {
     overflow: hidden !important;
@@ -128,6 +134,13 @@ const TrackInfo = styled.div<TrackInfoProps>`
   background-color: ${({ selected }: TrackInfoProps) =>
     selected ? colors.trackSelected : colors.white};
 
+  ${({ selected }: TrackInfoProps) =>
+    darkModeSelector(`
+      background-color: ${
+        selected ? colors.trackSelectedDark : colors.backgroundDark
+      };
+      `)}
+
   &:not(:last-child) {
     border-bottom: none;
   }
@@ -135,6 +148,10 @@ const TrackInfo = styled.div<TrackInfoProps>`
 
   span {
     user-select: none;
+
+    ${darkModeSelector(`
+      color: ${colors.textDark};
+      `)}
   }
 `;
 
@@ -154,7 +171,7 @@ const RangeTrack = styled.div`
 const RangeThumb = styled.div`
   width: 15px;
   height: 25px;
-  background-color: ${colors.darkText};
+  background-color: ${colors.text};
 `;
 
 const MIN_MARKER_DISTANCE = 8;
@@ -258,6 +275,7 @@ export const EditorTimeline = ({
   const [track, trackRef] = useStateRef<HTMLDivElement>();
   const [root, rootRef] = useStateRef<HTMLDivElement>();
   const [timebarCanvas, timebarCanvasRef] = useStateRef<HTMLCanvasElement>();
+  const { isDarkMode } = useAppTheme();
 
   useResize(
     root,
@@ -341,9 +359,10 @@ export const EditorTimeline = ({
         const text = durationHelper.format("HH:mm:ss");
         context.font = "14px Segoe UI";
         const textMeasure = context.measureText(text);
-        context.fillStyle = colors.darkText;
+        context.fillStyle = isDarkMode ? colors.textDark : colors.text;
         context.fillText(text, markerX - 0.5 * textMeasure.width, 28);
       }
+      context.strokeStyle = isDarkMode ? colors.textDark : "#000000";
       context.beginPath();
       context.moveTo(markerX, 0);
       context.lineTo(markerX, lineHeight);

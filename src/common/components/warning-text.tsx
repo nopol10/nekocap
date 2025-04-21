@@ -5,5 +5,5 @@ type WarningTextProp = {
   $warn?: boolean;
 };
 export const WarningText = styled.div<WarningTextProp>`
-  color: ${({ $warn }) => ($warn ? colors.captionWarning : colors.darkText)};
+  color: ${({ $warn }) => ($warn ? colors.captionWarning : colors.text)};
 `;

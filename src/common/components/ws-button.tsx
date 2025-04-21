@@ -1,11 +1,11 @@
 import { colors } from "@/common/colors";
 import { Button, ButtonProps, Tooltip, TooltipProps } from "antd";
 import React, { ReactNode } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { darkModeSelector } from "../processor-utils";
 
 export const WSButton = styled(Button)`
-  ${darkModeSelector(css`
+  ${darkModeSelector(`
     color: ${colors.white};
     background: transparent;
   `)}
