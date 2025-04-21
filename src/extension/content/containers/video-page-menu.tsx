@@ -89,19 +89,17 @@ const MenuRow = styled.div`
 `;
 
 const LikeText = styled.span<LikeTextProps>`
-  color: ${({ $activated }: LikeTextProps) =>
-    $activated ? colors.like : undefined};
-  ${darkModeSelector(css`
-    color: ${({ $activated }: LikeTextProps) =>
+  color: ${({ $activated }) => ($activated ? colors.like : undefined)};
+  ${darkModeSelector(css<LikeTextProps>`
+    color: ${({ $activated }) =>
       $activated ? colors.darkModeLike : colors.white};
   `)}
 `;
 
 const DislikeText = styled.span<LikeTextProps>`
-  color: ${({ $activated }: LikeTextProps) =>
-    $activated ? colors.dislike : undefined};
-  ${darkModeSelector(css`
-    color: ${({ $activated }: LikeTextProps) =>
+  color: ${({ $activated }) => ($activated ? colors.dislike : undefined)};
+  ${darkModeSelector(css<LikeTextProps>`
+    color: ${({ $activated }) =>
       $activated ? colors.darkModeDislike : colors.white};
   `)}
 `;

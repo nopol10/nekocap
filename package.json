@@ -61,7 +61,6 @@
     "@types/react-router-dom": "5.3.3",
     "@types/react-virtualized": "^9.21.10",
     "@types/resize-observer-browser": "^0.1.4",
-    "@types/styled-components": "^5.1.15",
     "@types/vimeo__player": "^2.16.3",
     "@types/youtube-player": "5.5.3",
     "@typescript-eslint/eslint-plugin": "5.42.0",
@@ -184,7 +183,7 @@
     "reduxed-chrome-storage": "3.0.10",
     "sass": "1.72.0",
     "spdy": "^4.0.2",
-    "styled-components": "5.3.0",
+    "styled-components": "6.1.16",
     "subtitle": "^3.0.0",
     "webext-redux": "^2.1.7"
   }
