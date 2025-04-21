@@ -1,9 +1,9 @@
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { EDITOR_OPEN_ATTRIBUTE, TIME } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
-import { Processor, retrieveVideoDimensions } from "./processor";
-import { unescape } from "lodash-es";
 import type { Dimension } from "@/common/types";
+import { unescape } from "lodash-es";
+import { Processor, retrieveVideoDimensions } from "./processor";
 
 const disableYoutubeHotkeys = () => {
   const hotkeyManager = document.getElementsByTagName("yt-hotkey-manager")[0];
@@ -52,6 +52,7 @@ export const YoutubeProcessor: Processor = {
   videoSelector: "#ytd-player #container video",
   videoPageUISelector:
     "h1.ytd-watch-metadata,ytd-video-primary-info-renderer h1.ytd-video-primary-info-renderer",
+  updateTitleOnSubmission: true,
   titleSelector: "#info-contents h1.title yt-formatted-string",
   editorVideoPlayerStyles: `
   .html5-video-container {
