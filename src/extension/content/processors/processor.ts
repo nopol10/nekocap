@@ -5,7 +5,7 @@ import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 
 export const getUIElement = async (
-  processor: Processor
+  processor: Processor,
 ): Promise<HTMLElement | undefined> => {
   if (typeof processor.videoPageUISelector === "string") {
     return waitForElement(processor.videoPageUISelector);
@@ -14,7 +14,7 @@ export const getUIElement = async (
 };
 
 export const getVideoElement = async (
-  processor: Processor
+  processor: Processor,
 ): Promise<HTMLVideoElement> => {
   if (typeof processor.videoSelector === "string") {
     return waitForElement(processor.videoSelector);
@@ -31,7 +31,7 @@ export const getVideoTitle = async (processor: Processor): Promise<string> => {
 
 export const isInaccurateTitle = (
   title: string,
-  processor: Processor
+  processor: Processor,
 ): boolean => {
   if (!processor.inaccurateTitles) {
     return false;
@@ -42,7 +42,7 @@ export const isInaccurateTitle = (
 export const retrieveVideoDimensions = async (
   videoId: string,
   processor: Processor,
-  oEmbedUrl = "https://www.noembed.com/embed?url="
+  oEmbedUrl = "https://www.noembed.com/embed?url=",
 ): Promise<Dimension> => {
   try {
     const link: string = processor.generateVideoLink(videoId);
@@ -64,7 +64,7 @@ export interface Processor {
   videoPageUISelector: string | (() => Promise<HTMLElement | undefined>);
   // Used to identify when an inaccurate title was detected. For sites where the title is not always retrievable
   // at any time. If any of the titles in this list are found, the title should be updated to the correct one.
-  inaccurateTitles?: [string];
+  inaccurateTitles?: string[];
   titleSelector: string | (() => Promise<string>);
   /**
    * Styles to be applied on the video player when it is moved inside the editor
@@ -93,7 +93,7 @@ export interface Processor {
   getAutoCaptionList?: (videoId: string) => Promise<AutoCaptionLanguage[]>;
   getAutoCaption?: (
     videoId: string,
-    autoCaptionId: string
+    autoCaptionId: string,
   ) => Promise<CaptionDataContainer>;
   getVideoId: () => string;
   generateVideoLink: (videoId: string) => string;
