@@ -13,8 +13,13 @@ export const TVerProcessor: Processor = {
   name: "TVer",
   urlRegex: /tver\.jp/,
   videoSelector: "video.vjs-tech",
-  videoPageUISelector: "div[class^=episode-info_flex]",
-  titleSelector: "*[class^=titles_seriesTitle]",
+  videoPageUISelector: "div[class^=EpisodePlayerLayout_flexContainer]",
+  titleSelector: "*[class^=titles_container__]",
+  globalStyles: `
+  .libassjs-canvas {
+    transform: inherit !important;
+  }
+  `,
   editorVideoPlayerStyles: `
   #playerWrapper {
     width: 100% !important;
@@ -47,7 +52,7 @@ export const TVerProcessor: Processor = {
     return ``;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },
