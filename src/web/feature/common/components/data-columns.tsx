@@ -138,10 +138,8 @@ export const captionColumns = {
     },
     dataIndex: "createdDate",
     key: "createdDate",
-    render: (text) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const router = useRouter();
-      return getTooltippedDate(text, router.locale);
+    render: (dateNumber) => {
+      return <DateCell value={dateNumber} />;
     },
   },
   videoLanguage: {
@@ -194,10 +192,8 @@ export const captionColumns = {
     },
     dataIndex: "updatedDate",
     key: "updatedDate",
-    render: (value: number): ReactElement => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const router = useRouter();
-      return getTooltippedDate(value, router.locale);
+    render: (dateNumber: number): ReactElement => {
+      return <DateCell value={dateNumber} />;
     },
   },
   captioner: {
@@ -231,6 +227,11 @@ export const captionColumns = {
     },
   },
 };
+
+function DateCell({ value }: { value: number }) {
+  const router = useRouter();
+  return getTooltippedDate(value, router.locale);
+}
 
 export const videoCaptionColumns = (
   videoId: string,

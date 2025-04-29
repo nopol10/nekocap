@@ -185,7 +185,7 @@ export const UpdateCaptionModalClient = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Update"}
       onOk={handleSubmit(onSubmit)}

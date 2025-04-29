@@ -27,7 +27,7 @@ export const ConfirmSaveModal = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       okText={"Save"}
       onOk={handleDone}
