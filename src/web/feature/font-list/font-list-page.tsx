@@ -272,36 +272,45 @@ export const FontListPage = (): JSX.Element => {
         parent={parent}
         rowIndex={index}
       >
-        {row.type === "group" && (
-          <div
-            style={{
-              ...style,
-              padding: "20px 20px",
-              backgroundColor: colors.white,
-              borderBottom: `1px solid #0f0f0f11`,
-            }}
-          >
-            <Title level={4} key={key}>
-              {startCase(row.name)}
-            </Title>
-          </div>
-        )}
-        {row.type === "font" && (
-          <FontItem
-            key={key}
-            fontName={row.font.fontName}
-            group={row.font.group}
-            url={fontList[row.font.group][row.font.fontName]}
-            showPreview={showPreview[row.font.fontName]}
-            fontSize={fontSize}
-            onTogglePreview={handleToggleSingleFontPreview}
-            isLoadingPreview={
-              fontsBeingDownloaded[row.font.fontName] ||
-              !!fontQueue[row.font.fontName]
-            }
-            style={{ ...style }}
-          />
-        )}
+        {({ measure, registerChild }) => {
+          if (row.type === "group") {
+            return (
+              <div
+                ref={registerChild}
+                style={{
+                  ...style,
+                  padding: "20px 20px",
+                  backgroundColor: colors.white,
+                  borderBottom: `1px solid #0f0f0f11`,
+                }}
+              >
+                <Title level={4} key={key}>
+                  {startCase(row.name)}
+                </Title>
+              </div>
+            );
+          }
+          if (row.type === "font") {
+            return (
+              <FontItem
+                key={key}
+                childRef={registerChild}
+                fontName={row.font.fontName}
+                group={row.font.group}
+                url={fontList[row.font.group][row.font.fontName]}
+                showPreview={showPreview[row.font.fontName]}
+                fontSize={fontSize}
+                onTogglePreview={handleToggleSingleFontPreview}
+                isLoadingPreview={
+                  fontsBeingDownloaded[row.font.fontName] ||
+                  !!fontQueue[row.font.fontName]
+                }
+                style={{ ...style }}
+              />
+            );
+          }
+          return <div ref={registerChild} style={{ ...style }}></div>;
+        }}
       </CellMeasurer>
     );
   };

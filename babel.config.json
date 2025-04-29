@@ -1,4 +1,7 @@
 {
   "presets": [["next/babel"]],
-  "plugins": ["babel-plugin-styled-components"]
+  "plugins": [
+    ["babel-plugin-react-compiler", { "target": "18" }],
+    "babel-plugin-styled-components"
+  ]
 }
