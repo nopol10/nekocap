@@ -14,6 +14,8 @@ interface VideoCaptionModalProps {
   onCancel: () => void;
 }
 
+const BODY_STYLES = { body: { padding: 0 } };
+
 export const VideoCaptionModal = ({
   captions,
   videoId,
@@ -39,7 +41,7 @@ export const VideoCaptionModal = ({
       onCancel={onCancel}
       title={t("home.search.availableCaptions")}
       footer={null}
-      bodyStyle={{ padding: 0 }}
+      styles={BODY_STYLES}
     >
       <Table
         columns={tableColumns}

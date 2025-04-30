@@ -4,8 +4,8 @@ import { WSButton } from "./ws-button";
 
 export const WSLinkButton = ({ children, href, ...props }: ButtonProps) => {
   return (
-    <WSButton {...props}>
-      <Link href={href || "#"}>{children}</Link>
-    </WSButton>
+    <Link href={href || "#"}>
+      <WSButton {...props}>{children}</WSButton>
+    </Link>
   );
 };

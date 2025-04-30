@@ -23,6 +23,7 @@ export type FontItemProps = FontItemType & {
   isLoadingPreview: boolean;
   fontSize: number;
   style?: CSSProperties;
+  childRef?: (element?: Element | null) => void;
 };
 
 const FontRow = styled(Row)`
@@ -73,6 +74,7 @@ export const FontItem = ({
   onTogglePreview,
   fontSize = 16,
   style,
+  childRef,
 }: FontItemProps): JSX.Element => {
   const { t } = useTranslation("common");
   const displayName = startCase(fontName);
@@ -84,7 +86,7 @@ export const FontItem = ({
     });
   };
   return (
-    <FontRow style={{ ...style }}>
+    <FontRow style={{ ...style }} ref={childRef}>
       <Col span={3}>
         <Text>{displayName}</Text>
       </Col>

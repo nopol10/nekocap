@@ -1,35 +1,32 @@
 diff --git a/node_modules/react-virtualized/dist/commonjs/utils/animationFrame.js b/node_modules/react-virtualized/dist/commonjs/utils/animationFrame.js
-index 8b16f48..008b85a 100644
+index ca55add..392bf15 100644
 --- a/node_modules/react-virtualized/dist/commonjs/utils/animationFrame.js
 +++ b/node_modules/react-virtualized/dist/commonjs/utils/animationFrame.js
-@@ -20,10 +20,12 @@ if (typeof window !== 'undefined') {
- var request = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (callback) {
-   return win.setTimeout(callback, 1000 / 60);
+@@ -22,8 +22,10 @@ if (typeof window !== 'undefined') {
+ var request = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (callback /*: Callback*/) /*: RequestAnimationFrame*/{
+   return (win /*: any*/).setTimeout(callback, 1000 / 60);
  };
 +request = request.bind(win)
- 
- var cancel = win.cancelAnimationFrame || win.webkitCancelAnimationFrame || win.mozCancelAnimationFrame || win.oCancelAnimationFrame || win.msCancelAnimationFrame || function (id) {
-   win.clearTimeout(id);
+ var cancel = win.cancelAnimationFrame || win.webkitCancelAnimationFrame || win.mozCancelAnimationFrame || win.oCancelAnimationFrame || win.msCancelAnimationFrame || function (id /*: number*/) {
+   (win /*: any*/).clearTimeout(id);
  };
 +cancel = cancel.bind(win)
- 
- var raf = request;
- exports.raf = raf;
+ var raf /*: RequestAnimationFrame*/ = exports.raf = (request /*: any*/);
+ var caf /*: CancelAnimationFrame*/ = exports.caf = (cancel /*: any*/);
+\ No newline at end of file
 diff --git a/node_modules/react-virtualized/dist/commonjs/vendor/detectElementResize.js b/node_modules/react-virtualized/dist/commonjs/vendor/detectElementResize.js
-index ca77e6a..f264075 100644
+index 29403d9..b268d62 100644
 --- a/node_modules/react-virtualized/dist/commonjs/vendor/detectElementResize.js
 +++ b/node_modules/react-virtualized/dist/commonjs/vendor/detectElementResize.js
-@@ -38,7 +38,7 @@ function createDetectElementResize(nonce, hostWindow) {
+@@ -35,12 +35,14 @@ function createDetectElementResize(nonce, hostWindow) {
        var raf = _window.requestAnimationFrame || _window.mozRequestAnimationFrame || _window.webkitRequestAnimationFrame || function (fn) {
          return _window.setTimeout(fn, 20);
        };
--
 +      raf = raf.bind(_window);
        return function (fn) {
          return raf(fn);
        };
-@@ -46,6 +46,7 @@ function createDetectElementResize(nonce, hostWindow) {
- 
+     }();
      var cancelFrame = function () {
        var cancel = _window.cancelAnimationFrame || _window.mozCancelAnimationFrame || _window.webkitCancelAnimationFrame || _window.clearTimeout;
 +      cancel = cancel.bind(_window);
@@ -37,38 +34,34 @@ index ca77e6a..f264075 100644
          return cancel(id);
        };
 diff --git a/node_modules/react-virtualized/dist/es/utils/animationFrame.js b/node_modules/react-virtualized/dist/es/utils/animationFrame.js
-index af63c42..77fe91f 100644
+index fc03817..d8d2a0b 100644
 --- a/node_modules/react-virtualized/dist/es/utils/animationFrame.js
 +++ b/node_modules/react-virtualized/dist/es/utils/animationFrame.js
-@@ -14,10 +14,12 @@ if (typeof window !== 'undefined') {
- var request = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (callback) {
-   return win.setTimeout(callback, 1000 / 60);
+@@ -16,8 +16,10 @@ if (typeof window !== 'undefined') {
+ var request = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (callback /*: Callback*/) /*: RequestAnimationFrame*/{
+   return (win /*: any*/).setTimeout(callback, 1000 / 60);
  };
 +request = request.bind(win)
- 
- var cancel = win.cancelAnimationFrame || win.webkitCancelAnimationFrame || win.mozCancelAnimationFrame || win.oCancelAnimationFrame || win.msCancelAnimationFrame || function (id) {
-   win.clearTimeout(id);
+ var cancel = win.cancelAnimationFrame || win.webkitCancelAnimationFrame || win.mozCancelAnimationFrame || win.oCancelAnimationFrame || win.msCancelAnimationFrame || function (id /*: number*/) {
+   (win /*: any*/).clearTimeout(id);
  };
 +cancel = cancel.bind(win)
- 
- export var raf = request;
- export var caf = cancel;
+ export var raf /*: RequestAnimationFrame*/ = (request /*: any*/);
+ export var caf /*: CancelAnimationFrame*/ = (cancel /*: any*/);
 \ No newline at end of file
 diff --git a/node_modules/react-virtualized/dist/es/vendor/detectElementResize.js b/node_modules/react-virtualized/dist/es/vendor/detectElementResize.js
-index b5daec7..a466a3d 100644
+index 16fda9a..f613493 100644
 --- a/node_modules/react-virtualized/dist/es/vendor/detectElementResize.js
 +++ b/node_modules/react-virtualized/dist/es/vendor/detectElementResize.js
-@@ -31,7 +31,7 @@ export default function createDetectElementResize(nonce, hostWindow) {
+@@ -29,12 +29,14 @@ export default function createDetectElementResize(nonce, hostWindow) {
        var raf = _window.requestAnimationFrame || _window.mozRequestAnimationFrame || _window.webkitRequestAnimationFrame || function (fn) {
          return _window.setTimeout(fn, 20);
        };
--
 +      raf = raf.bind(_window);
        return function (fn) {
          return raf(fn);
        };
-@@ -39,6 +39,7 @@ export default function createDetectElementResize(nonce, hostWindow) {
- 
+     }();
      var cancelFrame = function () {
        var cancel = _window.cancelAnimationFrame || _window.mozCancelAnimationFrame || _window.webkitCancelAnimationFrame || _window.clearTimeout;
 +      cancel = cancel.bind(_window);

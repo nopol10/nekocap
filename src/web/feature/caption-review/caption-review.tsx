@@ -303,7 +303,7 @@ export const CaptionReview = () => {
     <>
       <ReviewModal
         actionLabel={getRejectActionLabel(rejected)}
-        visible={showReject}
+        open={showReject}
         onCancel={handleCancelRejectModal}
         onSubmit={handleSubmitRejection}
         confirmLoading={isRejecting}
