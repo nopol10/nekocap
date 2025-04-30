@@ -209,9 +209,8 @@ export const captionColumns = {
       return (
         <Link
           href={`${routeNames.profile.main.replace(":id", record.creatorId)}`}
-          passHref
         >
-          <AntdLink>{text}</AntdLink>
+          {text}
         </Link>
       );
     },
