@@ -18,6 +18,7 @@ import {
   NotificationMessage,
   ProviderType,
 } from "@/common/types";
+import "@fortawesome/fontawesome-svg-core/styles.css";
 import { message as notificationMessage } from "antd";
 import * as Parse from "parse";
 import { createRoot } from "react-dom/client";

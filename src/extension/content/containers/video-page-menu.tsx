@@ -38,6 +38,7 @@ import {
   LoadCaptionsResult,
   UpdateLoadedCaptionFromFile,
 } from "@/common/feature/video/types";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { languages } from "@/common/languages";
 import { darkModeSelector } from "@/common/processor-utils";
 import { ThunkedPayloadAction } from "@/common/store/action";
@@ -258,7 +259,8 @@ export const VideoPageMenu = ({
     setIsSelectFileOpen(true);
   };
 
-  const handleClickFromLocalSave = () => {
+  const handleClickFromLocalSave = async () => {
+    await runPreOpenEditorAction();
     dispatch(
       loadLocallySavedCaption.request({
         videoId: globalThis.videoId,
@@ -274,7 +276,8 @@ export const VideoPageMenu = ({
       });
   };
 
-  const handleClickCreate = () => {
+  const handleClickCreate = async () => {
+    await runPreOpenEditorAction();
     dispatch(
       createNewCaption.request({
         videoId: globalThis.videoId,
@@ -337,7 +340,8 @@ export const VideoPageMenu = ({
      */
   };
 
-  const handleAfterFileModalClose = () => {
+  const handleAfterFileModalClose = async () => {
+    await runPreOpenEditorAction();
     if (newLoadedFileAction.current) {
       dispatch(newLoadedFileAction.current);
     }
@@ -424,13 +428,23 @@ export const VideoPageMenu = ({
     );
   };
 
+  const runPreOpenEditorAction = useCallback(async () => {
+    if (globalThis.videoSource !== undefined) {
+      const preOpenEditorAction =
+        videoSourceToProcessorMap[globalThis.videoSource]?.preOpenEditorAction;
+      if (preOpenEditorAction) {
+        await preOpenEditorAction();
+      }
+    }
+  }, []);
+
   const handleClickShowHideCaption = () => {
     dispatch(
       updateShowCaption({ tabId: globalThis.tabId, show: !showCaption }),
     );
   };
 
-  const handleClickOpenCloseEditor = () => {
+  const handleClickOpenCloseEditor = async () => {
     // Show a warning if opening the editor when only raw caption for ASS is available
     if (!showEditorIfPossible) {
       if (!caption || (caption.data && caption.data.tracks.length <= 0)) {
@@ -438,6 +452,7 @@ export const VideoPageMenu = ({
         return;
       }
     }
+    await runPreOpenEditorAction();
     dispatch(
       updateShowEditor({
         tabId: globalThis.tabId,
@@ -596,9 +611,11 @@ export const VideoPageMenu = ({
           href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}capper/${caption.creator}`}
           style={{
             fontWeight: "bold",
+            fontSize: "14px",
             color: colors.base,
             maxWidth: "180px",
-            overflowX: "hidden",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
             textOverflow: "ellipsis",
           }}
         >

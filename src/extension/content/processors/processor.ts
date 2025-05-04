@@ -85,6 +85,7 @@ export interface Processor {
   disableEditor?: boolean;
   disableAdvancedCaptions?: boolean;
   updateTitleOnSubmission?: boolean;
+  preOpenEditorAction?: () => Promise<void>;
   videoIsInIframe?: boolean;
   inlineMenu?: {
     insertPosition: "before" | "after";

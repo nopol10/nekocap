@@ -1,5 +1,6 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
+import { delay } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const videoMatchingRegex =
@@ -12,9 +13,9 @@ export const VimeoProcessor: Processor = {
   name: "Vimeo",
   canWatchInNekoCapSite: true,
   urlRegex: /vimeo\.com/,
-  videoSelector: ".vp-video-wrapper video",
-  videoPageUISelector: "main h1",
-  titleSelector: "main h1 > span:first-child",
+  videoSelector: ".player .vp-video-wrapper video",
+  videoPageUISelector: "div[data-testid='action-bar']",
+  titleSelector: "main h1",
   editorVideoPlayerStyles: `
   .vp-telecine {
     height: 100%;
@@ -28,7 +29,21 @@ export const VimeoProcessor: Processor = {
     position: absolute;
   }
   `,
+  globalStyles: `
+    .vp-telecine {
+      height: 100%;
+    }
+  `,
   supportAutoCaptions: () => false,
+  preOpenEditorAction: async () => {
+    // This is to initialize the video or it will be blank
+    const playButton = document.querySelector("button[class*=PlayButton]") as
+      | HTMLElement
+      | undefined;
+    playButton?.click();
+    await delay(200);
+    playButton?.click();
+  },
   getVideoId: () => {
     const matches = globalThis.location.href.match(videoMatchingRegex);
     if (!matches) {
@@ -42,7 +57,7 @@ export const VimeoProcessor: Processor = {
   generateThumbnailLink: async function (videoId: string) {
     try {
       const response = await fetch(
-        `https://www.noembed.com/embed?url=${this.generateVideoLink(videoId)}`
+        `https://www.noembed.com/embed?url=${this.generateVideoLink(videoId)}`,
       );
       const data = await response.json();
       return data.thumbnail_url || "";
@@ -51,7 +66,7 @@ export const VimeoProcessor: Processor = {
     }
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },
