@@ -6,7 +6,7 @@ import { Processor, retrieveVideoDimensions } from "./processor";
 const videoMatchingRegex =
   /(http:|https:|)\/\/(?:www.)?(dailymotion.com)\/video\/([A-Za-z0-9._%-]*)(&\S+)?/;
 const inPageIframeRegex =
-  /(http:|https:|)\/\/(?:www.)?(dailymotion.com)\/embed\?.*/;
+  /(http:|https:|)\/\/(?:geo.)?(dailymotion.com)\/player.*/;
 
 export const DailymotionProcessor: Processor = {
   type: VideoSource.Dailymotion,
@@ -17,13 +17,16 @@ export const DailymotionProcessor: Processor = {
   disableEditor: true,
   videoSelector: async function () {
     if (this.getPageType(location.href) === PageType.VideoIframe) {
-      return await waitForElement("#dmp_Video", document.body);
+      return await waitForElement("#video", document.body);
     }
-    const videoIframe = await waitForElement("#player-body");
+    const videoIframe = await waitForElement("#player-wrapper iframe");
     return videoIframe as unknown as HTMLVideoElement;
   },
-  videoPageUISelector: "*[class*=NewVideoInfoActions__actionButton]",
-  titleSelector: "*[class*=NewVideoInfoTitle__videoTitle]",
+  getCaptionContainerElement: () => {
+    return globalThis.videoElement?.parentElement?.parentElement;
+  },
+  videoPageUISelector: "#root",
+  titleSelector: "*[class*=VideoInfoTitle__titleContainer]",
   globalStyles: `
   .libassjs-canvas-parent {
     pointer-events: none;
@@ -35,16 +38,24 @@ export const DailymotionProcessor: Processor = {
   #nekocap-menu-container img {
     filter: contrast(0);
   }
+  #nekocap-menu-container {
+    position: fixed;
+    bottom: 64px;
+    right: 64px;
+  }
   `,
   editorVideoPlayerStyles: ``,
   observer: {
-    shouldObserveMenuPlaceability: true,
+    shouldObserveMenuPlaceability: false,
     shouldObserveVideoMetaUpdate: true,
     refreshTabDataAfterElementUpdate: true,
-    menuElementSelector: `*[class*=VideoListSectionTitle__sectionTitleWrapper]`,
+    menuElementSelector: `*[class*=VideoInfoDescription__descriptionText]`,
   },
   inlineMenu: {
-    insertPosition: "before",
+    insertPosition: "after",
+  },
+  waitUntilPageIsReady: async () => {
+    await waitForElement("*[class*=VideoInfoDescription__descriptionText]");
   },
   supportAutoCaptions: () => false,
   getVideoId: () => {
@@ -60,7 +71,7 @@ export const DailymotionProcessor: Processor = {
   generateThumbnailLink: async function (videoId: string) {
     try {
       const response = await fetch(
-        `https://www.noembed.com/embed?url=${this.generateVideoLink(videoId)}`
+        `https://www.noembed.com/embed?url=${this.generateVideoLink(videoId)}`,
       );
       const data = await response.json();
       return data.thumbnail_url || "";
@@ -69,7 +80,7 @@ export const DailymotionProcessor: Processor = {
     }
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },

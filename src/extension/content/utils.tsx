@@ -22,7 +22,9 @@ export const refreshVideoMeta = async () => {
      * as some sites shift the elements around before the video ends up in its final position.
      * Thus we need to update the container element later as a precaution
      */
-    globalThis.captionContainerElement = globalThis.videoElement.parentElement;
+    globalThis.captionContainerElement =
+      globalThis.selectedProcessor.getCaptionContainerElement?.() ||
+      globalThis.videoElement.parentElement;
 
     if (!isInIFrame) {
       globalThis.videoName = await getVideoTitle(globalThis.selectedProcessor);
