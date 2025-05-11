@@ -1,4 +1,22 @@
-import { fork, takeLatest, call, put, select, take } from "redux-saga/effects";
+import { isInExtension } from "@/common/client-utils";
+import { Locator } from "@/common/locator/locator";
+import {
+  LoginMethod,
+  LoginResponse,
+  UserData,
+} from "@/common/providers/backend-provider";
+import { safe } from "@/common/redux-utils";
+import { routePopup } from "@/extension/background/common/saga";
+import { routeNames } from "@/web/feature/route-types";
+import { webHistory } from "@/web/feature/web-history";
+import { PayloadAction } from "@reduxjs/toolkit";
+import { call, fork, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  loadPrivateCaptionerData,
+  setCaptionerPrivateData,
+} from "../captioner/actions";
+import { captionerSelector } from "../captioner/selectors";
+import { CaptionerState } from "../captioner/types";
 import {
   autoLogin,
   loginSuccess,
@@ -12,34 +30,15 @@ import {
   webLogout,
 } from "./actions";
 import { loginRoutes } from "./routes";
-import { PayloadAction } from "@reduxjs/toolkit";
-import { safe } from "@/common/redux-utils";
-import { LoginRequest, WebAutoLoginRequest, WebLoginSuccess } from "./types";
 import { userDataSelector } from "./selectors";
+import { LoginRequest, WebAutoLoginRequest, WebLoginSuccess } from "./types";
 import { webGoogleLogout } from "./utils";
-import {
-  loadPrivateCaptionerData,
-  setCaptionerPrivateData,
-} from "../captioner/actions";
-import { CaptionerState } from "../captioner/types";
-import { routePopup } from "@/extension/background/common/saga";
-import { isInExtension } from "@/common/client-utils";
-import {
-  LoginMethod,
-  LoginResponse,
-  UserData,
-} from "@/common/providers/backend-provider";
-import { captionerSelector } from "../captioner/selectors";
-import { routeNames } from "@/web/feature/route-types";
-import { webHistory } from "@/web/feature/web-history";
-import { Locator } from "@/common/locator/locator";
-import type { User as FirebaseUser } from "firebase/auth";
 
 function* autoLoginRequestSaga() {
   if (!isInExtension()) {
     return;
   }
-  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
+  const user = globalThis.firebaseAuth.currentUser;
   if (!user) {
     // This saga shouldn't have been run without a user
     return;
@@ -55,7 +54,7 @@ function* autoLoginRequestSaga() {
         username: user.displayName || "",
         idToken,
       },
-    }
+    },
   );
   if (status === "deferred") {
     return;
@@ -71,7 +70,7 @@ function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
   const { status, userData }: LoginResponse = yield call(
     [Locator.provider(), "login"],
     LoginMethod.Google,
-    { background: payload.background }
+    { background: payload.background },
   );
   if (status === "deferred") {
     return;
@@ -81,7 +80,7 @@ function* loginWithGoogleRequestSaga({ payload }: PayloadAction<LoginRequest>) {
     return;
   }
   yield put(
-    loginWithGoogle.success({ ...userData, loginMethod: LoginMethod.Google })
+    loginWithGoogle.success({ ...userData, loginMethod: LoginMethod.Google }),
   );
 }
 
@@ -121,7 +120,7 @@ function* logoutSuccessSaga() {
 function* webAutoLoginRequestSaga({
   payload: { withCaptions },
 }: PayloadAction<WebAutoLoginRequest>) {
-  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
+  const user = globalThis.firebaseAuth.currentUser;
   if (!user) {
     // This saga shouldn't have been run without a user
     return;
@@ -137,7 +136,7 @@ function* webAutoLoginRequestSaga({
         username: user.displayName || "",
         idToken,
       },
-    }
+    },
   );
   if (status === "deferred") {
     return;
@@ -156,7 +155,7 @@ function* webLoginWithGoogleRequestSaga({
   const { status, userData }: LoginResponse = yield call(
     [Locator.provider(), "login"],
     LoginMethod.Google,
-    { background }
+    { background },
   );
   if (status === "deferred") {
     return;
@@ -207,23 +206,23 @@ export function* loginSaga() {
   yield takeLatest(autoLogin.REQUEST, safe(autoLoginRequestSaga));
   yield takeLatest(
     loginWithGoogle.REQUEST,
-    safe(loginWithGoogle.requestSaga(loginWithGoogleRequestSaga))
+    safe(loginWithGoogle.requestSaga(loginWithGoogleRequestSaga)),
   );
   yield takeLatest(loginWithGoogle.SUCCESS, safe(extensionLoginSuccessSaga));
   yield takeLatest(loginSuccess, safe(extensionLoginSuccessSaga));
 
   yield takeLatest(
     webAutoLogin.REQUEST,
-    safe(webAutoLogin.requestSaga(webAutoLoginRequestSaga))
+    safe(webAutoLogin.requestSaga(webAutoLoginRequestSaga)),
   );
   yield takeLatest(
     webLoginWithGoogle.REQUEST,
-    safe(webLoginWithGoogleRequestSaga)
+    safe(webLoginWithGoogleRequestSaga),
   );
   yield takeLatest(webLoginSuccess.type, safe(webLoginSuccessSaga));
   yield takeLatest(
     webLogout.REQUEST,
-    safe(webLogout.requestSaga(webLogoutRequestSaga))
+    safe(webLogout.requestSaga(webLogoutRequestSaga)),
   );
   yield takeLatest(webLogout.SUCCESS, safe(webLogoutSuccessSaga));
 

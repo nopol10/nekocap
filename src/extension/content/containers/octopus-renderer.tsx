@@ -1,4 +1,10 @@
 /* eslint-disable react/display-name */
+import { isInExtension } from "@/common/client-utils";
+import type { IFrameProps } from "@/common/feature/video/types";
+import type { Dimension } from "@/common/types";
+import { createElementRemovalObserver } from "@/common/utils";
+import { useAnimationFrame } from "@/hooks";
+import { isEqual } from "lodash-es";
 import * as React from "react";
 import {
   MutableRefObject,
@@ -7,14 +13,8 @@ import {
   useImperativeHandle,
   useRef,
 } from "react";
-import { isEqual } from "lodash-es";
-import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
-import type { Dimension } from "@/common/types";
-import type { IFrameProps } from "@/common/feature/video/types";
-import { useAnimationFrame } from "@/hooks";
-import { createElementRemovalObserver } from "@/common/utils";
-import { isInExtension } from "@/common/client-utils";
 import { createGlobalStyle } from "styled-components";
+import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
 import { CaptionRendererHandle } from "./caption-renderer";
 
 interface OctopusRendererProps {

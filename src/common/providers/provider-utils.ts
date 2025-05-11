@@ -4,7 +4,7 @@ import {
 } from "./passthrough-provider";
 
 export async function performBackendProviderRequest(
-  request: BackendProviderRequest
+  request: BackendProviderRequest,
 ): Promise<any> {
   const window = globalThis;
   if (request.type === BackendProviderRequestTypes.Login) {
@@ -25,6 +25,10 @@ export async function performBackendProviderRequest(
       withCaptions: request.withCaptions,
     });
   } else if (request.type === BackendProviderRequestTypes.LoadProfile) {
+    if (!request.options) {
+      console.warn("No options provided for loadProfile");
+      return;
+    }
     return window.backendProvider.loadProfile(request.options);
   } else if (
     request.type === BackendProviderRequestTypes.UpdateCaptionerProfile
@@ -36,7 +40,7 @@ export async function performBackendProviderRequest(
     request.type === BackendProviderRequestTypes.LoadLatestUserLanguageCaptions
   ) {
     return window.backendProvider.loadLatestUserLanguageCaptions(
-      request.languageCode
+      request.languageCode,
     );
   } else if (request.type === BackendProviderRequestTypes.LoadPopularCaptions) {
     return window.backendProvider.loadPopularCaptions();
@@ -55,9 +59,7 @@ export async function performBackendProviderRequest(
       captionId: request.captionId,
     });
   } else if (request.type === BackendProviderRequestTypes.DeleteCaption) {
-    return window.backendProvider.deleteCaption({
-      captionId: request.captionId,
-    });
+    return window.backendProvider.deleteCaption(request.captionId);
   } else if (request.type === BackendProviderRequestTypes.SubmitCaption) {
     return window.backendProvider.submitCaption(request.request);
   } else if (request.type === BackendProviderRequestTypes.UpdateCaption) {

@@ -330,7 +330,9 @@ export const VideoHome = () => {
           ref={rendererRef}
           caption={caption}
           videoElement={videoElement}
-          captionContainerElement={globalThis.captionContainerElement}
+          captionContainerElement={
+            globalThis.captionContainerElement || undefined
+          }
           showCaption={showCaption}
           isIframe={globalThis.selectedProcessor?.videoIsInIframe}
           iframeProps={iframeProps}
@@ -341,7 +343,9 @@ export const VideoHome = () => {
           ref={rendererRef}
           rawCaption={rawCaption}
           videoElement={videoElement}
-          captionContainerElement={globalThis.captionContainerElement}
+          captionContainerElement={
+            globalThis.captionContainerElement || undefined
+          }
           showCaption={showCaption}
           fontList={fontList}
           onFontsLoaded={handleFontsLoaded}

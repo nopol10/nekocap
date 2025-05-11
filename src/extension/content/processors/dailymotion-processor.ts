@@ -23,7 +23,7 @@ export const DailymotionProcessor: Processor = {
     return videoIframe as unknown as HTMLVideoElement;
   },
   getCaptionContainerElement: () => {
-    return globalThis.videoElement?.parentElement?.parentElement;
+    return globalThis.videoElement?.parentElement?.parentElement || undefined;
   },
   videoPageUISelector: "#root",
   titleSelector: "*[class*=VideoInfoTitle__titleContainer]",

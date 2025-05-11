@@ -1,3 +1,27 @@
+import {
+  CaptionAlignment,
+  CaptionDataContainer,
+  NekoCaption,
+  TrackSettings,
+} from "@/common/caption-parsers/types";
+import { isInExtension } from "@/common/client-utils";
+import {
+  MAX_CONCURRENT_CAPTIONS,
+  MAX_TRACKS,
+} from "@/common/feature/video/constants";
+import type {
+  CaptionContainer,
+  IFrameProps,
+  VideoPlayerPreferences,
+} from "@/common/feature/video/types";
+import { findClosestCaption } from "@/common/feature/video/utils";
+import { Coords, Dimension } from "@/common/types";
+import {
+  createElementAdditionObserver,
+  createElementRemovalObserver,
+} from "@/common/utils";
+import { useAnimationFrame, useResize } from "@/hooks";
+import { isEqual } from "lodash-es";
 import * as React from "react";
 import {
   MutableRefObject,
@@ -7,31 +31,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { findClosestCaption } from "@/common/feature/video/utils";
-import type {
-  CaptionContainer,
-  IFrameProps,
-  VideoPlayerPreferences,
-} from "@/common/feature/video/types";
-import {
-  CaptionAlignment,
-  NekoCaption,
-  CaptionDataContainer,
-  TrackSettings,
-} from "@/common/caption-parsers/types";
-import {
-  MAX_CONCURRENT_CAPTIONS,
-  MAX_TRACKS,
-} from "@/common/feature/video/constants";
-import { isEqual } from "lodash-es";
-import { Coords, Dimension } from "@/common/types";
-import { useAnimationFrame, useResize } from "@/hooks";
-import {
-  createElementAdditionObserver,
-  createElementRemovalObserver,
-} from "@/common/utils";
 import { refreshVideoMeta } from "../utils";
-import { isInExtension } from "@/common/client-utils";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   videoElement?: HTMLVideoElement;

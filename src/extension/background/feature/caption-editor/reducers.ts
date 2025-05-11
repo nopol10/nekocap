@@ -1,4 +1,5 @@
-import { AnyAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
+import { isInBackgroundScript } from "@/common/client-utils";
+import { captionEditorActionTypes } from "@/common/feature/caption-editor/action-types";
 import {
   fetchAutoCaptionList,
   setAutoCaptionList,
@@ -11,19 +12,18 @@ import {
   submitCaption,
   updateUploadedCaption,
 } from "@/common/feature/caption-editor/actions";
+import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
 import {
   CaptionEditorState,
   SHORTCUT_TYPES,
   TabEditorData,
 } from "@/common/feature/caption-editor/types";
 import { clearTabData, unsetTabData } from "@/common/feature/video/actions";
-import { BUILT_IN_SHORTCUTS } from "@/common/feature/caption-editor/shortcut-constants";
-import undoable, { includeAction } from "redux-undo";
-import { captionEditorActionTypes } from "@/common/feature/caption-editor/action-types";
 import { SetCaption, SetRawCaption } from "@/common/feature/video/types";
 import { TabbedType } from "@/common/types";
 import { hydrate } from "@/web/store/action";
-import { isInBackgroundScript } from "@/common/client-utils";
+import { AnyAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
+import undoable, { includeAction } from "redux-undo";
 
 const defaultTabEditorData: TabEditorData = {
   showEditorIfPossible: false,
@@ -31,7 +31,7 @@ const defaultTabEditorData: TabEditorData = {
 
 const setCaptionReducer = (
   state: TabEditorData,
-  action: PayloadAction<SetCaption>
+  action: PayloadAction<SetCaption>,
 ): TabEditorData => {
   const { payload } = action;
   const { caption } = payload;
@@ -43,7 +43,7 @@ const setCaptionReducer = (
 
 const setRawCaptionReducer = (
   state: CaptionEditorState,
-  action: PayloadAction<SetRawCaption>
+  action: PayloadAction<SetRawCaption>,
 ): CaptionEditorState => {
   const { payload } = action;
   const { tabId, rawCaption } = payload;
@@ -85,7 +85,7 @@ const captionEditorTabBuiltReducer = createReducer<TabEditorData>(
           caption: { ...state.caption, languageCode: languageCode },
         };
       });
-  }
+  },
 );
 
 export const captionEditorBaseReducer = (tabId: number) =>
@@ -98,7 +98,7 @@ export const captionEditorBaseReducer = (tabId: number) =>
   });
 
 const isTabbedAction = (
-  action: AnyAction
+  action: AnyAction,
 ): action is PayloadAction<TabbedType> => {
   const isTabbed =
     "payload" in action &&
@@ -139,7 +139,7 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
         ) {
           delete globalThis.backgroundEditorRawCaption[tabId];
         } else {
-          globalThis.editorRawCaption = null;
+          globalThis.editorRawCaption = undefined;
         }
         return {
           ...state,
@@ -169,7 +169,7 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
         ) {
           delete globalThis.backgroundEditorRawCaption[tabId];
         } else {
-          globalThis.editorRawCaption = null;
+          globalThis.editorRawCaption = undefined;
         }
         return {
           ...state,
@@ -197,5 +197,5 @@ export const captionEditorReducer = createReducer<CaptionEditorState>(
           },
         };
       });
-  }
+  },
 );

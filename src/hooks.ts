@@ -331,7 +331,7 @@ export const useCaptionContainerUpdate = (
   const [_, setDummy] = useState(0);
   useEffect(() => {
     const targetCaptionContainerElement =
-      globalThis.selectedProcessor.getCaptionContainerElement?.() ||
+      globalThis.selectedProcessor?.getCaptionContainerElement?.() ||
       globalThis.videoElement?.parentElement;
     if (
       targetCaptionContainerElement &&
