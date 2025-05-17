@@ -1,4 +1,4 @@
-import { createReducer } from "@reduxjs/toolkit";
+import { isInBackgroundScript } from "@/common/client-utils";
 import {
   clearTabData,
   dislikeCaption,
@@ -24,7 +24,7 @@ import {
   VideoState,
 } from "@/common/feature/video/types";
 import { hydrate } from "@/web/store/action";
-import { isInBackgroundScript } from "@/common/client-utils";
+import { createReducer } from "@reduxjs/toolkit";
 
 const defaultTabVideoData: TabVideoData = {
   showEditorIfPossible: true,
@@ -191,7 +191,7 @@ export const videoReducer = createReducer<VideoState>(
         ) {
           delete globalThis.backgroundRawCaption[tabId];
         } else {
-          globalThis.rawCaption = null;
+          globalThis.rawCaption = undefined;
         }
         return {
           ...state,
@@ -216,7 +216,7 @@ export const videoReducer = createReducer<VideoState>(
         ) {
           delete globalThis.backgroundRawCaption[tabId];
         } else {
-          globalThis.rawCaption = null;
+          globalThis.rawCaption = undefined;
         }
         return {
           ...state,
@@ -250,5 +250,5 @@ export const videoReducer = createReducer<VideoState>(
           },
         };
       });
-  }
+  },
 );

@@ -543,7 +543,7 @@ type CaptionEditorProps = UndoComponentProps & {
   isSubmitting: boolean;
   captionContainer?: CaptionContainer;
   videoElement: HTMLVideoElement;
-  captionContainerElement: HTMLElement;
+  captionContainerElement: HTMLElement | null;
   videoMenuComponent: ReactNode;
   updateCaption: (action: AnyAction, callback?: () => void) => void;
   keyboardShortcuts: { [id: string]: KeySequence };
@@ -606,7 +606,7 @@ const CaptionEditorInternal = ({
    * Effect for moving the video element to the editor and back
    */
   useEffect(() => {
-    if (!videoElement || !editorVideoContainer) {
+    if (!videoElement || !editorVideoContainer || !captionContainerElement) {
       return;
     }
 

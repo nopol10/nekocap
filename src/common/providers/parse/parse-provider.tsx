@@ -1,40 +1,20 @@
-import {
-  LoadSingleCaptionResult,
-  SubmitCaptionRequest,
-  CaptionContainer,
-  VideoSource,
-  RawCaptionData,
-  VideoFields,
-  UpdateCaptionRequest,
-  LoadCaptionListResult,
-} from "../../feature/video/types";
-import {
-  BackendProvider,
-  LoginMethod,
-  LoginOptions,
-  LoginResponse,
-  LogoutOptions,
-  UserData,
-} from "../backend-provider";
-import { RootState } from "../../store/types";
+import nodefetch from "node-fetch";
 import type * as ParseTypeImport from "parse";
 import {
-  ProviderType,
-  ResponseStatus,
-  ServerResponse,
-  UploadResponse,
-  UploadResult,
-} from "../../types";
+  LoadCaptionForReviewResult,
+  ReasonedCaptionAction,
+  ReviewActionDetails,
+} from "../../feature/caption-review/types";
 import {
+  BanRequest,
+  CaptionsRequest,
+  CaptionsResponse,
   LoadPrivateCaptionerDataRequestParams,
   LoadPrivateCaptionerDataResponse,
   PrivateCaptionerData,
   RoleRequest,
-  CaptionsRequest,
-  CaptionsResponse,
   UpdateCaptionerProfileParams,
   VerifyRequest,
-  BanRequest,
 } from "../../feature/captioner/types";
 import {
   DeleteProfileTagParams,
@@ -43,22 +23,51 @@ import {
   LoadProfileParams,
   PublicProfileData,
 } from "../../feature/profile/types";
-import {
-  LoadCaptionForReviewResult,
-  ReasonedCaptionAction,
-  ReviewActionDetails,
-} from "../../feature/caption-review/types";
 import { SearchRequest, VideoSearchResults } from "../../feature/search/types";
-import nodefetch from "node-fetch";
+import {
+  CaptionContainer,
+  LoadCaptionListResult,
+  LoadSingleCaptionResult,
+  RawCaptionData,
+  SubmitCaptionRequest,
+  UpdateCaptionRequest,
+  VideoFields,
+  VideoSource,
+} from "../../feature/video/types";
+import { RootState } from "../../store/types";
+import {
+  ProviderType,
+  ResponseStatus,
+  ServerResponse,
+  UploadResponse,
+  UploadResult,
+} from "../../types";
+import {
+  BackendProvider,
+  LoginMethod,
+  LoginOptions,
+  LoginResponse,
+  LogoutOptions,
+  UserData,
+} from "../backend-provider";
 
-import { convertBlobToBase64 } from "../../utils";
 import type {
-  LoadCaptionForReviewResponse,
-  LoadSingleCaptionResponse,
-  VideoSearchResponse,
-  PublicProfileResponse,
-  BrowseResponse,
-} from "./types";
+  GetAutoCaptionListParams,
+  GetAutoCaptionListResponse,
+  GetAutoCaptionListResult,
+} from "@/common/feature/caption-editor/types";
+import {
+  getExtensionFirebaseAuth,
+  getWebFirebaseAuth,
+} from "@/common/feature/login/firebase-utils";
+import type {
+  BrowseRequest,
+  BrowseResults,
+} from "@/common/feature/public-dashboard/types";
+import { StatsResponse } from "@/common/feature/stats/types";
+import type { Auth } from "firebase/auth";
+import { initXMLHttpRequestShim } from "../../../libs/xmlhttprequest-shim";
+import { routeNames } from "../../../web/feature/route-types";
 import {
   isClient,
   isFirefoxExtension,
@@ -66,24 +75,15 @@ import {
   isInServiceWorker,
   isServer,
 } from "../../client-utils";
-import type {
-  BrowseRequest,
-  BrowseResults,
-} from "@/common/feature/public-dashboard/types";
-import type {
-  GetAutoCaptionListParams,
-  GetAutoCaptionListResponse,
-  GetAutoCaptionListResult,
-} from "@/common/feature/caption-editor/types";
-import { initXMLHttpRequestShim } from "../../../libs/xmlhttprequest-shim";
+import { convertBlobToBase64 } from "../../utils";
 import { ChromeStorageController } from "./chrome-storage-controller";
-import type { Auth, User as FirebaseUser } from "firebase/auth";
-import { routeNames } from "../../../web/feature/route-types";
-import { StatsResponse } from "@/common/feature/stats/types";
-import {
-  getExtensionFirebaseAuth,
-  getWebFirebaseAuth,
-} from "@/common/feature/login/firebase-utils";
+import type {
+  BrowseResponse,
+  LoadCaptionForReviewResponse,
+  LoadSingleCaptionResponse,
+  PublicProfileResponse,
+  VideoSearchResponse,
+} from "./types";
 
 //#region
 const loginWithGoogle = async (
@@ -125,7 +125,11 @@ const loginWithGoogle = async (
     const provider = new GoogleAuthProvider();
     await signInWithPopup(globalThis.firebaseAuth, provider);
   }
-  const user: FirebaseUser = globalThis.firebaseAuth.currentUser;
+  const user = globalThis.firebaseAuth.currentUser;
+  if (!user) {
+    console.warn("No user found when logging in with Google");
+    return { status: "error" };
+  }
   const idToken = await user.getIdToken();
   if (!idToken) {
     return { status: "error" };

@@ -10,14 +10,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { isClient, isServer } from "./common/client-utils";
-import {
-  IN_PAGE_MENU_CONTAINER_ID,
-  TIME,
-  VIDEO_ELEMENT_CONTAINER_ID,
-} from "./common/constants";
-import { DEVICE } from "./common/style-constants";
-import { Coords, Dimension } from "./common/types";
+import { isServer } from "./common/client-utils";
+import { IN_PAGE_MENU_CONTAINER_ID, TIME } from "./common/constants";
+import { Coords } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { PopupContext } from "./extension/common/popup-context";
 import { getVideoElement } from "./extension/content/processors/processor";
@@ -29,7 +24,7 @@ import { getVideoElement } from "./extension/content/processors/processor";
 export const useAnimationFrame = (
   maxFps: number,
   callback: (deltaTime: number) => void,
-  dependencies: DependencyList
+  dependencies: DependencyList,
 ) => {
   const requestRef = useRef(0);
   const previousTimeRef = useRef(0);
@@ -54,7 +49,7 @@ export const useAnimationFrame = (
 };
 
 export const useStateRef = <S>(
-  initialState?: S | (() => S)
+  initialState?: S | (() => S),
 ): [S | undefined, (a: S) => void] => {
   const [state, setState] = useState<S | undefined>(initialState);
 
@@ -69,7 +64,7 @@ export const useStateRef = <S>(
  * @param initialState
  */
 export const useStateAutoRef = <S>(
-  initialState: S
+  initialState: S,
 ): [S, (a: S) => void, MutableRefObject<S>] => {
   const [state, setState] = useState<S>(initialState);
   const ref = useRef<S>(initialState);
@@ -86,7 +81,7 @@ export const useResize = (
   element: HTMLElement | undefined,
   callback: (width: number, height: number) => void,
   interval: number,
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ) => {
   useLayoutEffect(() => {
     if (!element) {
@@ -108,7 +103,7 @@ export const useResize = (
 
 export const useRerenderOnResize = (
   element?: HTMLElement,
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ) => {
   const [_, setDummy] = useState(0);
   useEffect(() => {
@@ -127,7 +122,7 @@ export const useRerenderOnResize = (
 
 export const useRerenderOnWindowResize = (
   callback?: () => void,
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ) => {
   const [_, setDummy] = useState(0);
   useEffect(() => {
@@ -150,7 +145,7 @@ export const useDrag = (
   onMove: (start: Coords, corrected: Coords, delta: Coords) => void,
   onStop: (start: Coords, corrected: Coords, delta: Coords) => void,
   blockClick = false,
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ) => {
   const isDraggingRef = useRef<boolean>(false);
   const startX = useRef<number>(0);
@@ -169,7 +164,7 @@ export const useDrag = (
           {
             x: event.clientX - startX.current,
             y: event.clientY - startY.current,
-          }
+          },
         );
       event.stopPropagation();
     };
@@ -183,7 +178,7 @@ export const useDrag = (
         {
           x: event.clientX - startX.current,
           y: event.clientY - startY.current,
-        }
+        },
       );
       isDraggingRef.current = false;
     };
@@ -229,7 +224,7 @@ export const useDrag = (
 };
 
 export const useVideoPlayPause = (
-  videoElement: HTMLVideoElement
+  videoElement: HTMLVideoElement,
 ): [boolean, (isPlaying: boolean) => void, MutableRefObject<boolean>] => {
   const [isPlaying, setIsPlaying, isPlayingRef] = useStateAutoRef(false);
   useEffect(() => {
@@ -261,7 +256,7 @@ export const useVideoPlayPause = (
  * @param videoElement
  */
 export const useVideoDurationChange = (
-  videoElement: HTMLVideoElement
+  videoElement: HTMLVideoElement,
 ): [number, MutableRefObject<number>] => {
   const [videoDuration, setVideoDuration, videoDurationRef] =
     useStateAutoRef(0);
@@ -281,11 +276,11 @@ export const useVideoDurationChange = (
       if (videoElement) {
         videoElement.removeEventListener(
           "durationchange",
-          handleDurationChange
+          handleDurationChange,
         );
         videoElement.removeEventListener(
           "loadedmetadata",
-          handleDurationChange
+          handleDurationChange,
         );
       }
     };
@@ -295,7 +290,7 @@ export const useVideoDurationChange = (
 };
 
 export const useVideoVolumeChange = (
-  videoElement: HTMLVideoElement
+  videoElement: HTMLVideoElement,
 ): {
   volume: [number, (volume: number) => void, MutableRefObject<number>];
   mute: [boolean, (mute: boolean) => void, MutableRefObject<boolean>];
@@ -308,7 +303,7 @@ export const useVideoVolumeChange = (
       setVolume(videoElement.volume);
       setMute(videoElement.muted);
     }, 200),
-    [videoElement]
+    [videoElement],
   );
 
   useEffect(() => {
@@ -331,18 +326,18 @@ export const useVideoVolumeChange = (
 };
 
 export const useCaptionContainerUpdate = (
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ) => {
   const [_, setDummy] = useState(0);
   useEffect(() => {
+    const targetCaptionContainerElement =
+      globalThis.selectedProcessor?.getCaptionContainerElement?.() ||
+      globalThis.videoElement?.parentElement;
     if (
-      globalThis.videoElement &&
-      globalThis.videoElement.parentElement &&
-      globalThis.captionContainerElement !==
-        globalThis.videoElement.parentElement
+      targetCaptionContainerElement &&
+      globalThis.captionContainerElement !== targetCaptionContainerElement
     ) {
-      globalThis.captionContainerElement =
-        globalThis.videoElement.parentElement;
+      globalThis.captionContainerElement = targetCaptionContainerElement;
       setDummy(Math.random());
     }
   }, [...dependencies, setDummy]);
@@ -375,7 +370,7 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
               me.disconnect(); // stop observing
               findVideoElement();
             }
-          })
+          }),
         );
       });
       if (!globalThis.videoElement.parentElement) {
@@ -408,7 +403,7 @@ type UpdateEvent =
   | "videoElementRemoved";
 
 export const processorObserveUpdates = (
-  callback: (event: UpdateEvent, element?: HTMLElement) => void
+  callback: (event: UpdateEvent, element?: HTMLElement) => void,
 ): MutationObserver => {
   const mutationObserver = new MutationObserver(function (mutations) {
     if (mutations.length <= 0) {
@@ -448,7 +443,7 @@ export const processorObserveUpdates = (
         observerSettings.menuElementSelector
       ) {
         menuNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
-          observerSettings.menuElementSelector.replace(/[.#]/g, "")
+          observerSettings.menuElementSelector.replace(/[.#]/g, ""),
         );
       }
       if (
@@ -458,7 +453,7 @@ export const processorObserveUpdates = (
         observerSettings.videoMetaElementSelector
       ) {
         metaNodeWasAdded = (mutation.target as HTMLElement).classList.contains(
-          observerSettings.videoMetaElementSelector.replace(/[.#]/g, "")
+          observerSettings.videoMetaElementSelector.replace(/[.#]/g, ""),
         );
       }
       if (menuNodeWasAdded && observerSettings.shouldObserveMenuPlaceability) {
@@ -504,7 +499,7 @@ export const processorObserveUpdates = (
  * @returns
  */
 export const useMenuUIElementUpdate = (
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ): { menuUpdateToken: number; videoMetaUpdateToken: number } => {
   const [menuUpdateDummy, setMenuUpdateDummy] = useState(0);
   const [metaUpdateDummy, setMetaUpdateDummy] = useState(0);
@@ -529,7 +524,7 @@ export const useMenuUIElementUpdate = (
           // when the element that contains it gets removed
           if (updateEvent === "menuElementRemoved") {
             const menuUIElement = removedElement?.querySelector(
-              `#${IN_PAGE_MENU_CONTAINER_ID}`
+              `#${IN_PAGE_MENU_CONTAINER_ID}`,
             );
             const menuUIHTMLElement = menuUIElement
               ? (menuUIElement as HTMLElement)
@@ -546,7 +541,7 @@ export const useMenuUIElementUpdate = (
         ) {
           setMetaUpdateDummy(Math.random());
         }
-      }
+      },
     );
 
     return () => {
@@ -597,7 +592,7 @@ export const useScrollPosition = (
   dependencies?: DependencyList,
   element?: HTMLElement | null | undefined,
   useWindow = false,
-  wait?: number
+  wait?: number,
 ): void => {
   const position = useRef(getScrollPosition({ useWindow }));
 
@@ -639,7 +634,7 @@ export const useScrollPosition = (
 export const useScrolledPastY = (
   element: HTMLElement | null | undefined,
   yBreakpoint: number,
-  throttleDuration = 100
+  throttleDuration = 100,
 ) => {
   const [hasScrolledPast, setHasScrolledPast] = useState(false);
   useScrollPosition(
@@ -652,7 +647,7 @@ export const useScrolledPastY = (
     [element, hasScrolledPast],
     element,
     !element,
-    throttleDuration
+    throttleDuration,
   );
   if (isServer()) {
     return false;
@@ -687,7 +682,7 @@ export const useIsInPopup = (): boolean => {
 };
 
 export const useOpenClose = (
-  initialState = false
+  initialState = false,
 ): [boolean, () => void, () => void] => {
   const [isOpened, setIsOpened] = useState(initialState);
   const handleOpenList = () => {

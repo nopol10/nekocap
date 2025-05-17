@@ -7,13 +7,16 @@ import { CustomEvents } from "@/common/types";
 import { getVideoElement, getVideoTitle } from "./processors/processor";
 
 export const refreshVideoMeta = async () => {
-  const pageType = globalThis.selectedProcessor.getPageType(
+  const pageType = globalThis.selectedProcessor?.getPageType(
     globalThis.location.href,
   );
-  globalThis.pageType = pageType;
+  globalThis.pageType = pageType || PageType.SearchResults;
   globalThis.videoId = "";
   const isInIFrame = pageType === PageType.VideoIframe;
-  if (pageType === PageType.Video || isInIFrame) {
+  if (
+    (pageType === PageType.Video || isInIFrame) &&
+    globalThis.selectedProcessor
+  ) {
     globalThis.videoElement = await getVideoElement(
       globalThis.selectedProcessor,
     );
@@ -22,9 +25,11 @@ export const refreshVideoMeta = async () => {
      * as some sites shift the elements around before the video ends up in its final position.
      * Thus we need to update the container element later as a precaution
      */
-    globalThis.captionContainerElement = globalThis.videoElement.parentElement;
+    globalThis.captionContainerElement =
+      globalThis.selectedProcessor?.getCaptionContainerElement?.() ||
+      globalThis.videoElement.parentElement;
 
-    if (!isInIFrame) {
+    if (!isInIFrame && globalThis.selectedProcessor) {
       globalThis.videoName = await getVideoTitle(globalThis.selectedProcessor);
       const videoId = globalThis.selectedProcessor.getVideoId();
       const videoSource = globalThis.selectedProcessor.type;

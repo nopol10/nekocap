@@ -28,7 +28,7 @@ import {
   useVideoElementUpdate,
 } from "@/hooks";
 import { Popover } from "antd";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactDOM from "react-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import { useDispatch, useSelector } from "react-redux";
@@ -297,17 +297,19 @@ export const VideoHome = () => {
       (isUsingAdvancedRenderer && captionTrackCount > 0));
 
   // Special handling for sites with videos inside iframes
-  const iframeProps = globalThis.selectedProcessor?.videoIsInIframe
-    ? {
-        height: globalThis.videoElement
-          ? globalThis.videoElement.offsetHeight
-          : 0,
-        width: globalThis.videoElement
-          ? globalThis.videoElement.offsetWidth
-          : 0,
-        getCurrentTime: getIframeVideoTime,
-      }
-    : undefined;
+  const iframeProps = useMemo(() => {
+    return globalThis.selectedProcessor?.videoIsInIframe
+      ? {
+          height: globalThis.videoElement
+            ? globalThis.videoElement.offsetHeight
+            : 0,
+          width: globalThis.videoElement
+            ? globalThis.videoElement.offsetWidth
+            : 0,
+          getCurrentTime: getIframeVideoTime,
+        }
+      : undefined;
+  }, [getIframeVideoTime]);
   const videoElement = globalThis.selectedProcessor?.videoIsInIframe
     ? undefined
     : globalThis.videoElement;
@@ -330,7 +332,9 @@ export const VideoHome = () => {
           ref={rendererRef}
           caption={caption}
           videoElement={videoElement}
-          captionContainerElement={globalThis.captionContainerElement}
+          captionContainerElement={
+            globalThis.captionContainerElement || undefined
+          }
           showCaption={showCaption}
           isIframe={globalThis.selectedProcessor?.videoIsInIframe}
           iframeProps={iframeProps}
@@ -341,7 +345,9 @@ export const VideoHome = () => {
           ref={rendererRef}
           rawCaption={rawCaption}
           videoElement={videoElement}
-          captionContainerElement={globalThis.captionContainerElement}
+          captionContainerElement={
+            globalThis.captionContainerElement || undefined
+          }
           showCaption={showCaption}
           fontList={fontList}
           onFontsLoaded={handleFontsLoaded}

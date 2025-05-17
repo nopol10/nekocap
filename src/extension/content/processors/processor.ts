@@ -62,6 +62,7 @@ export interface Processor {
   urlRegex: RegExp;
   videoSelector: string | (() => Promise<HTMLVideoElement>);
   videoPageUISelector: string | (() => Promise<HTMLElement | undefined>);
+  getCaptionContainerElement?: () => HTMLElement | undefined;
   // Used to identify when an inaccurate title was detected. For sites where the title is not always retrievable
   // at any time. If any of the titles in this list are found, the title should be updated to the correct one.
   inaccurateTitles?: string[];
