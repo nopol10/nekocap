@@ -1,3 +1,12 @@
+# Changelog
+
+## [1.12.1](https://github.com/nopol10/nekocap/compare/1.12.0...1.12.1) (2025-05-17)
+
+### Bug Fixes
+
+* fix advanced renderer not being able to hide captions ([a72a106](https://github.com/nopol10/nekocap/commit/a72a1069a39dbc118a1d4b316f9fb51e095d827a))
+* fix dailymotion integration ([6f11581](https://github.com/nopol10/nekocap/commit/6f115810f3013f2e80a4562af8b59a76e20b34fd))
+
 ## [1.12.0](https://github.com/nopol10/nekocap/compare/1.11.1...1.12.0) (2025-05-04)
 
 ### Features
