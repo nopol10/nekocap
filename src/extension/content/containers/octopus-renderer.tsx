@@ -181,6 +181,8 @@ const OctopusRendererInternal = React.forwardRef(
       },
     );
 
+    const fontListNames = Object.keys(fontList).join(",");
+
     // Register video listener
     useEffect(() => {
       const onReady = () => {
@@ -277,6 +279,7 @@ const OctopusRendererInternal = React.forwardRef(
       }
 
       return cleanup;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       videoElement,
       captionContainerElement,
@@ -284,7 +287,8 @@ const OctopusRendererInternal = React.forwardRef(
       isIframe,
       iframeProps,
       onFontsLoaded,
-      fontList,
+      // Font list names will be used to track font list changes instead as fontList will trigger rerenders
+      fontListNames,
       handleFontsLoaded,
       handleVideoPause,
       handleVideoPlay,
