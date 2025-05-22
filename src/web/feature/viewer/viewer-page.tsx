@@ -98,7 +98,7 @@ const VideoWrapper = styled.div`
   iframe {
     display: block;
     width: 100%;
-    :not(.fullscreen-enabled) & {
+    .fullscreen:not(.fullscreen-enabled) & {
       max-height: ${MAX_HEIGHT}px;
     }
     .fullscreen-enabled &,
