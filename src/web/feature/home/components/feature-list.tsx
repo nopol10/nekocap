@@ -54,38 +54,40 @@ const SupportSiteList = () => {
   );
 };
 
+const EasyToUseDescription = () => {
+  const [listOpened, setListOpened] = useState(false);
+  const handleOpenList = () => {
+    setListOpened(true);
+  };
+  const handleCloseList = () => {
+    setListOpened(false);
+  };
+  return (
+    <span>
+      <Trans
+        i18nKey={"home.feature.easyToUse.description"}
+        components={{
+          youtube: (
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://www.youtube.com"
+            />
+          ),
+          videosites: <a href="#" onClick={handleOpenList} />,
+        }}
+      ></Trans>
+      <Modal open={listOpened} onCancel={handleCloseList} footer={null}>
+        <SupportSiteList />
+      </Modal>
+    </span>
+  );
+};
+
 const features: Feature[] = [
   {
     title: "home.feature.easyToUse.title",
-    description: function Description() {
-      const [listOpened, setListOpened] = useState(false);
-      const handleOpenList = () => {
-        setListOpened(true);
-      };
-      const handleCloseList = () => {
-        setListOpened(false);
-      };
-      return (
-        <span>
-          <Trans
-            i18nKey={"home.feature.easyToUse.description"}
-            components={{
-              youtube: (
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href="https://www.youtube.com"
-                />
-              ),
-              videosites: <a href="#" onClick={handleOpenList} />,
-            }}
-          ></Trans>
-          <Modal open={listOpened} onCancel={handleCloseList} footer={null}>
-            <SupportSiteList />
-          </Modal>
-        </span>
-      );
-    },
+    description: EasyToUseDescription,
   },
   {
     title: "home.feature.advancedEffects.title",
@@ -148,8 +150,9 @@ export const FeatureList = () => {
                 <main>
                   {typeof feature.description !== "function" &&
                     feature.description}
-                  {typeof feature.description === "function" &&
-                    feature.description({})}
+                  {typeof feature.description === "function" && (
+                    <feature.description />
+                  )}
                 </main>
               </div>
             </FeatureItem>
