@@ -35,14 +35,6 @@ export const DailymotionProcessor: Processor = {
       z-index: 10000 !important;
     }
   }
-  #nekocap-menu-container img {
-    filter: contrast(0);
-  }
-  #nekocap-menu-container {
-    position: fixed;
-    bottom: 64px;
-    right: 64px;
-  }
   `,
   editorVideoPlayerStyles: ``,
   observer: {
@@ -53,6 +45,7 @@ export const DailymotionProcessor: Processor = {
   },
   inlineMenu: {
     insertPosition: "after",
+    isFloating: true,
   },
   waitUntilPageIsReady: async () => {
     await waitForElement("*[class*=VideoInfoDescription__descriptionText]");

@@ -90,6 +90,7 @@ export interface Processor {
   videoIsInIframe?: boolean;
   inlineMenu?: {
     insertPosition: "before" | "after";
+    isFloating?: boolean;
   };
   supportAutoCaptions: (videoId: string) => boolean;
   getAutoCaptionList?: (videoId: string) => Promise<AutoCaptionLanguage[]>;

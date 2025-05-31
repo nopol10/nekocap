@@ -1,9 +1,9 @@
-import React, { ReactElement } from "react";
-import { useSelector } from "react-redux";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { PageType } from "@/common/feature/video/types";
-import { VideoHome } from "./video-home";
+import { ReactElement } from "react";
+import { useSelector } from "react-redux";
 import { createGlobalStyle } from "styled-components";
+import { VideoHome } from "./video-home";
 import { VideoIframe } from "./video-iframe";
 
 export const ContentHome = (): ReactElement => {
@@ -11,11 +11,18 @@ export const ContentHome = (): ReactElement => {
 
   const hasGlobalStyles =
     globalThis.selectedProcessor && globalThis.selectedProcessor.globalStyles;
-  const GlobalStyle = hasGlobalStyles
-    ? createGlobalStyle`
-    ${globalThis.selectedProcessor && globalThis.selectedProcessor.globalStyles}
-  `
-    : () => <></>;
+  const GlobalStyle = createGlobalStyle`
+    .nekocap-menu-container--floating {
+      position: fixed;
+      bottom: 64px;
+      right: 84px;
+      z-index: 500;
+      img {
+        filter: contrast(0);
+      }
+    }
+    ${hasGlobalStyles ? globalThis.selectedProcessor?.globalStyles : ""}
+  `;
 
   if (!videoData) {
     return <></>;
@@ -23,7 +30,7 @@ export const ContentHome = (): ReactElement => {
   const pageType = globalThis.selectedProcessor?.getPageType(location.href);
   return (
     <>
-      {hasGlobalStyles && <GlobalStyle />}
+      <GlobalStyle />
       {pageType === PageType.Video && <VideoHome />}
       {pageType === PageType.VideoIframe && <VideoIframe />}
     </>

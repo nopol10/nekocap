@@ -136,7 +136,7 @@ const InlineVideoPageMenu = () => {
   return (
     <>
       <Popover
-        placement={"top"}
+        placement={"topLeft"}
         content={
           <div>
             <VideoPageMenu />
@@ -266,6 +266,9 @@ export const VideoHome = () => {
       const menuUIElement = document.getElementById(IN_PAGE_MENU_CONTAINER_ID);
       if (!menuUIElement) {
         return;
+      }
+      if (globalThis.selectedProcessor.inlineMenu?.isFloating) {
+        menuUIElement.classList.add("nekocap-menu-container--floating");
       }
       menuUIElement.style.display = "";
       let insertPosition: InsertPosition = "afterend";
