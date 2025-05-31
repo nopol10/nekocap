@@ -16,6 +16,7 @@ export const InstagramProcessor: Processor = {
   videoPageUISelector: "body > *:first-child", // Just need this to be somewhere in the body
   titleSelector: () => Promise.resolve(""), // Instagram videos have no title
   editorVideoPlayerStyles: `
+    max-height: 80%;
     width: unset;
     margin-left: auto;
     margin-right: auto;
