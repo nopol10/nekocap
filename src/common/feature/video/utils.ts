@@ -1,27 +1,28 @@
-import type { Processor } from "@/extension/content/processors/processor";
-import { YoutubeProcessor } from "@/extension/content/processors/youtube-processor";
-import { CaptionContainer, CaptionTag, VideoSource } from "./types";
-import type {
-  NekoCaption,
-  CaptionDataContainer,
-} from "../../caption-parsers/types";
-import { TVerProcessor } from "@/extension/content/processors/tver-processor";
-import { NicoNicoProcessor } from "@/extension/content/processors/niconico-processor";
-import { VimeoProcessor } from "@/extension/content/processors/vimeo-processor";
-import { BilibiliProcessor } from "@/extension/content/processors/bilibili-processor";
-import { BilibiliBangumiProcessor } from "@/extension/content/processors/bilibili-bangumi-processor";
-import { NetflixProcessor } from "@/extension/content/processors/netflix-processor";
-import { AmazonPrimeProcessor } from "@/extension/content/processors/amazon-prime-processor";
-import { TwitterProcessor } from "@/extension/content/processors/twitter-processor";
-import { WetvProcessor } from "@/extension/content/processors/wetv-processor";
-import { TikTokProcessor } from "@/extension/content/processors/tiktok-processor";
-import { iQiyiProcessor } from "@/extension/content/processors/iqiyi-processor";
-import { NogiDogaProcessor } from "@/extension/content/processors/nogidoga-processor";
 import { AbemaProcessor } from "@/extension/content/processors/abema-processor";
-import { DailymotionProcessor } from "@/extension/content/processors/dailymotion-processor";
-import { BilibiliTVProcessor } from "@/extension/content/processors/bilibilitv-processor";
+import { AmazonPrimeProcessor } from "@/extension/content/processors/amazon-prime-processor";
 import { ArchiveOrgProcessor } from "@/extension/content/processors/archive-org-processor";
+import { BilibiliBangumiProcessor } from "@/extension/content/processors/bilibili-bangumi-processor";
+import { BilibiliProcessor } from "@/extension/content/processors/bilibili-processor";
+import { BilibiliTVProcessor } from "@/extension/content/processors/bilibilitv-processor";
+import { DailymotionProcessor } from "@/extension/content/processors/dailymotion-processor";
+import { InstagramProcessor } from "@/extension/content/processors/instagram-processor";
+import { iQiyiProcessor } from "@/extension/content/processors/iqiyi-processor";
+import { NetflixProcessor } from "@/extension/content/processors/netflix-processor";
+import { NicoNicoProcessor } from "@/extension/content/processors/niconico-processor";
+import { NogiDogaProcessor } from "@/extension/content/processors/nogidoga-processor";
+import type { Processor } from "@/extension/content/processors/processor";
 import { TBSFreeProcessor } from "@/extension/content/processors/tbs-free-processor";
+import { TikTokProcessor } from "@/extension/content/processors/tiktok-processor";
+import { TVerProcessor } from "@/extension/content/processors/tver-processor";
+import { TwitterProcessor } from "@/extension/content/processors/twitter-processor";
+import { VimeoProcessor } from "@/extension/content/processors/vimeo-processor";
+import { WetvProcessor } from "@/extension/content/processors/wetv-processor";
+import { YoutubeProcessor } from "@/extension/content/processors/youtube-processor";
+import type {
+  CaptionDataContainer,
+  NekoCaption,
+} from "../../caption-parsers/types";
+import { CaptionContainer, CaptionTag, VideoSource } from "./types";
 
 /**
  * Binary search through the array to find the closest upcoming or current caption
@@ -152,8 +153,13 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.BilibiliTV]: BilibiliTVProcessor,
   [VideoSource.TBSFree]: TBSFreeProcessor,
   [VideoSource.ArchiveOrg]: ArchiveOrgProcessor,
+  [VideoSource.Instagram]: InstagramProcessor,
 };
 
+/**
+ * This defines the order in which video processors should be checked.
+ * This is necessary as some sites may share the same base URLs like bilibili and bilibili bangumi.
+ */
 export const processorOrder = [
   VideoSource.Youtube,
   VideoSource.TVer,
@@ -173,4 +179,5 @@ export const processorOrder = [
   VideoSource.BilibiliTV,
   VideoSource.TBSFree,
   VideoSource.ArchiveOrg,
+  VideoSource.Instagram,
 ];
