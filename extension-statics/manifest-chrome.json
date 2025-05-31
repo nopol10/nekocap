@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "NekoCap",
   "description": "__MSG_extShortDescription__",
-  "version": "1.12.1",
+  "version": "1.13.0",
   "default_locale": "en",
   "action": {
     "default_icon": "icon16.png",
@@ -34,13 +34,19 @@
         "https://*.archive.org/*"
       ],
       "run_at": "document_end",
-      "js": ["js/content.js"]
+      "js": [
+        "js/content.js"
+      ]
     },
     {
-      "matches": ["https://*.dailymotion.com/*"],
+      "matches": [
+        "https://*.dailymotion.com/*"
+      ],
       "run_at": "document_end",
       "all_frames": true,
-      "js": ["js/content.js"]
+      "js": [
+        "js/content.js"
+      ]
     },
     {
       "matches": [
@@ -65,7 +71,9 @@
         "https://*.archive.org/*"
       ],
       "run_at": "document_start",
-      "css": ["js/content.css"]
+      "css": [
+        "js/content.css"
+      ]
     }
   ],
   "icons": {
@@ -73,7 +81,10 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": ["storage", "webNavigation"],
+  "permissions": [
+    "storage",
+    "webNavigation"
+  ],
   "web_accessible_resources": [
     {
       "resources": [

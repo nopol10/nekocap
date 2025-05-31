@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.13.0](https://github.com/nopol10/nekocap/compare/1.12.1...1.13.0) (2025-05-31)
+
+### Features
+
+* add instagram support (basic captions only) ([f0d38c7](https://github.com/nopol10/nekocap/commit/f0d38c7f1bdd778192061a4d70aa5f68dbd2a44b))
+* add roboto slab and pixeloid fonts ([57c7dc6](https://github.com/nopol10/nekocap/commit/57c7dc69e75461adcabd638649bb32bdd8321ae5))
+* add UNEXT support ([6d7ac01](https://github.com/nopol10/nekocap/commit/6d7ac0140120a60ee5e2db3b0a29cf2909a348a0))
+* hide direct nekocap link in submit success modal for sites that do not support it ([ba73e1e](https://github.com/nopol10/nekocap/commit/ba73e1ec6b56e7986f0bab9c3156f961d2d50e6c))
+
+### Bug Fixes
+
+* fix caption renderer font size for portrait videos ([cc5dd2e](https://github.com/nopol10/nekocap/commit/cc5dd2e3ea872b9727b42647a7881dbe74dd4992))
+* fix video sites list ([276980a](https://github.com/nopol10/nekocap/commit/276980a5ae943dc55bcdcb2cdf6530a2aa80a870))
+* fix viewer page not maximising correctly ([e424bd3](https://github.com/nopol10/nekocap/commit/e424bd3f0a91495f9eecc03f489d46fde99a0989))
+
 ## [1.12.1](https://github.com/nopol10/nekocap/compare/1.12.0...1.12.1) (2025-05-17)
 
 ### Bug Fixes
