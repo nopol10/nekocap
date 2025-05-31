@@ -399,10 +399,14 @@ const CaptionRendererInternal = React.forwardRef(
         );
       }
       // Set text styles
+      const containerMinSideLength = Math.min(
+        containerDimensions.current.width,
+        containerDimensions.current.height,
+      );
       currentTextElement.style.fontSize = `${
         DEFAULT_FONT_SIZE_FACTOR *
         preferences.fontSizeMultiplier *
-        containerDimensions.current.height
+        containerMinSideLength
       }px`;
       const alignment = activeLayout?.alignment;
       switch (alignment) {
