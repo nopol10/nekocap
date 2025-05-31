@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.13.1](https://github.com/nopol10/nekocap/compare/1.13.0...1.13.1) (2025-05-31)
+
+### Bug Fixes
+
+* fix editor not showing video player buttons in instagram ([044a7e8](https://github.com/nopol10/nekocap/commit/044a7e8cbda42734012555b08c753273e20e5d68))
+
 ## [1.13.0](https://github.com/nopol10/nekocap/compare/1.12.1...1.13.0) (2025-05-31)
 
 ### Features
