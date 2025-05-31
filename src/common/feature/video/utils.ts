@@ -15,6 +15,7 @@ import { TBSFreeProcessor } from "@/extension/content/processors/tbs-free-proces
 import { TikTokProcessor } from "@/extension/content/processors/tiktok-processor";
 import { TVerProcessor } from "@/extension/content/processors/tver-processor";
 import { TwitterProcessor } from "@/extension/content/processors/twitter-processor";
+import { UNEXTProcessor } from "@/extension/content/processors/unext-processor";
 import { VimeoProcessor } from "@/extension/content/processors/vimeo-processor";
 import { WetvProcessor } from "@/extension/content/processors/wetv-processor";
 import { YoutubeProcessor } from "@/extension/content/processors/youtube-processor";
@@ -154,6 +155,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.TBSFree]: TBSFreeProcessor,
   [VideoSource.ArchiveOrg]: ArchiveOrgProcessor,
   [VideoSource.Instagram]: InstagramProcessor,
+  [VideoSource.UNEXT]: UNEXTProcessor,
 };
 
 /**
@@ -180,4 +182,5 @@ export const processorOrder = [
   VideoSource.TBSFree,
   VideoSource.ArchiveOrg,
   VideoSource.Instagram,
+  VideoSource.UNEXT,
 ];

@@ -36,6 +36,7 @@ export enum VideoSource {
   ArchiveOrg = 16,
   TBSFree = 17,
   Instagram = 18,
+  UNEXT = 19,
 }
 
 export type CaptionContainer = {
