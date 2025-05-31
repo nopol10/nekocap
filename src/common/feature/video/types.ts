@@ -1,8 +1,8 @@
-import type { RcFile } from "antd/lib/upload";
-import { CaptionFileFormat, Dimension, TabbedType } from "@/common/types";
 import type { CaptionDataContainer } from "@/common/caption-parsers/types";
-import { SHORTCUT_TYPES } from "../caption-editor/types";
+import { CaptionFileFormat, Dimension, TabbedType } from "@/common/types";
+import type { RcFile } from "antd/lib/upload";
 import type { KeySequence } from "react-hotkeys-ce";
+import { SHORTCUT_TYPES } from "../caption-editor/types";
 
 export type RequestFreshTabData = TabbedType & {
   newVideoId?: string; // id of the video on the new page
@@ -35,6 +35,8 @@ export enum VideoSource {
   BilibiliTV = 15,
   ArchiveOrg = 16,
   TBSFree = 17,
+  Instagram = 18,
+  UNEXT = 19,
 }
 
 export type CaptionContainer = {

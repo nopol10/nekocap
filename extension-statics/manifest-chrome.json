@@ -29,22 +29,18 @@
         "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*",
         "https://*.cu.tbs.co.jp/*",
+        "https://*.instagram.com/*",
+        "https://*.unext.jp/*",
         "https://*.archive.org/*"
       ],
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
-      "matches": [
-        "https://*.dailymotion.com/*"
-      ],
+      "matches": ["https://*.dailymotion.com/*"],
       "run_at": "document_end",
       "all_frames": true,
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -64,12 +60,12 @@
         "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*",
         "https://*.cu.tbs.co.jp/*",
+        "https://*.instagram.com/*",
+        "https://*.unext.jp/*",
         "https://*.archive.org/*"
       ],
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -77,10 +73,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation"
-  ],
+  "permissions": ["storage", "webNavigation"],
   "web_accessible_resources": [
     {
       "resources": [
@@ -108,6 +101,8 @@
         "https://*.bilibili.tv/*",
         "https://*.nogidoga.com/*",
         "https://*.cu.tbs.co.jp/*",
+        "https://*.instagram.com/*",
+        "https://*.unext.jp/*",
         "https://*.archive.org/*"
       ]
     }

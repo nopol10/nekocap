@@ -234,6 +234,11 @@ const RootPane = styled.div<RootPaneType>`
   height: 100vh;
   pointer-events: all;
   font-size: 14px;
+  font-family: "Arial", sans-serif;
+
+  .ant-tabs-tab-btn {
+    font-family: "Arial", sans-serif;
+  }
 
   ${darkModeSelector(`
     background-color: ${colors.backgroundDark};
@@ -495,6 +500,7 @@ const EditorTextArea = styled.textarea`
   border: 1px solid #d9d9d9;
   resize: none !important;
   transition: none;
+  font-family: "consolas", monospace;
 
   ${darkModeSelector(`
     background-color: #1f1f1f;

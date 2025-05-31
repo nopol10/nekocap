@@ -261,8 +261,8 @@ type SuccessfulScreenProps = {
 };
 
 const SuccessLink = styled(Link)`
-  padding: 6px;
-  border: 1px dashed black;
+  padding: 6px !important;
+  border: 1px dashed black !important;
 `;
 
 function SuccessfulScreen({ captionId }: SuccessfulScreenProps) {
@@ -285,23 +285,29 @@ function SuccessfulScreen({ captionId }: SuccessfulScreenProps) {
     navigator?.clipboard?.writeText(extensionViewUrl);
     message.info("Copied watch link to clipboard!");
   };
+  const canWatchInExtension =
+    globalThis.selectedProcessor?.canWatchInNekoCapSite ?? false;
   return (
     <WSSpace $direction="vertical">
-      <Text>
-        <b>Share</b> this direct view link with your viewers (📱 & 💻):
-      </Text>
-      <WSSpace $direction="horizontal">
-        <SuccessLink href={directViewUrl} target="_blank">
-          {directViewUrl}
-        </SuccessLink>
-        <Tooltip title="Copy View URL">
-          <Button
-            icon={<CopyOutlined />}
-            type={"link"}
-            onClick={handleClickCopyDirectLink}
-          />
-        </Tooltip>
-      </WSSpace>
+      {canWatchInExtension && (
+        <>
+          <Text>
+            <b>Share</b> this direct view link with your viewers (📱 & 💻):
+          </Text>
+          <WSSpace $direction="horizontal">
+            <SuccessLink href={directViewUrl} target="_blank">
+              {directViewUrl}
+            </SuccessLink>
+            <Tooltip title="Copy View URL">
+              <Button
+                icon={<CopyOutlined />}
+                type={"link"}
+                onClick={handleClickCopyDirectLink}
+              />
+            </Tooltip>
+          </WSSpace>
+        </>
+      )}
       {extensionViewUrl && (
         <>
           <Text>
