@@ -3,7 +3,7 @@ import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const INSTAGRAM_URL_REGEX =
-  /(?:https?:\/\/)(?:www\.)?instagram\.com\/p\/([A-Za-z0-9_-]+)/;
+  /(?:https?:\/\/)(?:www\.)?instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/;
 
 /**
  * Processor for Instagram
