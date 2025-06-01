@@ -1,20 +1,20 @@
-import { CaptionContainer } from "@/common/feature/video/types";
 import {
-  NekoCaption,
   CaptionDataContainer,
   CaptionSettings,
+  NekoCaption,
   Track,
   TrackSettings,
 } from "@/common/caption-parsers/types";
-import cloneDeep from "lodash/cloneDeep";
-import sortedIndexBy from "lodash/sortedIndexBy";
-import { DependencyList, MutableRefObject, useEffect, useRef } from "react";
+import { parseDurationToMs } from "@/common/date-utils";
 import {
   MAX_CONCURRENT_CAPTIONS,
   MAX_TRACKS,
 } from "@/common/feature/video/constants";
+import { CaptionContainer } from "@/common/feature/video/types";
 import { Coords, CSSPosition } from "@/common/types";
-import { parseDurationToMs } from "@/common/date-utils";
+import cloneDeep from "lodash/cloneDeep";
+import sortedIndexBy from "lodash/sortedIndexBy";
+import { DependencyList, MutableRefObject, useEffect, useRef } from "react";
 
 export type CaptionMutatorResult = {
   caption: CaptionDataContainer | undefined;
@@ -23,7 +23,7 @@ export type CaptionMutatorResult = {
 export class CaptionMutators {
   public static modifyCaptionGlobalSettings(
     caption: CaptionDataContainer,
-    settings: CaptionSettings
+    settings: CaptionSettings,
   ): CaptionMutatorResult {
     const newCaption: CaptionDataContainer = {
       ...caption,
@@ -34,7 +34,7 @@ export class CaptionMutators {
   public static modifyCaptionTrackSettings(
     caption: CaptionDataContainer,
     trackId: number,
-    settings: TrackSettings
+    settings: TrackSettings,
   ): CaptionMutatorResult {
     const newCaption: CaptionDataContainer = {
       ...caption,
@@ -55,7 +55,7 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     trackId: number,
     captionId: number,
-    newCaption: NekoCaption
+    newCaption: NekoCaption,
   ): CaptionMutatorResult {
     const updatedCaption: CaptionDataContainer = {
       ...caption,
@@ -66,7 +66,7 @@ export class CaptionMutators {
           return newCaption;
         }
         return { ...caption };
-      }
+      },
     );
 
     const updatedTrack: Track = {
@@ -102,13 +102,13 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     trackId: number,
     captionId: number,
-    newFormattedTime: string
+    newFormattedTime: string,
   ): CaptionMutatorResult {
     const newCaption = {
       ...caption.tracks[trackId].cues[captionId],
     };
     newFormattedTime = newFormattedTime.replace("_", "0");
-    newCaption.start = parseDurationToMs(newFormattedTime);
+    newCaption.start = Math.max(0, parseDurationToMs(newFormattedTime));
     return this.modifyCaption(caption, trackId, captionId, newCaption);
   }
 
@@ -116,12 +116,12 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     trackId: number,
     captionId: number,
-    newTime: number
+    newTime: number,
   ): CaptionMutatorResult {
     const newCaption = {
       ...caption.tracks[trackId].cues[captionId],
     };
-    newCaption.start = newTime;
+    newCaption.start = Math.max(0, newTime);
     return this.modifyCaption(caption, trackId, captionId, newCaption);
   }
 
@@ -129,12 +129,12 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     trackId: number,
     captionId: number,
-    newTime: number
+    newTime: number,
   ): CaptionMutatorResult {
     const newCaption = {
       ...caption.tracks[trackId].cues[captionId],
     };
-    newCaption.end = newTime;
+    newCaption.end = Math.max(0, newTime);
     return this.modifyCaption(caption, trackId, captionId, newCaption);
   }
 
@@ -142,13 +142,13 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     trackId: number,
     captionId: number,
-    newFormattedTime: string
+    newFormattedTime: string,
   ): CaptionMutatorResult {
     const newCaption = {
       ...caption.tracks[trackId].cues[captionId],
     };
     newFormattedTime = newFormattedTime.replace("_", "0");
-    newCaption.end = parseDurationToMs(newFormattedTime);
+    newCaption.end = Math.max(0, parseDurationToMs(newFormattedTime));
     return this.modifyCaption(caption, trackId, captionId, newCaption);
   }
 
@@ -157,7 +157,7 @@ export class CaptionMutators {
     trackId: number,
     captionId: number,
     startMs: number,
-    endMs: number
+    endMs: number,
   ): CaptionMutatorResult {
     const newCaption = {
       ...caption.tracks[trackId].cues[captionId],
@@ -173,7 +173,7 @@ export class CaptionMutators {
     captionId: number,
     startMs: number,
     endMs: number,
-    finalTrackId: number
+    finalTrackId: number,
   ): CaptionMutatorResult {
     if (
       !caption.tracks ||
@@ -191,7 +191,7 @@ export class CaptionMutators {
     let { caption: container } = this.deleteCaption(
       caption,
       trackId,
-      captionId
+      captionId,
     );
     if (!container) {
       return { caption, error: "No caption container found." };
@@ -201,7 +201,7 @@ export class CaptionMutators {
       finalTrackId,
       newCaption.start,
       newCaption,
-      true
+      true,
     );
     if (addCaptionResult.error) {
       return { caption, error: addCaptionResult.error };
@@ -232,7 +232,7 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     trackId: number,
     captionId: number,
-    text: string
+    text: string,
   ): CaptionMutatorResult {
     const newCaption = {
       ...caption.tracks[trackId].cues[captionId],
@@ -244,10 +244,10 @@ export class CaptionMutators {
   public static deleteCaption(
     caption: CaptionDataContainer,
     trackId: number,
-    captionId: number
+    captionId: number,
   ): CaptionMutatorResult {
     const newCaptions = [...caption.tracks[trackId].cues].filter(
-      (_, index) => index !== captionId
+      (_, index) => index !== captionId,
     );
     const newContainer = cloneDeep(caption);
     newContainer.tracks[trackId].cues = newCaptions;
@@ -264,7 +264,7 @@ export class CaptionMutators {
   public static addCaptionToTrackRelative(
     caption: CaptionContainer,
     trackId: number,
-    captionId: number
+    captionId: number,
   ): CaptionMutatorResult {
     const track: Track = { ...caption.data.tracks[trackId] };
     const { cues } = track;
@@ -283,7 +283,7 @@ export class CaptionMutators {
       if (!currentCaption && !previousCaption) {
         // This shouldn't happen
         console.warn(
-          "[addCaptionToTrack] Can't find both current and previous caption at the given id"
+          "[addCaptionToTrack] Can't find both current and previous caption at the given id",
         );
         return {
           caption: caption.data,
@@ -341,7 +341,7 @@ export class CaptionMutators {
     trackId: number,
     timeMs: number,
     newCue?: NekoCaption,
-    skipValidityChecks = false
+    skipValidityChecks = false,
   ): CaptionMutatorResult & { newCaptionId: number } {
     const track: Track = { ...caption.tracks[trackId] };
     const { cues } = track;
@@ -359,7 +359,7 @@ export class CaptionMutators {
       sortedIndexBy(cues, newCue, (caption) => {
         return caption.start;
       }),
-      cues.length
+      cues.length,
     );
 
     if (!skipValidityChecks) {
@@ -374,7 +374,7 @@ export class CaptionMutators {
         if (!currentCaption && !previousCaption) {
           // This shouldn't happen
           console.warn(
-            "[addCaptionToTrack] Can't find both current and previous caption at the given id"
+            "[addCaptionToTrack] Can't find both current and previous caption at the given id",
           );
           return { caption, newCaptionId: -1 };
         } else if (currentCaption && !previousCaption) {
@@ -420,7 +420,7 @@ export class CaptionMutators {
 
   public static removeTrack(
     caption: CaptionDataContainer,
-    trackId: number
+    trackId: number,
   ): CaptionMutatorResult {
     if (caption.tracks.length <= 1) {
       return { caption, error: "At least 1 track needs to be present" };
@@ -435,7 +435,7 @@ export class CaptionMutators {
   }
 
   public static fixOverlaps(
-    caption: CaptionDataContainer
+    caption: CaptionDataContainer,
   ): CaptionMutatorResult {
     const updatedCaption = {
       ...caption,
@@ -464,7 +464,7 @@ export class CaptionMutators {
     caption: CaptionDataContainer,
     duration: number,
     startMs: number,
-    endMs: number
+    endMs: number,
   ): CaptionMutatorResult {
     const updatedCaption = {
       ...caption,
@@ -493,7 +493,7 @@ export const useCaptionDrag = (
   videoDimensions: MutableRefObject<Coords>,
   canDrag: (trackId: number, captionId: number) => boolean,
   onDragEnd: (trackId: number, endPosition: CSSPosition) => void,
-  dependencies: DependencyList = []
+  dependencies: DependencyList = [],
 ) => {
   const isDragging = useRef<boolean[]>([]);
   const dragStartCoords = useRef<Coords[]>([]);
@@ -503,7 +503,7 @@ export const useCaptionDrag = (
   const getCurrentDragPosition = (
     index: number,
     mouseX: number,
-    mouseY: number
+    mouseY: number,
   ): CSSPosition => {
     const startCoords = dragStartCoords.current[index];
     const diffX = mouseX - startCoords.x;
@@ -561,10 +561,10 @@ export const useCaptionDrag = (
         return (event: MouseEvent) => {
           const container = containers.current[index];
           const trackId = parseInt(
-            container.getAttribute("data-track") || "-1"
+            container.getAttribute("data-track") || "-1",
           );
           const captionId = parseInt(
-            container.getAttribute("data-caption") || "-1"
+            container.getAttribute("data-caption") || "-1",
           );
           if (!canDrag(trackId, captionId)) {
             return;
@@ -600,7 +600,7 @@ export const useCaptionDrag = (
           const position = getCurrentDragPosition(
             index,
             event.clientX,
-            event.clientY
+            event.clientY,
           );
           setContainerPosition(index, position);
         };
@@ -615,7 +615,7 @@ export const useCaptionDrag = (
             const position = getCurrentDragPosition(
               index,
               event.clientX,
-              event.clientY
+              event.clientY,
             );
             setContainerPosition(index, position);
             onDragEnd(trackId, position);
@@ -629,7 +629,7 @@ export const useCaptionDrag = (
       const containerElements = document.querySelectorAll(".nekocap-caption");
       if (containerElements.length !== totalContainerCount) {
         console.warn(
-          `Number of caption containers is different from initialized drag handler count! Container: ${containerElements.length} vs Handler: ${totalContainerCount}`
+          `Number of caption containers is different from initialized drag handler count! Container: ${containerElements.length} vs Handler: ${totalContainerCount}`,
         );
       }
       containerElements.forEach(
@@ -638,7 +638,7 @@ export const useCaptionDrag = (
           captionContainer.addEventListener("mousedown", mouseDowns[index]);
           document.addEventListener("mousemove", mouseMoves[index]);
           document.addEventListener("mouseup", mouseUps[index]);
-        }
+        },
       );
     }
     return () => {

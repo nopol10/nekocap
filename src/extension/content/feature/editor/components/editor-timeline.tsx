@@ -563,7 +563,8 @@ export const EditorTimeline = ({
     (trackId: number, captionId: number, totalWidth: number, cueId: number) =>
     (startX: number, endX: number, currentTrackId: number) => {
       isDragging.current = true;
-      setStartIndicatorText(startX, totalWidth);
+      const finalStart = Math.max(0, startX);
+      setStartIndicatorText(finalStart, totalWidth);
       setEndIndicatorText(endX, totalWidth);
       updateTimeIndicatorPositions(startX, endX, currentTrackId);
     };
@@ -571,7 +572,8 @@ export const EditorTimeline = ({
   const handleCaptionDrag =
     (trackId: number, captionId: number, totalWidth: number, cueId: number) =>
     (startX: number, endX: number, currentTrackId: number) => {
-      setStartIndicatorText(startX, totalWidth);
+      const finalStart = Math.max(0, startX);
+      setStartIndicatorText(finalStart, totalWidth);
       setEndIndicatorText(endX, totalWidth);
       updateTimeIndicatorPositions(startX, endX, currentTrackId);
     };
@@ -580,8 +582,9 @@ export const EditorTimeline = ({
     (trackId: number, captionId: number) =>
     (startX: number, endX: number, finalTrackId: number) => {
       isDragging.current = false;
+      const finalStart = Math.max(0, startX);
       const { totalWidth } = getTimelineParameters(scale, videoDurationMs);
-      const startMs = (startX / totalWidth) * videoDurationMs;
+      const startMs = (finalStart / totalWidth) * videoDurationMs;
       const endMs = (endX / totalWidth) * videoDurationMs;
       if (onUpdateCaptionTime) {
         onUpdateCaptionTime(trackId, captionId, startMs, endMs, finalTrackId);
