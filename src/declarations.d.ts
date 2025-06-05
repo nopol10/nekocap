@@ -46,6 +46,7 @@ declare global {
   var videoId: string;
   var videoSource: VideoSource;
   var videoName: string;
+  var OriginalWorker: Worker;
 }
 
 declare module "redux-saga/effects" {

@@ -24,8 +24,9 @@ limitations under the License.
 
 (function () {
   "use strict";
-  var Worker_ = window.Worker;
-  var URL = window.URL || window.webkitURL;
+  var Worker_ = globalThis.Worker;
+  globalThis.OriginalWorker = Worker_;
+  var URL = globalThis.URL || globalThis.webkitURL;
   console.log("Patching worker!");
   // Create dummy worker for the following purposes:
   // 1. Don't override the global Worker object if the fallback isn't
@@ -37,19 +38,20 @@ limitations under the License.
   var dummyWorker = undefined;
   try {
     dummyWorker = new Worker_(
-      URL.createObjectURL(new Blob([], { type: "text/javascript" }))
+      URL.createObjectURL(new Blob([], { type: "text/javascript" })),
     );
   } catch (e) {
     console.log("Failed to create dummy worker for validation:", e);
   }
   console.log("Continuing to patch worker!");
-  window.Worker = function Worker(scriptURL) {
+  globalThis.Worker = function Worker(scriptURL) {
     if (arguments.length === 0) {
       throw new TypeError("Not enough arguments");
     }
     try {
       return new Worker_(scriptURL);
     } catch (e) {
+      console.warn("Could not create original worker", e);
       if (e.code === 18 /*DOMException.SECURITY_ERR*/) {
         return new WorkerXHR(scriptURL);
       } else {
@@ -80,6 +82,7 @@ limitations under the License.
     x.onload = function () {
       // http://stackoverflow.com/a/10372280/938089
       // var workerURL = URL.createObjectURL(x.response);
+      worker.failedToInitialize = false;
       const blob = new Blob(
         [
           "var workerSearchParams = '?" +
@@ -89,10 +92,16 @@ limitations under the License.
         ],
         {
           type: "text/javascript",
-        }
+        },
       );
       var workerURL = URL.createObjectURL(blob);
-      bindWorker(worker, workerURL);
+      try {
+        bindWorker(worker, workerURL);
+        worker.initialized = true;
+      } catch (e) {
+        console.warn("Could not bind worker:", e);
+        worker.failedToInitialize = true;
+      }
     };
     x.open("GET", scriptURL);
     x.send();
@@ -135,7 +144,7 @@ limitations under the License.
           this._replayQueue.push({ method: method, arguments: arguments });
         }
       };
-    }
+    },
   );
   Object.defineProperties(WorkerXHR.prototype, {
     onmessage: {
