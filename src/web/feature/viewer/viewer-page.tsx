@@ -408,6 +408,8 @@ export const ViewerPage = ({
   const iframeProps = {
     height: iframeHeight,
     width: iframeWidth,
+    left: 0,
+    top: 0,
     getCurrentTime,
   };
   const processor = caption

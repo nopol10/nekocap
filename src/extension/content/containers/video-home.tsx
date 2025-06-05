@@ -19,7 +19,7 @@ import {
   fontListSelector,
   tabVideoDataSelector,
 } from "@/common/feature/video/selectors";
-import { CaptionRendererType } from "@/common/feature/video/types";
+import { CaptionRendererType, IFrameProps } from "@/common/feature/video/types";
 import { darkModeSelector } from "@/common/processor-utils";
 import { shouldHideVideoPageMenuSelector } from "@/extension/background/feature/user-extension-preference/selectors";
 import {
@@ -300,7 +300,8 @@ export const VideoHome = () => {
       (isUsingAdvancedRenderer && captionTrackCount > 0));
 
   // Special handling for sites with videos inside iframes
-  const iframeProps = useMemo(() => {
+  const iframeProps = useMemo<IFrameProps | undefined>(() => {
+    const videoElementRect = globalThis.videoElement?.getBoundingClientRect();
     return globalThis.selectedProcessor?.videoIsInIframe
       ? {
           height: globalThis.videoElement
@@ -309,6 +310,8 @@ export const VideoHome = () => {
           width: globalThis.videoElement
             ? globalThis.videoElement.offsetWidth
             : 0,
+          left: videoElementRect?.left || 0,
+          top: videoElementRect?.top || 0,
           getCurrentTime: getIframeVideoTime,
         }
       : undefined;

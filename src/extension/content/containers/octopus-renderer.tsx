@@ -1,12 +1,14 @@
 /* eslint-disable react/display-name */
 import { isInExtension } from "@/common/client-utils";
 import type { IFrameProps } from "@/common/feature/video/types";
-import type { Dimension } from "@/common/types";
-import { createElementRemovalObserver } from "@/common/utils";
+import { useCanUseWorker } from "@/common/hooks/use-can-use-worker";
+import { type Dimension } from "@/common/types";
+import { createElementRemovalObserver, getURL } from "@/common/utils";
 import { useAnimationFrame } from "@/hooks";
 import { isEqual } from "lodash-es";
 import * as React from "react";
 import {
+  forwardRef,
   MutableRefObject,
   useCallback,
   useEffect,
@@ -16,14 +18,16 @@ import {
 import { createGlobalStyle } from "styled-components";
 import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
 import { CaptionRendererHandle } from "./caption-renderer";
+import { OctopusRendererIframeProxy } from "./octopus-renderer-iframe-proxy";
 
-interface OctopusRendererProps {
+export interface OctopusRendererProps {
   rawCaption?: string;
   videoElement?: HTMLVideoElement;
   captionContainerElement?: HTMLElement;
   showCaption: boolean;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
+  useExactCanvasDimensions?: boolean;
   fontList: { [name: string]: string };
   onFontsLoaded?: (progress: number) => void;
 }
@@ -46,7 +50,7 @@ const WebViewerStyle = createGlobalStyle`
 }
   `;
 
-const createCanvas = (
+export const createCanvas = (
   dimension: Dimension,
   captionContainerElement: HTMLElement,
 ): [HTMLCanvasElement | undefined, HTMLDivElement | undefined] => {
@@ -67,25 +71,29 @@ const createCanvas = (
   return [canvas, canvasParent];
 };
 
-const getURL = (url: string) => {
-  if (
-    globalThis.chrome &&
-    globalThis.chrome.runtime &&
-    globalThis.chrome.runtime.getURL
-  ) {
-    return globalThis.chrome.runtime.getURL(url);
-  } else if (
-    globalThis &&
-    globalThis.browser &&
-    globalThis.browser.runtime &&
-    globalThis.browser.runtime.getURL
-  ) {
-    return globalThis.browser.runtime.getURL(url);
-  }
-  return "/" + url;
-};
-
 const OctopusRendererInternal = React.forwardRef(
+  (
+    props: OctopusRendererProps,
+    ref: MutableRefObject<CaptionRendererHandle>,
+  ) => {
+    const canUseWorker = useCanUseWorker();
+    const inExtension = isInExtension();
+
+    return (
+      <>
+        {!inExtension && <WebViewerStyle />}
+        {canUseWorker && (
+          <OctopusRendererDirect ref={ref} {...props}></OctopusRendererDirect>
+        )}
+        {canUseWorker === false && (
+          <OctopusRendererIframeProxy ref={ref} {...props} />
+        )}
+      </>
+    );
+  },
+);
+
+const OctopusRendererDirect = forwardRef(
   (
     {
       rawCaption,
@@ -93,6 +101,7 @@ const OctopusRendererInternal = React.forwardRef(
       showCaption,
       captionContainerElement,
       isIframe = false,
+      useExactCanvasDimensions = false,
       iframeProps,
       fontList,
       onFontsLoaded,
@@ -166,9 +175,9 @@ const OctopusRendererInternal = React.forwardRef(
       }
     }, []);
 
-    const handleVideoSeek = () => {
+    const handleVideoSeek = useCallback(() => {
       // do nothing
-    };
+    }, []);
 
     useImperativeHandle<CaptionRendererHandle, CaptionRendererHandle>(
       ref,
@@ -223,9 +232,12 @@ const OctopusRendererInternal = React.forwardRef(
 
       let canvas: HTMLCanvasElement | undefined;
       if (isIframe && iframeProps && captionContainerElement) {
-        const width: number =
-          globalThis.screen.width * globalThis.devicePixelRatio;
-        const height: number = width * (iframeProps.height / iframeProps.width);
+        const width: number = useExactCanvasDimensions
+          ? iframeProps.width
+          : globalThis.screen.width * globalThis.devicePixelRatio;
+        const height: number = useExactCanvasDimensions
+          ? iframeProps.height
+          : width * (iframeProps.height / iframeProps.width);
         const canvasElements = createCanvas(
           { width: width, height: height },
           captionContainerElement,
@@ -322,6 +334,8 @@ export const OctopusRenderer = React.memo(
       prevProps.captionContainerElement === nextProps.captionContainerElement &&
       prevProps.showCaption === nextProps.showCaption &&
       prevProps.isIframe === nextProps.isIframe &&
+      prevProps.useExactCanvasDimensions ===
+        nextProps.useExactCanvasDimensions &&
       isEqual(prevProps.fontList, nextProps.fontList) &&
       isEqual(prevProps.rawCaption, nextProps.rawCaption) &&
       isEqual(prevProps.iframeProps, nextProps.iframeProps)

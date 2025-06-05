@@ -302,6 +302,8 @@ export type VideoFields = {
 export type IFrameProps = {
   width: number;
   height: number;
+  left: number;
+  top: number;
   getCurrentTime: () => number; // Get the current video's time in seconds
 };
 

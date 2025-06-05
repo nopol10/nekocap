@@ -24,6 +24,45 @@ export enum ChromeMessageType {
   VideoIframeToContent, // Message sent from a video page's inner iframe containing the video element to the parent page
 }
 
+export type ParentToCanvasIframeMessage =
+  | {
+      type: ParentToCanvasIframeMessageType.UpdateContentIframeVideoProperties;
+      width: number;
+      height: number;
+      rawCaption: string;
+    }
+  | {
+      type: ParentToCanvasIframeMessageType.UpdateVideoTime;
+      timeSeconds: number;
+    }
+  | {
+      type: ParentToCanvasIframeMessageType.PlayVideo;
+    }
+  | {
+      type: ParentToCanvasIframeMessageType.PauseVideo;
+    };
+
+export enum ParentToCanvasIframeMessageType {
+  UpdateContentIframeVideoProperties, // Message with video properties from a parent page to the extension's content page iframe
+  UpdateVideoTime,
+  PlayVideo,
+  PauseVideo,
+}
+
+export type CanvasIframeToParentMessage =
+  | {
+      type: CanvasIframeToParentMessageType.Ready;
+    }
+  | {
+      type: CanvasIframeToParentMessageType.FontLoadProgress;
+      progress: number;
+    };
+
+export enum CanvasIframeToParentMessageType {
+  Ready,
+  FontLoadProgress,
+}
+
 export const CustomEvents = {
   PageMetaRefreshed: "PageMetaRefreshed",
 };

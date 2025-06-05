@@ -143,6 +143,10 @@ const createContentAndPopupConfig = (env, argv) => {
     entry: {
       "js/popup": path.join(__dirname, "src/extension/popup/index.tsx"),
       "js/content": path.join(__dirname, "src/extension/content/index.tsx"),
+      "js/canvas-iframe": path.join(
+        __dirname,
+        "src/extension/content/canvas-iframe/index.tsx",
+      ),
     },
     output: {
       path: path.join(__dirname, "dist", "extension"),
@@ -193,6 +197,22 @@ const createContentAndPopupConfig = (env, argv) => {
               "background.html",
             ),
             to: path.resolve(__dirname, "dist", "extension", "background.html"),
+          },
+          {
+            from: path.resolve(
+              __dirname,
+              "src",
+              "extension",
+              "content",
+              "canvas-iframe",
+              "index.html",
+            ),
+            to: path.resolve(
+              __dirname,
+              "dist",
+              "extension",
+              "canvas-iframe.html",
+            ),
           },
           {
             from: "src/libs/subtitle-octopus/*.{js,data,mem,wasm}",
