@@ -1,6 +1,6 @@
 export const waitForElement = async <T extends HTMLElement>(
   selector: string,
-  parentElement: HTMLElement | null = null
+  parentElement: HTMLElement | null = null,
 ): Promise<T> => {
   return new Promise<T>((resolve) => {
     const observer = new MutationObserver(function (mutations, me) {
@@ -21,7 +21,7 @@ export const waitForElement = async <T extends HTMLElement>(
 
 export const getLimitOffsetFromPagination = (
   pageSize: number,
-  pageNumber: number
+  pageNumber: number,
 ) => {
   return {
     limit: Math.max(1, pageSize),
@@ -93,7 +93,7 @@ export const generateRandomId = (): string => {
 
 export const createElementAdditionObserver = (
   elementSelector: string,
-  addedCallback: () => void
+  addedCallback: () => void,
 ): MutationObserver => {
   const mutationObserver = new MutationObserver(function (mutations) {
     if (mutations.length <= 0) {
@@ -121,7 +121,7 @@ export const createElementAdditionObserver = (
 
 export const createElementRemovalObserver = (
   elementSelector: string,
-  removedCallback: () => void
+  removedCallback: () => void,
 ): MutationObserver => {
   const mutationObserver = new MutationObserver(function (mutations) {
     if (mutations.length <= 0) {
@@ -171,3 +171,24 @@ export const waitUntil = async (predicate: () => boolean): Promise<void> => {
 
 type ValidValue<T> = Exclude<T, null | undefined | 0 | "" | false>;
 export const BooleanFilter = <T>(x: T): x is ValidValue<T> => Boolean(x);
+
+/**
+ * Gets a extension prefixed url if running in an extension, otherwise a relative URL
+ */
+export const getURL = (url: string) => {
+  if (
+    globalThis.chrome &&
+    globalThis.chrome.runtime &&
+    globalThis.chrome.runtime.getURL
+  ) {
+    return globalThis.chrome.runtime.getURL(url);
+  } else if (
+    globalThis &&
+    globalThis.browser &&
+    globalThis.browser.runtime &&
+    globalThis.browser.runtime.getURL
+  ) {
+    return globalThis.browser.runtime.getURL(url);
+  }
+  return "/" + url;
+};
