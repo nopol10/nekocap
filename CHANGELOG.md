@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.14.0](https://github.com/nopol10/nekocap/compare/1.13.1...1.14.0) (2025-06-05)
+
+### Features
+
+* add useCanUseWorker hook ([07f7a4a](https://github.com/nopol10/nekocap/commit/07f7a4a4136c26932926c2d701e03b2d3b9fc960))
+* support reel urls in instagram ([a350142](https://github.com/nopol10/nekocap/commit/a3501422f44cc2f3d47fb33cb67512da58fe7c43))
+* support rendering advanced captions in extension iframe if a worker cannot be spawned in the content page ([ea23151](https://github.com/nopol10/nekocap/commit/ea231511aef435f2fd8b9be20b281a8520d3e997))
+* update patch-worker's WorkerXHR to populate failure state ([8ceb484](https://github.com/nopol10/nekocap/commit/8ceb4842c890148f369c8827981e7e434dbeec8b))
+
+### Bug Fixes
+
+* prevent start and end times of cues in the caption editor from being set to negative values ([a25851f](https://github.com/nopol10/nekocap/commit/a25851f76d39ac3fedaec26ad57bcbcf090e6966))
+
 ## [1.13.1](https://github.com/nopol10/nekocap/compare/1.13.0...1.13.1) (2025-05-31)
 
 ### Bug Fixes
