@@ -32,6 +32,7 @@ export const OctopusRendererIframeProxy = forwardRef(
       captionContainerElement,
       rawCaption,
       onFontsLoaded,
+      showCaption,
     }: OctopusRendererProps,
     ref: MutableRefObject<CaptionRendererHandle>,
   ) => {
@@ -68,6 +69,13 @@ export const OctopusRendererIframeProxy = forwardRef(
         videoElement.removeEventListener("timeupdate", renderer.onVideoSeeked);
       };
     }, [ref, videoElement]);
+
+    useEffect(() => {
+      if (!iframeRef.current) {
+        return;
+      }
+      iframeRef.current.style.visibility = showCaption ? "visible" : "hidden";
+    }, [showCaption]);
 
     useAnimationFrame(4, handleTimeUpdate, [
       videoElement,
