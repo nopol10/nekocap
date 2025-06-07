@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.15.0](https://github.com/nopol10/nekocap/compare/1.14.0...1.15.0) (2025-06-07)
+
+### Features
+
+* fix twitter support and add support for twitter embeds ([905bf09](https://github.com/nopol10/nekocap/commit/905bf09c3b552300fd751f422717d81bb686332d))
+
+### Bug Fixes
+
+* fix caption visibility toggle not working on instagram / archive.org ([5e0d89a](https://github.com/nopol10/nekocap/commit/5e0d89a02166e3591a97acbd361d382586e90660))
+
 ## [1.14.0](https://github.com/nopol10/nekocap/compare/1.13.1...1.14.0) (2025-06-05)
 
 ### Features
