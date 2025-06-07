@@ -78,6 +78,7 @@ const InlineLogoWrapper = styled.div`
 const InlineNekoFace = styled.img`
   width: 38px;
   height: 38px;
+  vertical-align: middle;
   transition: transform 150ms ease-in-out;
   transform: scale(1);
   &:hover {

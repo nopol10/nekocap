@@ -42,6 +42,7 @@ import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { languages } from "@/common/languages";
 import { darkModeSelector } from "@/common/processor-utils";
 import { ThunkedPayloadAction } from "@/common/store/action";
+import { DEVICE } from "@/common/style-constants";
 import { CaptionFileFormat } from "@/common/types";
 import { hasSaveData } from "@/extension/background/feature/caption-editor/utils";
 import { toggleAutosave } from "@/extension/background/feature/user-extension-preference/actions";
@@ -87,6 +88,11 @@ const MenuRow = styled.div`
   column-gap: 8px;
   row-gap: 4px;
   align-items: center;
+  max-width: min(330px, 70vw);
+
+  @media ${DEVICE.tablet} {
+    max-width: unset;
+  }
 `;
 
 const LikeText = styled.span<LikeTextProps>`

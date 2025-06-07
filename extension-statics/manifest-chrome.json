@@ -22,6 +22,7 @@
         "https://*.netflix.com/*",
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
+        "https://*.x.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
         "https://*.iq.com/*",
@@ -33,20 +34,15 @@
         "https://*.unext.jp/*",
         "https://*.archive.org/*"
       ],
+      "all_frames": true,
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
-      "matches": [
-        "https://*.dailymotion.com/*"
-      ],
+      "matches": ["https://*.dailymotion.com/*"],
       "run_at": "document_end",
       "all_frames": true,
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -58,6 +54,7 @@
         "https://*.netflix.com/*",
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
+        "https://*.x.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
         "https://*.iq.com/*",
@@ -70,10 +67,9 @@
         "https://*.unext.jp/*",
         "https://*.archive.org/*"
       ],
+      "all_frames": true,
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -81,16 +77,10 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation"
-  ],
+  "permissions": ["storage", "webNavigation"],
   "web_accessible_resources": [
     {
-      "resources": [
-        "canvas-iframe.html",
-        "canvas-iframe.js"
-      ],
+      "resources": ["canvas-iframe.html", "canvas-iframe.js"],
       "matches": [
         "https://*.youtube.com/*",
         "https://*.tver.jp/*",
@@ -100,6 +90,7 @@
         "https://*.netflix.com/*",
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
+        "https://*.x.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
         "https://*.iq.com/*",
@@ -132,6 +123,7 @@
         "https://*.netflix.com/*",
         "https://*.primevideo.com/*",
         "https://*.twitter.com/*",
+        "https://*.x.com/*",
         "https://*.wetv.vip/*",
         "https://*.tiktok.com/*",
         "https://*.iq.com/*",

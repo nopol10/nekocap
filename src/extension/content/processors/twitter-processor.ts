@@ -1,38 +1,85 @@
 import { PageType, VideoSource } from "@/common/feature/video/types";
+import { DEVICE } from "@/common/style-constants";
 import type { Dimension } from "@/common/types";
 import { waitForElement } from "@/common/utils";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const TWITTER_STATUS_REGEX =
-  /(http:|https:)\/\/(twitter.com)\/.*\/status\/([A-Za-z0-9]*)[/#]*(?:\?.*)?$/;
+  /(http:|https:)\/\/((?:twitter|x).com)\/.*\/status\/([A-Za-z0-9]*)[/#]*(?:\?.*)?$/;
+
+const TWITTER_EMBED_REGEX =
+  /(?:http:|https:)\/\/(?:platform\.(twitter|x).com)\/embed\/Tweet.html\?.*$/i;
 
 /**
  * Processor for Twitter
  */
 export const TwitterProcessor: Processor = {
   type: VideoSource.Twitter,
-  name: "Twitter",
-  urlRegex: /twitter\.com/,
+  name: "Twitter / X",
+  urlRegex: /(twitter|x)\.com/,
   disableEditor: true,
   videoSelector: async function () {
+    const onMainSite = !!globalThis.location.href.match(TWITTER_STATUS_REGEX);
+    if (!onMainSite) {
+      // The embed site only has one video element so it's safe to return the first one
+      return await waitForElement("video");
+    }
     const linkElement = await waitForElement(
-      `a[href$="/status/${this.getVideoId()}"]`
+      `a[href$="/status/${this.getVideoId()}"]`,
     );
-    const videoParent =
-      linkElement.parentElement?.parentElement?.parentElement?.parentElement
-        ?.parentElement;
+    const videoParent = linkElement.closest("article");
     const video: HTMLVideoElement = await waitForElement("video", videoParent);
     return video;
   },
-  videoPageUISelector: async function () {
-    const linkElement = await waitForElement(
-      `a[href$="/status/${this.getVideoId()}"]`
-    );
-
-    return (
-      linkElement?.parentElement?.parentElement?.parentElement || undefined
-    );
+  videoPageUISelector: "body > *:first-child", // Just need this to be somewhere in the body
+  inlineMenu: {
+    insertPosition: "after",
+    isFloating: true,
   },
+  globalStyles: `
+    .nekocap-menu-container--floating {
+      bottom: 55px;
+      right: 19px;
+
+      & > div > div {
+        box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;
+        border: 1px solid rgb(159, 181, 195);
+        padding: 8px;
+        border-radius: 16px;
+        background-color: white;
+        transition: background-color 0.2s ease-in-out;
+        
+        &:hover {
+          background-color: rgb(207 236 255);
+        }
+      }
+
+      img {
+        width: 20px;
+        height: 20px;
+
+        @media ${DEVICE.tablet} {
+          width: 38px;
+          height: 38px;
+        }
+      }
+
+      @media ${DEVICE.tablet} {
+        bottom: 66px;
+        right: 42px;
+      }
+
+      /* This is twitter's breakpoint for showing the Grok floating button */
+      @media (min-width: 1078px) {
+        bottom: 66px;
+        right: 97px;
+      }
+
+      img:hover {
+        transform: unset;  
+      }
+    }    
+  `,
   titleSelector: "title",
   observer: {
     shouldObserveMenuPlaceability: true,
@@ -51,11 +98,17 @@ export const TwitterProcessor: Processor = {
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
-    const matches = globalThis.location.href.match(TWITTER_STATUS_REGEX);
-    if (!matches || matches.length < 4) {
-      return "";
+    const mainSiteMatches =
+      globalThis.location.href.match(TWITTER_STATUS_REGEX);
+    if (mainSiteMatches && mainSiteMatches.length >= 4) {
+      return mainSiteMatches[3];
     }
-    return matches[3];
+    const embedSiteMatch = globalThis.location.href.match(TWITTER_EMBED_REGEX);
+    if (embedSiteMatch) {
+      const urlParams = new URLSearchParams(globalThis.location.search);
+      return urlParams.get("id") || "";
+    }
+    return "";
   },
   generateVideoLink: (videoId: string) => {
     return `https://twitter.com/i/web/status/${videoId}`;
@@ -64,7 +117,7 @@ export const TwitterProcessor: Processor = {
     return ``;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },
@@ -75,7 +128,7 @@ export const TwitterProcessor: Processor = {
     /* no content */
   },
   getPageType: (url: string) => {
-    if (url.match(TWITTER_STATUS_REGEX)) {
+    if (url.match(TWITTER_STATUS_REGEX) || url.match(TWITTER_EMBED_REGEX)) {
       return PageType.Video;
     }
     return PageType.SearchResults;
