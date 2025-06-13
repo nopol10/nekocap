@@ -76,6 +76,8 @@ export const SUBSTATION_GROUPED_FONTS = {
     roboto: "/fonts/Roboto-Regular.woff2",
     "roboto light": "/fonts/Roboto-300.woff2",
     "roboto bold": "/fonts/Roboto-700.woff2",
+    "roboto black": "/fonts/Roboto-Black.woff2",
+    "roboto extrabold": "/fonts/Roboto-ExtraBold.woff2",
     "roboto condensed": "/fonts/Roboto-Condensed-Regular.woff2",
     "roboto condensed light": "/fonts/Roboto-Condensed-300.woff2",
     "roboto condensed bold": "/fonts/Roboto-Condensed-700.woff2",
