@@ -1,6 +1,6 @@
-import React, { ReactElement, useEffect } from "react";
 import { PageType } from "@/common/feature/video/types";
 import { ChromeMessageType } from "@/common/types";
+import { ReactElement, useEffect } from "react";
 import { VideoAction } from "../types";
 
 export const VideoIframe = (): ReactElement => {
@@ -43,7 +43,7 @@ export const VideoIframe = (): ReactElement => {
     };
     globalThis.videoElement.addEventListener(
       "timeupdate",
-      sendTimeUpdateToParent
+      sendTimeUpdateToParent,
     );
     globalThis.videoElement.addEventListener("play", sendPlayToParent);
     globalThis.videoElement.addEventListener("pause", sendPauseToParent);
@@ -51,16 +51,16 @@ export const VideoIframe = (): ReactElement => {
     return () => {
       globalThis.videoElement.removeEventListener(
         "timeupdate",
-        sendTimeUpdateToParent
+        sendTimeUpdateToParent,
       );
       globalThis.videoElement.removeEventListener("play", sendPlayToParent);
       globalThis.videoElement.removeEventListener("pause", sendPauseToParent);
       globalThis.videoElement.removeEventListener(
         "seeked",
-        sendTimeUpdateToParent
+        sendTimeUpdateToParent,
       );
     };
-  }, [globalThis.videoElement]);
+  }, []);
 
   return <div style={{ display: "none" }}></div>;
 };

@@ -22,8 +22,15 @@ limitations under the License.
 //  setters/getters to the new Worker object.
 // Note: This script does not magically circumvent the Same origin policy.
 
+const IGNORED_SITES = ["/accounts.youtube.com", "/studio.youtube.com"];
+
 (function () {
   "use strict";
+  const url = globalThis.location.href;
+  if (IGNORED_SITES.some((ignoredSite) => url.includes(ignoredSite))) {
+    console.log("Skipping worker patching for ", url);
+    return;
+  }
   var Worker_ = globalThis.Worker;
   globalThis.OriginalWorker = Worker_;
   var URL = globalThis.URL || globalThis.webkitURL;

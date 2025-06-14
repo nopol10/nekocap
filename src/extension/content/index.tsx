@@ -83,6 +83,15 @@ const createVideoUIPortalElement = () => {
 
 const initialize = async () => {
   globalThis.isInExtension = true;
+
+  globalThis.selectedProcessor = siteProcessors.find((processor) => {
+    return location.href.match(processor.urlRegex) !== null;
+  });
+  if (!globalThis.selectedProcessor) {
+    return;
+  }
+  const pageType = globalThis.selectedProcessor.getPageType(location.href);
+
   const autoLoadCaptionId = new URL(location.href).searchParams.get("nekocap");
   createEditorPortalElement();
   createVideoUIPortalElement();
@@ -95,6 +104,9 @@ const initialize = async () => {
         }
         saveCaptionToDisk(message.payload);
       } else if (message.type === ChromeMessageType.ContentScriptUpdate) {
+        if (globalThis.pageType !== PageType.Video) {
+          return;
+        }
         refreshVideoMeta().then(() => {
           sendResponse({
             status: "alive",
@@ -133,38 +145,32 @@ const initialize = async () => {
     },
   );
 
-  globalThis.selectedProcessor = siteProcessors.find((processor) => {
-    return location.href.match(processor.urlRegex) !== null;
-  });
-  if (!globalThis.selectedProcessor) {
-    return;
-  }
-
   await refreshVideoMeta();
 
   const { store } = await storeInitPromise;
-  const pageType = globalThis.selectedProcessor.getPageType(location.href);
 
-  // Get and store the current tab id
-  chrome.runtime.sendMessage(
-    { type: ChromeMessageType.GetTabId },
-    (response) => {
-      globalThis.tabId = response;
-      // Initialize the tab data once we have the id
-      if (pageType !== PageType.VideoIframe) {
-        store.dispatch(
-          requestFreshTabData({
-            tabId: globalThis.tabId,
-            newVideoId: globalThis.videoId,
-            newVideoSource: globalThis.videoSource,
-            newPageType: globalThis.pageType,
-            newCaptionId: autoLoadCaptionId || undefined,
-            currentUrl: location.href,
-          }),
-        );
-      }
-    },
-  );
+  if (pageType !== PageType.SearchResults) {
+    // Get and store the current tab id
+    chrome.runtime.sendMessage(
+      { type: ChromeMessageType.GetTabId },
+      (response) => {
+        globalThis.tabId = response;
+        if (pageType === PageType.Video) {
+          // Initialize the tab data once we have the id
+          store.dispatch(
+            requestFreshTabData({
+              tabId: globalThis.tabId,
+              newVideoId: globalThis.videoId,
+              newVideoSource: globalThis.videoSource,
+              newPageType: globalThis.pageType,
+              newCaptionId: autoLoadCaptionId || undefined,
+              currentUrl: location.href,
+            }),
+          );
+        }
+      },
+    );
+  }
 
   // Initialize a content copy of the provider
   // This is necessary to introduce introduce the right amount of delay before rendering the content

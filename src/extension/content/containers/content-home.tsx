@@ -11,8 +11,26 @@ export const ContentHome = (): ReactElement => {
 
   const hasGlobalStyles =
     globalThis.selectedProcessor && globalThis.selectedProcessor.globalStyles;
-  const GlobalStyle = createGlobalStyle`
-    .nekocap-menu-container--floating {
+
+  if (!videoData) {
+    return <></>;
+  }
+  const pageType = globalThis.selectedProcessor?.getPageType(location.href);
+  return (
+    <>
+      <GlobalStyle
+        $additionalStyles={
+          hasGlobalStyles ? globalThis.selectedProcessor?.globalStyles : ""
+        }
+      />
+      {pageType === PageType.Video && <VideoHome />}
+      {pageType === PageType.VideoIframe && <VideoIframe />}
+    </>
+  );
+};
+
+const GlobalStyle = createGlobalStyle<{ $additionalStyles?: string }>`
+.nekocap-menu-container--floating {
       position: fixed;
       bottom: 64px;
       right: 84px;
@@ -21,18 +39,5 @@ export const ContentHome = (): ReactElement => {
         filter: contrast(0);
       }
     }
-    ${hasGlobalStyles ? globalThis.selectedProcessor?.globalStyles : ""}
-  `;
-
-  if (!videoData) {
-    return <></>;
-  }
-  const pageType = globalThis.selectedProcessor?.getPageType(location.href);
-  return (
-    <>
-      <GlobalStyle />
-      {pageType === PageType.Video && <VideoHome />}
-      {pageType === PageType.VideoIframe && <VideoIframe />}
-    </>
-  );
-};
+${({ $additionalStyles }) => $additionalStyles}
+`;

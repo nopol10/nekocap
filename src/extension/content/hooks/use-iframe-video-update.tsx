@@ -16,19 +16,28 @@ export const useIframeVideoUpdate = ({
     time: 0,
     duration: 0,
   });
-  const onIframePlay = useCallback((duration: number) => {
-    iframeVideoData.current.duration = duration;
-    rendererRef.current?.onVideoPlay();
-  }, []);
-  const onIframePause = useCallback((duration: number) => {
-    iframeVideoData.current.duration = duration;
-    rendererRef.current?.onVideoPause();
-  }, []);
-  const onIframeTimeUpdate = useCallback((time: number, duration: number) => {
-    iframeVideoData.current.time = time;
-    iframeVideoData.current.duration = duration;
-    rendererRef.current?.onVideoSeeked();
-  }, []);
+  const onIframePlay = useCallback(
+    (duration: number) => {
+      iframeVideoData.current.duration = duration;
+      rendererRef.current?.onVideoPlay();
+    },
+    [rendererRef],
+  );
+  const onIframePause = useCallback(
+    (duration: number) => {
+      iframeVideoData.current.duration = duration;
+      rendererRef.current?.onVideoPause();
+    },
+    [rendererRef],
+  );
+  const onIframeTimeUpdate = useCallback(
+    (time: number, duration: number) => {
+      iframeVideoData.current.time = time;
+      iframeVideoData.current.duration = duration;
+      rendererRef.current?.onVideoSeeked();
+    },
+    [rendererRef],
+  );
 
   const getIframeVideoTime = useCallback(() => {
     return iframeVideoData.current.time;
@@ -56,6 +65,6 @@ export const useIframeVideoUpdate = ({
     return () => {
       chrome.runtime.onMessage.removeListener(messageListener);
     };
-  }, [rendererRef]);
+  }, [onIframePause, onIframePlay, onIframeTimeUpdate, rendererRef]);
   return { getIframeVideoTime };
 };

@@ -190,6 +190,12 @@ export const YoutubeProcessor: Processor = {
   },
   getPageType: (url: string) => {
     if (
+      url.includes("/accounts.youtube.com") ||
+      url.includes("/studio.youtube.com")
+    ) {
+      return PageType.SearchResults;
+    }
+    if (
       url.match(
         /(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be.com\/\S*(?:watch|embed)(?:(?:(?=\/[^&\s?]+(?!\S))\/)|(?:\S*v=|v\/)))([^&\s?]+)/,
       )
