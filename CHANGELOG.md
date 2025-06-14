@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.16.0](https://github.com/nopol10/nekocap/compare/1.15.0...1.16.0) (2025-06-14)
+
+### Features
+
+* add roboto black and extrabold support ([f2710d4](https://github.com/nopol10/nekocap/commit/f2710d45e07aac1ff04805c0eaa6309480940e6a))
+
+### Bug Fixes
+
+* fix caption list being cleared on youtube when user is signed in ([a5ad82a](https://github.com/nopol10/nekocap/commit/a5ad82a56aecd0a80ae32bb9f70d7d4fc1736dad))
+
 ## [1.15.0](https://github.com/nopol10/nekocap/compare/1.14.0...1.15.0) (2025-06-07)
 
 ### Features
