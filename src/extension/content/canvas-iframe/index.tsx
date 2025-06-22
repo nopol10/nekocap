@@ -1,4 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryProvider } from "@/common/providers/react-query-provider";
+import { QueryClient } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { CaptionIframeOctopusRenderer } from "../containers/caption-iframe-octopus-renderer";
 import "./index.scss";
@@ -23,9 +24,9 @@ async function initialize() {
   const root = createRoot(container);
   root.render(
     <>
-      <QueryClientProvider client={queryClient}>
+      <ReactQueryProvider>
         <CaptionIframeOctopusRenderer />
-      </QueryClientProvider>
+      </ReactQueryProvider>
     </>,
   );
 }

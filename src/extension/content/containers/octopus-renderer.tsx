@@ -17,13 +17,14 @@ import {
 } from "react";
 import { createGlobalStyle } from "styled-components";
 import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
+import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { CaptionRendererHandle } from "./caption-renderer";
 import { OctopusRendererIframeProxy } from "./octopus-renderer-iframe-proxy";
 
 export interface OctopusRendererProps {
   rawCaption?: string;
-  videoElement?: HTMLVideoElement;
   captionContainerElement?: HTMLElement;
+  videoPlayer?: VideoPlayer;
   showCaption: boolean;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
@@ -97,7 +98,7 @@ const OctopusRendererDirect = forwardRef(
   (
     {
       rawCaption,
-      videoElement,
+      videoPlayer,
       showCaption,
       captionContainerElement,
       isIframe = false,
@@ -173,7 +174,7 @@ const OctopusRendererDirect = forwardRef(
           iframeProps?.getCurrentTime(),
         );
       }
-    }, []);
+    }, [iframeProps]);
 
     const handleVideoSeek = useCallback(() => {
       // do nothing
@@ -201,11 +202,11 @@ const OctopusRendererDirect = forwardRef(
          * Setting the time of the video also works as a workaround.
          * (Reason: https://github.com/libass/JavascriptSubtitlesOctopus/issues/72#issuecomment-1001432683)
          */
-        if (videoElement && !videoElement.paused) {
-          videoElement.pause();
-          videoElement.play();
+        if (videoPlayer && !videoPlayer.paused()) {
+          videoPlayer.pause();
+          videoPlayer.play();
         }
-        if (!videoElement) {
+        if (!videoPlayer?.element()) {
           // Mainly for renderers without an associated video element
           // Sometimes the play event can be called before the renderer is ready.
           // This will ensure the renderer is set to the correct state to prevent the lag from occurring.
@@ -244,7 +245,7 @@ const OctopusRendererDirect = forwardRef(
         );
         canvas = canvasElements[0];
       }
-      if (!videoElement && !canvas) {
+      if (!videoPlayer?.element() && !canvas) {
         return cleanup;
       }
       const fallbackFontUrl = new URL(
@@ -253,7 +254,7 @@ const OctopusRendererDirect = forwardRef(
       ).href;
 
       const options = {
-        video: videoElement,
+        video: videoPlayer?.element(),
         canvas: isIframe ? canvas : undefined,
         subContent: rawCaption,
         availableFonts: fontList,
@@ -272,7 +273,7 @@ const OctopusRendererDirect = forwardRef(
       octopusInstance.current.setCurrentTime(
         isIframe && iframeProps && iframeProps.getCurrentTime
           ? iframeProps.getCurrentTime()
-          : videoElement?.currentTime,
+          : videoPlayer?.currentTime(),
       );
       // Update the caption container's width and height to match the video to prevent subs from going into the black bars
       if (localCaptionContainer.current) {
@@ -280,11 +281,11 @@ const OctopusRendererDirect = forwardRef(
           width:
             isIframe && iframeProps
               ? iframeProps.width
-              : videoElement?.offsetWidth || 0,
+              : videoPlayer?.element()?.offsetWidth || 0,
           height:
             isIframe && iframeProps
               ? iframeProps.height
-              : videoElement?.offsetHeight || 0,
+              : videoPlayer?.element()?.offsetHeight || 0,
         };
         localCaptionContainer.current.style.width = `${containerDimensions.current.width}px`;
         localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
@@ -293,7 +294,7 @@ const OctopusRendererDirect = forwardRef(
       return cleanup;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
-      videoElement,
+      videoPlayer,
       captionContainerElement,
       rawCaption,
       isIframe,
@@ -315,7 +316,7 @@ const OctopusRendererDirect = forwardRef(
     }, [isIframe, iframeProps, octopusInstance]);
 
     useAnimationFrame(4, handleTimeUpdate, [
-      videoElement,
+      videoPlayer,
       rawCaption,
       isIframe,
       iframeProps,
@@ -330,7 +331,7 @@ export const OctopusRenderer = React.memo(
   OctopusRendererInternal,
   (prevProps, nextProps) => {
     return (
-      prevProps.videoElement === nextProps.videoElement &&
+      prevProps.videoPlayer === nextProps.videoPlayer &&
       prevProps.captionContainerElement === nextProps.captionContainerElement &&
       prevProps.showCaption === nextProps.showCaption &&
       prevProps.isIframe === nextProps.isIframe &&

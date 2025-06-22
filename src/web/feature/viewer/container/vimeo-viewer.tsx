@@ -1,6 +1,7 @@
-import type * as VimeoType from "vimeo__player";
+import { VimeoEmbedVideoPlayer } from "@/extension/content/feature/editor/video-player/vimeo-embed-video-player";
 import Script from "next/script";
-import React, { ReactElement, useRef } from "react";
+import { ReactElement, useRef } from "react";
+import type * as VimeoType from "vimeo__player";
 import { ViewerProps } from "./viewer-props";
 
 const VIMEO_IFRAME_ID = "vimeo-iframe";
@@ -13,6 +14,7 @@ export const VimeoViewer = ({
   caption,
   defaultRendererRef,
   currentTimeGetter,
+  onVideoPlayerReady,
 }: VimeoViewerProps): ReactElement => {
   const currentTime = useRef<number>();
   const vimeoFrame = useRef<HTMLIFrameElement>(null);
@@ -23,6 +25,7 @@ export const VimeoViewer = ({
     }
     defaultRendererRef.current.onVideoPlay();
   };
+
   const handlePause = () => {
     if (!defaultRendererRef.current) {
       return;
@@ -42,6 +45,7 @@ export const VimeoViewer = ({
     player.on("play", handlePlay);
     player.on("pause", handlePause);
     player.on("timeupdate", handleTimeUpdate);
+    onVideoPlayerReady?.(new VimeoEmbedVideoPlayer(player, iframe));
 
     currentTimeGetter.current = () => currentTime.current || 0;
   };

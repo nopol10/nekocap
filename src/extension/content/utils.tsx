@@ -4,6 +4,7 @@ import {
 } from "@/common/constants";
 import { PageType } from "@/common/feature/video/types";
 import { CustomEvents } from "@/common/types";
+import { VideoElementPlayer } from "./feature/editor/video-player/video-element-player";
 import { getVideoElement, getVideoTitle } from "./processors/processor";
 
 export const refreshVideoMeta = async () => {
@@ -20,6 +21,7 @@ export const refreshVideoMeta = async () => {
     globalThis.videoElement = await getVideoElement(
       globalThis.selectedProcessor,
     );
+    globalThis.videoPlayer = new VideoElementPlayer(globalThis.videoElement);
     /**
      * The captionContainerElement might not be correct when using the video's parent
      * as some sites shift the elements around before the video ends up in its final position.

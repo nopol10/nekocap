@@ -317,15 +317,15 @@ export const VideoHome = () => {
         }
       : undefined;
   }, [getIframeVideoTime]);
-  const videoElement = globalThis.selectedProcessor?.videoIsInIframe
-    ? undefined
-    : globalThis.videoElement;
+
   const videoContainerElement = document.getElementById(
     VIDEO_ELEMENT_CONTAINER_ID,
   );
   if (!videoContainerElement) {
     return <></>;
   }
+  const isPlayerReady = globalThis.videoPlayer !== undefined;
+
   return ReactDOM.createPortal(
     <>
       {!shouldHideVideoPageMenu && (
@@ -333,28 +333,28 @@ export const VideoHome = () => {
           <InPageMenuContainer />
         </ErrorBoundary>
       )}
-      {shouldRenderEditor && <EditorContainer />}
-      {renderer === CaptionRendererType.Default && (
+      {isPlayerReady && shouldRenderEditor && <EditorContainer />}
+      {isPlayerReady && renderer === CaptionRendererType.Default && (
         <CaptionRenderer
           ref={rendererRef}
           caption={caption}
-          videoElement={videoElement}
           captionContainerElement={
             globalThis.captionContainerElement || undefined
           }
+          videoPlayer={globalThis.videoPlayer}
           showCaption={showCaption}
           isIframe={globalThis.selectedProcessor?.videoIsInIframe}
           iframeProps={iframeProps}
         />
       )}
-      {isUsingAdvancedRenderer && (
+      {isPlayerReady && isUsingAdvancedRenderer && (
         <OctopusRenderer
           ref={rendererRef}
           rawCaption={rawCaption}
-          videoElement={videoElement}
           captionContainerElement={
             globalThis.captionContainerElement || undefined
           }
+          videoPlayer={globalThis.videoPlayer}
           showCaption={showCaption}
           fontList={fontList}
           onFontsLoaded={handleFontsLoaded}

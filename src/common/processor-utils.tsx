@@ -6,6 +6,7 @@ import { css } from "styled-components";
 import { Processor } from "../extension/content/processors/processor";
 import { VideoSource } from "./feature/video/types";
 import { videoSourceToProcessorMap } from "./feature/video/utils";
+import { isElementOfType } from "./utils";
 
 export const getVideoSourceIcon = (
   videoSource: VideoSource,
@@ -72,4 +73,17 @@ export const darkModeSelector = (
       )
       .join("\n")}
   `;
+};
+
+export const getVideoElementTime = (
+  element: HTMLVideoElement | HTMLIFrameElement,
+  processor: VideoSource = VideoSource.NekoCapYoutube,
+): number => {
+  if (isElementOfType<HTMLVideoElement>(element)) {
+    return element.currentTime;
+  } else if (isElementOfType<HTMLIFrameElement>(element)) {
+    // TODO: Get based on selected processor
+    return 0;
+  }
+  return 0;
 };

@@ -1,21 +1,21 @@
-import * as React from "react";
 import {
   CaptionAlignment,
   CaptionDataContainer,
 } from "@/common/caption-parsers/types";
-import { Tabs } from "antd";
-import { AlignmentControl } from "./alignment-control";
+import { WSText } from "@/common/components/ws-text";
 import {
   modifyCaption,
   modifyCaptionGlobalSettings,
   modifyCaptionTrackSettings,
 } from "@/common/feature/caption-editor/actions";
-import { DEFAULT_COORDS_SETTINGS, DEFAULT_LAYOUT_SETTINGS } from "../constants";
-import { PositionControl } from "./position-control";
 import { CaptionModificationState } from "@/common/feature/caption-editor/types";
 import type { AnyAction } from "@reduxjs/toolkit";
+import { Tabs } from "antd";
 import styled from "styled-components";
-import { WSText } from "@/common/components/ws-text";
+import { DEFAULT_COORDS_SETTINGS, DEFAULT_LAYOUT_SETTINGS } from "../constants";
+import { VideoPlayer } from "../video-player/video-player";
+import { AlignmentControl } from "./alignment-control";
+import { PositionControl } from "./position-control";
 const { TabPane } = Tabs;
 
 const Pane = styled.div`
@@ -41,7 +41,7 @@ const ControlItem = styled.div`
 
 type SettingsPanelProps = {
   caption?: CaptionDataContainer;
-  videoElement: HTMLVideoElement;
+  videoPlayer: VideoPlayer;
   videoDurationMs: number;
   selectedTrack: number;
   selectedCaption: number;

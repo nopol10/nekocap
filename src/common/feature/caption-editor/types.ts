@@ -34,11 +34,16 @@ export type TabEditorData = {
   caption?: CaptionContainer; // The caption loaded from the server
   showEditorIfPossible: boolean;
   autoCaptions?: AutoCaptionLanguage[];
+  showSubmitModalOpen?: boolean;
 };
 
 export type CreateNewCaption = TabbedType & {
   videoId: string;
   videoSource: VideoSource;
+};
+
+export type SetShowSubmitModalOpen = TabbedType & {
+  show: boolean;
 };
 
 export type GenerateCaption = CreateNewCaption;
@@ -76,6 +81,7 @@ export type CaptionEditorState = {
   tabData: {
     [tabId: number]: StateWithHistory<TabEditorData>;
   };
+  inWebEditor: boolean;
   shortcutType: keyof typeof SHORTCUT_TYPES;
   keyboardShortcuts: {
     [id: string]: KeySequence;
@@ -105,11 +111,9 @@ export type EditorShortcuts = {
   [id in keyof typeof EDITOR_KEYS]: KeySequence;
 };
 
-export type EditorShortcutHandlers = Partial<
-  {
-    [id in keyof typeof EDITOR_KEYS]: (keyEvent: KeyboardEvent) => void;
-  }
->;
+export type EditorShortcutHandlers = Partial<{
+  [id in keyof typeof EDITOR_KEYS]: (keyEvent: KeyboardEvent) => void;
+}>;
 
 export type ShortcutList = {
   [id in keyof typeof SHORTCUT_TYPES]: EditorShortcuts;
@@ -132,3 +136,5 @@ export type CaptionEditorStorage = {
   saves: CaptionEditorLocalSave[];
   shortcutType: keyof typeof SHORTCUT_TYPES;
 };
+
+export type EditorStorage = { editor: CaptionEditorStorage };

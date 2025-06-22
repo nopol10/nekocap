@@ -28,7 +28,7 @@ export const OctopusRendererIframeProxy = forwardRef(
     {
       isIframe,
       iframeProps,
-      videoElement,
+      videoPlayer,
       captionContainerElement,
       rawCaption,
       onFontsLoaded,
@@ -42,8 +42,8 @@ export const OctopusRendererIframeProxy = forwardRef(
         return;
       }
       let currentTime = 0;
-      if (!isIframe && videoElement) {
-        currentTime = videoElement.currentTime;
+      if (!isIframe && videoPlayer) {
+        currentTime = videoPlayer.currentTime();
       } else if (isIframe && iframeProps) {
         currentTime = iframeProps.getCurrentTime();
       }
@@ -54,21 +54,22 @@ export const OctopusRendererIframeProxy = forwardRef(
         },
         "*",
       );
-    }, [isIframe, videoElement, iframeProps]);
+    }, [isIframe, videoPlayer, iframeProps]);
     useEffect(() => {
-      if (!videoElement || !ref.current) {
+      if (!videoPlayer || !ref.current) {
         return;
       }
       const renderer = ref.current;
-      videoElement.addEventListener("play", renderer.onVideoPlay);
-      videoElement.addEventListener("pause", renderer.onVideoPause);
-      videoElement.addEventListener("timeupdate", renderer.onVideoSeeked);
+      const TAG = "orip";
+      videoPlayer.addPlayListener(TAG, renderer.onVideoPlay);
+      videoPlayer.addPauseListener(TAG, renderer.onVideoPause);
+      videoPlayer.addTimeUpdateListener(TAG, renderer.onVideoSeeked);
       return () => {
-        videoElement.removeEventListener("play", renderer.onVideoPlay);
-        videoElement.removeEventListener("pause", renderer.onVideoPause);
-        videoElement.removeEventListener("timeupdate", renderer.onVideoSeeked);
+        videoPlayer.removePlayListener(TAG);
+        videoPlayer.removePauseListener(TAG);
+        videoPlayer.removeTimeUpdateListener(TAG);
       };
-    }, [ref, videoElement]);
+    }, [ref, videoPlayer]);
 
     useEffect(() => {
       if (!iframeRef.current) {
@@ -78,11 +79,13 @@ export const OctopusRendererIframeProxy = forwardRef(
     }, [showCaption]);
 
     useAnimationFrame(4, handleTimeUpdate, [
-      videoElement,
+      videoPlayer,
       rawCaption,
       isIframe,
       iframeProps,
     ]);
+    const videoElementWidth = videoPlayer?.element()?.offsetWidth || 0;
+    const videoElementHeight = videoPlayer?.element()?.offsetHeight || 0;
     useEffect(
       function spawnIframeAndListen() {
         if (!captionContainerElement) {
@@ -98,8 +101,8 @@ export const OctopusRendererIframeProxy = forwardRef(
           width = globalThis.screen.width * globalThis.devicePixelRatio;
           height = width * (iframeProps.height / iframeProps.width);
         } else {
-          width = videoElement?.offsetWidth || 0;
-          height = videoElement?.offsetHeight || 0;
+          width = videoElementWidth;
+          height = videoElementHeight;
         }
         iframe.style.width = "100%";
         iframe.style.height = "100%";
@@ -148,9 +151,9 @@ export const OctopusRendererIframeProxy = forwardRef(
         isIframe,
         onFontsLoaded,
         rawCaption,
-        videoElement,
-        videoElement?.offsetHeight,
-        videoElement?.offsetWidth,
+        videoPlayer,
+        videoElementWidth,
+        videoElementHeight,
       ],
     );
 

@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
+  useReducer,
   useRef,
   useState,
 } from "react";
@@ -15,6 +16,8 @@ import { IN_PAGE_MENU_CONTAINER_ID, TIME } from "./common/constants";
 import { Coords } from "./common/types";
 import { clearSelection } from "./common/utils";
 import { PopupContext } from "./extension/common/popup-context";
+import { VideoElementPlayer } from "./extension/content/feature/editor/video-player/video-element-player";
+import { VideoPlayer } from "./extension/content/feature/editor/video-player/video-player";
 import { getVideoElement } from "./extension/content/processors/processor";
 
 /**
@@ -69,10 +72,10 @@ export const useStateAutoRef = <S>(
   const [state, setState] = useState<S>(initialState);
   const ref = useRef<S>(initialState);
 
-  const setStateExternal = (value: S) => {
+  const setStateExternal = useCallback((value: S) => {
     ref.current = value;
     setState(value);
-  };
+  }, []);
 
   return [state, setStateExternal, ref];
 };
@@ -223,12 +226,14 @@ export const useDrag = (
   }, [element, blockClick, ...dependencies]);
 };
 
-export const useVideoPlayPause = (
-  videoElement: HTMLVideoElement,
+export const useVideoPlayerPlayPause = (
+  videoElement: VideoPlayer,
 ): [boolean, (isPlaying: boolean) => void, MutableRefObject<boolean>] => {
   const [isPlaying, setIsPlaying, isPlayingRef] = useStateAutoRef(false);
+  const TAG = "vpp";
   useEffect(() => {
     const handleVideoPlay = () => {
+      console.log("Video is playing");
       setIsPlaying(true);
     };
     const handleVideoPause = () => {
@@ -236,17 +241,17 @@ export const useVideoPlayPause = (
     };
     if (videoElement) {
       // videoElement.paused might mean the video is still loading but good enough for initialization
-      setIsPlaying(!videoElement.paused);
-      videoElement.addEventListener("play", handleVideoPlay);
-      videoElement.addEventListener("pause", handleVideoPause);
+      setIsPlaying(!videoElement.paused());
+      videoElement.addPlayListener(TAG, handleVideoPlay);
+      videoElement.addPauseListener(TAG, handleVideoPause);
     }
     return () => {
       if (videoElement) {
-        videoElement.removeEventListener("play", handleVideoPlay);
-        videoElement.removeEventListener("pause", handleVideoPause);
+        videoElement.removePlayListener(TAG);
+        videoElement.removePauseListener(TAG);
       }
     };
-  }, [videoElement]);
+  }, [setIsPlaying, videoElement]);
 
   return [isPlaying, setIsPlaying, isPlayingRef];
 };
@@ -255,69 +260,74 @@ export const useVideoPlayPause = (
  * Returns a state variable containing the video duration in milliseconds
  * @param videoElement
  */
-export const useVideoDurationChange = (
-  videoElement: HTMLVideoElement,
+export const useVideoPlayerDurationChange = (
+  videoElement: VideoPlayer,
 ): [number, MutableRefObject<number>] => {
+  const TAG = "vdc";
   const [videoDuration, setVideoDuration, videoDurationRef] =
     useStateAutoRef(0);
   useEffect(() => {
     const handleDurationChange = () => {
-      setVideoDuration(videoElement.duration * TIME.SECONDS_TO_MS);
+      setVideoDuration(videoElement.duration() * TIME.SECONDS_TO_MS);
     };
     if (videoElement) {
-      if (videoElement.duration) {
+      if (videoElement.duration && videoElement.duration()) {
         // For cases where the video's duration is loaded before this hook runs
         handleDurationChange();
       }
-      videoElement.addEventListener("durationchange", handleDurationChange);
-      videoElement.addEventListener("loadedmetadata", handleDurationChange);
+      videoElement.addDurationChangeListener(TAG, handleDurationChange);
     }
     return () => {
       if (videoElement) {
-        videoElement.removeEventListener(
-          "durationchange",
-          handleDurationChange,
-        );
-        videoElement.removeEventListener(
-          "loadedmetadata",
-          handleDurationChange,
-        );
+        videoElement.removeDurationChangeListener(TAG);
       }
     };
-  }, [videoElement]);
+  }, [setVideoDuration, videoElement]);
 
   return [videoDuration, videoDurationRef];
 };
 
-export const useVideoVolumeChange = (
-  videoElement: HTMLVideoElement,
+export const useVideoPlayerVolumeChange = (
+  videoPlayer: VideoPlayer,
 ): {
   volume: [number, (volume: number) => void, MutableRefObject<number>];
   mute: [boolean, (mute: boolean) => void, MutableRefObject<boolean>];
 } => {
-  const [volume, setVolume, volumeRef] = useStateAutoRef(1);
+  const [volume, setVolumeState, volumeRef] = useStateAutoRef(1);
   const [mute, setMute, muteRef] = useStateAutoRef(false);
+  const TAG = "vvc";
 
   const debouncedVolumeChange = useCallback(
-    debounce(() => {
-      setVolume(videoElement.volume);
-      setMute(videoElement.muted);
+    /**
+     * Volume goes from 0 to 1
+     */
+    debounce(async (volume: number) => {
+      setVolumeState(volume);
+      setMute(await videoPlayer.muted());
     }, 200),
-    [videoElement],
+    [videoPlayer, setVolumeState, setMute],
   );
 
   useEffect(() => {
-    if (videoElement) {
-      setVolume(videoElement.volume);
-      setMute(videoElement.muted);
-      videoElement.addEventListener("volumechange", debouncedVolumeChange);
-    }
-    return () => {
-      if (videoElement) {
-        videoElement.removeEventListener("volumechange", debouncedVolumeChange);
+    (async () => {
+      if (videoPlayer) {
+        setVolumeState(await videoPlayer.volume());
+        setMute(await videoPlayer.muted());
+        videoPlayer.addVolumeChangeListener(TAG, debouncedVolumeChange);
       }
+    })();
+    return () => {
+      videoPlayer?.removeVolumeChangeListener(TAG);
     };
-  }, [videoElement]);
+  }, [debouncedVolumeChange, setMute, setVolumeState, videoPlayer]);
+
+  const setVolume = useCallback(
+    async (volume: number) => {
+      setVolumeState(volume);
+      void videoPlayer.volume(volume);
+    },
+    [setVolumeState, videoPlayer],
+  );
 
   return {
     volume: [volume, setVolume, volumeRef],
@@ -330,14 +340,9 @@ export const useCaptionContainerUpdate = (
 ) => {
   const [_, setDummy] = useState(0);
   useEffect(() => {
-    const targetCaptionContainerElement =
-      globalThis.selectedProcessor?.getCaptionContainerElement?.() ||
-      globalThis.videoElement?.parentElement;
-    if (
-      targetCaptionContainerElement &&
-      globalThis.captionContainerElement !== targetCaptionContainerElement
-    ) {
-      globalThis.captionContainerElement = targetCaptionContainerElement;
+    const parentElement = globalThis.videoPlayer?.element()?.parentElement;
+    if (parentElement && globalThis.captionContainerElement !== parentElement) {
+      globalThis.captionContainerElement = parentElement;
       setDummy(Math.random());
     }
   }, [...dependencies, setDummy]);
@@ -354,6 +359,7 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
       }
       getVideoElement(globalThis.selectedProcessor).then((element) => {
         globalThis.videoElement = element;
+        globalThis.videoPlayer = new VideoElementPlayer(element);
         setDummy(Math.random());
         detectElementRemoval();
       });
@@ -705,4 +711,8 @@ export const useIsClient = (): boolean => {
     setIsClient(true);
   }, []);
   return isClient;
+};
+
+export const useForceUpdate = () => {
+  return useReducer(() => ({}), {})[1] as () => void;
 };

@@ -31,11 +31,13 @@ import {
   useRef,
   useState,
 } from "react";
+import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { refreshVideoMeta } from "../utils";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
-  videoElement?: HTMLVideoElement;
   captionContainerElement?: HTMLElement;
+  // videoPlayer: HTMLVideoElement | HTMLIFrameElement;
+  videoPlayer?: VideoPlayer;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
   showCaption: boolean;
@@ -174,11 +176,13 @@ const alignContainer = (
 };
 
 /* eslint-disable react/display-name */
+const TAG = "caption-renderer";
+
 const CaptionRendererInternal = React.forwardRef(
   (
     {
       caption,
-      videoElement,
+      videoPlayer,
       captionContainerElement,
       showCaption,
       isIframe = false,
@@ -204,231 +208,78 @@ const CaptionRendererInternal = React.forwardRef(
     const [recreateLocalCaptionContainer, setRecreateLocalCaptionContainer] =
       useState<boolean>(false);
 
-    const updateCaptionContainerStyles = (width: number, height: number) => {
-      if (!localCaptionContainer.current) {
-        return;
-      }
-      containerDimensions.current = {
-        width: videoElement?.offsetWidth || 0,
-        height: videoElement?.offsetHeight || 0,
-      };
-      localCaptionContainer.current.style.width = `${width}px`;
-      localCaptionContainer.current.style.height = `${height}px`;
-      handleTimeUpdate(0, true);
-    };
-
-    // Sites like Netflix will remove the caption container. This helps us recreate it
-    useEffect(() => {
-      if (
-        !isInExtension() ||
-        !globalThis.selectedProcessor?.observer ||
-        !globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability
-      ) {
-        return;
-      }
-      let recreateContainer = false;
-      const removalObserver = createElementRemovalObserver(
-        ".nekocap-cap-container",
-        () => {
-          recreateContainer = true;
-          setRecreateLocalCaptionContainer(false);
-        },
-      );
-      const videoSelector =
-        typeof globalThis.selectedProcessor.videoSelector == "string"
-          ? globalThis.selectedProcessor.videoSelector
-          : "video";
-      const additionObserver = createElementAdditionObserver(
-        videoSelector,
-        async () => {
-          if (recreateContainer) {
-            await refreshVideoMeta();
-            recreateContainer = false;
-            setRecreateLocalCaptionContainer(true);
-          }
-        },
-      );
-      return () => {
-        removalObserver.disconnect();
-        additionObserver.disconnect();
-      };
-    }, []);
-
-    // Create the caption element to render into
-    useEffect(() => {
-      if (!captionContainerElement) {
-        return;
-      }
-      captionContainerElement.style.position = "relative";
-      if (document.querySelector(".nekocap-cap-container")) {
-        return;
-      }
-
-      const newCaptionElements: HTMLElement[] = [];
-      const newCaptionTextElements: HTMLElement[] = [];
-      localCaptionContainer.current = document.createElement("div");
-      localCaptionContainer.current.classList.add("nekocap-cap-container");
-      localCaptionContainer.current.style.cssText = localCaptionContainerStyle;
-
-      try {
-        captionContainerElement.insertBefore(
-          localCaptionContainer.current,
-          videoElement?.nextSibling || null,
+    const updateRenderedCaption = useCallback(
+      (
+        currentTextElement: HTMLElement,
+        captionContainerElement: HTMLElement,
+        currentCaption: NekoCaption,
+        currentCaptionId: number,
+        captionData: CaptionDataContainer,
+        trackSettings: TrackSettings,
+      ) => {
+        // Set layout
+        captionContainerElement.setAttribute(
+          "data-caption",
+          currentCaptionId.toString(10),
         );
-      } catch (e) {
-        console.warn(
-          "Could not insert caption container right after the video element. Defaulting to last child",
-        );
-        captionContainerElement.appendChild(localCaptionContainer.current);
-      }
-
-      const videoElementHeight =
-        isIframe && iframeProps
-          ? iframeProps.height
-          : videoElement?.offsetHeight || 0;
-      for (let trackId = 0; trackId < MAX_TRACKS; trackId++) {
-        for (let i = 0; i < MAX_CONCURRENT_CAPTIONS; i++) {
-          const captionContainer = document.createElement("div");
-          captionContainer.style.cssText = captionWrapperElementStyle;
-          captionContainer.classList.add("nekocap-caption");
-          captionContainer.setAttribute("data-track", trackId.toString(10));
-          captionContainer.style.bottom = `${
-            DEFAULT_BOTTOM_OFFSET_FACTOR * videoElementHeight
-          }px`;
-          localCaptionContainer.current.appendChild(captionContainer);
-
-          const captionTextElement = document.createElement("div");
-          captionTextElement.setAttribute("dir", "auto");
-          captionTextElement.classList.add("nekocap-caption-text");
-          captionTextElement.style.cssText = captionTextElementStyle;
-
-          captionContainer.appendChild(captionTextElement);
-          newCaptionTextElements.push(captionTextElement);
-          newCaptionElements.push(captionContainer);
+        const activeLayout =
+          currentCaption.layout ||
+          trackSettings?.layout ||
+          captionData.settings?.layout;
+        const coordType: string = currentCaption.layout
+          ? "caption"
+          : trackSettings?.layout
+          ? "track"
+          : "global";
+        if (activeLayout && activeLayout.alignment) {
+          alignContainer(
+            captionContainerElement,
+            activeLayout.alignment,
+            activeLayout.position,
+            coordType,
+          );
+        } else {
+          // Default alignment is bottom center
+          alignContainer(
+            captionContainerElement,
+            CaptionAlignment.BottomCenter,
+            undefined,
+            coordType,
+          );
         }
-      }
-
-      captionWrapperElements.current = newCaptionElements;
-      captionTextElements.current = newCaptionTextElements;
-
-      return () => {
-        if (!captionContainerElement) {
-          return;
-        }
-        captionWrapperElements.current?.forEach((element) => {
-          element.remove();
-        });
-        captionWrapperElements.current = [];
-        localCaptionContainer.current?.remove();
-        localCaptionContainer.current = undefined;
-      };
-    }, [captionContainerElement, videoElement, recreateLocalCaptionContainer]);
-
-    // Register video listener
-    useEffect(() => {
-      if (videoElement) {
-        videoElement.addEventListener("play", handleVideoPlay);
-        videoElement.addEventListener("seeked", handleVideoSeeked);
-      }
-
-      currentCaptionIds.current = Array(
-        caption?.data?.tracks?.length || 0,
-      ).fill(0);
-
-      // Update the caption container's width and height to match the video to prevent subs from going into the black bars
-      if (localCaptionContainer.current) {
-        containerDimensions.current = {
-          width:
-            isIframe && iframeProps
-              ? iframeProps.width
-              : videoElement?.offsetWidth || 0,
-          height:
-            isIframe && iframeProps
-              ? iframeProps.height
-              : videoElement?.offsetHeight || 0,
-        };
-        localCaptionContainer.current.style.width = `${containerDimensions.current.width}px`;
-        localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
-      }
-
-      return () => {
-        if (!videoElement) {
-          return;
-        }
-        videoElement.removeEventListener("play", handleVideoPlay);
-        videoElement.removeEventListener("seeked", handleVideoSeeked);
-      };
-    }, [videoElement, caption, isIframe, iframeProps]);
-
-    const updateRenderedCaption = (
-      currentTextElement: HTMLElement,
-      captionContainerElement: HTMLElement,
-      currentCaption: NekoCaption,
-      currentCaptionId: number,
-      captionData: CaptionDataContainer,
-      trackSettings: TrackSettings,
-    ) => {
-      // Set layout
-      captionContainerElement.setAttribute(
-        "data-caption",
-        currentCaptionId.toString(10),
-      );
-      const activeLayout =
-        currentCaption.layout ||
-        trackSettings?.layout ||
-        captionData.settings?.layout;
-      const coordType: string = currentCaption.layout
-        ? "caption"
-        : trackSettings?.layout
-        ? "track"
-        : "global";
-      if (activeLayout && activeLayout.alignment) {
-        alignContainer(
-          captionContainerElement,
-          activeLayout.alignment,
-          activeLayout.position,
-          coordType,
+        // Set text styles
+        const containerMinSideLength = Math.min(
+          containerDimensions.current.width,
+          containerDimensions.current.height,
         );
-      } else {
-        // Default alignment is bottom center
-        alignContainer(
-          captionContainerElement,
-          CaptionAlignment.BottomCenter,
-          undefined,
-          coordType,
-        );
-      }
-      // Set text styles
-      const containerMinSideLength = Math.min(
-        containerDimensions.current.width,
-        containerDimensions.current.height,
-      );
-      currentTextElement.style.fontSize = `${
-        DEFAULT_FONT_SIZE_FACTOR *
-        preferences.fontSizeMultiplier *
-        containerMinSideLength
-      }px`;
-      const alignment = activeLayout?.alignment;
-      switch (alignment) {
-        case CaptionAlignment.BottomCenter:
-        case CaptionAlignment.TopCenter:
-        case CaptionAlignment.MiddleCenter:
-          currentTextElement.style.textAlign = "center";
-          break;
-        case CaptionAlignment.BottomLeft:
-        case CaptionAlignment.TopLeft:
-        case CaptionAlignment.MiddleLeft:
-          currentTextElement.style.textAlign = "left";
-          break;
-        case CaptionAlignment.BottomRight:
-        case CaptionAlignment.TopRight:
-        case CaptionAlignment.MiddleRight:
-          currentTextElement.style.textAlign = "right";
-          break;
-        default:
-      }
-      currentTextElement.innerText = currentCaption.text;
-    };
+        currentTextElement.style.fontSize = `${
+          DEFAULT_FONT_SIZE_FACTOR *
+          preferences.fontSizeMultiplier *
+          containerMinSideLength
+        }px`;
+        const alignment = activeLayout?.alignment;
+        switch (alignment) {
+          case CaptionAlignment.BottomCenter:
+          case CaptionAlignment.TopCenter:
+          case CaptionAlignment.MiddleCenter:
+            currentTextElement.style.textAlign = "center";
+            break;
+          case CaptionAlignment.BottomLeft:
+          case CaptionAlignment.TopLeft:
+          case CaptionAlignment.MiddleLeft:
+            currentTextElement.style.textAlign = "left";
+            break;
+          case CaptionAlignment.BottomRight:
+          case CaptionAlignment.TopRight:
+          case CaptionAlignment.MiddleRight:
+            currentTextElement.style.textAlign = "right";
+            break;
+          default:
+        }
+        currentTextElement.innerText = currentCaption.text;
+      },
+      [preferences.fontSizeMultiplier],
+    );
 
     const handleTimeUpdate = useCallback(
       (deltaTime?: number, forceUpdate?: boolean) => {
@@ -436,8 +287,8 @@ const CaptionRendererInternal = React.forwardRef(
           return;
         }
         let currentTime = 0;
-        if (videoElement) {
-          currentTime = videoElement.currentTime;
+        if (videoPlayer) {
+          currentTime = videoPlayer.currentTime();
         } else if (isIframe && iframeProps && iframeProps.getCurrentTime) {
           currentTime = iframeProps.getCurrentTime();
         }
@@ -547,27 +398,237 @@ const CaptionRendererInternal = React.forwardRef(
           }
         }
       },
-      [videoElement, caption, iframeProps, isIframe],
+      [caption, videoPlayer, isIframe, iframeProps, updateRenderedCaption],
     );
 
-    useResize(videoElement, updateCaptionContainerStyles, 0, [
-      videoElement,
+    const updateCaptionContainerStyles = (width: number, height: number) => {
+      if (!localCaptionContainer.current || !videoPlayer) {
+        return;
+      }
+      containerDimensions.current = {
+        width: videoPlayer.element()?.offsetWidth || 0,
+        height: videoPlayer.element()?.offsetHeight || 0,
+      };
+      localCaptionContainer.current.style.width = `${width}px`;
+      localCaptionContainer.current.style.height = `${height}px`;
+      handleTimeUpdate(0, true);
+    };
+
+    // Sites like Netflix will remove the caption container. This helps us recreate it
+    useEffect(() => {
+      if (
+        !isInExtension() ||
+        !globalThis.selectedProcessor?.observer ||
+        !globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability
+      ) {
+        return;
+      }
+      let recreateContainer = false;
+      const removalObserver = createElementRemovalObserver(
+        ".nekocap-cap-container",
+        () => {
+          recreateContainer = true;
+          setRecreateLocalCaptionContainer(false);
+        },
+      );
+      const videoSelector =
+        typeof globalThis.selectedProcessor.videoSelector == "string"
+          ? globalThis.selectedProcessor.videoSelector
+          : "video";
+      const additionObserver = createElementAdditionObserver(
+        videoSelector,
+        async () => {
+          if (recreateContainer) {
+            await refreshVideoMeta();
+            recreateContainer = false;
+            setRecreateLocalCaptionContainer(true);
+          }
+        },
+      );
+      return () => {
+        removalObserver.disconnect();
+        additionObserver.disconnect();
+      };
+    }, []);
+
+    // Create the caption element to render into
+    useEffect(() => {
+      if (!captionContainerElement) {
+        return;
+      }
+      captionContainerElement.style.position = "relative";
+      if (document.querySelector(".nekocap-cap-container")) {
+        return;
+      }
+
+      const newCaptionElements: HTMLElement[] = [];
+      const newCaptionTextElements: HTMLElement[] = [];
+      localCaptionContainer.current = document.createElement("div");
+      localCaptionContainer.current.classList.add("nekocap-cap-container");
+      localCaptionContainer.current.style.cssText = localCaptionContainerStyle;
+
+      try {
+        captionContainerElement.insertBefore(
+          localCaptionContainer.current,
+          videoPlayer?.element()?.nextSibling || null,
+        );
+      } catch (e) {
+        console.warn(
+          "Could not insert caption container right after the video element. Defaulting to last child",
+        );
+        captionContainerElement.appendChild(localCaptionContainer.current);
+      }
+
+      const videoElementHeight =
+        isIframe && iframeProps
+          ? iframeProps.height
+          : videoPlayer?.element()?.offsetHeight || 0;
+      for (let trackId = 0; trackId < MAX_TRACKS; trackId++) {
+        for (let i = 0; i < MAX_CONCURRENT_CAPTIONS; i++) {
+          const captionContainer = document.createElement("div");
+          captionContainer.style.cssText = captionWrapperElementStyle;
+          captionContainer.classList.add("nekocap-caption");
+          captionContainer.setAttribute("data-track", trackId.toString(10));
+          captionContainer.style.bottom = `${
+            DEFAULT_BOTTOM_OFFSET_FACTOR * videoElementHeight
+          }px`;
+          localCaptionContainer.current.appendChild(captionContainer);
+
+          const captionTextElement = document.createElement("div");
+          captionTextElement.setAttribute("dir", "auto");
+          captionTextElement.classList.add("nekocap-caption-text");
+          captionTextElement.style.cssText = captionTextElementStyle;
+
+          captionContainer.appendChild(captionTextElement);
+          newCaptionTextElements.push(captionTextElement);
+          newCaptionElements.push(captionContainer);
+        }
+      }
+
+      captionWrapperElements.current = newCaptionElements;
+      captionTextElements.current = newCaptionTextElements;
+
+      return () => {
+        if (!captionContainerElement) {
+          return;
+        }
+        captionWrapperElements.current?.forEach((element) => {
+          element.remove();
+        });
+        captionWrapperElements.current = [];
+        localCaptionContainer.current?.remove();
+        localCaptionContainer.current = undefined;
+      };
+    }, [
+      captionContainerElement,
+      videoPlayer,
+      recreateLocalCaptionContainer,
+      isIframe,
+      iframeProps,
+    ]);
+
+    const resetCurrentCaption = useCallback(() => {
+      if (!caption) {
+        return;
+      }
+      let currentTime = 0;
+      if (videoPlayer) {
+        currentTime = videoPlayer.currentTime();
+      } else if (isIframe && iframeProps && iframeProps.getCurrentTime) {
+        currentTime = iframeProps.getCurrentTime();
+      }
+      const { data } = caption;
+      const currentTimeMs = currentTime * 1000;
+      data.tracks.forEach((track, trackIndex) => {
+        const captionId = findClosestCaption(track.cues, currentTimeMs);
+        currentCaptionIds.current[trackIndex] = captionId;
+      });
+      handleTimeUpdate(0, true);
+    }, [caption, handleTimeUpdate, iframeProps, isIframe, videoPlayer]);
+
+    const handleVideoPlay = useCallback(() => {
+      if (!caption) {
+        return;
+      }
+      resetCurrentCaption();
+    }, [caption, resetCurrentCaption]);
+
+    const handleVideoSeeked = useCallback(() => {
+      resetCurrentCaption();
+    }, [resetCurrentCaption]);
+
+    // Register video listener
+    useEffect(() => {
+      if (videoPlayer) {
+        videoPlayer.addPlayListener(TAG, handleVideoPlay);
+        videoPlayer.addSeekListener(TAG, handleVideoSeeked);
+      }
+
+      currentCaptionIds.current = Array(
+        caption?.data?.tracks?.length || 0,
+      ).fill(0);
+
+      // Update the caption container's width and height to match the video to prevent subs from going into the black bars
+      if (localCaptionContainer.current) {
+        containerDimensions.current = {
+          width:
+            isIframe && iframeProps
+              ? iframeProps.width
+              : videoPlayer?.element()?.offsetWidth || 0,
+          height:
+            isIframe && iframeProps
+              ? iframeProps.height
+              : videoPlayer?.element()?.offsetHeight || 0,
+        };
+        localCaptionContainer.current.style.width = `${containerDimensions.current.width}px`;
+        localCaptionContainer.current.style.height = `${containerDimensions.current.height}px`;
+      }
+
+      return () => {
+        if (!videoPlayer) {
+          return;
+        }
+        videoPlayer.removePlayListener(TAG);
+        videoPlayer.removeSeekListener(TAG);
+      };
+    }, [
+      videoPlayer,
+      caption,
+      isIframe,
+      iframeProps,
+      handleVideoPlay,
+      handleVideoSeeked,
+    ]);
+
+    useResize(videoPlayer?.element(), updateCaptionContainerStyles, 0, [
+      videoPlayer?.element(),
       handleTimeUpdate,
       isIframe,
       iframeProps,
     ]);
 
     useAnimationFrame(60, handleTimeUpdate, [
-      videoElement,
+      videoPlayer,
       caption,
       isIframe,
       iframeProps,
     ]);
 
+    useImperativeHandle<CaptionRendererHandle, CaptionRendererHandle>(
+      ref,
+      () => {
+        return {
+          onVideoPlay: handleVideoPlay,
+          onVideoPause: handleVideoPause,
+          onVideoSeeked: handleVideoSeeked,
+        };
+      },
+    );
+
     // Effect to force rerendering of the caption when the caption data is changed
     useEffect(() => {
       handleTimeUpdate(0, true);
-    }, [caption, preferences]);
+    }, [caption, handleTimeUpdate, preferences]);
 
     // Update display
     useEffect(() => {
@@ -579,38 +640,8 @@ const CaptionRendererInternal = React.forwardRef(
         : "hidden";
     }, [showCaption]);
 
-    const resetCurrentCaption = () => {
-      if (!caption) {
-        return;
-      }
-      let currentTime = 0;
-      if (videoElement) {
-        currentTime = videoElement.currentTime;
-      } else if (isIframe && iframeProps && iframeProps.getCurrentTime) {
-        currentTime = iframeProps.getCurrentTime();
-      }
-      const { data } = caption;
-      const currentTimeMs = currentTime * 1000;
-      data.tracks.forEach((track, trackIndex) => {
-        const captionId = findClosestCaption(track.cues, currentTimeMs);
-        currentCaptionIds.current[trackIndex] = captionId;
-      });
-      handleTimeUpdate(0, true);
-    };
-
-    const handleVideoPlay = () => {
-      if (!caption) {
-        return;
-      }
-      resetCurrentCaption();
-    };
-
     const handleVideoPause = () => {
       // do nothing
-    };
-
-    const handleVideoSeeked = () => {
-      resetCurrentCaption();
     };
 
     useImperativeHandle<CaptionRendererHandle, CaptionRendererHandle>(
@@ -632,7 +663,7 @@ export const CaptionRenderer = React.memo(
   CaptionRendererInternal,
   (prevProps, nextProps) => {
     return (
-      prevProps.videoElement === nextProps.videoElement &&
+      prevProps.videoPlayer === nextProps.videoPlayer &&
       prevProps.captionContainerElement === nextProps.captionContainerElement &&
       prevProps.showCaption === nextProps.showCaption &&
       prevProps.isIframe === nextProps.isIframe &&

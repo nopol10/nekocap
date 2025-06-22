@@ -12,6 +12,7 @@ export const routeNames = {
   },
   caption: {
     browse: "/browse/1",
+    create: "/create",
     view: "/view/:id",
     main: "/caption/:id",
   },

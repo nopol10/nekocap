@@ -8,9 +8,15 @@ import { useDispatch } from "react-redux";
 
 type LoginModalProps = {
   modalProps: ModalFuncProps;
+  title?: string;
+  onClickLogin?: () => void;
 };
 
-export const LoginModal = ({ modalProps }: LoginModalProps): ReactElement => {
+export const LoginModal = ({
+  modalProps,
+  title,
+  onClickLogin,
+}: LoginModalProps): ReactElement => {
   const dispatch = useDispatch();
   const { t } = useTranslation("common");
 
@@ -18,11 +24,16 @@ export const LoginModal = ({ modalProps }: LoginModalProps): ReactElement => {
     dispatch(
       webLoginWithGoogle.request({ background: false, withCaptions: false }),
     );
+    onClickLogin?.();
   };
 
   return (
     <>
-      <Modal {...modalProps} footer={null} title={t("login.loginModalTitle")}>
+      <Modal
+        {...modalProps}
+        footer={null}
+        title={title || t("login.loginModalTitle")}
+      >
         <AuthButton
           src={googleLoginImage.src}
           onClick={handleClickGoogleLogin}

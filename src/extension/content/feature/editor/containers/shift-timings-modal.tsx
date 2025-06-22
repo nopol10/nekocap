@@ -7,6 +7,7 @@ import duration from "dayjs/plugin/duration";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { VideoPlayer } from "../video-player/video-player";
 dayjs.extend(duration);
 
 const StyledDurationInput = styled(DurationInput)`
@@ -47,25 +48,25 @@ const TimeEntryInput = ({
   title,
   value,
   onChange,
-  videoElement,
+  videoPlayer: videoPlayer,
 }: {
   title: string;
   value: string;
   onChange: (event: { target: { value: string } }) => void;
-  videoElement: HTMLVideoElement;
+  videoPlayer: VideoPlayer;
 }) => {
   const handleClickStart = () => {
     onChange({ target: { value: "00:00:00.000" } });
   };
   const handleClickCurrent = () => {
     const duration = dayjs
-      .duration(videoElement.currentTime, "s")
+      .duration(videoPlayer.currentTime(), "s")
       .format("HH:mm:ss.SSS");
     onChange({ target: { value: duration } });
   };
   const handleClickEnd = () => {
     const duration = dayjs
-      .duration(videoElement.duration, "s")
+      .duration(videoPlayer.duration(), "s")
       .format("HH:mm:ss.SSS");
     onChange({ target: { value: duration } });
   };
@@ -92,12 +93,12 @@ export const ShiftTimingsModal = ({
   visible,
   onCancel,
   onShift,
-  videoElement,
+  videoPlayer,
 }: {
   visible: boolean;
   onCancel: (e?: React.MouseEvent<HTMLElement>) => void;
   onShift: (shiftMs: number, startMs: number, endMs: number) => void;
-  videoElement: HTMLVideoElement;
+  videoPlayer: VideoPlayer;
 }): React.ReactElement => {
   const [startTime, setStartTime] = useState("00:00:00.000");
   const [endTime, setEndTime] = useState("00:00:00.000");
@@ -105,14 +106,14 @@ export const ShiftTimingsModal = ({
   const [isForwards, setIsForwards] = useState(true);
 
   useEffect(() => {
-    if (visible && videoElement) {
+    if (visible && videoPlayer) {
       const end = dayjs
-        .duration(videoElement.duration * TIME.SECONDS_TO_MS, "milliseconds")
+        .duration(videoPlayer.duration() * TIME.SECONDS_TO_MS, "milliseconds")
         .format("HH:mm:ss.SSS");
       setStartTime("00:00:00.000");
       setEndTime(end);
     }
-  }, [visible, videoElement]);
+  }, [visible, videoPlayer]);
 
   const handleShiftTimings = () => {
     const shiftMs = (isForwards ? 1 : -1) * parseDurationToMs(shiftDuration);
@@ -157,14 +158,14 @@ export const ShiftTimingsModal = ({
           <TimeEntryInput
             title={"Start"}
             value={startTime}
-            videoElement={videoElement}
+            videoPlayer={videoPlayer}
             onChange={handleChangeStartTime}
           />
           <div>to</div>
           <TimeEntryInput
             title={"End"}
             value={endTime}
-            videoElement={videoElement}
+            videoPlayer={videoPlayer}
             onChange={handleChangeEndTime}
           />
         </Space>

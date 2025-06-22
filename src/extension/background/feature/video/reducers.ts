@@ -74,8 +74,7 @@ export const videoReducer = createReducer<VideoState>(
       .addCase(setShowCaption, (state, action) => {
         const { payload } = action;
         const { show, tabId } = payload;
-        const currentTab: TabVideoData =
-          { ...state.tabData[tabId] } || defaultTabVideoData;
+        const currentTab: TabVideoData = { ...state.tabData[tabId] };
         return {
           ...state,
           tabData: {
