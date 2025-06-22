@@ -116,7 +116,9 @@
     "searchFont": "Pesquisar fonte"
   },
   "login": {
-    "loginModalTitle": "Conecte-se para acessar seu painel de controle"
+    "action": "Login",
+    "loginModalTitle": "Conecte-se para acessar seu painel de controle",
+    "loginModalEditorTitle": "Log in to submit captions"
   },
   "profile": {
     "admin": {
@@ -178,5 +180,8 @@
       "captions": "Legendas",
       "invalidTag": "A etiqueta fornecida é inválida!"
     }
+  },
+  "editor": {
+    "submitCaption": "Submit caption"
   }
 }

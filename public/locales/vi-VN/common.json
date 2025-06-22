@@ -116,7 +116,9 @@
     "searchFont": "Tìm phông chữ"
   },
   "login": {
-    "loginModalTitle": "Đăng nhập để xem trang tổng quan của bạn"
+    "action": "Login",
+    "loginModalTitle": "Đăng nhập để xem trang tổng quan của bạn",
+    "loginModalEditorTitle": "Log in to submit captions"
   },
   "profile": {
     "admin": {
@@ -178,5 +180,8 @@
       "captions": "Captions",
       "invalidTag": "Invalid tag provided!"
     }
+  },
+  "editor": {
+    "submitCaption": "Submit caption"
   }
 }

@@ -116,7 +116,9 @@
     "searchFont": "جست و جو فونت"
   },
   "login": {
-    "loginModalTitle": "برای دسترسی به داشبورد خودتان وارد شوید"
+    "action": "Login",
+    "loginModalTitle": "برای دسترسی به داشبورد خودتان وارد شوید",
+    "loginModalEditorTitle": "Log in to submit captions"
   },
   "profile": {
     "admin": {
@@ -178,5 +180,8 @@
       "captions": "کپشن ها",
       "invalidTag": "برچسب نامعتبر ارائه شده است!"
     }
+  },
+  "editor": {
+    "submitCaption": "Submit caption"
   }
 }
