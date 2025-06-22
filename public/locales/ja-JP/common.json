@@ -116,7 +116,9 @@
     "searchFont": "フォントを検索"
   },
   "login": {
-    "loginModalTitle": "ログインしてダッシュボードにアクセス"
+    "action": "Login",
+    "loginModalTitle": "ログインしてダッシュボードにアクセス",
+    "loginModalEditorTitle": "Log in to submit captions"
   },
   "profile": {
     "admin": {
@@ -178,5 +180,8 @@
       "captions": "字幕",
       "invalidTag": "無効なタグが指定されました!"
     }
+  },
+  "editor": {
+    "submitCaption": "Submit caption"
   }
 }
