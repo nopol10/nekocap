@@ -116,7 +116,9 @@
     "searchFont": "搜索字体"
   },
   "login": {
-    "loginModalTitle": "登入以使用控制台"
+    "action": "Login",
+    "loginModalTitle": "登入以使用控制台",
+    "loginModalEditorTitle": "Log in to submit captions"
   },
   "profile": {
     "admin": {
@@ -178,5 +180,8 @@
       "captions": "字幕",
       "invalidTag": "提供的标签无效！"
     }
+  },
+  "editor": {
+    "submitCaption": "Submit caption"
   }
 }
