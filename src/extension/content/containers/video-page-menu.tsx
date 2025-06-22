@@ -9,9 +9,11 @@ import {
   fetchAutoCaptionList,
   loadLocallySavedCaption,
   saveLocalCaption,
+  setShowSubmitModalOpen,
   updateShowEditor,
 } from "@/common/feature/caption-editor/actions";
 import {
+  inWebEditorSelector,
   isUserCaptionLoadedSelector,
   showEditorIfPossibleSelector,
   tabEditorDataSelector,
@@ -158,11 +160,13 @@ const captionOptionCreator = ({
 type VideoPageMenuProps = {
   inEditorScreen?: boolean;
   style?: CSSProperties;
+  onLoginRequired?: () => void;
 };
 
 export const VideoPageMenu = ({
   inEditorScreen = false,
   style,
+  onLoginRequired,
 }: VideoPageMenuProps) => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(isLoggedInSelector);
@@ -186,12 +190,16 @@ export const VideoPageMenu = ({
   const shouldAutosave = useSelector(shouldAutosaveSelector);
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = useState(false);
   const [isSelectFileOpen, setIsSelectFileOpen] = useState(false);
-  const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [isCreateCaptionWarningOpen, setIsCreateCaptionWarningOpen] =
     useState(false);
   const [isAutoCaptionListOpen, setIsAutoCaptionListOpen] = useState(false);
   const [editorMenuVisible, setEditorMenuVisible] = useState(false);
+  const inWebEditor = useSelector(inWebEditorSelector);
   const isInPopup = useIsInPopup();
+  const isSubmitOpen = editorTabData?.showSubmitModalOpen || false;
+  const setIsSubmitOpen = (isOpen: boolean) => {
+    dispatch(setShowSubmitModalOpen({ tabId: globalThis.tabId, show: isOpen }));
+  };
 
   const newLoadedFileAction =
     useRef<ThunkedPayloadAction<UpdateLoadedCaptionFromFile>>();
@@ -256,7 +264,8 @@ export const VideoPageMenu = ({
     );
   }, [tabData]);
 
-  const showCaption = tabData ? tabData.showCaption : true;
+  const showCaption = tabData?.showCaption ?? true;
+
   const caption = editorTabData ? editorTabData.caption : tabData?.caption;
   const selectedRenderer = tabData?.renderer;
   const editorEnabled = !globalThis.selectedProcessor?.disableEditor;
@@ -469,9 +478,13 @@ export const VideoPageMenu = ({
 
   const handleClickSubmitCaption = () => {
     if (!isLoggedIn) {
-      message.info(
-        "Login from the NekoCap extension icon to use this feature!",
-      );
+      if (globalThis.isInExtension) {
+        message.info(
+          "Login from the NekoCap extension icon to use this feature!",
+        );
+        return;
+      }
+      onLoginRequired?.();
       return;
     }
     setIsSubmitOpen(true);
@@ -506,7 +519,7 @@ export const VideoPageMenu = ({
   };
 
   const renderShowEditorButton = () => {
-    if (!isUserCaptionLoaded) {
+    if (!isUserCaptionLoaded || inWebEditor) {
       return null;
     }
     const label = showEditorIfPossible ? "Close Editor" : "Open Editor";
