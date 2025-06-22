@@ -1,13 +1,3 @@
-import Head from "next/head";
-import React from "react";
-import { batch, useSelector } from "react-redux";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { wrapper } from "@/web/store/store";
-import { NextWrapper } from "@/web/next-helpers/page-wrapper";
-import { GetStaticProps, GetStaticPropsContext } from "next";
-import { ViewerPage } from "@/web/feature/viewer/viewer-page";
-import { useRouter } from "next/router";
-import { loadWebsiteViewerCaptionApi } from "@/web/feature/viewer/api";
 import {
   loadServerCaption,
   setFontList,
@@ -15,14 +5,23 @@ import {
   setRenderer,
   setVideoDimensions,
 } from "@/common/feature/video/actions";
-import { tabVideoDataSelector } from "@/common/feature/video/selectors";
-import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { Dimension } from "@/common/types";
-import { truncate } from "lodash-es";
-import { Main } from "@/web/feature/home/main";
-import { RawCaptionData } from "@/common/feature/video/types";
 import { loadFontListApi } from "@/common/feature/video/api";
+import { tabVideoDataSelector } from "@/common/feature/video/selectors";
+import { RawCaptionData } from "@/common/feature/video/types";
+import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { STRING_CONSTANTS } from "@/common/string-constants";
+import { Dimension } from "@/common/types";
+import { Main } from "@/web/feature/home/main";
+import { loadWebsiteViewerCaptionApi } from "@/web/feature/viewer/api";
+import { ViewerPage } from "@/web/feature/viewer/viewer-page";
+import { NextWrapper } from "@/web/next-helpers/page-wrapper";
+import { wrapper } from "@/web/store/store";
+import { truncate } from "lodash-es";
+import { GetStaticProps, GetStaticPropsContext } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { batch, useSelector } from "react-redux";
 
 const TRANSLATION_NAMESPACES = ["common"];
 const TAB_ID = 0;
@@ -138,7 +137,6 @@ export const getStaticProps: GetStaticProps = NextWrapper.getStaticProps(
           const { caption, renderer } = response;
           hasRawCaption = !!response.rawCaption;
           const tabId = TAB_ID;
-
           const processor = videoSourceToProcessorMap[caption.videoSource];
           const dimensions: Dimension = await processor.retrieveVideoDimensions(
             caption.videoId,

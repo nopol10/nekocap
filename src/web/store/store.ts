@@ -1,14 +1,14 @@
-import { createWrapper } from "next-redux-wrapper";
-import { configureStore } from "@reduxjs/toolkit";
+import { isClient, isServer } from "@/common/client-utils";
+import { statsReducer } from "@/common/feature/stats/slice";
+import { nekocapApi } from "@/common/store/api";
 import { createRootReducer } from "@/extension/background/common/reducer";
 import { reduxBatch } from "@manaflair/redux-batch";
+import { configureStore } from "@reduxjs/toolkit";
+import { createWrapper } from "next-redux-wrapper";
 import logger from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 import { middleware as sagaThunkMiddleware } from "redux-saga-thunk";
-import { isClient, isServer } from "@/common/client-utils";
 import { rootWebSaga } from "./saga";
-import { statsReducer } from "@/common/feature/stats/slice";
-import { nekocapApi } from "@/common/store/api";
 
 const makeStore = () => {
   const sagaMiddleware = isClient() ? createSagaMiddleware() : undefined;
@@ -29,10 +29,9 @@ const makeStore = () => {
             ? undefined
             : logger,
           nekocapApi.middleware,
-        ].filter(Boolean)
+        ].filter(Boolean),
       );
     },
-    // @ts-ignore
     enhancers: [reduxBatch],
   });
 
