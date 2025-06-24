@@ -254,7 +254,7 @@ const OctopusRendererDirect = forwardRef(
       ).href;
 
       const options = {
-        video: videoPlayer?.element(),
+        video: isIframe ? undefined : videoPlayer?.element(),
         canvas: isIframe ? canvas : undefined,
         subContent: rawCaption,
         availableFonts: fontList,
@@ -313,7 +313,7 @@ const OctopusRendererDirect = forwardRef(
       }
       const currentTime = iframeProps?.getCurrentTime();
       octopusInstance.current.setCurrentTime(currentTime);
-    }, [isIframe, iframeProps, octopusInstance]);
+    }, [isIframe, iframeProps]);
 
     useAnimationFrame(4, handleTimeUpdate, [
       videoPlayer,

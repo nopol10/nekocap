@@ -48,9 +48,17 @@ export const YoutubeViewer = ({
       if (!internalPlayer) {
         return;
       }
-      onVideoPlayerReady?.(new YoutubeEmbedVideoPlayer(internalPlayer));
+      if (retrieveVideoData && !youtubeData) {
+        return;
+      }
+      onVideoPlayerReady?.(
+        new YoutubeEmbedVideoPlayer(internalPlayer, {
+          width: youtubeData?.width || embedWidth,
+          height: youtubeData?.height || embedHeight,
+        }),
+      );
     }, 500),
-    [onVideoPlayerReady],
+    [onVideoPlayerReady, youtubeData],
   );
 
   const handleYoutubePlay = () => {

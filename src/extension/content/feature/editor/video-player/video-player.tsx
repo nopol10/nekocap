@@ -1,3 +1,5 @@
+import { Dimension } from "@/common/types";
+
 export type DurationChangeListener = (duration: number) => void;
 export type VolumeChangeListener = (duration: number) => void;
 
@@ -35,4 +37,5 @@ export interface VideoPlayer {
     callback: (_: unknown, metadata: unknown) => void,
   ) => void;
   element: () => HTMLElement | undefined;
+  dimensions: () => Promise<Dimension>;
 }

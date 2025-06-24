@@ -16,6 +16,7 @@ import {
   keyboardShortcutsSelector,
   showEditorSelector,
   tabEditorDataSelector,
+  tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
 import { tabVideoDataSelector } from "@/common/feature/video/selectors";
 import { CaptionFileFormat } from "@/common/types";
@@ -82,6 +83,7 @@ export const EditorContainer: FunctionComponent<EditorContainerProps> = ({
   const dispatch = useDispatch();
   const videoData = useSelector(tabVideoDataSelector(globalThis.tabId));
   const editorData = useSelector(tabEditorDataSelector(globalThis.tabId));
+  const rawEditorData = useSelector(tabEditorRawDataSelector(globalThis.tabId));
   const showEditor = useSelector(showEditorSelector(globalThis.tabId));
   const canUndo = useSelector(canEditorUndoSelector(globalThis.tabId));
   const canRedo = useSelector(canEditorRedoSelector(globalThis.tabId));
@@ -223,6 +225,7 @@ export const EditorContainer: FunctionComponent<EditorContainerProps> = ({
         onExport={handleExport}
         keyboardShortcuts={keyboardShortcuts}
         isSubmitting={isSubmitting}
+        isAdvancedCaption={!!rawEditorData}
       >
         {children}
       </CaptionEditor>

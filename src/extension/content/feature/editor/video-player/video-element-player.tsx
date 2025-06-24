@@ -148,4 +148,11 @@ export class VideoElementPlayer implements VideoPlayer {
       this.videoElement.requestVideoFrameCallback(callback);
     }
   }
+
+  async dimensions() {
+    return {
+      width: this.videoElement.clientWidth,
+      height: this.videoElement.clientHeight,
+    };
+  }
 }

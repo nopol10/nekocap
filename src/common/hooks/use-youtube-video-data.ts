@@ -6,10 +6,10 @@ type YoutubeOEmbedVideoData = {
   html?: string;
   provider_name?: string;
   url?: string;
-  width?: number;
+  width: number;
   author_name?: string;
   author_url?: string;
-  height?: number;
+  height: number;
   thumbnail_height?: number;
   title?: string;
   version?: string;
@@ -20,6 +20,8 @@ type YoutubeOEmbedVideoData = {
 export type YoutubeVideoData = {
   videoId: string;
   title?: string;
+  width: number;
+  height: number;
 };
 
 export function useYoutubeVideoData(videoId?: string) {
@@ -34,6 +36,8 @@ export function useYoutubeVideoData(videoId?: string) {
       const finalData: YoutubeVideoData = {
         videoId: videoId || "",
         title: youtubeData.title,
+        width: youtubeData.width,
+        height: youtubeData.height,
       };
       return finalData;
     },

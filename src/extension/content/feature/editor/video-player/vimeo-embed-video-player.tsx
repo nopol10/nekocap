@@ -186,4 +186,11 @@ export class VimeoEmbedVideoPlayer implements VideoPlayer {
   requestVideoFrameCallback(_: (_: unknown, metadata: unknown) => void) {
     // Not supported in Vimeo player
   }
+
+  async dimensions() {
+    return {
+      width: await this.player.getVideoWidth(),
+      height: await this.player.getVideoHeight(),
+    };
+  }
 }

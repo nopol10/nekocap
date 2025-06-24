@@ -12,15 +12,13 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import type { YouTubePlayer } from "youtube-player/dist/types";
 // import "antd/lib/slider/style";
 import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
-import { isAss } from "@/common/caption-utils";
 import { isClient } from "@/common/client-utils";
 import { colors } from "@/common/colors";
 import { Badges } from "@/common/components/badges";
@@ -29,7 +27,6 @@ import { CHROME_DOWNLOAD_URL, FIREFOX_DOWNLOAD_URL } from "@/common/constants";
 import {
   loadServerCaption,
   loadWebsiteViewerCaption,
-  setIsLoadingRawCaption,
   setPlayerFontSizeMultiplier,
 } from "@/common/feature/video/actions";
 import { CaptionControl } from "@/common/feature/video/components/caption-control";
@@ -38,13 +35,11 @@ import {
   tabVideoDataSelector,
 } from "@/common/feature/video/selectors";
 import {
-  CaptionRendererType,
   RawCaptionData,
   VideoPlayerPreferences,
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { DEVICE } from "@/common/style-constants";
-import { CaptionRendererHandle } from "@/extension/content/containers/caption-renderer";
 import { useRerenderOnResize, useSSRMediaQuery, useStateRef } from "@/hooks";
 import { routeNames } from "@/web/feature/route-types";
 import { useTranslation } from "next-i18next";
@@ -152,16 +147,12 @@ export const ViewerPage = ({
   const [rawCaption, setRawCaption] = useState<RawCaptionData | undefined>(
     undefined,
   );
-  const [captionContainerElement, captionContainerElementRef] =
-    useStateRef<HTMLDivElement>(undefined);
-  const defaultRendererRef = useRef<CaptionRendererHandle>(null);
-  const currentTimeGetter = useRef<() => number>();
+  const [captionContainerElement] = useStateRef<HTMLDivElement>(undefined);
   const isCaptionLoading = useSelector(
     loadWebsiteViewerCaption.isLoading(TAB_ID),
   );
   const isLoading = router.isFallback || isCaptionLoading;
   const fontList = useSelector(fontListSelector());
-  const youtubePlayerRef = useRef<YouTubePlayer>();
   const fullScreenHandle = useFullScreenHandle();
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [videoPlayerPreferences, dispatchVideoPreference] = useReducer<
@@ -211,23 +202,6 @@ export const ViewerPage = ({
     tabData?.isLoadingRawCaption,
     loadComplete,
   ]);
-  const handleFontsLoaded = useCallback(
-    (progress: number) => {
-      if (progress < 1) {
-        dispatch(
-          setIsLoadingRawCaption({
-            loading: true,
-            percentage: progress * 100,
-            tabId: TAB_ID,
-          }),
-        );
-      } else {
-        dispatch(setIsLoadingRawCaption({ loading: false, tabId: TAB_ID }));
-      }
-    },
-    [dispatch],
-  );
-
   const { t } = useTranslation("common");
 
   const noData =
@@ -250,13 +224,6 @@ export const ViewerPage = ({
   };
 
   const { caption, videoDimensions, renderer } = tabData || {};
-
-  const getCurrentTime = useCallback((): number => {
-    if (currentTimeGetter.current) {
-      return currentTimeGetter.current();
-    }
-    return 0;
-  }, []);
 
   const handleClickCopyEmbedLink = () => {
     const url = new URL(globalThis.location.href);
@@ -307,18 +274,6 @@ export const ViewerPage = ({
     iframeWidth = currentEmbedWidth;
   }
 
-  const isUsingAdvancedRenderer =
-    renderer === CaptionRendererType.AdvancedOctopus &&
-    rawCaption &&
-    isAss(rawCaption.type);
-
-  const iframeProps = {
-    height: iframeHeight,
-    width: iframeWidth,
-    left: 0,
-    top: 0,
-    getCurrentTime,
-  };
   const processor = caption
     ? videoSourceToProcessorMap[caption.videoSource]
     : undefined;
