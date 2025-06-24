@@ -4,6 +4,7 @@ import { Typography } from "antd";
 import React, { ReactNode } from "react";
 import { css } from "styled-components";
 import { Processor } from "../extension/content/processors/processor";
+import { isClient } from "./client-utils";
 import { VideoSource } from "./feature/video/types";
 import { videoSourceToProcessorMap } from "./feature/video/utils";
 import { isElementOfType } from "./utils";
@@ -53,6 +54,13 @@ export const getDirectCaptionLoadLink = (
 export const darkModeSelector = (
   styles: ReturnType<typeof css> | string,
 ): ReturnType<typeof css> | string => {
+  if (isClient() && !globalThis.isInExtension) {
+    return css`
+      @media (prefers-color-scheme: dark) {
+        ${styles}
+      }
+    `;
+  }
   const selector = Object.values(videoSourceToProcessorMap)
     .map((processor) => processor.darkModeSelector)
     .filter(Boolean);
