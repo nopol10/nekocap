@@ -2,12 +2,6 @@ import { PageType, VideoSource } from "@/common/feature/video/types";
 import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
-type YoutubeCaptionDetails = {
-  baseUrl: string;
-  languageCode: string;
-  name: { simpleText: string };
-};
-
 export const NekoCapVideoProcessor: Processor = {
   type: VideoSource.Youtube,
   name: "YouTube",
@@ -26,7 +20,6 @@ export const NekoCapVideoProcessor: Processor = {
    * from degrading the performance of the editor and making the page longer and longer
    */
   globalStyles: ``,
-  darkModeSelector: 'html[dark="true"]',
   supportAutoCaptions: () => true,
   getVideoId: () => {
     const matches = window.location.href.match(

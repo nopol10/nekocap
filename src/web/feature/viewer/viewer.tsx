@@ -78,21 +78,19 @@ const VideoWrapper = styled.div`
 const TAB_ID = 0;
 
 export type ViewerProps = {
-  // playerRef?: () ;
   caption?: CaptionContainer;
   rawCaption?: RawCaptionData;
   videoDimensions?: Dimension;
   renderer?: CaptionRendererType;
   fontList: { [name: string]: string };
-  // videoPlayer?: VideoPlayer;
   onSetVideoPlayer?: (player: VideoPlayer) => void;
   videoPlayerPreferences: VideoPlayerPreferences;
   retrieveVideoData?: boolean;
+  onFontsLoaded?: (progress: number) => void;
   autoplay?: boolean;
 };
 
 export const Viewer = ({
-  // playerRef,
   caption,
   rawCaption,
   videoDimensions,
@@ -101,6 +99,7 @@ export const Viewer = ({
   onSetVideoPlayer,
   videoPlayerPreferences,
   retrieveVideoData,
+  onFontsLoaded,
   autoplay,
 }: ViewerProps): JSX.Element => {
   const [loadComplete, setLoadComplete] = useState(false);
@@ -250,6 +249,7 @@ export const Viewer = ({
           fontList={fontList}
           isIframe={true}
           iframeProps={iframeProps}
+          onFontsLoaded={onFontsLoaded}
         />
       )}
     </>

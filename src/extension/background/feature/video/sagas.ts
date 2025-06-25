@@ -120,7 +120,9 @@ function* updateLoadedCaptionFromFileSaga({
     yield put(setIsLoadingRawCaption({ loading: true, percentage: 0, tabId }));
     fontList = yield call(loadFontListApi);
     yield call(storeRawCaption, tabId, rawCaptionData, true);
-    yield put(setShowEditor({ tabId, show: false }));
+    if (isInExtension()) {
+      yield put(setShowEditor({ tabId, show: false }));
+    }
   } else {
     yield call(clearRawCaption, tabId, true);
   }

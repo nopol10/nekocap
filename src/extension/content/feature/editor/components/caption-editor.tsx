@@ -575,6 +575,7 @@ type CaptionEditorProps = UndoComponentProps & {
   onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
   children?: ReactNode; // Insert the video player directly as a child of this node
   toolbarChildren?: ReactNode; // Additional components for the toolbar
+  isAdvancedCaption?: boolean;
 };
 
 const CaptionEditorInternal = ({
@@ -593,6 +594,7 @@ const CaptionEditorInternal = ({
   keyboardShortcuts,
   children,
   toolbarChildren,
+  isAdvancedCaption,
 }: CaptionEditorProps) => {
   const [editorVideoContainer, editorVideoContainerRef] =
     useStateRef<HTMLDivElement>();
@@ -1495,20 +1497,23 @@ const CaptionEditorInternal = ({
 
     return (
       <TextEditorPane>
-        <AutoSizer>
-          {({ width, height }) => (
-            <List
-              ref={textEditorScrollRef}
-              height={height}
-              width={width}
-              rowCount={captionCount}
-              rowHeight={170}
-              overscanRowCount={2}
-              noRowsRenderer={noTextRowRenderer}
-              rowRenderer={trackTextRowRenderer}
-            />
-          )}
-        </AutoSizer>
+        {isAdvancedCaption && <NotAvailableWithAdvancedCaption />}
+        {!isAdvancedCaption && (
+          <AutoSizer>
+            {({ width, height }) => (
+              <List
+                ref={textEditorScrollRef}
+                height={height}
+                width={width}
+                rowCount={captionCount}
+                rowHeight={170}
+                overscanRowCount={2}
+                noRowsRenderer={noTextRowRenderer}
+                rowRenderer={trackTextRowRenderer}
+              />
+            )}
+          </AutoSizer>
+        )}
       </TextEditorPane>
     );
   };
@@ -1708,22 +1713,27 @@ const CaptionEditorInternal = ({
                 </VideoControls>
               </VideoPane>
               <SettingsPane>
-                <SettingsPanel
-                  caption={data}
-                  videoPlayer={videoPlayer}
-                  videoDurationMs={videoDurationMs}
-                  selectedTrack={selectedTrack}
-                  selectedCaption={selectedCaption}
-                  captionModificationState={currentMoveType}
-                  onToggleMoveCaptionPosition={handleToggleMoveCaptionPosition}
-                  onToggleMoveTrackPosition={handleToggleMoveTrackPosition}
-                  onToggleMoveGlobalPosition={handleToggleMoveGlobalPosition}
-                  onUpdateCaption={handleUpdateCaption}
-                />
+                {isAdvancedCaption && <NotAvailableWithAdvancedCaption />}
+                {!isAdvancedCaption && (
+                  <SettingsPanel
+                    caption={data}
+                    videoPlayer={videoPlayer}
+                    videoDurationMs={videoDurationMs}
+                    selectedTrack={selectedTrack}
+                    selectedCaption={selectedCaption}
+                    captionModificationState={currentMoveType}
+                    onToggleMoveCaptionPosition={
+                      handleToggleMoveCaptionPosition
+                    }
+                    onToggleMoveTrackPosition={handleToggleMoveTrackPosition}
+                    onToggleMoveGlobalPosition={handleToggleMoveGlobalPosition}
+                    onUpdateCaption={handleUpdateCaption}
+                  />
+                )}
                 {renderInfoMessage()}
               </SettingsPane>
             </SplitPane>
-            <div>
+            <div style={{ width: "100%" }}>
               <TimelineContainer>
                 <div
                   style={{ paddingLeft: "20px", flexGrow: 0, flexShrink: 0 }}
@@ -1746,22 +1756,25 @@ const CaptionEditorInternal = ({
                     </EditorToolbar>
                   </Space>
                 </div>
-                <EditorTimeline
-                  show={showEditor}
-                  caption={data}
-                  scale={timelineScale}
-                  videoDurationMs={videoDurationMs}
-                  videoPlayer={videoPlayer}
-                  selectedTrack={selectedTrack}
-                  selectedCaption={selectedCaption}
-                  onAddTrack={handleAddTrack}
-                  onRemoveTrack={handleRemoveTrack}
-                  onClickTimeline={handleClickTimeline}
-                  onClickCaption={handleClickCaption}
-                  onNewCaption={handleNewCaption}
-                  setTimelineScroll={setTimelineScroll}
-                  onUpdateCaptionTime={handleUpdateCaptionTime}
-                />
+                {isAdvancedCaption && <NotAvailableWithAdvancedCaption />}
+                {!isAdvancedCaption && (
+                  <EditorTimeline
+                    show={showEditor}
+                    caption={data}
+                    scale={timelineScale}
+                    videoDurationMs={videoDurationMs}
+                    videoPlayer={videoPlayer}
+                    selectedTrack={selectedTrack}
+                    selectedCaption={selectedCaption}
+                    onAddTrack={handleAddTrack}
+                    onRemoveTrack={handleRemoveTrack}
+                    onClickTimeline={handleClickTimeline}
+                    onClickCaption={handleClickCaption}
+                    onNewCaption={handleNewCaption}
+                    setTimelineScroll={setTimelineScroll}
+                    onUpdateCaptionTime={handleUpdateCaptionTime}
+                  />
+                )}
               </TimelineContainer>
             </div>
           </RootSplitPane>
@@ -1804,8 +1817,29 @@ export const CaptionEditor = React.memo(
       prevProps.onSave === nextProps.onSave &&
       prevProps.children === nextProps.children &&
       prevProps.toolbarChildren === nextProps.toolbarChildren &&
+      prevProps.isAdvancedCaption === nextProps.isAdvancedCaption &&
       isShortcutEqual &&
       isSubEqual
     );
   },
 );
+
+function NotAvailableWithAdvancedCaption() {
+  return (
+    <NotAvailableWrapper>
+      Not available with advanced captions
+    </NotAvailableWrapper>
+  );
+}
+
+const NotAvailableWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ${darkModeSelector(`
+    background-color: ${colors.backgroundDark};
+    color: ${colors.textDark};
+  `)} */
+`;

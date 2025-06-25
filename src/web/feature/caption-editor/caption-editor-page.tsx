@@ -5,6 +5,8 @@ import {
   tabEditorDataSelector,
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
+import { setVideoDimensions } from "@/common/feature/video/actions";
+import { useHandleFontsLoaded } from "@/common/feature/video/hooks/use-handle-fonts-loaded";
 import {
   fontListSelector,
   tabVideoDataSelector,
@@ -40,6 +42,9 @@ const InPageVideoContainer = styled.div`
   .nekocap-cap-container {
     width: 100%;
   }
+  .libassjs-canvas-parent {
+    height: 0;
+  }
 `;
 
 const EditorContainerLazy = React.lazy<typeof EditorContainer>(
@@ -68,9 +73,9 @@ export const CaptionEditorPage = ({
   const triggerForceUpdate = useForceUpdate();
   const { renderer, videoDimensions } = videoData || {};
   const fontList = useSelector(fontListSelector());
+  const handleFontsLoaded = useHandleFontsLoaded();
 
   useEffect(() => {
-    // TODO get the video details
     setIsLoading(true);
     globalThis.tabId = 0;
     globalThis.videoSource = videoSource ?? VideoSource.NekoCapYoutube;
@@ -102,6 +107,10 @@ export const CaptionEditorPage = ({
       while (!newPlayer?.element()) {
         await delay(100);
       }
+      const videoDimensions = await newPlayer.dimensions();
+      dispatch(
+        setVideoDimensions({ tabId: TAB_ID, dimensions: videoDimensions }),
+      );
       triggerForceUpdate();
     }
   };
@@ -122,6 +131,7 @@ export const CaptionEditorPage = ({
                 onSetVideoPlayer={handleSetPlayer}
                 videoPlayerPreferences={{ fontSizeMultiplier: 1 }}
                 retrieveVideoData={true}
+                onFontsLoaded={handleFontsLoaded}
                 autoplay={true}
               />
             </InPageVideoContainer>

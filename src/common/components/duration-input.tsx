@@ -21,7 +21,7 @@ const convertRawValueToMomentFormat = (value: string) => {
 
 const StyledNumberFormat = styled(NumberFormat<unknown>)`
   padding: 0 10px;
-  width: 100%;
+  width: fit-content;
   border: 1px solid #d0d0d0;
   .scoped-antd & {
     font-size: 12px;

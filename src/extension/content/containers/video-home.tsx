@@ -11,10 +11,8 @@ import {
   tabEditorDataSelector,
   tabEditorRawDataSelector,
 } from "@/common/feature/caption-editor/selectors";
-import {
-  requestFreshTabData,
-  setIsLoadingRawCaption,
-} from "@/common/feature/video/actions";
+import { requestFreshTabData } from "@/common/feature/video/actions";
+import { useHandleFontsLoaded } from "@/common/feature/video/hooks/use-handle-fonts-loaded";
 import {
   fontListSelector,
   tabVideoDataSelector,
@@ -170,24 +168,7 @@ export const VideoHome = () => {
     shouldHideVideoPageMenuSelector(globalThis.tabId),
   );
   const fontList = useSelector(fontListSelector());
-  const handleFontsLoaded = useCallback(
-    (progress: number) => {
-      if (progress < 1) {
-        dispatch(
-          setIsLoadingRawCaption({
-            loading: true,
-            percentage: progress * 100,
-            tabId: globalThis.tabId,
-          }),
-        );
-      } else {
-        dispatch(
-          setIsLoadingRawCaption({ loading: false, tabId: globalThis.tabId }),
-        );
-      }
-    },
-    [dispatch],
-  );
+  const handleFontsLoaded = useHandleFontsLoaded();
 
   const { renderer, showCaption = true } = videoData || {};
   const caption =

@@ -1,3 +1,4 @@
+import { Dimension } from "@/common/types";
 import PlayerStates from "youtube-player/dist/constants/PlayerStates";
 import { YouTubePlayer } from "youtube-player/dist/types";
 import { VideoPlayer, VolumeChangeListener } from "./video-player";
@@ -18,7 +19,10 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
   private timeUpdateListenerMap: { [tag: string]: () => void };
   private seekListenerMap: { [tag: string]: () => void };
 
-  constructor(videoElement: YouTubePlayer) {
+  constructor(
+    videoElement: YouTubePlayer,
+    private videoDimensions: Dimension,
+  ) {
     this.player = videoElement;
     this.durationChangeListenerMap = {};
     this.volumeChangeListenerMap = {};
@@ -199,5 +203,12 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
 
   requestVideoFrameCallback(_: (_: unknown, metadata: unknown) => void) {
     // Not supported in Youtube player
+  }
+
+  async dimensions() {
+    return {
+      width: this.videoDimensions.width,
+      height: this.videoDimensions.height,
+    };
   }
 }
