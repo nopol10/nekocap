@@ -152,6 +152,7 @@ export const ShiftTimingsModal = ({
       okText={"Shift"}
       onOk={handleShiftTimings}
       title={"Shift timings"}
+      width={"fit-content"}
     >
       <div>
         <Space>
