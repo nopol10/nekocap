@@ -9,9 +9,7 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": [
-      "js/background.js"
-    ]
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
@@ -34,23 +32,18 @@
         "https://*.cu.tbs.co.jp/*",
         "https://*.instagram.com/*",
         "https://*.unext.jp/*",
+        "https://*.lemino.docomo.ne.jp/*",
         "https://*.archive.org/*"
       ],
       "all_frames": true,
       "run_at": "document_end",
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
-      "matches": [
-        "https://*.dailymotion.com/*"
-      ],
+      "matches": ["https://*.dailymotion.com/*"],
       "run_at": "document_end",
       "all_frames": true,
-      "js": [
-        "js/content.js"
-      ]
+      "js": ["js/content.js"]
     },
     {
       "matches": [
@@ -73,13 +66,12 @@
         "https://*.cu.tbs.co.jp/*",
         "https://*.instagram.com/*",
         "https://*.unext.jp/*",
+        "https://*.lemino.docomo.ne.jp/*",
         "https://*.archive.org/*"
       ],
       "all_frames": true,
       "run_at": "document_start",
-      "css": [
-        "js/content.css"
-      ]
+      "css": ["js/content.css"]
     }
   ],
   "icons": {
@@ -87,11 +79,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "permissions": [
-    "storage",
-    "webNavigation",
-    "identity"
-  ],
+  "permissions": ["storage", "webNavigation", "identity"],
   "web_accessible_resources": [
     {
       "resources": [
@@ -122,6 +110,7 @@
         "https://*.cu.tbs.co.jp/*",
         "https://*.instagram.com/*",
         "https://*.unext.jp/*",
+        "https://*.lemino.docomo.ne.jp/*",
         "https://*.archive.org/*"
       ]
     }
