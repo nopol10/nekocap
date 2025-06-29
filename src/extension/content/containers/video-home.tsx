@@ -309,7 +309,7 @@ export const VideoHome = () => {
 
   return ReactDOM.createPortal(
     <>
-      {!shouldHideVideoPageMenu && (
+      {!shouldHideVideoPageMenu && !editorData?.showEditorIfPossible && (
         <ErrorBoundary FallbackComponent={() => <></>}>
           <InPageMenuContainer />
         </ErrorBoundary>

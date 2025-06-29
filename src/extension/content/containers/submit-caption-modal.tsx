@@ -102,7 +102,7 @@ export const SubmitCaptionModal = (props: SubmitCaptionModalProps) => {
   const onClose = useCallback(() => {
     setNewCaptionId(undefined);
     onCancel();
-  }, []);
+  }, [onCancel]);
 
   return (
     <>
