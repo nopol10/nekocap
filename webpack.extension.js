@@ -35,7 +35,6 @@ const updateManifest = (manifestPath, isChrome) => {
   return originalManifestString;
 };
 
-/** @type { import('webpack').ConfigurationFactory } */
 const createServiceWorkerConfig = (env, argv) => {
   const devMode = argv.mode !== "production";
   const targetBrowser = env.targetBrowser;
@@ -50,7 +49,8 @@ const createServiceWorkerConfig = (env, argv) => {
     return prev;
   }, {});
 
-  return {
+  /** @type { import('webpack').Configuration } */
+  const config = {
     mode: devMode ? "development" : "production",
     target: "webworker",
     entry: {
@@ -109,6 +109,7 @@ const createServiceWorkerConfig = (env, argv) => {
       optimization,
     }),
   };
+  return config;
 };
 
 /** @type { import('webpack').ConfigurationFactory } */
@@ -262,6 +263,7 @@ const createContentAndPopupConfig = (env, argv) => {
       extensions: resolveExtensions,
       alias: {
         process: "process/browser",
+        "next-i18next": "react-i18next",
       },
     },
     ...(!devMode && {
