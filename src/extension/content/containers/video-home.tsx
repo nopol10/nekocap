@@ -184,7 +184,7 @@ export const VideoHome = () => {
       ? rawEditorData.type
       : globalThis.rawCaption?.type;
 
-  useCaptionContainerUpdate([caption]);
+  const captionContainerToken = useCaptionContainerUpdate([caption]);
   useVideoElementUpdate([]);
   const requestFreshTabDataCallback = useCallback(async () => {
     if (
@@ -318,6 +318,7 @@ export const VideoHome = () => {
       {isPlayerReady && renderer === CaptionRendererType.Default && (
         <CaptionRenderer
           ref={rendererRef}
+          key={captionContainerToken}
           caption={caption}
           captionContainerElement={
             globalThis.captionContainerElement || undefined

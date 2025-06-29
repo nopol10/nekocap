@@ -18,7 +18,10 @@ import { clearSelection } from "./common/utils";
 import { PopupContext } from "./extension/common/popup-context";
 import { VideoElementPlayer } from "./extension/content/feature/editor/video-player/video-element-player";
 import { VideoPlayer } from "./extension/content/feature/editor/video-player/video-player";
-import { getVideoElement } from "./extension/content/processors/processor";
+import {
+  getCaptionContainerElement,
+  getVideoElement,
+} from "./extension/content/processors/processor";
 
 /**
  * Adapted from https://css-tricks.com/using-requestanimationframe-with-react-hooks/
@@ -335,37 +338,61 @@ export const useVideoPlayerVolumeChange = (
   };
 };
 
+/**
+ * Updates the global `captionContainerElement` and triggers a re-render when the caption container changes.
+ * This is useful for sites that dynamically load or replace the caption container element.
+ * A little hacky,
+ */
 export const useCaptionContainerUpdate = (
   dependencies: DependencyList = [],
 ) => {
-  const [_, setDummy] = useState(0);
+  const [captionContainerToken, setDummy] = useState(0);
   useEffect(() => {
-    const parentElement = globalThis.videoPlayer?.element()?.parentElement;
-    if (parentElement && globalThis.captionContainerElement !== parentElement) {
-      globalThis.captionContainerElement = parentElement;
-      setDummy(Math.random());
-    }
+    const findCaptionContainer = () => {
+      const container = getCaptionContainerElement();
+      globalThis.captionContainerElement = container || null;
+      if (globalThis.captionContainerElement) {
+        setDummy(Math.random());
+      }
+    };
+    setInterval(() => {
+      if (globalThis.captionContainerElement?.isConnected) {
+        return;
+      }
+      findCaptionContainer();
+    }, 1000);
   }, [...dependencies, setDummy]);
+  return captionContainerToken;
 };
 
 export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
   const [_, setDummy] = useState(0);
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
-    const findVideoElement = () => {
+    const findVideoElement = async () => {
       if (!globalThis.selectedProcessor) {
         console.warn("Selected processor not set");
         return;
       }
-      getVideoElement(globalThis.selectedProcessor).then((element) => {
-        globalThis.videoElement = element;
-        globalThis.videoPlayer = new VideoElementPlayer(element);
-        setDummy(Math.random());
-        detectElementRemoval();
-      });
+      const element = await getVideoElement(globalThis.selectedProcessor);
+      globalThis.videoElement = element;
+      globalThis.videoPlayer = new VideoElementPlayer(element);
+      setDummy(Math.random());
+      detectElementRemoval();
     };
 
     const detectElementRemoval = () => {
+      if (
+        globalThis.videoElement &&
+        !document.body.contains(globalThis.videoElement)
+      ) {
+        /**
+         * Some sites like Lemino replace the video element multiple times (probably due to the site running on React / other libraries)
+         * so we need to ensure the element exists in the document before observing it
+         */
+        void findVideoElement();
+        return;
+      }
       mutationObserver.current = new MutationObserver(function (mutations, me) {
         if (mutations.length <= 0) {
           return;
@@ -392,7 +419,7 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
       // Observe when the element gets removed
       detectElementRemoval();
     } else {
-      findVideoElement();
+      void findVideoElement();
     }
     return () => {
       if (mutationObserver.current) {
