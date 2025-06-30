@@ -189,3 +189,20 @@ export const processorOrder = [
   VideoSource.UNEXT,
   VideoSource.Lemino,
 ];
+
+export const YOUTUBE_IGNORED_SITES = [
+  "/accounts.youtube.com",
+  "/studio.youtube.com",
+];
+
+export const SITES_IGNORED_FOR_CONTENT_SCRIPT_LOGIC = [
+  ...YOUTUBE_IGNORED_SITES,
+];
+
+export function isInSiteIgnoredForContent(
+  url: string = globalThis.location.href,
+) {
+  return SITES_IGNORED_FOR_CONTENT_SCRIPT_LOGIC.some((urlPart) =>
+    url.includes(urlPart),
+  );
+}

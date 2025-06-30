@@ -5,8 +5,8 @@ import {
   Z_INDEX,
 } from "@/common/constants";
 import { requestFreshTabData } from "@/common/feature/video/actions";
-import { PageType } from "@/common/feature/video/types";
 import {
+  isInSiteIgnoredForContent,
   processorOrder,
   videoSourceToProcessorMap,
 } from "@/common/feature/video/utils";
@@ -91,8 +91,6 @@ const initialize = async () => {
   if (!globalThis.selectedProcessor) {
     return;
   }
-  const pageType = globalThis.selectedProcessor.getPageType(location.href);
-
   const autoLoadCaptionId = new URL(location.href).searchParams.get("nekocap");
   createEditorPortalElement();
   createVideoUIPortalElement();
@@ -105,7 +103,7 @@ const initialize = async () => {
         }
         saveCaptionToDisk(message.payload);
       } else if (message.type === ChromeMessageType.ContentScriptUpdate) {
-        if (globalThis.pageType !== PageType.Video) {
+        if (isInSiteIgnoredForContent(location.href)) {
           return;
         }
         refreshVideoMeta().then(() => {
@@ -150,25 +148,23 @@ const initialize = async () => {
 
   const { store } = await storeInitPromise;
 
-  if (pageType !== PageType.SearchResults) {
+  if (!isInSiteIgnoredForContent(location.href)) {
     // Get and store the current tab id
     chrome.runtime.sendMessage(
       { type: ChromeMessageType.GetTabId },
       (response) => {
         globalThis.tabId = response;
-        if (pageType === PageType.Video) {
-          // Initialize the tab data once we have the id
-          store.dispatch(
-            requestFreshTabData({
-              tabId: globalThis.tabId,
-              newVideoId: globalThis.videoId,
-              newVideoSource: globalThis.videoSource,
-              newPageType: globalThis.pageType,
-              newCaptionId: autoLoadCaptionId || undefined,
-              currentUrl: location.href,
-            }),
-          );
-        }
+        // Initialize the tab data once we have the id
+        store.dispatch(
+          requestFreshTabData({
+            tabId: globalThis.tabId,
+            newVideoId: globalThis.videoId,
+            newVideoSource: globalThis.videoSource,
+            newPageType: globalThis.pageType,
+            newCaptionId: autoLoadCaptionId || undefined,
+            currentUrl: location.href,
+          }),
+        );
       },
     );
   }
