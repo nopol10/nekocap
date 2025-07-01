@@ -1,25 +1,25 @@
-import { createAction } from "@reduxjs/toolkit";
 import {
   createSignalActionInState,
   createThunkedActionCreator,
 } from "@/common/store/action";
 import type { TabbedType } from "@/common/types";
+import { createAction } from "@reduxjs/toolkit";
 import { videoActionTypes } from "./action-types";
 import type {
-  RequestFreshTabData,
-  LoadServerCaption,
   LoadCaptions,
-  SetServerCaptions,
-  SetShowCaption,
+  LoadServerCaption,
+  RequestFreshTabData,
   SetCaption,
-  UpdateLoadedCaptionFromFile,
-  SetRenderer,
   SetContentPageType,
-  SetMenuHidden,
-  SetVideoDimensions,
   SetFontList,
   SetIsLoadingRawCaption,
+  SetMenuHidden,
   SetPlayerFontSizeMultiplier,
+  SetRenderer,
+  SetServerCaptions,
+  SetShowCaption,
+  SetVideoDimensions,
+  UpdateLoadedCaptionFromFile,
 } from "./types";
 
 const csa = createSignalActionInState("video", true);
@@ -27,11 +27,11 @@ const csa = createSignalActionInState("video", true);
 export const loadCaptions = csa<LoadCaptions>(videoActionTypes.loadCaptions);
 
 export const loadServerCaption = csa<LoadServerCaption>(
-  videoActionTypes.loadServerCaption
+  videoActionTypes.loadServerCaption,
 );
 
 export const loadWebsiteViewerCaption = csa<LoadServerCaption>(
-  videoActionTypes.loadWebsiteViewerCaption
+  videoActionTypes.loadWebsiteViewerCaption,
 );
 
 /**
@@ -41,82 +41,84 @@ export const loadWebsiteViewerCaption = csa<LoadServerCaption>(
  * Opposite goes for dislikeCaption
  */
 export const likeCaption = csa<TabbedType, TabbedType>(
-  videoActionTypes.likeCaption
+  videoActionTypes.likeCaption,
 );
 export const dislikeCaption = csa<TabbedType, TabbedType>(
-  videoActionTypes.dislikeCaption
+  videoActionTypes.dislikeCaption,
 );
 
-export const updateLoadedCaptionFromFile = createThunkedActionCreator<
-  UpdateLoadedCaptionFromFile
->(videoActionTypes.updateLoadedCaptionFromFile);
+export const updateLoadedCaptionFromFile =
+  createThunkedActionCreator<UpdateLoadedCaptionFromFile>(
+    videoActionTypes.updateLoadedCaptionFromFile,
+  );
 
 export const updateShowCaption = createAction<SetShowCaption>(
-  videoActionTypes.updateShowCaption
+  videoActionTypes.updateShowCaption,
 );
 
 export const updateRenderer = createAction<SetRenderer>(
-  videoActionTypes.updateRenderer
+  videoActionTypes.updateRenderer,
 );
 
 export const closeMenuBar = createAction<TabbedType>(
-  videoActionTypes.closeMenuBar
+  videoActionTypes.closeMenuBar,
 );
 
 export const openMenuBar = createAction<TabbedType>(
-  videoActionTypes.openMenuBar
+  videoActionTypes.openMenuBar,
 );
 
 export const requestFreshTabData = createAction<RequestFreshTabData>(
-  videoActionTypes.requestFreshTabData
+  videoActionTypes.requestFreshTabData,
 );
 
 export const clearTabData = createAction<TabbedType>(
-  videoActionTypes.clearTabData
+  videoActionTypes.clearTabData,
 );
 
 export const closeTab = createAction<TabbedType>(videoActionTypes.closeTab);
 
 export const unsetTabData = createAction<TabbedType>(
-  videoActionTypes.unsetTabData
+  videoActionTypes.unsetTabData,
 );
 
 export const setContentPageType = createAction<SetContentPageType>(
-  videoActionTypes.setContentPageType
+  videoActionTypes.setContentPageType,
 );
 
 export const setLoadedCaption = createAction<SetCaption>(
-  videoActionTypes.setCaption
+  videoActionTypes.setCaption,
 );
 
 export const setShowCaption = createAction<SetShowCaption>(
-  videoActionTypes.setShowCaption
+  videoActionTypes.setShowCaption,
 );
 
 export const setServerCaptions = createAction<SetServerCaptions>(
-  videoActionTypes.setServerCaptions
+  videoActionTypes.setServerCaptions,
 );
 
 export const setRenderer = createAction<SetRenderer>(
-  videoActionTypes.setRenderer
+  videoActionTypes.setRenderer,
 );
 
 export const setVideoDimensions = createAction<SetVideoDimensions>(
-  videoActionTypes.setVideoDimensions
+  videoActionTypes.setVideoDimensions,
 );
 
-export const setPlayerFontSizeMultiplier = createAction<
-  SetPlayerFontSizeMultiplier
->(videoActionTypes.setPlayerFontSizeMultiplier);
+export const setPlayerFontSizeMultiplier =
+  createAction<SetPlayerFontSizeMultiplier>(
+    videoActionTypes.setPlayerFontSizeMultiplier,
+  );
 
 export const setMenuHidden = createAction<SetMenuHidden>(
-  videoActionTypes.setMenuHidden
+  videoActionTypes.setMenuHidden,
 );
 
 export const setFontList = createAction<SetFontList>(
-  videoActionTypes.setFontList
+  videoActionTypes.setFontList,
 );
 
 export const setIsLoadingRawCaption = createAction<SetIsLoadingRawCaption>(
-  videoActionTypes.setIsLoadingRawCaption
+  videoActionTypes.setIsLoadingRawCaption,
 );

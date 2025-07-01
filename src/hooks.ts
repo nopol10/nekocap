@@ -532,10 +532,13 @@ export const processorObserveUpdates = (
  * @returns
  */
 export const useMenuUIElementUpdate = (
+  {
+    onVideoMenuUpdate,
+    onVideoMetaUpdate,
+  }: { onVideoMenuUpdate?: () => void; onVideoMetaUpdate?: () => void },
   dependencies: DependencyList = [],
-): { menuUpdateToken: number; videoMetaUpdateToken: number } => {
+): { menuUpdateToken: number } => {
   const [menuUpdateDummy, setMenuUpdateDummy] = useState(0);
-  const [metaUpdateDummy, setMetaUpdateDummy] = useState(0);
   const mutationObserver = useRef<MutationObserver>();
   useEffect(() => {
     if (
@@ -568,11 +571,12 @@ export const useMenuUIElementUpdate = (
             }
           }
           setMenuUpdateDummy(Math.random());
+          onVideoMenuUpdate?.();
         } else if (
           updateEvent === "videoElementAdded" ||
           updateEvent === "videoElementRemoved"
         ) {
-          setMetaUpdateDummy(Math.random());
+          onVideoMetaUpdate?.();
         }
       },
     );
@@ -582,10 +586,14 @@ export const useMenuUIElementUpdate = (
         mutationObserver.current.disconnect();
       }
     };
-  }, [...dependencies, setMenuUpdateDummy]);
+  }, [
+    ...dependencies,
+    onVideoMenuUpdate,
+    onVideoMetaUpdate,
+    setMenuUpdateDummy,
+  ]);
   return {
     menuUpdateToken: menuUpdateDummy,
-    videoMetaUpdateToken: metaUpdateDummy,
   };
 };
 
