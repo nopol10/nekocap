@@ -287,10 +287,10 @@ const CaptionRendererInternal = React.forwardRef(
           return;
         }
         let currentTime = 0;
-        if (videoPlayer) {
-          currentTime = videoPlayer.currentTime();
-        } else if (isIframe && iframeProps && iframeProps.getCurrentTime) {
+        if (isIframe && iframeProps && iframeProps.getCurrentTime) {
           currentTime = iframeProps.getCurrentTime();
+        } else if (videoPlayer) {
+          currentTime = videoPlayer.currentTime();
         }
         const currentTimeMs = currentTime * 1000;
         if (previousTime.current === currentTimeMs && !forceUpdate) {

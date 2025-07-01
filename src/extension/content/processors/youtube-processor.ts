@@ -1,6 +1,7 @@
 import { CaptionDataContainer } from "@/common/caption-parsers/types";
 import { EDITOR_OPEN_ATTRIBUTE, TIME } from "@/common/constants";
 import { PageType, VideoSource } from "@/common/feature/video/types";
+import { isInSiteIgnoredForContent } from "@/common/feature/video/utils";
 import type { Dimension } from "@/common/types";
 import { unescape } from "lodash-es";
 import { Processor, retrieveVideoDimensions } from "./processor";
@@ -189,10 +190,7 @@ export const YoutubeProcessor: Processor = {
     enableYoutubeHotkeys();
   },
   getPageType: (url: string) => {
-    if (
-      url.includes("/accounts.youtube.com") ||
-      url.includes("/studio.youtube.com")
-    ) {
+    if (isInSiteIgnoredForContent(url)) {
       return PageType.SearchResults;
     }
     if (

@@ -2,8 +2,8 @@ import { WSButton } from "@/common/components/ws-button";
 import { setShowSubmitModalOpen } from "@/common/feature/caption-editor/actions";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { LoginModal } from "@/web/feature/home/login-modal";
+import { useTranslation } from "next-i18next";
 import { useCallback } from "react";
-import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 

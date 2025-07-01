@@ -23,6 +23,7 @@ declare global {
   var tabId: number;
   var pageType: PageType;
   var skipAutoLogin: boolean;
+  var initialCaptionId: string | undefined;
   var isInExtension: boolean;
   var isPopupScript: boolean;
   var selectedProcessor: Processor | undefined;

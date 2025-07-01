@@ -184,32 +184,48 @@ export const VideoHome = () => {
       ? rawEditorData.type
       : globalThis.rawCaption?.type;
 
-  useCaptionContainerUpdate([caption]);
+  const captionContainerToken = useCaptionContainerUpdate([caption]);
   useVideoElementUpdate([]);
-  const requestFreshTabDataCallback = useCallback(async () => {
-    if (
-      globalThis.selectedProcessor?.observer &&
-      (!globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability ||
-        !globalThis.selectedProcessor.observer.refreshTabDataAfterElementUpdate)
-    ) {
-      return;
-    }
-    await refreshVideoMeta();
-    dispatch(
-      requestFreshTabData({
-        tabId: globalThis.tabId,
-        newVideoId: globalThis.videoId,
-        newVideoSource: globalThis.videoSource,
-        newPageType: globalThis.pageType,
-        currentUrl: location.href,
-      }),
-    );
-  }, [dispatch]);
-  const { menuUpdateToken, videoMetaUpdateToken } = useMenuUIElementUpdate([]);
+  const requestFreshTabDataCallback = useCallback(
+    async (initialCaptionId?: string) => {
+      if (
+        globalThis.selectedProcessor?.observer &&
+        (!globalThis.selectedProcessor.observer.shouldObserveMenuPlaceability ||
+          !globalThis.selectedProcessor.observer
+            .refreshTabDataAfterElementUpdate)
+      ) {
+        return;
+      }
+      await refreshVideoMeta();
+      dispatch(
+        requestFreshTabData({
+          tabId: globalThis.tabId,
+          newVideoId: globalThis.videoId,
+          newVideoSource: globalThis.videoSource,
+          newPageType: globalThis.pageType,
+          newCaptionId: initialCaptionId,
+          currentUrl: location.href,
+        }),
+      );
+    },
+    [dispatch],
+  );
+  const { menuUpdateToken } = useMenuUIElementUpdate(
+    {
+      onVideoMetaUpdate: requestFreshTabDataCallback,
+    },
+    [],
+  );
 
   useEffect(() => {
-    requestFreshTabDataCallback();
-  }, [videoMetaUpdateToken, requestFreshTabDataCallback]);
+    /**
+     * Run once with the autoloaded caption if present and unset it so
+     * any future page updates won't cause the wrong caption to be loaded
+     * if the user chose a different caption between video meta changes
+     */
+    requestFreshTabDataCallback(globalThis.initialCaptionId);
+    globalThis.initialCaptionId = undefined;
+  }, [requestFreshTabDataCallback]);
   const rendererRef = useRef<CaptionRendererHandle>(null);
 
   const { getIframeVideoTime } = useIframeVideoUpdate({
@@ -309,7 +325,7 @@ export const VideoHome = () => {
 
   return ReactDOM.createPortal(
     <>
-      {!shouldHideVideoPageMenu && (
+      {!shouldHideVideoPageMenu && !editorData?.showEditorIfPossible && (
         <ErrorBoundary FallbackComponent={() => <></>}>
           <InPageMenuContainer />
         </ErrorBoundary>
@@ -318,6 +334,7 @@ export const VideoHome = () => {
       {isPlayerReady && renderer === CaptionRendererType.Default && (
         <CaptionRenderer
           ref={rendererRef}
+          key={captionContainerToken}
           caption={caption}
           captionContainerElement={
             globalThis.captionContainerElement || undefined

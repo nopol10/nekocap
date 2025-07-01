@@ -29,6 +29,27 @@ export const getVideoTitle = async (processor: Processor): Promise<string> => {
   return processor.titleSelector();
 };
 
+export function getCaptionContainerElement() {
+  const parentElement = globalThis.videoPlayer?.element()?.parentElement;
+  if (!parentElement) {
+    return undefined;
+  }
+  if (
+    globalThis.captionContainerElement &&
+    !globalThis.captionContainerElement.isConnected
+  ) {
+    return (
+      globalThis.selectedProcessor?.getCaptionContainerElement?.() ||
+      parentElement
+    );
+  } else if (globalThis.captionContainerElement !== parentElement) {
+    return (
+      globalThis.selectedProcessor?.getCaptionContainerElement?.() ||
+      parentElement
+    );
+  }
+}
+
 export const isInaccurateTitle = (
   title: string,
   processor: Processor,
