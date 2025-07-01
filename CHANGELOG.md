@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.17.0](https://github.com/nopol10/nekocap/compare/1.16.0...1.17.0) (2025-07-01)
+
+### Features
+
+* add AutoLoginProvider in auto-login-context ([7757bc7](https://github.com/nopol10/nekocap/commit/7757bc77c914952c13b4454acc9e7b1be97fef2a))
+* add callback and title override to LoginModal ([bc2d1d5](https://github.com/nopol10/nekocap/commit/bc2d1d5e3ae909b871d4f0bb1c41b2eec2cdd072))
+* add caption editor page ([7d806a8](https://github.com/nopol10/nekocap/commit/7d806a821613b81f574430363980d21abc07245c))
+* add lemino support ([c049b6f](https://github.com/nopol10/nekocap/commit/c049b6f2cfb68f3138458dc583c4862f0078a0f4))
+* add nekocap video processor for in-website editor use ([d1f9e89](https://github.com/nopol10/nekocap/commit/d1f9e89f50244c3079f5521b1c72a71a7eed95ca))
+* add new web editor strings ([25b1726](https://github.com/nopol10/nekocap/commit/25b1726eec59b794c7c89fdaeeb9f794709b531e))
+* add react query provider ([f20602b](https://github.com/nopol10/nekocap/commit/f20602bc8920dbaaadd7c3b54433e23f6fc7e68e))
+* add react query provider to next _app ([474324a](https://github.com/nopol10/nekocap/commit/474324a6eff0fa23fb1a80c75620033fe58aab49))
+* add vimeo embed video player ([167304b](https://github.com/nopol10/nekocap/commit/167304b69a6cda75fa7dc571e0c4b25016feb6df))
+* add youtube to html5 loader package ([c1f9248](https://github.com/nopol10/nekocap/commit/c1f92486293bbf772cf9da83ee94e55b4060ca06))
+* redirect youtube paths to caption creator page ([ede8e41](https://github.com/nopol10/nekocap/commit/ede8e419ccbafb4f62b13b915213051219f04072))
+* support ass captions for web editor ([697e902](https://github.com/nopol10/nekocap/commit/697e902ba0343eb2fe527afb0390ee40a37cd8a2))
+* support opening login modal from Submit caption button on web ([7b394ce](https://github.com/nopol10/nekocap/commit/7b394ce1e3b5e64364a00670d4b9238369e0d694))
+* updates to make the editor work in a webpage ([b431507](https://github.com/nopol10/nekocap/commit/b43150772d3f5052c4c1c790248a8c309b04ba4d))
+* use youtube embed player in editor ([6c82d12](https://github.com/nopol10/nekocap/commit/6c82d1281e8e083482ca28851425e23a97854331))
+
+### Bug Fixes
+
+* fix dailymotion rendering not working after web editor update ([d7af700](https://github.com/nopol10/nekocap/commit/d7af700565414ea785ddde95188284e7acfe097a))
+* fix double display of submission modal in the extension ([01b340b](https://github.com/nopol10/nekocap/commit/01b340b7eb0a7d54b3970aedb03cd6e28f3436d7))
+* fix extension webpack errors caused by next-i18next used in non next context ([82d9d18](https://github.com/nopol10/nekocap/commit/82d9d1827907484db6d56ce1278e4b0c671dcff2))
+* fix navigating from a search result page to a video page not causing the video menu to appear ([020bd33](https://github.com/nopol10/nekocap/commit/020bd33cc1d0dc78b27e36649b163ba21f206133))
+* fix shift timings modal size ([956cedf](https://github.com/nopol10/nekocap/commit/956cedfc2984f55bcc341b6e0410e8d4769472c3))
+* reduce possibility of page not loading the caption defined in the query param on YouTube ([9a99f96](https://github.com/nopol10/nekocap/commit/9a99f96a4f4aea96fe3b507502acfdd4fc7300cf))
+
 ## [1.16.0](https://github.com/nopol10/nekocap/compare/1.15.0...1.16.0) (2025-06-14)
 
 ### Features
