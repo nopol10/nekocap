@@ -12,6 +12,7 @@ import { NekoCapVideoProcessor as NekoCapYoutubeVideoProcessor } from "@/extensi
 import { NetflixProcessor } from "@/extension/content/processors/netflix-processor";
 import { NicoNicoProcessor } from "@/extension/content/processors/niconico-processor";
 import { NogiDogaProcessor } from "@/extension/content/processors/nogidoga-processor";
+import { OneDProcessor } from "@/extension/content/processors/oned-processor";
 import type { Processor } from "@/extension/content/processors/processor";
 import { TBSFreeProcessor } from "@/extension/content/processors/tbs-free-processor";
 import { TikTokProcessor } from "@/extension/content/processors/tiktok-processor";
@@ -159,6 +160,7 @@ export const videoSourceToProcessorMap: { [id: number]: Processor } = {
   [VideoSource.Instagram]: InstagramProcessor,
   [VideoSource.UNEXT]: UNEXTProcessor,
   [VideoSource.Lemino]: LeminoProcessor,
+  [VideoSource.OneD]: OneDProcessor,
   [VideoSource.NekoCapYoutube]: NekoCapYoutubeVideoProcessor,
 };
 
@@ -188,6 +190,7 @@ export const processorOrder = [
   VideoSource.Instagram,
   VideoSource.UNEXT,
   VideoSource.Lemino,
+  VideoSource.OneD,
 ];
 
 export const YOUTUBE_IGNORED_SITES = [

@@ -38,6 +38,7 @@ export enum VideoSource {
   Instagram = 18,
   UNEXT = 19,
   Lemino = 20,
+  OneD = 21,
   // In-website editor sources
   NekoCapYoutube = 9999,
 }
