@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.18.0](https://github.com/nopol10/nekocap/compare/1.17.0...1.18.0) (2025-07-02)
+
+### Features
+
+* add support for OneD ([17a9db2](https://github.com/nopol10/nekocap/commit/17a9db2865fe2b7e7d5b4d98e88a3c9d97bd42a9))
+
 ## [1.17.0](https://github.com/nopol10/nekocap/compare/1.16.0...1.17.0) (2025-07-01)
 
 ### Features
