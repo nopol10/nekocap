@@ -401,18 +401,21 @@ const CaptionRendererInternal = React.forwardRef(
       [caption, videoPlayer, isIframe, iframeProps, updateRenderedCaption],
     );
 
-    const updateCaptionContainerStyles = (width: number, height: number) => {
-      if (!localCaptionContainer.current || !videoPlayer) {
-        return;
-      }
-      containerDimensions.current = {
-        width: videoPlayer.element()?.offsetWidth || 0,
-        height: videoPlayer.element()?.offsetHeight || 0,
-      };
-      localCaptionContainer.current.style.width = `${width}px`;
-      localCaptionContainer.current.style.height = `${height}px`;
-      handleTimeUpdate(0, true);
-    };
+    const updateCaptionContainerStyles = useCallback(
+      (width: number, height: number) => {
+        if (!localCaptionContainer.current || !videoPlayer) {
+          return;
+        }
+        containerDimensions.current = {
+          width: videoPlayer.element()?.offsetWidth || 0,
+          height: videoPlayer.element()?.offsetHeight || 0,
+        };
+        localCaptionContainer.current.style.width = `${width}px`;
+        localCaptionContainer.current.style.height = `${height}px`;
+        handleTimeUpdate(0, true);
+      },
+      [handleTimeUpdate, videoPlayer],
+    );
 
     // Sites like Netflix will remove the caption container. This helps us recreate it
     useEffect(() => {
@@ -603,6 +606,7 @@ const CaptionRendererInternal = React.forwardRef(
     useResize(videoPlayer?.element(), updateCaptionContainerStyles, 0, [
       videoPlayer?.element(),
       handleTimeUpdate,
+      updateCaptionContainerStyles,
       isIframe,
       iframeProps,
     ]);
@@ -612,6 +616,7 @@ const CaptionRendererInternal = React.forwardRef(
       caption,
       isIframe,
       iframeProps,
+      handleTimeUpdate,
     ]);
 
     useImperativeHandle<CaptionRendererHandle, CaptionRendererHandle>(
