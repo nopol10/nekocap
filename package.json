@@ -160,7 +160,7 @@
     "rc-virtual-list": "^3.4.8",
     "react": "^18.3.1",
     "react-color": "^2.19.3",
-    "react-compiler-runtime": "^19.1.0-rc.1",
+    "react-compiler-runtime": "^19.1.0-rc.2",
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.3",
     "react-error-boundary": "^3.0.2",
