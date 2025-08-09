@@ -6,7 +6,7 @@ Sentry.init({
   dsn: SENTRY_DSN || "",
   tracesSampleRate: 0.2,
   integrations: [
-    new Sentry.BrowserTracing({
+    Sentry.browserTracingIntegration({
       tracingOrigins: ["localhost", "meow.nekocap.com"],
     }),
   ],
