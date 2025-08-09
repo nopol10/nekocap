@@ -13,8 +13,9 @@ export const TikTokProcessor: Processor = {
   type: VideoSource.TikTok,
   name: "TikTok",
   urlRegex: /tiktok\.com/,
-  videoSelector: `*[data-e2e="browse-video"] video`,
-  videoPageUISelector: `*[data-e2e="browse-music"]`,
+  videoSelector: `.tiktok-web-player video`,
+  darkModeSelector: "html[data-theme='dark']",
+  videoPageUISelector: `body > *:first-child`,
   updateTitleOnSubmission: true,
   titleSelector: async () => {
     const mainTitle =
@@ -24,10 +25,35 @@ export const TikTokProcessor: Processor = {
   },
   editorVideoPlayerStyles: ``,
   globalStyles: `
-    *[data-e2e="browse-video"] {
-      position: absolute !important;
+    .nekocap-menu-container--floating {
+      z-index: 15000;
+
+      & > div > div {
+        box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;
+        border: 1px solid rgb(159, 181, 195);
+        padding: 8px;
+        border-radius: 16px;
+        background-color: white;
+        
+        html[data-theme='dark'] & {
+          border: 1px solid rgb(106 104 104 / 50%);
+          background-color: rgb(36 34 34 / 97%);
+        }
+
+      }
+
+      img:hover {
+        transform: unset;  
+      }
+    }
+    .tiktok-web-player {
+      position: static !important;
     }
   `,
+  inlineMenu: {
+    insertPosition: "after",
+    isFloating: true,
+  },
   disableAdvancedCaptions: true,
   observer: {
     shouldObserveMenuPlaceability: true,
