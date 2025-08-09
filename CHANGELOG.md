@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.1](https://github.com/nopol10/nekocap/compare/1.18.0...1.18.1) (2025-08-09)
+
+### Bug Fixes
+
+* fix extension preventing certain tiktok videos from playing ([43dd4e5](https://github.com/nopol10/nekocap/commit/43dd4e5dda0dfbd754dd23faaab4159fc96a8afb))
+* fix font size slider not retaining font size while playing ([03311b2](https://github.com/nopol10/nekocap/commit/03311b26b0e77843f2a1f997bb12acf66d34869b))
+
 ## [1.18.0](https://github.com/nopol10/nekocap/compare/1.17.0...1.18.0) (2025-07-02)
 
 ### Features
