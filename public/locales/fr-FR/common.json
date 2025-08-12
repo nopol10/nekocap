@@ -2,45 +2,45 @@
   "title": "NekoCap",
   "tagline": "Meow",
   "home": {
-    "summary": "<bold>View</bold>, <bold>create</bold> and <bold>share</bold> your captions<br />with this <open>open source</open> browser extension",
-    "chromeBadgeAlt": "Chrome Web Store link",
-    "firefoxBadgeAlt": "Firefox Add-on link",
-    "discordBadgeAlt": "Discord link",
+    "summary": "<bold>Visualisez</bold>, <bold>créez</bold> et <bold>partagez</bold> vos sous-titres<br />avec cette extension de navigateur <open>open source</open>",
+    "chromeBadgeAlt": "Lien vers la Boutique Web Chrome",
+    "firefoxBadgeAlt": "Lien vers l'extension Firefox",
+    "discordBadgeAlt": "Lien Discord",
     "feature": {
       "easyToUse": {
-        "title": "Easy to use",
-        "description": "View captions without leaving <youtube>Youtube</youtube> and other supported <videosites>video sites</videosites>"
+        "title": "Facile à utiliser",
+        "description": "Visualisez les sous-titres sans quitter <youtube>YouTube</youtube> et les autres <videosites>sites vidéo</videosites> supportés"
       },
       "advancedEffects": {
-        "title": "Advanced effects",
-        "description": "View complex captions made in Substation Alpha formats (SSA, ASS) using the advanced renderer made possible by <octopus>Subtitle Octopus</octopus>",
-        "viewSupportedFonts": "View supported custom fonts"
+        "title": "Effets avancés",
+        "description": "Visualisez les sous-titres complexes réalisés aux formats Substation Alpha (SSA, ASS) avec le moteur de rendu avancé permis par <octopus>Subtitle Octopus</octopus>",
+        "viewSupportedFonts": "Affichez des polices de caractères personnalisées"
       },
       "convenientEditor": {
-        "title": "Convenient editor",
-        "description": "Create captions with the built-in editor directly in a video's page with the extension.<br />Manual caption positioning, keyboard shortcuts are supported.<br />More features to come!"
+        "title": "Éditeur ergonomique",
+        "description": "Créez des sous-titres avec l'éditeur intégré directement sur la page de la vidéo avec l'extension.<br/>   Positionnement manuel des sous-titres, les raccourcis clavier sont supportés.<br/> D'autres fonctionnalités à venir !"
       },
       "import": {
-        "title": "Import existing captions",
-        "description": "Use tools such as Aegisub or SubtitleEdit to create captions before uploading them through NekoCap. <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold>, <bold>SBV</bold> formats are supported"
+        "title": "Importez des sous-titres existants",
+        "description": "Utilisez des outils tels que Aegisub ou SubtitleEdit pour créer des sous-titres avant de les mettre en ligne sur NekoCap. Les formats  <bold>SSA</bold>, <bold>ASS</bold>, <bold>SRT</bold>, <bold>VTT</bold> et  <bold>SBV</bold> sont pris en charge."
       },
       "community": {
-        "title": "Community moderation",
-        "description": "NekoCap's website comes with tools to let community moderators verify or reject submitted captions. <br /> However, we need volunteers who are fluent in different languages to help moderate submitted captions. <br />If you want to help, join the Discord and give us a ping!"
+        "title": "Modération de la communauté",
+        "description": "Nekocap propose des outils pour permettre aux modérateurs de la communauté de vérifier ou rejeter les sous-titres proposés. <br/> Cependant, nous avons besoins de volontaires polyglotes pour aider à la vérification des sous-titres. <br/> Si vous voulez aider, rejoignez le discord et envoyez nous un ping !"
       }
     },
     "instructions": {
       "view": {
-        "title": "How to view captions",
-        "step1": "Download the extension for <chrome>Chrome</chrome>",
-        "step2": "Watch videos on one of the supported video sites as usual",
-        "step3": "If there are captions for the video, select them from the dropdown!"
+        "title": "Comment visualiser les sous-titres",
+        "step1": "Téléchargez l'extension sur <chrome>Chrome</chrome>",
+        "step2": "Visualisez des vidéos sur l'un des sites pris en charge, comme à votre habitude",
+        "step3": "S'il y a des sous-titres disponibles pour la vidéo, sélectionnez les dans le menu déroulant !"
       },
       "create": {
-        "title": "How to create captions",
-        "step1": "Download the extension for <chrome>Chrome</chrome>",
-        "step2": "Create an account with Nekocap",
-        "step3": "Browse to the page containing the video you want to add a caption for",
+        "title": "Comment créer des sous-titres",
+        "step1": "Téléchargez l'extension pour <chrome>Chrome</chrome>",
+        "step2": "Créez un compte sur Nekocap",
+        "step3": "Rendez-vous sur la page contenant la vidéo que vous souhaitez sous-titrer",
         "step4": "Use the Nekocap editor to create a new caption or upload an existing caption file without leaving the video page!"
       }
     },
