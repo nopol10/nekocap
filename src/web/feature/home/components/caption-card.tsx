@@ -101,6 +101,8 @@ const LanguageInfo = styled.div`
 `;
 
 const CaptionCreator = styled.div`
+  display: flex;
+  gap: 6px;
   font-size: 13px;
   z-index: 10;
 `;
