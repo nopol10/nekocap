@@ -2,11 +2,12 @@ import { loadLatestCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { DEVICE } from "@/common/style-constants";
 import { useSSRMediaQuery } from "@/hooks";
-import { Table, Typography } from "antd";
+import { Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import { ReactElement, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { captionColumns } from "../../common/components/data-columns";
+import { CaptionCard } from "../components/caption-card";
+
 import { DataCard } from "../components/data-card";
 import { MobileCaptionList } from "../components/mobile-caption-list";
 
@@ -21,39 +22,45 @@ export const LatestCaptions = (): ReactElement => {
       return;
     }
     dispatch(loadLatestCaptions.request());
-  }, []);
+  }, [dispatch, latestCaptions.length]);
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const { t } = useTranslation("common");
 
-  const tableColumns = [
-    captionColumns.thumbnail,
-    captionColumns.videoName,
-    captionColumns.captioner,
-    captionColumns.fromToLanguage,
-    captionColumns.videoSource,
-    captionColumns.createdDate,
-  ];
-  const noCaptionsTitle = t("home.latestCaptions");
+  const latestCaptionsTitle = t("home.latestCaptions");
 
   return (
     <>
       {isDesktop && (
-        <DataCard title={noCaptionsTitle}>
-          <Table
-            columns={tableColumns}
-            dataSource={latestCaptions}
-            pagination={false}
-            loading={isLoading}
-            rowKey={"id"}
-            locale={{
-              emptyText: t("home.noCaptions"),
-            }}
-          />
+        <DataCard title={latestCaptionsTitle}>
+          {isLoading ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "200px",
+              }}
+            >
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div style={{ padding: "16px" }}>
+              {latestCaptions.length > 0 ? (
+                latestCaptions.map((caption) => (
+                  <CaptionCard key={caption.id} caption={caption} />
+                ))
+              ) : (
+                <div style={{ textAlign: "center", padding: "20px" }}>
+                  {t("home.noCaptions")}
+                </div>
+              )}
+            </div>
+          )}
         </DataCard>
       )}
       {!isDesktop && (
         <>
-          <Title level={3}>{noCaptionsTitle}</Title>
+          <Title level={3}>{latestCaptionsTitle}</Title>
           <MobileCaptionList captions={latestCaptions} />
         </>
       )}

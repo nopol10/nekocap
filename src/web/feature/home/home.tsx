@@ -102,8 +102,7 @@ const BrowseCaptionButton = styled(WSLinkButton)`
   justify-content: center;
   align-items: center;
   font-size: 18px;
-  border-color: ${colors.ctaBorder};
-  color: ${colors.ctaText};
+  background-color: ${colors.secondary};
   width: 100%;
   &.ant-btn-lg {
     line-height: unset;
@@ -148,8 +147,14 @@ export const Home = (): ReactElement => {
           </MainLogo>
         </div>
         <HomeLayout>
-          <Content style={{ padding: "0 40px", overflowX: "hidden" }}>
-            <WaveDivider />
+          <WaveDivider />
+          <Content
+            style={{
+              padding: "0 40px",
+              maxWidth: "1400px",
+              overflowX: "hidden",
+            }}
+          >
             <WSTitle level={2} textAlign={"center"}>
               <Trans
                 i18nKey={"home.summary"}
@@ -201,6 +206,7 @@ export const Home = (): ReactElement => {
             <Instructions />
             <BrowseCaptionButton
               size={"large"}
+              type={"primary"}
               href={routeNames.caption.browse}
             >
               {t("home.browseAllCaptions")}
@@ -214,6 +220,10 @@ export const Home = (): ReactElement => {
 };
 
 const HomeLayout = styled(WSLayout)`
+  @media ${DEVICE.tablet} {
+    align-items: center;
+  }
+
   @property --gradientX {
     syntax: "<percentage>";
     inherits: false;

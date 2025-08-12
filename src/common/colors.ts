@@ -2,6 +2,7 @@ export const colors = {
   base: "#ffa62b",
   lightHighlight: "#fff8ef",
   alternate: "#FFD838",
+  secondary: "#1eb6dc",
   white: "#fcfaf9",
   like: "#22ad11",
   darkModeLike: "#61f59c",

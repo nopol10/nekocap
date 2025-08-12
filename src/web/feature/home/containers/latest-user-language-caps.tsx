@@ -3,11 +3,11 @@ import { publicDashboardSelector } from "@/common/feature/public-dashboard/selec
 import { getBaseLanguageName } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
 import { useSSRMediaQuery } from "@/hooks";
-import { Table, Typography } from "antd";
+import { Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import { ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { captionColumns } from "../../common/components/data-columns";
+import { CaptionCard } from "../components/caption-card";
 import { DataCard } from "../components/data-card";
 import { MobileCaptionList } from "../components/mobile-caption-list";
 
@@ -21,24 +21,17 @@ export const LatestUserLanguageCaptions = (): ReactElement => {
     loadLatestUserLanguageCaptions.isLoading(undefined),
   );
   const [baseLanguageName, setBaseLanguageName] = useState("");
+
   useEffect(() => {
     if (latestUserLanguageCaptions.length > 0) {
       return;
     }
     dispatch(loadLatestUserLanguageCaptions.request(navigator.language));
     setBaseLanguageName(getBaseLanguageName(navigator.language));
-  }, []);
+  }, [dispatch, latestUserLanguageCaptions.length]);
+
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const { t } = useTranslation("common");
-
-  const tableColumns = [
-    captionColumns.thumbnail,
-    captionColumns.videoName,
-    captionColumns.captioner,
-    captionColumns.fromToLanguage,
-    captionColumns.videoSource,
-    captionColumns.createdDate,
-  ];
 
   return (
     <>
@@ -48,16 +41,30 @@ export const LatestUserLanguageCaptions = (): ReactElement => {
             language: baseLanguageName,
           })}
         >
-          <Table
-            columns={tableColumns}
-            dataSource={latestUserLanguageCaptions}
-            pagination={false}
-            loading={isLoading}
-            rowKey={"id"}
-            locale={{
-              emptyText: t("home.noCaptions"),
-            }}
-          />
+          {isLoading ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "200px",
+              }}
+            >
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div style={{ padding: "16px" }}>
+              {latestUserLanguageCaptions.length > 0 ? (
+                latestUserLanguageCaptions.map((caption) => (
+                  <CaptionCard key={caption.id} caption={caption} />
+                ))
+              ) : (
+                <div style={{ textAlign: "center", padding: "20px" }}>
+                  {t("home.noCaptions")}
+                </div>
+              )}
+            </div>
+          )}
         </DataCard>
       )}
       {!isDesktop && (

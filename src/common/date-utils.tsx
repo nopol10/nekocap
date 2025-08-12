@@ -8,7 +8,7 @@ dayjs.extend(utc);
 
 export const formatDuration = (
   duration: plugin.Duration,
-  format = "HH:mm:ss.SSS"
+  format = "HH:mm:ss.SSS",
 ) => {
   if (duration.asDays() > 1) {
     return duration.days() + " day" + (duration.days() > 1 ? "s" : "");
