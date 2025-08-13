@@ -16,6 +16,18 @@ export const loadLatestCaptionsApi = async () => {
   return captionsWithDetails;
 };
 
+export const loadLatestUserLanguageCaptionsApi = async (locale: string) => {
+  const { captions, status, error }: CaptionsResponse =
+    await Locator.provider().loadLatestUserLanguageCaptions(locale);
+  if (status !== "success") {
+    throw new Error(error);
+  }
+
+  const captionsWithDetails = await populateCaptionDetails(captions);
+
+  return captionsWithDetails;
+};
+
 export const loadBrowseCaptions = async (pageNumber: number) => {
   const { status, error, captions, hasMoreResults, totalCount }: BrowseResults =
     await Locator.provider().browse({
