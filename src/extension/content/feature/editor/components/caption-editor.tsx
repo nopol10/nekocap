@@ -1362,9 +1362,13 @@ const CaptionEditorInternal = ({
       const end = dayjs
         .duration(currentCaption.end, "milliseconds")
         .format("HHmmssSSS");
-      const duration = dayjs
-        .duration(currentCaption.end - currentCaption.start, "milliseconds")
-        .format("HHmmssSSS");
+      const durationPreformat = dayjs.duration(
+        currentCaption.end - currentCaption.start,
+        "milliseconds",
+      );
+      const duration =
+        durationPreformat.format("HHmmss") +
+        durationPreformat.milliseconds().toFixed(0).padStart(3, "0");
 
       // Use a property of the previous caption as part of this row's key so that reordering captions will trigger a refresh
       const previousCaptionKeyPart = currentTrack.cues[index - 1]
