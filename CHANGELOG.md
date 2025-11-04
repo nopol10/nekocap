@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.0](https://github.com/nopol10/nekocap/compare/1.18.1...1.19.0) (2025-11-04)
+
+### Features
+
+* enable french locale ([e689424](https://github.com/nopol10/nekocap/commit/e6894245c7a10bd50ef905f43da8af3d4d37d9c9))
+* fix captioner name's style in homepage ([6f2bde5](https://github.com/nopol10/nekocap/commit/6f2bde562d666b12de28adae2e2608d058d3bd5c))
+* load and cache user language captions ([1fee462](https://github.com/nopol10/nekocap/commit/1fee462b4bee817f6b948d0a5bebf6c94a509d6d))
+* update homepage design ([00d3c9f](https://github.com/nopol10/nekocap/commit/00d3c9f5a65ae9b84d4854972066fe165fe5d941))
+
+### Bug Fixes
+
+* fix wrong duration shown in the editor in certain cases ([5349d03](https://github.com/nopol10/nekocap/commit/5349d03fa9e2a0063032fe592c544340944b5cec))
+
 ## [1.18.1](https://github.com/nopol10/nekocap/compare/1.18.0...1.18.1) (2025-08-09)
 
 ### Bug Fixes
