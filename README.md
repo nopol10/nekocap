@@ -104,6 +104,14 @@ Website:
    1. License information of utilized packages will be in \*.licenses.txt next
       to the output javascript
 
+### Creating a Firefox extension build
+
+1. Copy the contents of `.env.sample` to `.env.prod` and fill in the details.
+   1. Add `PRODUCTION=1` to the end of the file.
+1. Run `npm run build` to build both the extension and the website
+   - Run `npm run build:ext:firefox` to build just the extension
+1. The output will be `dist/extension`
+
 ### If you want to build the NekoCap website Docker image
 
 1. Follow step 1 in [Creating a production build](#creating-a-production-build)
