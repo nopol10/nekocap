@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.19.1](https://github.com/nopol10/nekocap/compare/1.19.0...1.19.1) (2025-12-10)
+
 ## [1.19.0](https://github.com/nopol10/nekocap/compare/1.18.1...1.19.0) (2025-11-04)
 
 ### Features

@@ -2,6 +2,7 @@ dist/js
 node_modules
 .env
 .env.prod
+.env.prod.firefox
 .firebaserc
 webdist/*
 dist/extension

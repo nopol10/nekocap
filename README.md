@@ -72,7 +72,13 @@ Website:
 
 ## Setup for local development
 
-1. Ensure you are using Node 16 (does not work with later versions yet)
+### Tested build environment
+
+1. Node 22.14.0
+1. Windows 10
+
+### Steps
+
 1. Run `npm install`
 1. Copy the contents of `.env.sample` to `.env` and fill in the details.
    - Firebase variables are used for auth
