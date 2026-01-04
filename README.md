@@ -79,7 +79,7 @@ Website:
 
 ### Steps
 
-1. Run `npm install`
+1. Run `npm ci`
 1. Copy the contents of `.env.sample` to `.env` and fill in the details.
    - Firebase variables are used for auth
 1. Run `npm run watch` to start the webpack dev server for both the extension
