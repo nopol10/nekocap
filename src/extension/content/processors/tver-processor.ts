@@ -13,13 +13,35 @@ export const TVerProcessor: Processor = {
   name: "TVer",
   urlRegex: /tver\.jp/,
   videoSelector: "video.vjs-tech",
-  videoPageUISelector: "div[class^=EpisodePlayerLayout_flexContainer]",
-  titleSelector: "*[class^=titles_container__]",
+  videoPageUISelector: "body > div",
+  titleSelector: "*[class^=EpisodeDescription_title]",
   globalStyles: `
   .libassjs-canvas {
     transform: inherit !important;
   }
+
+  .nekocap-menu-container--floating {
+      bottom: 55px;
+      right: 19px;
+
+      & > div > div {
+        box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;
+        border: 1px solid rgb(159, 181, 195);
+        padding: 8px;
+        border-radius: 16px;
+        background-color: white;
+        transition: background-color 0.2s ease-in-out;
+        
+        &:hover {
+          background-color: rgb(207 236 255);
+        }
+      }
+  }
   `,
+  inlineMenu: {
+    insertPosition: "after",
+    isFloating: true,
+  },
   editorVideoPlayerStyles: `
   #playerWrapper {
     width: 100% !important;
