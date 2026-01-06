@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.3](https://github.com/nopol10/nekocap/compare/1.19.2...1.19.3) (2026-01-06)
+
+### Bug Fixes
+
+* fix page element detection in Abema processor ([7686135](https://github.com/nopol10/nekocap/commit/7686135993d460de978a48f9c55c78de872fba21))
+* fix page element detection in TVer processor ([8988264](https://github.com/nopol10/nekocap/commit/8988264d4b1cdd82a7f81ba3581c8009401d93e3))
+
 ## [1.19.2](https://github.com/nopol10/nekocap/compare/1.19.1...1.19.2) (2026-01-04)
 
 ## [1.19.1](https://github.com/nopol10/nekocap/compare/1.19.0...1.19.1) (2025-12-10)
