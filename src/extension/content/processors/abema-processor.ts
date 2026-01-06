@@ -12,10 +12,10 @@ export const AbemaProcessor: Processor = {
   name: "Abema",
   urlRegex: /abema\.tv/,
   videoSelector: `div[class$="__video"] video:first-of-type`,
-  videoPageUISelector: ".com-vod-VODRecommendedContentsContainerView__player",
+  videoPageUISelector: "#main",
   titleSelector: async () => {
     const titleElement = document.querySelector(
-      ".com-video-EpisodeTitleBlock h1"
+      ".com-video-EpisodeTitleBlock h1",
     ) as HTMLElement;
     if (!titleElement) {
       return "";
@@ -26,8 +26,11 @@ export const AbemaProcessor: Processor = {
   .libassjs-canvas-parent, .nekocap-cap-container {
     z-index: 1000;
   }
-    
   `,
+  inlineMenu: {
+    insertPosition: "after",
+    isFloating: true,
+  },
   editorVideoPlayerStyles: `
   `,
   supportAutoCaptions: () => false,
@@ -45,7 +48,7 @@ export const AbemaProcessor: Processor = {
     return ``;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },
