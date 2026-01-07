@@ -16,6 +16,14 @@ const pad = (inString, length, padCharacter) => {
 };
 
 zip.addLocalFolder("../nekocap", "", (filename) => {
+  // Explicitly allow these files even if they match exclusion patterns
+  if (
+    filename.includes(".env.sample") ||
+    filename.includes(".env.prod.firefox")
+  ) {
+    return true;
+  }
+
   const excludedFiles = [
     ".env",
     ".env.prod",
