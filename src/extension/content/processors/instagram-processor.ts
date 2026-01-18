@@ -3,7 +3,7 @@ import type { Dimension } from "@/common/types";
 import { Processor, retrieveVideoDimensions } from "./processor";
 
 const INSTAGRAM_URL_REGEX =
-  /(?:https?:\/\/)(?:www\.)?instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/;
+  /(?:https?:\/\/)(?:www\.)?instagram\.com\/(?:p|reels?)\/([A-Za-z0-9_-]+)/;
 
 /**
  * Processor for Instagram
@@ -15,6 +15,11 @@ export const InstagramProcessor: Processor = {
   videoSelector: "main video",
   videoPageUISelector: "body > *:first-child", // Just need this to be somewhere in the body
   titleSelector: () => Promise.resolve(""), // Instagram videos have no title
+  globalStyles: `
+    .nekocap-menu-container--floating {
+      bottom: 113px;
+    }
+  `,
   editorVideoPlayerStyles: `
     max-height: 80%;
     width: unset;
