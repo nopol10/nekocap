@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.20.0](https://github.com/nopol10/nekocap/compare/1.19.3...1.20.0) (2026-01-18)
+
+### Features
+
+* update source zipper script ([2e46863](https://github.com/nopol10/nekocap/commit/2e468635d69cf20bfd38d151c1311014d265254e))
+
+### Bug Fixes
+
+* fix failing instagram detection ([a85d8b8](https://github.com/nopol10/nekocap/commit/a85d8b8f9ca409311e096b9441910f4e02ae59bc))
+* fix worker csp error detection causing failure to load ass subtitles on youtube ([2f5e805](https://github.com/nopol10/nekocap/commit/2f5e805c6ea8aa69440b10fa285d6e3728724014))
+
 ## [1.19.3](https://github.com/nopol10/nekocap/compare/1.19.2...1.19.3) (2026-01-06)
 
 ### Bug Fixes
