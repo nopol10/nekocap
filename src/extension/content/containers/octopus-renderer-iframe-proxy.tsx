@@ -16,6 +16,7 @@ import {
 } from "react";
 import { CaptionRendererHandle } from "./caption-renderer";
 import { OctopusRendererProps } from "./octopus-renderer";
+import { VideoPlayer } from "../feature/editor/video-player/video-player";
 
 /**
  * This is responsible for creating the content page iframe and posting video and caption related properties to the iframe.
@@ -84,15 +85,19 @@ export const OctopusRendererIframeProxy = forwardRef(
       isIframe,
       iframeProps,
     ]);
-    const videoElementWidth = videoPlayer?.element()?.offsetWidth || 0;
-    const videoElementHeight = videoPlayer?.element()?.offsetHeight || 0;
     useEffect(
       function spawnIframeAndListen() {
         if (!captionContainerElement) {
           console.error("Caption container element is not provided");
           return;
         }
-        const [iframe, iframeContainer] = createContentPageCanvasIframe();
+        const { videoElementWidth, videoElementHeight, videoElementLeft } =
+          getVideoElementLayoutProperties(videoPlayer);
+        const [iframe, iframeContainer] = createContentPageCanvasIframe(
+          videoElementWidth,
+          videoElementHeight,
+          videoElementLeft,
+        );
         captionContainerElement.appendChild(iframeContainer);
         iframeRef.current = iframe;
         let width = 0,
@@ -116,6 +121,25 @@ export const OctopusRendererIframeProxy = forwardRef(
           if (event.data.type === CanvasIframeToParentMessageType.Ready) {
             canvasIframeListenerReady = true;
             console.log("Canvas iframe listener is ready");
+            iframe.contentWindow?.postMessage(
+              {
+                type: ParentToCanvasIframeMessageType.UpdateContentIframeVideoProperties,
+                width,
+                height,
+                rawCaption,
+              },
+              "*",
+            );
+            // Need to set the style again as this can be called when the iframe's position changes
+            // For e.g. when youtube player switches from default to cinema view
+            const { videoElementWidth, videoElementHeight, videoElementLeft } =
+              getVideoElementLayoutProperties(videoPlayer);
+            setIframeContainerStyle(
+              iframeContainer,
+              videoElementWidth,
+              videoElementHeight,
+              videoElementLeft,
+            );
           } else if (
             event.data.type === CanvasIframeToParentMessageType.FontLoadProgress
           ) {
@@ -123,17 +147,6 @@ export const OctopusRendererIframeProxy = forwardRef(
           }
         }
         window.addEventListener("message", onIframeMessage);
-        waitUntil(() => canvasIframeListenerReady).then(() => {
-          iframe.contentWindow?.postMessage(
-            {
-              type: ParentToCanvasIframeMessageType.UpdateContentIframeVideoProperties,
-              width,
-              height,
-              rawCaption,
-            },
-            "*",
-          );
-        });
 
         return () => {
           window.removeEventListener("message", onIframeMessage);
@@ -152,8 +165,8 @@ export const OctopusRendererIframeProxy = forwardRef(
         onFontsLoaded,
         rawCaption,
         videoPlayer,
-        videoElementWidth,
-        videoElementHeight,
+        // videoElementWidth,
+        // videoElementHeight,
       ],
     );
 
@@ -183,14 +196,13 @@ export const OctopusRendererIframeProxy = forwardRef(
   },
 );
 
-function createContentPageCanvasIframe() {
+function createContentPageCanvasIframe(
+  width?: number,
+  height?: number,
+  left?: number,
+) {
   const iframeContainer = document.createElement("div");
-  iframeContainer.style.position = "absolute";
-  iframeContainer.style.pointerEvents = "none";
-  iframeContainer.style.zIndex = "10000";
-  iframeContainer.style.width = "100%";
-  iframeContainer.style.height = "100%";
-  iframeContainer.style.top = "0";
+  setIframeContainerStyle(iframeContainer, width, height, left);
   const root = iframeContainer.attachShadow({ mode: "closed" });
 
   const iframe = document.createElement("iframe");
@@ -207,4 +219,31 @@ function createContentPageCanvasIframe() {
   const url = new URL(chrome.runtime.getURL("canvas-iframe.html"));
   iframe.src = url.toString();
   return [iframe, iframeContainer] as const;
+}
+
+function setIframeContainerStyle(
+  iframeContainer: HTMLDivElement,
+  width?: number,
+  height?: number,
+  left?: number,
+) {
+  iframeContainer.style.position = "absolute";
+  iframeContainer.style.pointerEvents = "none";
+  iframeContainer.style.zIndex = "10000";
+  iframeContainer.style.width = width ? `${width}px` : "100%";
+  iframeContainer.style.height = height ? `${height}px` : "100%";
+  iframeContainer.style.left = left ? `${left}px` : "0";
+  iframeContainer.style.top = "0";
+}
+
+function getVideoElementLayoutProperties(videoPlayer?: VideoPlayer) {
+  const videoElement = videoPlayer?.element();
+  const videoElementWidth = videoElement?.offsetWidth || 0;
+  const videoElementHeight = videoElement?.offsetHeight || 0;
+  const videoElementLeft = videoElement?.offsetLeft || 0;
+  return {
+    videoElementWidth,
+    videoElementHeight,
+    videoElementLeft,
+  };
 }

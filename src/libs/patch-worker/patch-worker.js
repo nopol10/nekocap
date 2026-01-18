@@ -58,7 +58,7 @@ const IGNORED_SITES = ["/accounts.youtube.com", "/studio.youtube.com"];
     try {
       return new Worker_(scriptURL);
     } catch (e) {
-      console.warn("Could not create original worker", e);
+      console.warn("Could not create original worker", e, e.code);
       if (e.code === 18 /*DOMException.SECURITY_ERR*/) {
         return new WorkerXHR(scriptURL);
       } else {
@@ -84,6 +84,17 @@ const IGNORED_SITES = ["/accounts.youtube.com", "/studio.youtube.com"];
   }
   function WorkerXHR(scriptURL) {
     var worker = this;
+
+    // Listen for CSP violations that may block the worker blob URL
+    var cspViolationHandler = function (e) {
+      if (e.violatedDirective && e.violatedDirective.includes("worker")) {
+        console.warn("[NekoCap] Worker blocked by CSP:", e);
+        worker.failedToInitialize = true;
+        document.removeEventListener("securitypolicyviolation", cspViolationHandler);
+      }
+    };
+    document.addEventListener("securitypolicyviolation", cspViolationHandler);
+
     var x = new XMLHttpRequest();
     x.responseType = "blob";
     x.onload = function () {
@@ -106,7 +117,7 @@ const IGNORED_SITES = ["/accounts.youtube.com", "/studio.youtube.com"];
         bindWorker(worker, workerURL);
         worker.initialized = true;
       } catch (e) {
-        console.warn("Could not bind worker:", e);
+        console.warn("[NekoCap] Could not bind worker in onload:", e);
         worker.failedToInitialize = true;
       }
     };

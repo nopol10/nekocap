@@ -94,6 +94,10 @@ export const YoutubeProcessor: Processor = {
         display: none;
       }
     }
+
+    .html5-video-container {
+      height: 100%;
+    }
   `,
   darkModeSelector: "html[dark]",
   supportAutoCaptions: () => true,
