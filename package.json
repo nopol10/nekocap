@@ -24,6 +24,7 @@
     "lint:fix": "eslint --ext .ts,.tsx --fix ./src",
     "release": "release-it && npm run build:ext",
     "fontlist": "ts-node-transpile-only export-font-list.ts",
+    "add-font": "ts-node-transpile-only add-google-font.ts",
     "postinstall": "patch-package"
   },
   "author": "nopol10",
