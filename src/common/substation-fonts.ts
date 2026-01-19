@@ -142,7 +142,7 @@ export const SUBSTATION_GROUPED_FONTS = {
   japanese: {
     akazukipop: "/fonts/AkazukiPOP.woff2",
     cinecaption: "/fonts/cinecaption.woff2",
-    しねきゃぷしょん: "/fonts/cinecaption.woff2",
+    "しねきゃぷしょん": "/fonts/cinecaption.woff2",
     "epson futo marugo": "/fonts/EPSON-FUTO-MARUGO.woff2",
     "epson 太丸ゴシック体b": "/fonts/EPSON-FUTO-MARUGO.woff2",
     "gensekigothic jp l": "/fonts/GenSekiGothicJP-L.woff2",
