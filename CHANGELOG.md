@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.21.0](https://github.com/nopol10/nekocap/compare/1.20.0...1.21.0) (2026-01-19)
+
+### Features
+
+* add new fonts ([9264312](https://github.com/nopol10/nekocap/commit/9264312953c4de82c6d8de5e067d132eb55b5251))
+* update source zipping excludes ([a3a3a63](https://github.com/nopol10/nekocap/commit/a3a3a637b45fa0db140ad502d33727ef62a66ac4))
+
+### Bug Fixes
+
+* add quotation to non english substation font names ([63c3877](https://github.com/nopol10/nekocap/commit/63c3877cb5d96176682403c304937a2a5166932c))
+* fix advanced captions not being expanded when in fullscreen mode in some cases ([2dffdae](https://github.com/nopol10/nekocap/commit/2dffdaef6dcb95b6d862aff28ef4c1bf03e9e996))
+
 ## [1.20.0](https://github.com/nopol10/nekocap/compare/1.19.3...1.20.0) (2026-01-18)
 
 ### Features
