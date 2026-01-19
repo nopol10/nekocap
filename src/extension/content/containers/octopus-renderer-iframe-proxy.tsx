@@ -4,7 +4,7 @@ import {
   CanvasIframeToParentMessageType,
   ParentToCanvasIframeMessageType,
 } from "@/common/types";
-import { waitUntil } from "@/common/utils";
+import { createGlobalStyle } from "styled-components";
 import { useAnimationFrame } from "@/hooks";
 import {
   forwardRef,
@@ -111,7 +111,6 @@ export const OctopusRendererIframeProxy = forwardRef(
         }
         iframe.style.width = "100%";
         iframe.style.height = "100%";
-        let canvasIframeListenerReady = false;
         function onIframeMessage(
           event: MessageEvent<CanvasIframeToParentMessage>,
         ) {
@@ -119,7 +118,6 @@ export const OctopusRendererIframeProxy = forwardRef(
             return;
           }
           if (event.data.type === CanvasIframeToParentMessageType.Ready) {
-            canvasIframeListenerReady = true;
             console.log("Canvas iframe listener is ready");
             iframe.contentWindow?.postMessage(
               {
@@ -165,8 +163,6 @@ export const OctopusRendererIframeProxy = forwardRef(
         onFontsLoaded,
         rawCaption,
         videoPlayer,
-        // videoElementWidth,
-        // videoElementHeight,
       ],
     );
 
@@ -192,7 +188,11 @@ export const OctopusRendererIframeProxy = forwardRef(
         };
       },
     );
-    return <>IFrame octopus</>;
+    return (
+      <>
+        <GlobalStyle />
+      </>
+    );
   },
 );
 
@@ -227,13 +227,25 @@ function setIframeContainerStyle(
   height?: number,
   left?: number,
 ) {
+  iframeContainer.classList.add("nekocap-iframe-canvas-container");
   iframeContainer.style.position = "absolute";
   iframeContainer.style.pointerEvents = "none";
+  // Use a lower z-index to avoid interfering with YouTube's fullscreen stacking context
   iframeContainer.style.zIndex = "10000";
-  iframeContainer.style.width = width ? `${width}px` : "100%";
-  iframeContainer.style.height = height ? `${height}px` : "100%";
-  iframeContainer.style.left = left ? `${left}px` : "0";
+  // Use percentage-based dimensions so it scales properly during fullscreen
+  iframeContainer.style.height = "100%";
   iframeContainer.style.top = "0";
+  iframeContainer.style.left = "0";
+  // iframeContainer.style.contain = "layout";
+  iframeContainer.style.setProperty(
+    "--videoAspect",
+    `${(width || 1) / (height || 1)}`,
+  );
+  iframeContainer.style.aspectRatio = "var(--videoAspect)";
+  // This is needed for Youtube's cinema mode (without full screen)
+  if (width && height && left) {
+    iframeContainer.style.left = `${left}px`;
+  }
 }
 
 function getVideoElementLayoutProperties(videoPlayer?: VideoPlayer) {
@@ -247,3 +259,20 @@ function getVideoElementLayoutProperties(videoPlayer?: VideoPlayer) {
     videoElementLeft,
   };
 }
+
+/**
+ * This global style ensures that when the video player enters fullscreen mode
+ * or bugged full screen mode (e.g. when uBlock messes up full screen on youtube and full screen only)
+ * expands within the browser viewport, it will still maintain the video's aspect ratio
+ * and be centered horizontally
+ */
+const GlobalStyle = createGlobalStyle`
+  .nekocap-iframe-canvas-container {
+    &:fullscreen, .ytp-full-bleed-player & {
+      height: 100% !important;
+      width: unset !important;
+      left: calc((100vw - var(--videoAspect) * 100vh) / 2) !important;
+      aspect-ratio: var(--videoAspect) !important;
+    }
+  }
+`;
