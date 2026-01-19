@@ -35,6 +35,7 @@ zip.addLocalFolder("../nekocap", "", (filename) => {
     ".vscode",
     "node_modules",
     "server-fonts",
+    "add-google-font.ts",
     "webdist",
     ".eslintcache",
     "Dockerfile",
