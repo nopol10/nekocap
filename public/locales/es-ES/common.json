@@ -2,7 +2,7 @@
   "title": "NekoCap",
   "tagline": "Meow",
   "home": {
-    "summary": "<bold>Mira</bold>, <bold>crea</bold> y <bold>comparta</bold> sus subtítulos<br />con esta extensión de <open>código abierto</open>",
+    "summary": "<bold>Mira</bold>, <bold>crea</bold> y <bold>comparte</bold> tus subtítulos<br />con esta extensión de <open>código abierto</open>",
     "chromeBadgeAlt": "Link a la Chrome Web Store",
     "firefoxBadgeAlt": "Link a Firefox Add-on",
     "discordBadgeAlt": "Link a Discord",
@@ -13,12 +13,12 @@
       },
       "advancedEffects": {
         "title": "Efectos avanzados",
-        "description": "Ver subtítulos complejos hechos en formatos Substation Alpha (SSA, ASS) usando el renderizador avanzado hecho posible por <octopus>Subtitle October</octopus>",
+        "description": "Ver subtítulos complejos hechos en formatos Substation Alpha (SSA, ASS) usando el renderizador avanzado hecho posible por <octopus>Subtitle Octopus</octopus>",
         "viewSupportedFonts": "Ver tipos de letra personalizadas compatibles"
       },
       "convenientEditor": {
         "title": "Editor conveniente",
-        "description": "Crea subtítulos con el editor integrado directamente en la página de vídeo con la extensión.<br />posicionamiento manual de capturas, atajos de teclado son compatibles.<br />¡Más características por venir!"
+        "description": "Crea subtítulos con el editor integrado directamente en la página de vídeo con la extensión.<br />posicionamiento manual de subtítulos, atajos de teclado son compatibles.<br />¡Más características por venir!"
       },
       "import": {
         "title": "Importar subtítulos existentes",
@@ -44,8 +44,8 @@
         "step4": "¡Usa el editor de NekoCap para crear nuevos subtítulos o subir un archivo de subtítulos existente sin salir de la página de vídeo!"
       }
     },
-    "browseAllCaptions": "Busca todos los subtítulos",
-    "twitterSuspensionNotice": "Recientemente, la cuenta de NekoCap en X (Twitter) fue suspendida de forma errónea por supuesta actividad maliciosa. Por lo tanto, si quieren contactarme, únanse al Discord o escríbeme mediante Instagram",
+    "browseAllCaptions": "Explorar todos los subtítulos",
+    "twitterSuspensionNotice": "Recientemente, la cuenta de NekoCap en X (Twitter) fue suspendida de forma errónea por supuesta actividad maliciosa. Por lo tanto, si quieren contactarme, únanse al Discord o escríbanme mediante Instagram.",
     "latestCaptions": "Últimos subtítulos",
     "latestLanguageCaption": "Últimos subtítulos en {{language}}",
     "noCaptions": "¡No hay subtítulos! ¡Puedes contribuir a los subtítulos con esta extensión!",
@@ -75,7 +75,7 @@
       }
     },
     "browseCaptions": {
-      "title": "Busca todos los subtítulos"
+      "title": "Explorar todos los subtítulos"
     },
     "search": {
       "inputPlaceholder": "Busca un video",
@@ -111,7 +111,7 @@
     "noFonts": "¡No hay tipo de letra!",
     "availableFonts": "Tipos de letra disponibles",
     "hideAllFontPreviews": "Ocultar todas las vistas previas de tipos de letra",
-    "previewAllFonts": "Mirar todos los tipos de letra",
+    "previewAllFonts": "Previsualizar todos los tipos de letra",
     "largeFontDownloadWarning": "¡Advertencia! ¡Esto descargará muchos megabytes de archivos de tipos de letra grandes!",
     "searchFont": "Buscar tipo de letra"
   },
@@ -155,7 +155,7 @@
     "copyEmbedCode": "Copiar código embed",
     "copyEmbedCodeSuccess": "¡Código embed copiado al portapapeles!",
     "captionSubmittedBy": "Subtítulos enviados por <captioner>{{creatorName}}</captioner>",
-    "downloadNekocapMessage": "Para obtener la mejor experiencia de visualización y creación de captaciones, descarga la extensión NekoCap y ve los subtítulos directamente en {{site}}.",
+    "downloadNekocapMessage": "Para obtener la mejor experiencia de visualización y creación de subtítulos, descarga la extensión NekoCap y ve los subtítulos directamente en {{site}}.",
     "captionRenderError": "Se ha producido un error al procesar estos subtítulos. ¡Lo sentimos!"
   },
   "common": {
