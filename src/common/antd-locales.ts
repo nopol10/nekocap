@@ -1,4 +1,5 @@
 import enUS from "antd/locale/en_US";
+import esES from "antd/locale/es_ES";
 import faIR from "antd/locale/fa_IR";
 import frFR from "antd/locale/fr_FR";
 import jaJP from "antd/locale/ja_JP";
@@ -9,6 +10,7 @@ import zhTW from "antd/locale/zh_TW";
 
 export const ANTD_LOCALES = {
   "en-US": enUS,
+  "es-ES": esES,
   "fr-FR": frFR,
   "ja-JP": jaJP,
   "pt-BR": ptBR,

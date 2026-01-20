@@ -1,5 +1,6 @@
 export const DAYJS_LOCALES = {
   "en-US": "en",
+  "es-ES": "es",
   "fr-FR": "fr",
   "ja-JP": "ja",
   "pt-BR": "pt-br",

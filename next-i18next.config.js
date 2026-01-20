@@ -5,6 +5,7 @@ module.exports = {
     defaultLocale: "en",
     locales: [
       "en",
+      "es-ES",
       "fa-IR",
       "fr-FR",
       "ja-JP",
