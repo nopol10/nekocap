@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.22.0](https://github.com/nopol10/nekocap/compare/1.21.0...1.22.0) (2026-03-09)
+
+### Features
+
+* enable spanish locale ([713173d](https://github.com/nopol10/nekocap/commit/713173df25e70a9466cc93139a718f34df423a53))
+
+### Bug Fixes
+
+* fix not being able to correctly identify certain CSP issues blocking worker creation ([9af14db](https://github.com/nopol10/nekocap/commit/9af14db34a62589f5b0293e6be7c10df68b4b174))
+
 ## [1.21.0](https://github.com/nopol10/nekocap/compare/1.20.0...1.21.0) (2026-01-19)
 
 ### Features
