@@ -59,11 +59,7 @@ const IGNORED_SITES = ["/accounts.youtube.com", "/studio.youtube.com"];
       return new Worker_(scriptURL);
     } catch (e) {
       console.warn("Could not create original worker", e, e.code);
-      if (e.code === 18 /*DOMException.SECURITY_ERR*/) {
-        return new WorkerXHR(scriptURL);
-      } else {
-        throw e;
-      }
+      return new WorkerXHR(scriptURL);
     }
   };
   // Bind events and replay queued messages
@@ -90,7 +86,10 @@ const IGNORED_SITES = ["/accounts.youtube.com", "/studio.youtube.com"];
       if (e.violatedDirective && e.violatedDirective.includes("worker")) {
         console.warn("[NekoCap] Worker blocked by CSP:", e);
         worker.failedToInitialize = true;
-        document.removeEventListener("securitypolicyviolation", cspViolationHandler);
+        document.removeEventListener(
+          "securitypolicyviolation",
+          cspViolationHandler,
+        );
       }
     };
     document.addEventListener("securitypolicyviolation", cspViolationHandler);

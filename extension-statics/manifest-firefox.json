@@ -90,6 +90,37 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "canvas-iframe.html",
+        "canvas-iframe.js"
+      ],
+      "matches": [
+        "https://*.youtube.com/*",
+        "https://*.tver.jp/*",
+        "https://*.nicovideo.jp/*",
+        "https://*.vimeo.com/*",
+        "https://*.bilibili.com/*",
+        "https://*.netflix.com/*",
+        "https://*.primevideo.com/*",
+        "https://*.twitter.com/*",
+        "https://*.x.com/*",
+        "https://*.wetv.vip/*",
+        "https://*.tiktok.com/*",
+        "https://*.iq.com/*",
+        "https://*.abema.tv/*",
+        "https://*.dailymotion.com/*",
+        "https://*.bilibili.tv/*",
+        "https://*.nogidoga.com/*",
+        "https://*.cu.tbs.co.jp/*",
+        "https://*.instagram.com/*",
+        "https://*.unext.jp/*",
+        "https://*.lemino.docomo.ne.jp/*",
+        "https://*.oned.net/*",
+        "https://*.archive.org/*"
+      ],
+      "use_dynamic_url": true
+    },
+    {
+      "resources": [
         "img/*.jpg",
         "img/*.png",
         "img/*.gif",
