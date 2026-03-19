@@ -1,6 +1,6 @@
 import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import type { GetServerSideProps, GetStaticProps } from "next";
-import * as Parse from "parse/node";
+import Parse from "parse/node";
 
 const parseProvider = new ParseProvider(
   Parse,

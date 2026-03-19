@@ -1,5 +1,5 @@
 import nodefetch from "node-fetch";
-import type * as ParseTypeImport from "parse";
+import type ParseTypeImport from "parse";
 import {
   LoadCaptionForReviewResult,
   ReasonedCaptionAction,
@@ -84,6 +84,7 @@ import type {
   PublicProfileResponse,
   VideoSearchResponse,
 } from "./types";
+import { AuthData, FullOptions, Object as ParseObject } from "parse";
 
 //#region
 const loginWithGoogle = async (
@@ -214,7 +215,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     const controller = this.Parse.CoreManager.getRESTController();
     if (!isServer()) {
       initXMLHttpRequestShim();
-      controller._setXHR(XMLHttpRequest);
+      // controller._setXHR(XMLHttpRequest);
     }
   }
 
@@ -259,7 +260,8 @@ export class ParseProvider implements BackendProvider<ParseState> {
       try {
         await dummyQuery.find();
         // The user exists, no need to do anything
-        presetUserData.sessionToken = currentUser.getSessionToken();
+        presetUserData.sessionToken =
+          currentUser.getSessionToken() || undefined;
         presetUserData.isNewUser = !currentUser.existed();
         return { status: "success", userData: presetUserData };
       } catch (e) {
@@ -271,7 +273,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     }
     let responseStatus: ResponseStatus = "error";
     let userData: UserData | undefined = presetUserData;
-    let authData: ParseTypeImport.AuthData = {};
+    let authData: AuthData = {};
     if (!userData) {
       if (method === LoginMethod.Google) {
         if (isClient()) {
@@ -312,12 +314,12 @@ export class ParseProvider implements BackendProvider<ParseState> {
   async completeDeferredLogin(
     method: LoginMethod,
     userData: UserData,
-    authData: ParseTypeImport.AuthData,
+    authData: AuthData,
   ): Promise<UserData> {
     if (!this.Parse) {
       throw new Error("Parse not found");
     }
-    const loginOpts: ParseTypeImport.FullOptions | undefined = undefined;
+    const loginOpts: FullOptions | undefined = undefined;
     let authProvider;
     switch (method) {
       case LoginMethod.Google:
@@ -332,7 +334,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       },
       loginOpts,
     );
-    userData.sessionToken = parseUser.getSessionToken();
+    userData.sessionToken = parseUser.getSessionToken() || undefined;
     userData.isNewUser = !parseUser.existed();
     if (userData.isNewUser) {
       parseUser = await parseUser.save();
@@ -502,7 +504,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
       originalTitle,
       captionerName,
     } = response;
-    const captionResponse = serverCaption as ParseTypeImport.Object;
+    const captionResponse = serverCaption as ParseObject;
     const caption: CaptionContainer = {
       id: captionResponse.id,
       loadedByUser: false,
@@ -580,7 +582,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
     if (status !== "success") {
       throw new Error(`Failed to load caption: ${error}`);
     }
-    const captionResponse = serverCaption as ParseTypeImport.Object;
+    const captionResponse = serverCaption as ParseObject;
     const caption: CaptionContainer = {
       id: captionResponse.id,
       loadedByUser: false,

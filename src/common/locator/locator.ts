@@ -2,7 +2,7 @@ import { isClient, isInBackgroundScript, isInExtension } from "../client-utils";
 import { BackendProvider } from "../providers/backend-provider";
 import { ParseProvider } from "../providers/parse/parse-provider";
 
-import * as Parse from "parse";
+import Parse from "parse";
 import { RootState } from "../store/types";
 import { PassthroughProvider } from "../providers/passthrough-provider";
 
