@@ -382,10 +382,7 @@ export const useVideoElementUpdate = (dependencies: DependencyList = []) => {
     };
 
     const detectElementRemoval = () => {
-      if (
-        globalThis.videoElement &&
-        !document.body.contains(globalThis.videoElement)
-      ) {
+      if (globalThis.videoElement && !globalThis.videoElement.isConnected) {
         /**
          * Some sites like Lemino replace the video element multiple times (probably due to the site running on React / other libraries)
          * so we need to ensure the element exists in the document before observing it

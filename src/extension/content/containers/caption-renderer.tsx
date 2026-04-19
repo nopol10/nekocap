@@ -61,7 +61,7 @@ box-sizing: border-box;
 
 const captionTextElementStyle = `
 position: relative;
-padding: 0px 10px;
+padding: 0.3em 10px;
 font-size: 33px;
 text-align: left;
 background-color: rgb(37 37 37 / 90%);
