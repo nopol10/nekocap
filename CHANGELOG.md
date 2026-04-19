@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.1](https://github.com/nopol10/nekocap/compare/1.22.0...1.22.1) (2026-04-19)
+
+### Bug Fixes
+
+* fix archive.org multipart detection ([f0d8612](https://github.com/nopol10/nekocap/commit/f0d8612bd8df8c172068d6fa0c92392eff96c2a7))
+* fix archive.org video detection ([e31aa24](https://github.com/nopol10/nekocap/commit/e31aa241d1a30735e1b74142b4f56dc02fb599cc))
+
 ## [1.22.0](https://github.com/nopol10/nekocap/compare/1.21.0...1.22.0) (2026-03-09)
 
 ### Features
