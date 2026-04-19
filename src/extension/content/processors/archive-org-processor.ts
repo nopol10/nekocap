@@ -43,11 +43,14 @@ export const ArchiveOrgProcessor: Processor = {
   titleSelector: async () => {
     const mainTitle = (document.querySelector(".item-title") as HTMLElement)
       ?.innerText;
-    if (!document.querySelector(".jwlist")) {
+    const playAv = document.querySelector<HTMLElement>("play-av");
+    if (!playAv) {
       return mainTitle;
     }
-    const videoPartNumber = getPlayingVideoNumber();
-    return [mainTitle, videoPartNumber].join(" ");
+    const title = playAv.shadowRoot?.querySelector<HTMLElement>(
+      "button.track.selected .track-title",
+    )?.innerText;
+    return [mainTitle, title].join(" ");
   },
   editorVideoPlayerStyles: ``,
   globalStyles: `
@@ -99,13 +102,6 @@ export const ArchiveOrgProcessor: Processor = {
     if (!matches) {
       return "";
     }
-    // Could be ["blabla"] or ["blabla", "01-bla"] for example.
-    // 1st one is for single videos
-    const idParts = matches[3].split("/");
-    const videoPartNumber = getPlayingVideoNumber();
-    if (videoPartNumber === 1) {
-      return idParts[0];
-    }
     return matches[3];
   },
   generateVideoLink: (videoId: string) => {
@@ -136,19 +132,3 @@ export const ArchiveOrgProcessor: Processor = {
   },
   disableEditor: true,
 };
-
-function getPlayingVideoNumber() {
-  if (!document.querySelector(".jwlist")) {
-    return 1;
-  }
-  const playingVideo = document.querySelector(".jwrow.playing") as HTMLElement;
-  if (!playingVideo.parentElement) {
-    return 1;
-  }
-  const playlistElements = Array.from(
-    playingVideo.parentElement?.parentElement?.children || [],
-  );
-  const videoPartNumber =
-    playlistElements.indexOf(playingVideo.parentElement) + 1;
-  return videoPartNumber;
-}
