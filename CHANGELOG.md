@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.22.2](https://github.com/nopol10/nekocap/compare/1.22.1...1.22.2) (2026-04-26)
+
+### Bug Fixes
+
+* fix transparent circle in corner of videos ([043d629](https://github.com/nopol10/nekocap/commit/043d6299f760c43090c850cbbffaf851c89374a3))
+
 ## [1.22.1](https://github.com/nopol10/nekocap/compare/1.22.0...1.22.1) (2026-04-19)
 
 ### Bug Fixes
