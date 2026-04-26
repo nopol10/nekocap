@@ -33,10 +33,10 @@ import {
 } from "react";
 import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { refreshVideoMeta } from "../utils";
+import { createGlobalStyle } from "styled-components";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   captionContainerElement?: HTMLElement;
-  // videoPlayer: HTMLVideoElement | HTMLIFrameElement;
   videoPlayer?: VideoPlayer;
   isIframe?: boolean;
   iframeProps?: IFrameProps;
@@ -56,16 +56,6 @@ position: absolute;
 padding: 0px 10px;
 color: white;
 text-align: center;
-box-sizing: border-box;
-`;
-
-const captionTextElementStyle = `
-position: relative;
-padding: 0.3em 10px;
-font-size: 33px;
-text-align: left;
-background-color: rgb(37 37 37 / 90%);
-border-radius: 0.4em;
 box-sizing: border-box;
 `;
 
@@ -500,7 +490,6 @@ const CaptionRendererInternal = React.forwardRef(
           const captionTextElement = document.createElement("div");
           captionTextElement.setAttribute("dir", "auto");
           captionTextElement.classList.add("nekocap-caption-text");
-          captionTextElement.style.cssText = captionTextElementStyle;
 
           captionContainer.appendChild(captionTextElement);
           newCaptionTextElements.push(captionTextElement);
@@ -660,7 +649,11 @@ const CaptionRendererInternal = React.forwardRef(
       },
     );
 
-    return <></>;
+    return (
+      <>
+        <GlobalStyle />
+      </>
+    );
   },
 );
 
@@ -678,3 +671,19 @@ export const CaptionRenderer = React.memo(
     );
   },
 );
+
+const GlobalStyle = createGlobalStyle<{ $additionalStyles?: string }>`
+.nekocap-caption-text {
+  position: relative;
+  padding: 0.3em 10px;
+  font-size: 33px;
+  text-align: left;
+  background-color: rgb(37 37 37 / 90%);
+  border-radius: 0.4em;
+  box-sizing: border-box;
+
+  &:empty {
+    padding: 0;
+  }
+}
+`;
