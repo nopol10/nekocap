@@ -7,7 +7,6 @@ const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-// const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports.optimization = {
@@ -38,50 +37,13 @@ module.exports.getRules = (devMode, root, imageOutputPath = undefined) => [
     },
   },
   {
-    test: /\.less$/,
-    use: [
-      {
-        loader: MiniCssExtractPlugin.loader,
-      },
-      {
-        loader: "css-loader",
-        options: {
-          importLoaders: 1,
-          sourceMap: devMode,
-        },
-      },
-      {
-        loader: "less-loader",
-        options: {
-          lessOptions: {
-            javascriptEnabled: true,
-            modifyVars: {
-              "root-entry-name": "default",
-            },
-          },
-        },
-      },
-    ],
-  },
-  {
     exclude: [/node_modules/, /\.less$/],
     test: /\.scss$/,
-    // issuer: {
-    //   exclude: /\.less$/,
-    // },
     use: [
       MiniCssExtractPlugin.loader,
-      // "@teamsupercell/typings-for-css-modules-loader",
       { loader: "css-loader", options: { modules: true } },
       "sass-loader",
     ],
-  },
-  {
-    test: /\.scss$/,
-    issuer: /\.less$/,
-    use: {
-      loader: path.resolve(root, "src", "sass-vars-to-less.js"), // Change path if necessary
-    },
   },
   {
     test: /\.css$/,
