@@ -12,6 +12,7 @@
     "dev:ext": "tsx build-extension.ts --mode=development --target=chrome",
     "start:web": "next start",
     "start:web:prod": "node server.js",
+    "test": "vitest run",
     "watch": "npm run watch:chrome",
     "watch:chrome": "concurrently \"npm:watch:ext:chrome\" \"npm:watch:web\"",
     "watch:firefox": "concurrently \"npm:watch:ext:firefox\" \"npm:watch:web\"",
@@ -41,6 +42,8 @@
     "@release-it/conventional-changelog": "10.0.5",
     "@svgr/webpack": "8.1.0",
     "@teamsupercell/typings-for-css-modules-loader": "2.5.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/chrome": "0.0.326",
     "@types/css-font-loading-module": "0.0.7",
     "@types/file-saver": "^2.0.1",
@@ -103,6 +106,7 @@
     "vite-plugin-static-copy": "^4.1.0",
     "vite-plugin-svgr": "^5.2.0",
     "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5",
     "yargs": "^16.2.0"
   },
   "husky": {
