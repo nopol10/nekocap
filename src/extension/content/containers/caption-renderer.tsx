@@ -22,6 +22,7 @@ import {
 } from "@/common/utils";
 import { useAnimationFrame, useResize } from "@/hooks";
 import { isEqual } from "lodash-es";
+import DOMPurify from "dompurify";
 import * as React from "react";
 import {
   MutableRefObject,
@@ -266,7 +267,19 @@ const CaptionRendererInternal = React.forwardRef(
             break;
           default:
         }
-        currentTextElement.innerText = currentCaption.text;
+
+        // WebVTT tags often use classes like <c.myclass> which isn't valid HTML. We can convert them to <c class="myclass">
+        // Same for <v Voice>.
+        let rawText = currentCaption.text || "";
+        rawText = rawText
+          .replace(/<c\.([^>]+)>/g, '<c class="$1">')
+          .replace(/<v ([^>]+)>/g, '<v title="$1">');
+
+        currentTextElement.innerHTML = DOMPurify.sanitize(rawText, {
+          RETURN_TRUSTED_TYPE: true,
+          ALLOWED_TAGS: ["b", "i", "u", "c", "v", "ruby", "rt", "lang"],
+          ALLOWED_ATTR: ["class", "title", "lang"],
+        }) as unknown as string;
       },
       [preferences.fontSizeMultiplier],
     );
@@ -309,7 +322,7 @@ const CaptionRendererInternal = React.forwardRef(
                   trackIndex * MAX_CONCURRENT_CAPTIONS + containerId
                 ];
               if (currentTextElement) {
-                currentTextElement.innerText = "";
+                currentTextElement.innerHTML = "";
               }
             }
             continue;
@@ -383,7 +396,7 @@ const CaptionRendererInternal = React.forwardRef(
                 trackIndex * MAX_CONCURRENT_CAPTIONS + unsetCaptionId
               ];
             if (textElement) {
-              textElement.innerText = "";
+              textElement.innerHTML = "";
             }
           }
         }
