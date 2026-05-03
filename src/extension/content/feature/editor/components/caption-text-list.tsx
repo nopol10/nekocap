@@ -40,6 +40,7 @@ import {
   TimeInputLabel,
   NotAvailableWrapper,
 } from "./caption-editor.styled";
+import { LexicalEditorWrapper } from "./lexical-editor-wrapper";
 
 dayjs.extend(duration);
 
@@ -62,6 +63,7 @@ type CaptionTextListProps = {
   queueDebounceUpdateCaption: (action: PayloadAction<any>) => void;
   setSelectedCaption: (captionId: number) => void;
   setVideoTime: (timeInSeconds: number, scrollTimeline?: boolean) => void;
+  isRichTextMode?: boolean;
 };
 
 export const CaptionTextList = ({
@@ -75,6 +77,7 @@ export const CaptionTextList = ({
   queueDebounceUpdateCaption,
   setSelectedCaption,
   setVideoTime,
+  isRichTextMode,
 }: CaptionTextListProps) => {
   const handleStartTimeKeyboardInput =
     (trackId: number, captionId: number) => (value: string) => {
@@ -116,12 +119,13 @@ export const CaptionTextList = ({
 
   const handleChangeCaptionText =
     (trackId: number, captionId: number) =>
-    (event: ChangeEvent<HTMLTextAreaElement>) => {
+    (event: ChangeEvent<HTMLTextAreaElement> | string) => {
+      const text = typeof event === 'string' ? event : event.target.value;
       queueDebounceUpdateCaption(
         modifyCaptionText({
           trackId,
           captionId,
-          text: event.target.value,
+          text,
         }),
       );
     };
@@ -243,18 +247,26 @@ export const CaptionTextList = ({
         </AddBetween>
         <TextEditorRow>
           <TextEditorColumn>
-            <EditorTextAreaWrapper>
-              <EditorTextArea
-                dir="auto"
-                key={rowKey}
-                name={`nc-ta-${index}`}
-                id={`nc-ta-${index}`}
-                dirName={`nc-ta-${index}.dir`}
-                defaultValue={currentCaption.text}
-                onClick={handleClickCaptionTextArea(selectedTrack, index)}
+            {isRichTextMode ? (
+              <LexicalEditorWrapper
+                initialText={currentCaption.text}
                 onChange={handleChangeCaptionText(selectedTrack, index)}
+                onClick={handleClickCaptionTextArea(selectedTrack, index)}
               />
-            </EditorTextAreaWrapper>
+            ) : (
+              <EditorTextAreaWrapper>
+                <EditorTextArea
+                  dir="auto"
+                  key={rowKey}
+                  name={`nc-ta-${index}`}
+                  id={`nc-ta-${index}`}
+                  dirName={`nc-ta-${index}.dir`}
+                  defaultValue={currentCaption.text}
+                  onClick={handleClickCaptionTextArea(selectedTrack, index)}
+                  onChange={handleChangeCaptionText(selectedTrack, index)}
+                />
+              </EditorTextAreaWrapper>
+            )}
             <WarningText $warn={characterPerSecond > 25}>
               {charPerSecString} char/s
             </WarningText>
