@@ -1,4 +1,3 @@
-import nodefetch from "node-fetch";
 import type ParseTypeImport from "parse";
 import {
   LoadCaptionForReviewResult,
@@ -535,11 +534,9 @@ export class ParseProvider implements BackendProvider<ParseState> {
             process.env.PARSE_INTERNAL_SERVER_URL || "",
           );
         }
-        rawCaptionString = await nodefetch(rawCaptionUrl)
-          .then((response) => response.buffer())
-          .then((buffer) => {
-            return buffer.toString("base64");
-          });
+        const rawCaptionResponse = await fetch(rawCaptionUrl);
+        const arrayBuffer = await rawCaptionResponse.arrayBuffer();
+        rawCaptionString = Buffer.from(arrayBuffer).toString("base64");
       } else {
         const rawCaptionResponse = await fetch(rawCaptionUrl);
         rawCaptionString = await convertBlobToBase64(

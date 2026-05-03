@@ -3,7 +3,7 @@ import discordLogo from "@/assets/images/discord.png";
 import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
 import { colors } from "@/common/colors";
 import { Badges } from "@/common/components/badges";
-import { NekoLogo } from "@/common/components/neko-logo";
+import { NekoLogo } from "./components/neko-logo";
 import { WSLayout } from "@/common/components/ws-layout";
 import { WSLinkButton } from "@/common/components/ws-link-button";
 import { WSTitle } from "@/common/components/ws-title";
