@@ -273,11 +273,12 @@ const CaptionRendererInternal = React.forwardRef(
         let rawText = currentCaption.text || "";
         rawText = rawText
           .replace(/<c\.([^>]+)>/g, '<c class="$1">')
-          .replace(/<v ([^>]+)>/g, '<v title="$1">');
+          .replace(/<v ([^>]+)>/g, '<v title="$1">')
+          .replace(/\n/g, "<br>");
 
         currentTextElement.innerHTML = DOMPurify.sanitize(rawText, {
           RETURN_TRUSTED_TYPE: true,
-          ALLOWED_TAGS: ["b", "i", "u", "c", "v", "ruby", "rt", "lang"],
+          ALLOWED_TAGS: ["b", "i", "u", "c", "v", "ruby", "rt", "lang", "br"],
           ALLOWED_ATTR: ["class", "title", "lang"],
         }) as unknown as string;
       },

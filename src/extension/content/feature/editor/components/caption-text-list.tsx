@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, MutableRefObject } from "react";
+import { ChangeEvent, MutableRefObject, useState } from "react";
 import { colors } from "@/common/colors";
 import { DurationInput } from "@/common/components/duration-input";
 import { WarningText } from "@/common/components/warning-text";
@@ -40,7 +40,11 @@ import {
   TimeInputLabel,
   NotAvailableWrapper,
 } from "./caption-editor.styled";
-import { LexicalEditorWrapper } from "./lexical-editor-wrapper";
+import {
+  LexicalEditorWrapper,
+  LexicalStaticToolbar,
+} from "./lexical-editor-wrapper";
+import { LexicalEditor } from "lexical";
 
 dayjs.extend(duration);
 
@@ -79,6 +83,8 @@ export const CaptionTextList = ({
   setVideoTime,
   isRichTextMode,
 }: CaptionTextListProps) => {
+  const [activeLexicalEditor, setActiveLexicalEditor] =
+    useState<LexicalEditor | null>(null);
   const handleStartTimeKeyboardInput =
     (trackId: number, captionId: number) => (value: string) => {
       updateCaption(
@@ -120,7 +126,7 @@ export const CaptionTextList = ({
   const handleChangeCaptionText =
     (trackId: number, captionId: number) =>
     (event: ChangeEvent<HTMLTextAreaElement> | string) => {
-      const text = typeof event === 'string' ? event : event.target.value;
+      const text = typeof event === "string" ? event : event.target.value;
       queueDebounceUpdateCaption(
         modifyCaptionText({
           trackId,
@@ -249,9 +255,11 @@ export const CaptionTextList = ({
           <TextEditorColumn>
             {isRichTextMode ? (
               <LexicalEditorWrapper
+                id={`nc-ta-${index}`}
                 initialText={currentCaption.text}
                 onChange={handleChangeCaptionText(selectedTrack, index)}
                 onClick={handleClickCaptionTextArea(selectedTrack, index)}
+                onFocus={setActiveLexicalEditor}
               />
             ) : (
               <EditorTextAreaWrapper>
@@ -363,16 +371,25 @@ export const CaptionTextList = ({
       {!isAdvancedCaption && (
         <AutoSizer>
           {({ width, height }) => (
-            <List
-              ref={textEditorScrollRef}
-              height={height}
-              width={width}
-              rowCount={captionCount}
-              rowHeight={170}
-              overscanRowCount={2}
-              noRowsRenderer={noTextRowRenderer}
-              rowRenderer={trackTextRowRenderer}
-            />
+            <>
+              <List
+                ref={textEditorScrollRef}
+                height={height - (isRichTextMode ? 48 : 0)}
+                width={width}
+                rowCount={captionCount}
+                rowHeight={170}
+                overscanRowCount={2}
+                noRowsRenderer={noTextRowRenderer}
+                rowRenderer={trackTextRowRenderer}
+              />
+              {isRichTextMode && (
+                <LexicalStaticToolbar
+                  width={width}
+                  height={48}
+                  editor={activeLexicalEditor}
+                />
+              )}
+            </>
           )}
         </AutoSizer>
       )}

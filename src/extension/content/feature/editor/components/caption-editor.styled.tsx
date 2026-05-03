@@ -89,6 +89,7 @@ export const TextEditorColumn = styled.div<{ $justify?: string }>`
     $justify ? `justify-content: ${$justify} !important;` : ""}
 
   & > div,button:not(:last-child) {
+    max-height: 100%;
     margin-bottom: 5px;
   }
 `;
@@ -96,12 +97,14 @@ export const TextEditorColumn = styled.div<{ $justify?: string }>`
 export const TextEditorRow = styled.div`
   display: flex;
   flex-direction: row;
+  height: 100%;
   flex-wrap: nowrap;
   gap: 10px;
   & ${TextEditorColumn} {
     &:nth-child(1) {
+      max-height: 100%;
       flex-grow: 1;
-      flex-shrink: 0;
+      flex-shrink: 1;
     }
     &:nth-child(2) {
       justify-content: center;
