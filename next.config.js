@@ -31,6 +31,33 @@ const moduleExports = {
       },
     ];
   },
+  webpack(config) {
+    // Grab the existing rule that handles SVG imports
+    const fileLoaderRule = config.module.rules.find((rule) =>
+      rule.test?.test?.(".svg"),
+    );
+
+    config.module.rules.push(
+      // Reapply the existing rule, but only for svg imports without ?react
+      {
+        ...fileLoaderRule,
+        test: /\.svg$/i,
+        resourceQuery: { not: /react/ }, // exclude if *.svg?react
+      },
+      // Convert *.svg?react imports to React components
+      {
+        test: /\.svg$/i,
+        issuer: /\.[jt]sx?$/,
+        resourceQuery: /react/, // *.svg?react
+        use: ["@svgr/webpack"],
+      },
+    );
+
+    // Modify the file loader rule to ignore *.svg, since we have it handled now.
+    fileLoaderRule.exclude = /\.svg$/i;
+
+    return config;
+  },
 };
 
 const sentryWebpackPluginOptions = {};
