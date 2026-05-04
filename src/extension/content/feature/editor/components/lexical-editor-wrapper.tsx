@@ -22,6 +22,7 @@ import BoldOutlined from "@ant-design/icons/BoldOutlined";
 import ItalicOutlined from "@ant-design/icons/ItalicOutlined";
 import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
 import styled from "styled-components";
+import { colors } from "@/common/colors";
 import { EditorTextAreaWrapper } from "./caption-editor.styled";
 
 const StaticToolbarWrapper = styled.div`
@@ -225,18 +226,30 @@ export function LexicalStaticToolbar({
   editor: LexicalEditor | null;
 }) {
   const [isTextSelected, setIsTextSelected] = useState(false);
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
 
   const updateToolbar = useCallback(() => {
     if (!editor) {
       setIsTextSelected(false);
+      setIsBold(false);
+      setIsItalic(false);
+      setIsUnderline(false);
       return;
     }
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         setIsTextSelected(!selection.isCollapsed());
+        setIsBold(selection.hasFormat("bold"));
+        setIsItalic(selection.hasFormat("italic"));
+        setIsUnderline(selection.hasFormat("underline"));
       } else {
         setIsTextSelected(false);
+        setIsBold(false);
+        setIsItalic(false);
+        setIsUnderline(false);
       }
     });
   }, [editor]);
@@ -273,7 +286,13 @@ export function LexicalStaticToolbar({
         size="small"
         type="text"
         disabled={isDisabled}
-        icon={<BoldOutlined style={{ color: isDisabled ? "gray" : "white" }} />}
+        icon={
+          <BoldOutlined
+            style={{
+              color: isDisabled ? "gray" : isBold ? colors.primary : "white",
+            }}
+          />
+        }
         onMouseDown={(e) => {
           e.preventDefault();
           if (editor && !isDisabled) {
@@ -286,7 +305,11 @@ export function LexicalStaticToolbar({
         type="text"
         disabled={isDisabled}
         icon={
-          <ItalicOutlined style={{ color: isDisabled ? "gray" : "white" }} />
+          <ItalicOutlined
+            style={{
+              color: isDisabled ? "gray" : isItalic ? colors.primary : "white",
+            }}
+          />
         }
         onMouseDown={(e) => {
           e.preventDefault();
@@ -300,7 +323,11 @@ export function LexicalStaticToolbar({
         type="text"
         disabled={isDisabled}
         icon={
-          <UnderlineOutlined style={{ color: isDisabled ? "gray" : "white" }} />
+          <UnderlineOutlined
+            style={{
+              color: isDisabled ? "gray" : isUnderline ? colors.primary : "white",
+            }}
+          />
         }
         onMouseDown={(e) => {
           e.preventDefault();
