@@ -25,12 +25,15 @@ import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { EditorTextAreaWrapper } from "./caption-editor.styled";
 
-const StaticToolbarWrapper = styled.div`
+const StaticToolbarWrapper = styled.div<{ $width: number; $height: number }>`
   display: flex;
   gap: 5px;
-  padding: 8px 16px;
-  background-color: rgb(37, 37, 37);
-  border-top: 1px solid #333;
+  --padding-y: 8px;
+  --padding-x: 16px;
+  padding: var(--padding-y) var(--padding-x);
+  border-top: 1px solid ${({ theme }) => theme.colorBorder};
+  width: calc(${({ $width }) => $width}px - (var(--padding-x) * 2));
+  height: calc(${({ $height }) => $height}px - (var(--padding-y) * 2));
 `;
 
 const ContentEditableWrapper = styled.div`
@@ -216,6 +219,43 @@ export function LexicalEditorWrapper({
   );
 }
 
+function ToolbarToggleButton({
+  icon: Icon,
+  isActive,
+  isDisabled,
+  onClick,
+}: {
+  icon: React.ElementType;
+  isActive: boolean;
+  isDisabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      size="small"
+      type="text"
+      disabled={isDisabled}
+      icon={
+        <Icon
+          style={{
+            color: isDisabled
+              ? colors.disabledText
+              : isActive
+              ? colors.base
+              : colors.text,
+          }}
+        />
+      }
+      onMouseDown={(e) => {
+        e.preventDefault();
+        if (!isDisabled) {
+          onClick();
+        }
+      }}
+    />
+  );
+}
+
 export function LexicalStaticToolbar({
   width,
   height,
@@ -281,59 +321,29 @@ export function LexicalStaticToolbar({
   const isDisabled = !editor || !isTextSelected;
 
   return (
-    <StaticToolbarWrapper style={{ width, height }}>
-      <Button
-        size="small"
-        type="text"
-        disabled={isDisabled}
-        icon={
-          <BoldOutlined
-            style={{
-              color: isDisabled ? "gray" : isBold ? colors.primary : "white",
-            }}
-          />
-        }
-        onMouseDown={(e) => {
-          e.preventDefault();
-          if (editor && !isDisabled) {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-          }
+    <StaticToolbarWrapper $width={width} $height={height}>
+      <ToolbarToggleButton
+        icon={BoldOutlined}
+        isDisabled={isDisabled}
+        isActive={isBold}
+        onClick={() => {
+          if (editor) editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
         }}
       />
-      <Button
-        size="small"
-        type="text"
-        disabled={isDisabled}
-        icon={
-          <ItalicOutlined
-            style={{
-              color: isDisabled ? "gray" : isItalic ? colors.primary : "white",
-            }}
-          />
-        }
-        onMouseDown={(e) => {
-          e.preventDefault();
-          if (editor && !isDisabled) {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-          }
+      <ToolbarToggleButton
+        icon={ItalicOutlined}
+        isDisabled={isDisabled}
+        isActive={isItalic}
+        onClick={() => {
+          if (editor) editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
         }}
       />
-      <Button
-        size="small"
-        type="text"
-        disabled={isDisabled}
-        icon={
-          <UnderlineOutlined
-            style={{
-              color: isDisabled ? "gray" : isUnderline ? colors.primary : "white",
-            }}
-          />
-        }
-        onMouseDown={(e) => {
-          e.preventDefault();
-          if (editor && !isDisabled) {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-          }
+      <ToolbarToggleButton
+        icon={UnderlineOutlined}
+        isDisabled={isDisabled}
+        isActive={isUnderline}
+        onClick={() => {
+          if (editor) editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
       />
     </StaticToolbarWrapper>

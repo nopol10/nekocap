@@ -18,6 +18,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -222,6 +223,107 @@ const getTimelineParameters = (scale: number, videoDurationMs: number) => {
 };
 
 export type SetTimelineScroll = (timeMs: number) => void;
+
+function CleanedCueItem({
+  index,
+  key,
+  style,
+  selectedTrack,
+  selectedCaption,
+  videoDurationMs,
+  timelineYOffset,
+  totalWidth,
+  caption,
+  captionCueCellSizeAndPositionGetter,
+  handleClickCaption,
+  handleCaptionDragStart,
+  handleCaptionDrag,
+  handleCaptionDragEnd,
+  getTrackVerticalScrollOffset,
+}: CollectionCellRendererParams & {
+  selectedTrack: number;
+  selectedCaption: number;
+  videoDurationMs: number;
+  timelineYOffset: number;
+  totalWidth: number;
+  caption: CaptionDataContainer;
+  handleClickCaption: (trackId: number, captionId: number) => void;
+  handleCaptionDragStart: (
+    trackId: number,
+    captionId: number,
+    totalWidth: number,
+    cueId: number,
+  ) => (startX: number, endX: number, currentTrackId: number) => void;
+  handleCaptionDrag: (
+    trackId: number,
+    captionId: number,
+    totalWidth: number,
+    cueId: number,
+  ) => (startX: number, endX: number, currentTrackId: number) => void;
+  handleCaptionDragEnd: (
+    trackId: number,
+    captionId: number,
+  ) => (startX: number, endX: number, finalTrackId: number) => void;
+  getTrackVerticalScrollOffset: () => number;
+  captionCueCellSizeAndPositionGetter: ({ index }: { index: number }) => {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    isDummy?: boolean;
+    trackId?: number;
+    captionId?: number;
+    text?: string;
+  };
+}) {
+  const cellData = captionCueCellSizeAndPositionGetter({ index });
+  const { isDummy, trackId, captionId, text } = cellData;
+  const cleanedText = useMemo(() => {
+    if (!text) {
+      return "";
+    }
+    const doc = new DOMParser().parseFromString(text, "text/html");
+    return doc.body.textContent || "";
+  }, [text]);
+  if (trackId === undefined || trackId === null) {
+    return;
+  }
+
+  if (isDummy || !captionId) {
+    return <div key={key} style={{ ...style, pointerEvents: "none" }} />;
+  }
+  const currentTrack = caption.tracks[trackId];
+
+  const previousCaptionKeyPart = currentTrack.cues[captionId - 1]
+    ? currentTrack.cues[captionId - 1].end
+    : "0";
+  const rowKey = `${key}_${trackId}_${captionId}_${currentTrack.cues[captionId].start}_${previousCaptionKeyPart}`;
+  return (
+    <CueItem
+      key={rowKey}
+      dir="auto"
+      style={{ ...style }}
+      selected={selectedCaption === captionId && selectedTrack === trackId}
+      timelineWidth={totalWidth}
+      videoDurationMs={videoDurationMs}
+      trackId={trackId}
+      trackCount={caption.tracks.length}
+      containerYOffset={timelineYOffset}
+      onClick={() => handleClickCaption(trackId, captionId)}
+      onCueDragStart={handleCaptionDragStart(
+        trackId,
+        captionId,
+        totalWidth,
+        index,
+      )}
+      onCueDrag={handleCaptionDrag(trackId, captionId, totalWidth, index)}
+      onCueDragEnd={handleCaptionDragEnd(trackId, captionId)}
+      getTrackVerticalScrollOffset={getTrackVerticalScrollOffset}
+    >
+      {cleanedText}
+    </CueItem>
+  );
+}
 
 type EditorTimelineProps = {
   show: boolean;
@@ -726,46 +828,29 @@ export const EditorTimeline = ({
       index,
       key,
       style,
+      isScrolling,
     }: CollectionCellRendererParams) => {
-      const cellData = captionCueCellSizeAndPositionGetter({ index });
-      const { isDummy, trackId, captionId, text } = cellData;
-      if (trackId === undefined || trackId === null) {
-        return;
-      }
-
-      if (isDummy) {
-        return <div key={key} style={{ ...style, pointerEvents: "none" }} />;
-      }
-      const currentTrack = caption.tracks[trackId];
-
-      const previousCaptionKeyPart = currentTrack.cues[captionId - 1]
-        ? currentTrack.cues[captionId - 1].end
-        : "0";
-      const rowKey = `${key}_${trackId}_${captionId}_${currentTrack.cues[captionId].start}_${previousCaptionKeyPart}`;
       return (
-        <CueItem
-          key={rowKey}
-          dir="auto"
+        <CleanedCueItem
+          key={key}
+          isScrolling={isScrolling}
           style={{ ...style }}
-          selected={selectedCaption === captionId && selectedTrack === trackId}
-          timelineWidth={totalWidth}
-          videoDurationMs={videoDurationMs}
-          trackId={trackId}
-          trackCount={caption.tracks.length}
-          containerYOffset={timelineYOffset}
-          onClick={() => handleClickCaption(trackId, captionId)}
-          onCueDragStart={handleCaptionDragStart(
-            trackId,
-            captionId,
-            totalWidth,
-            index,
-          )}
-          onCueDrag={handleCaptionDrag(trackId, captionId, totalWidth, index)}
-          onCueDragEnd={handleCaptionDragEnd(trackId, captionId)}
+          selectedTrack={selectedTrack}
+          caption={caption}
+          captionCueCellSizeAndPositionGetter={
+            captionCueCellSizeAndPositionGetter
+          }
           getTrackVerticalScrollOffset={getTrackVerticalScrollOffset}
-        >
-          {text}
-        </CueItem>
+          handleCaptionDrag={handleCaptionDrag}
+          handleCaptionDragStart={handleCaptionDragStart}
+          handleCaptionDragEnd={handleCaptionDragEnd}
+          handleClickCaption={handleClickCaption}
+          index={index}
+          videoDurationMs={videoDurationMs}
+          totalWidth={totalWidth}
+          timelineYOffset={timelineYOffset}
+          selectedCaption={selectedCaption}
+        />
       );
     };
 

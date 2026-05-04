@@ -48,6 +48,8 @@ import { LexicalEditor } from "lexical";
 
 dayjs.extend(duration);
 
+const RICH_TEXT_TOOLBAR_HEIGHT = 48;
+
 function NotAvailableWithAdvancedCaption() {
   return (
     <NotAvailableWrapper>
@@ -374,7 +376,9 @@ export const CaptionTextList = ({
             <>
               <List
                 ref={textEditorScrollRef}
-                height={height - (isRichTextMode ? 48 : 0)}
+                height={
+                  height - (isRichTextMode ? RICH_TEXT_TOOLBAR_HEIGHT : 0)
+                }
                 width={width}
                 rowCount={captionCount}
                 rowHeight={170}
@@ -385,7 +389,7 @@ export const CaptionTextList = ({
               {isRichTextMode && (
                 <LexicalStaticToolbar
                   width={width}
-                  height={48}
+                  height={RICH_TEXT_TOOLBAR_HEIGHT}
                   editor={activeLexicalEditor}
                 />
               )}
