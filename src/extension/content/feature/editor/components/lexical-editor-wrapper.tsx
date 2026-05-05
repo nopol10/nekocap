@@ -24,6 +24,7 @@ import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { EditorTextAreaWrapper } from "./caption-editor.styled";
+import { darkModeSelector } from "@/common/processor-utils";
 
 const StaticToolbarWrapper = styled.div<{ $width: number; $height: number }>`
   display: flex;
@@ -53,6 +54,11 @@ const ContentEditableWrapper = styled.div`
     padding: 2px 4px;
     outline: none;
     cursor: text;
+
+    ${darkModeSelector(`
+      background-color: #1f1f1f;
+      color: #e0e0e0;
+    `)}
   }
 
   .lexical-bold {

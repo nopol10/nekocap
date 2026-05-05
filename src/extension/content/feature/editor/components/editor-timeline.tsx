@@ -226,7 +226,7 @@ export type SetTimelineScroll = (timeMs: number) => void;
 
 function CleanedCueItem({
   index,
-  key,
+  parentKey: key,
   style,
   selectedTrack,
   selectedCaption,
@@ -240,7 +240,12 @@ function CleanedCueItem({
   handleCaptionDrag,
   handleCaptionDragEnd,
   getTrackVerticalScrollOffset,
-}: CollectionCellRendererParams & {
+}: {
+  index: number;
+  isScrolling: boolean;
+  parentKey: number;
+  style: React.CSSProperties;
+} & {
   selectedTrack: number;
   selectedCaption: number;
   videoDurationMs: number;
@@ -288,8 +293,7 @@ function CleanedCueItem({
   if (trackId === undefined || trackId === null) {
     return;
   }
-
-  if (isDummy || !captionId) {
+  if (isDummy || captionId === undefined || captionId === null) {
     return <div key={key} style={{ ...style, pointerEvents: "none" }} />;
   }
   const currentTrack = caption.tracks[trackId];
@@ -833,6 +837,7 @@ export const EditorTimeline = ({
       return (
         <CleanedCueItem
           key={key}
+          parentKey={key}
           isScrolling={isScrolling}
           style={{ ...style }}
           selectedTrack={selectedTrack}

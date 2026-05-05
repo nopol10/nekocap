@@ -378,23 +378,23 @@ export const NoTextInTrack = styled.div`
 `;
 
 type AddBetweenProps = {
-  top: boolean;
-  first?: boolean;
-  last?: boolean;
+  $top: boolean;
+  $first?: boolean;
+  $last?: boolean;
 };
 
 export const AddBetween = styled.div<AddBetweenProps>`
   position: absolute;
   width: 100%;
   opacity: 0;
-  font-size: ${({ first }: AddBetweenProps) => (first ? "13px" : "20px")};
+  font-size: ${({ $first }: AddBetweenProps) => ($first ? "13px" : "20px")};
   transition: opacity 200ms;
-  transform: ${({ last }: AddBetweenProps) =>
-    last ? "translate(-50%, -120%)" : "translate(-50%, -50%)"};
+  transform: ${({ $last }: AddBetweenProps) =>
+    $last ? "translate(-50%, -120%)" : "translate(-50%, -50%)"};
   left: 50%;
   text-align: center;
-  ${({ top, first }: AddBetweenProps) => {
-    if (first) {
+  ${({ $top, $first }: AddBetweenProps) => {
+    if ($first) {
       return "top: 10px";
     }
     return top ? "top: 0" : "top: unset";

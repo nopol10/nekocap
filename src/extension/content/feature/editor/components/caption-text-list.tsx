@@ -247,8 +247,8 @@ export const CaptionTextList = ({
         selected={index === selectedCaption}
       >
         <AddBetween
-          top={true}
-          first={index === 0}
+          $top={true}
+          $first={index === 0}
           onClick={handleClickAddCaptionBetweenCaptions(selectedTrack, index)}
         >
           <PlusCircleFilled />
@@ -342,8 +342,8 @@ export const CaptionTextList = ({
         </TextEditorRow>
         {index === currentTrack.cues.length - 1 && (
           <AddBetween
-            top={false}
-            last={true}
+            $top={false}
+            $last={true}
             onClick={handleClickAddCaptionBetweenCaptions(
               selectedTrack,
               index + 1,
