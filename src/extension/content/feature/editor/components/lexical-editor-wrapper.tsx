@@ -13,14 +13,21 @@ import {
   $isRangeSelection,
   FORMAT_TEXT_COMMAND,
   LexicalEditor,
+  TextNode,
   COMMAND_PRIORITY_LOW,
   FOCUS_COMMAND,
 } from "lexical";
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
-import { Button } from "antd";
+import {
+  $patchStyleText,
+  $getSelectionStyleValueForProperty,
+} from "@lexical/selection";
+import { Button, ColorPicker } from "antd";
+import type { ColorPickerProps } from "antd";
 import BoldOutlined from "@ant-design/icons/BoldOutlined";
 import ItalicOutlined from "@ant-design/icons/ItalicOutlined";
 import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
+import FontColorsOutlined from "@ant-design/icons/FontColorsOutlined";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { EditorTextAreaWrapper } from "./caption-editor.styled";
@@ -114,6 +121,11 @@ function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
         .replace(/<v ([^>]+)>/g, '<span title="$1">')
         .replace(/<\/v>/g, "</span>");
 
+      // Convert <nc style="color: #hex"> to <span style="color: #hex"> for Lexical
+      processedHtml = processedHtml
+        .replace(/<nc\s+style="([^"]*)"/g, '<span style="$1"')
+        .replace(/<\/nc>/g, "</span>");
+
       processedHtml = `<p>${processedHtml.replace(/\n/g, "<br>")}</p>`;
 
       const dom = parser.parseFromString(processedHtml, "text/html");
@@ -127,6 +139,25 @@ function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
   return null;
 }
 
+// Mark TextNodes with color styles as unmergeable so Lexical keeps them
+// as separate nodes and doesn't merge the color into format tags (strong/em).
+function UnmergeableColorPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    return editor.registerNodeTransform(TextNode, (node) => {
+      const hasColor = node.getStyle().includes("color:");
+      if (hasColor && !node.isUnmergeable()) {
+        node.toggleUnmergeable();
+      } else if (!hasColor && node.isUnmergeable()) {
+        node.toggleUnmergeable();
+      }
+    });
+  }, [editor]);
+
+  return null;
+}
+
 // Convert Lexical's internal AST back to WebVTT-like text output
 function OnChangeHtmlPlugin({
   onChange,
@@ -136,23 +167,99 @@ function OnChangeHtmlPlugin({
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
+    // Helper: extract hex color from a computed style color value
+    const extractHexColor = (value: string): string | null => {
+      // Match hex color directly
+      const hexMatch = value.match(/#([0-9a-fA-F]{3,8})\b/);
+      if (hexMatch) return `#${hexMatch[1]}`;
+      // Match rgb/rgba
+      const rgbMatch = value.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+      if (rgbMatch) {
+        return (
+          "#" +
+          [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
+            .map((c) => parseInt(c, 10).toString(16).padStart(2, "0"))
+            .join("")
+        );
+      }
+      return null;
+    };
+
+    // Recursively serialize a DOM node to the WebVTT-like output format
+    const serializeNode = (node: Node): string => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent || "";
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return "";
+      }
+      const el = node as Element;
+      const tag = el.tagName.toLowerCase();
+      const childContent = Array.from(el.childNodes)
+        .map(serializeNode)
+        .join("");
+      const style = el.getAttribute("style") || "";
+      const color = extractHexColor(style);
+      let outputTag = "";
+      switch (tag) {
+        case "br":
+          return "\n";
+        case "p":
+          // Flatten <p> blocks into text separated by newlines
+          return childContent + "\n";
+        case "strong":
+          outputTag = "b";
+          break;
+        case "em":
+        case "i":
+          outputTag = "i";
+          break;
+        case "u":
+          outputTag = "u";
+          break;
+        case "span": {
+          if (color) {
+            outputTag = "nc";
+          }
+          // Strip spans without a valid color
+          // return childContent;
+          break;
+        }
+        default:
+          // For any other tags (b, i, etc.), pass through as-is
+          if (el.children.length === 0 && !childContent) {
+            return "";
+          }
+          outputTag = "";
+      }
+      if (!outputTag) {
+        return childContent;
+      }
+      let outputStyle = "";
+      if (style) {
+        outputStyle = ` style="${style}"`;
+      }
+      return `<${outputTag}${outputStyle}>${childContent}</${outputTag}>`;
+    };
+
     return editor.registerUpdateListener(
       ({ editorState, dirtyElements, dirtyLeaves }) => {
         if (dirtyElements.size === 0 && dirtyLeaves.size === 0) {
           return;
         }
         editorState.read(() => {
-          let html = $generateHtmlFromNodes(editor, null);
-          html = html
-            .replace(/<br\s*\/?>/gi, "\n")
-            .replace(/<p[^>]*>/g, "")
-            .replace(/<\/p>/g, "\n")
+          // Convert Lexical editor nodes to HTML string
+          const rawHtml = $generateHtmlFromNodes(editor, null);
+
+          // Parse with DOMParser for accurate traversal
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(rawHtml, "text/html");
+
+          // Serialize the parsed body back to our output format
+          const html = Array.from(doc.body.childNodes)
+            .map(serializeNode)
+            .join("")
             .trim();
-          html = html
-            .replace(/<strong[^>]*>/g, "<b>")
-            .replace(/<\/strong>/g, "</b>");
-          html = html.replace(/<em[^>]*>/g, "<i>").replace(/<\/em>/g, "</i>");
-          html = html.replace(/<span[^>]*>/g, "").replace(/<\/span>/g, "");
 
           onChange(html);
         });
@@ -175,6 +282,20 @@ export type LexicalEditorWrapperProps = {
   onFocus?: (editor: LexicalEditor) => void;
 };
 
+const initialConfig = {
+  namespace: "CaptionEditor",
+  theme: {
+    text: {
+      bold: "lexical-bold",
+      italic: "lexical-italic",
+      underline: "lexical-underline",
+    },
+  },
+  onError: (error: Error) => {
+    console.error(error);
+  },
+};
+
 export function LexicalEditorWrapper({
   id,
   initialText,
@@ -182,20 +303,6 @@ export function LexicalEditorWrapper({
   onClick,
   onFocus,
 }: LexicalEditorWrapperProps) {
-  const initialConfig = {
-    namespace: "CaptionEditor",
-    theme: {
-      text: {
-        bold: "lexical-bold",
-        italic: "lexical-italic",
-        underline: "lexical-underline",
-      },
-    },
-    onError: (error: Error) => {
-      console.error(error);
-    },
-  };
-
   const handleLexicalChange = (newHtml: string) => {
     onChange(newHtml);
   };
@@ -217,6 +324,7 @@ export function LexicalEditorWrapper({
             ErrorBoundary={LexicalErrorBoundary}
           />
           <HistoryPlugin />
+          <UnmergeableColorPlugin />
           <HtmlPlugin initialHtml={initialText} />
           <OnChangeHtmlPlugin onChange={handleLexicalChange} />
         </ContentEditableWrapper>
@@ -275,6 +383,7 @@ export function LexicalStaticToolbar({
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+  const [fontColor, setFontColor] = useState<string>("");
 
   const updateToolbar = useCallback(() => {
     if (!editor) {
@@ -282,6 +391,7 @@ export function LexicalStaticToolbar({
       setIsBold(false);
       setIsItalic(false);
       setIsUnderline(false);
+      setFontColor("");
       return;
     }
     editor.getEditorState().read(() => {
@@ -291,11 +401,15 @@ export function LexicalStaticToolbar({
         setIsBold(selection.hasFormat("bold"));
         setIsItalic(selection.hasFormat("italic"));
         setIsUnderline(selection.hasFormat("underline"));
+        setFontColor(
+          $getSelectionStyleValueForProperty(selection, "color", ""),
+        );
       } else {
         setIsTextSelected(false);
         setIsBold(false);
         setIsItalic(false);
         setIsUnderline(false);
+        setFontColor("");
       }
     });
   }, [editor]);
@@ -323,6 +437,21 @@ export function LexicalStaticToolbar({
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [updateToolbar]);
+
+  const handleColorChange: ColorPickerProps["onChangeComplete"] = (color) => {
+    if (!editor) return;
+    const hexColor = `#${color.toHex()}`;
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        $patchStyleText(selection, { color: hexColor });
+      }
+    });
+  };
+
+  const getPopupContainer = useCallback(() => {
+    return document.getElementById(EDITOR_PORTAL_ELEMENT_ID) || document.body;
+  }, []);
 
   const isDisabled = !editor || !isTextSelected;
 
@@ -352,6 +481,32 @@ export function LexicalStaticToolbar({
           if (editor) editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
       />
+      <ColorPicker
+        size="small"
+        value={fontColor || "#000000"}
+        disabled={isDisabled}
+        disabledAlpha
+        onChangeComplete={handleColorChange}
+        getPopupContainer={getPopupContainer}
+      >
+        <Button
+          size="small"
+          type="text"
+          disabled={isDisabled}
+          icon={
+            <FontColorsOutlined
+              style={{
+                color: isDisabled
+                  ? colors.disabledText
+                  : fontColor || colors.text,
+              }}
+            />
+          }
+          onMouseDown={(e) => {
+            e.preventDefault();
+          }}
+        />
+      </ColorPicker>
     </StaticToolbarWrapper>
   );
 }

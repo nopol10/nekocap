@@ -22,7 +22,6 @@ import {
 } from "@/common/utils";
 import { useAnimationFrame, useResize } from "@/hooks";
 import { isEqual } from "lodash-es";
-import DOMPurify from "dompurify";
 import * as React from "react";
 import {
   MutableRefObject,
@@ -35,6 +34,7 @@ import {
 import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { refreshVideoMeta } from "../utils";
 import { createGlobalStyle } from "styled-components";
+import { usePurifier } from "../feature/editor/hooks/use-purifier";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   captionContainerElement?: HTMLElement;
@@ -73,6 +73,9 @@ font-family: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Ne
 const DEFAULT_BOTTOM_OFFSET_FACTOR = 0.074074; // How many pixels to offset the caption from the bottom of the video (a factor of the video height)
 const DEFAULT_TOP_OFFSET_FACTOR = 0.0333333; // How many pixels to offset the caption from the top of the video (a factor of the video height)
 const DEFAULT_FONT_SIZE_FACTOR = 43 / 1080; // Factor of font size based on the width of the video
+
+export const SAFE_STYLE_RE =
+  /^color:\s*#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/i;
 
 type AlignmentMeta = {
   leftDefault: number;
@@ -198,6 +201,7 @@ const CaptionRendererInternal = React.forwardRef(
     const previousTime = useRef<number>(-1);
     const [recreateLocalCaptionContainer, setRecreateLocalCaptionContainer] =
       useState<boolean>(false);
+    const purifier = usePurifier();
 
     const updateRenderedCaption = useCallback(
       (
@@ -271,18 +275,26 @@ const CaptionRendererInternal = React.forwardRef(
         // WebVTT tags often use classes like <c.myclass> which isn't valid HTML. We can convert them to <c class="myclass">
         // Same for <v Voice>.
         let rawText = currentCaption.text || "";
-        rawText = rawText
-          .replace(/<c\.([^>]+)>/g, '<c class="$1">')
-          .replace(/<v ([^>]+)>/g, '<v title="$1">')
-          .replace(/\n/g, "<br>");
+        rawText = rawText.replace(/\n/g, "<br>");
 
-        currentTextElement.innerHTML = DOMPurify.sanitize(rawText, {
+        currentTextElement.innerHTML = purifier?.sanitize(rawText, {
           RETURN_TRUSTED_TYPE: true,
-          ALLOWED_TAGS: ["b", "i", "u", "c", "v", "ruby", "rt", "lang", "br"],
-          ALLOWED_ATTR: ["class", "title", "lang"],
+          ALLOWED_TAGS: [
+            "b",
+            "i",
+            "u",
+            "c",
+            "v",
+            "ruby",
+            "rt",
+            "lang",
+            "br",
+            "nc",
+          ],
+          ALLOWED_ATTR: ["class", "title", "lang", "style"],
         }) as unknown as string;
       },
-      [preferences.fontSizeMultiplier],
+      [preferences.fontSizeMultiplier, purifier],
     );
 
     const handleTimeUpdate = useCallback(
