@@ -72,7 +72,7 @@ describe('CaptionRenderer webvtt formatting', () => {
     expect(activeTextElement?.innerHTML).toContain('<u>underline</u>')
   })
 
-  it('converts webvtt c and v tags to standard html correctly and sanitizes malicious input', () => {
+  it('sanitizes malicious input', () => {
     const caption: CaptionContainer = {
       type: "subtitles",
       language: "en",
@@ -80,7 +80,7 @@ describe('CaptionRenderer webvtt formatting', () => {
         tracks: [
           {
             cues: [
-              { start: 0, end: 10000, text: "hello <c.red>red text</c> <v Bob>voice</v> <script>alert(1)</script>" }
+              { start: 0, end: 10000, text: "hello <script>alert(1)</script>" }
             ]
           }
         ]
@@ -105,8 +105,6 @@ describe('CaptionRenderer webvtt formatting', () => {
     const activeTextElement = Array.from(textElements).find(el => el.innerHTML !== "")
 
     expect(activeTextElement).toBeTruthy()
-    expect(activeTextElement?.innerHTML).toContain('<c class="red">red text</c>')
-    expect(activeTextElement?.innerHTML).toContain('<v title="Bob">voice</v>')
     // The script tag should be stripped by DOMPurify
     expect(activeTextElement?.innerHTML).not.toContain('<script>')
     expect(activeTextElement?.innerHTML).not.toContain('alert(1)')
