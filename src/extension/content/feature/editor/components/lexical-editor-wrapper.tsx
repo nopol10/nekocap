@@ -28,6 +28,8 @@ import BoldOutlined from "@ant-design/icons/BoldOutlined";
 import ItalicOutlined from "@ant-design/icons/ItalicOutlined";
 import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
 import FontColorsOutlined from "@ant-design/icons/FontColorsOutlined";
+import BgColorsOutlined from "@ant-design/icons/BgColorsOutlined";
+import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { EditorTextAreaWrapper } from "./caption-editor.styled";
@@ -44,13 +46,14 @@ const StaticToolbarWrapper = styled.div<{ $width: number; $height: number }>`
   height: calc(${({ $height }) => $height}px - (var(--padding-y) * 2));
 `;
 
-const ContentEditableWrapper = styled.div`
+const ContentEditableWrapper = styled.div<{ $borderColor?: string }>`
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   overflow: auto;
-  border: 1px solid #d9d9d9;
+  border: ${({ $borderColor }) =>
+    $borderColor ? `2px solid ${$borderColor}` : "1px solid #d9d9d9"};
   font-family: "consolas", monospace;
   background-color: transparent;
   color: inherit;
@@ -66,6 +69,10 @@ const ContentEditableWrapper = styled.div`
       background-color: #1f1f1f;
       color: #e0e0e0;
     `)}
+
+    p {
+      margin-block: 0;
+    }
   }
 
   .lexical-bold {
@@ -88,33 +95,73 @@ function FocusEmitterPlugin({
 }) {
   const [editor] = useLexicalComposerContext();
 
-  useEffect(() => {
-    if (!onFocus) return;
-    return editor.registerCommand(
-      FOCUS_COMMAND,
-      () => {
-        onFocus(editor);
-        return false;
-      },
-      COMMAND_PRIORITY_LOW,
-    );
-  }, [editor, onFocus]);
+  useEffect(
+    function registerFocusCommand() {
+      if (!onFocus) return;
+      return editor.registerCommand(
+        FOCUS_COMMAND,
+        () => {
+          onFocus(editor);
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      );
+    },
+    [editor, onFocus],
+  );
 
   return null;
 }
 
+/**
+ * Extract background-color from an <nr> wrapper tag using DOMParser.
+ * Returns the color value and the inner HTML with the <nr> tag stripped.
+ */
+export function extractNrTag(html: string): {
+  backgroundColor: string;
+  innerHtml: string;
+} {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const nrElement = doc.body.querySelector("nr");
+  if (nrElement) {
+    const bgColor = nrElement.getAttribute("background-color") || "";
+    // Replace the outer HTML with inner content
+    const innerHtml = nrElement.innerHTML;
+    // Reconstruct: everything outside <nr> plus the inner content
+    nrElement.replaceWith(...Array.from(nrElement.childNodes));
+    return { backgroundColor: bgColor, innerHtml: doc.body.innerHTML };
+  }
+  return { backgroundColor: "", innerHtml: html };
+}
+
 // Plugin to parse initial HTML (WebVTT strings converted to HTML)
-function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
+function HtmlPlugin({
+  initialHtml,
+  onBackgroundColorDetected,
+}: {
+  initialHtml: string;
+  onBackgroundColorDetected?: (color: string) => void;
+}) {
   const [editor] = useLexicalComposerContext();
   const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
     if (!isFirstRender) return;
     setIsFirstRender(false);
+
+    // Extract <nr> background-color before processing for Lexical
+    const { backgroundColor, innerHtml: htmlWithoutNr } = extractNrTag(
+      initialHtml || "",
+    );
+    if (onBackgroundColorDetected) {
+      onBackgroundColorDetected(backgroundColor);
+    }
+
     editor.update(() => {
       const parser = new DOMParser();
       // Pre-process webvtt tags
-      let processedHtml = initialHtml || "";
+      let processedHtml = htmlWithoutNr;
       processedHtml = processedHtml
         .replace(/<c\.([^>]+)>/g, '<span class="$1">')
         .replace(/<\/c>/g, "</span>")
@@ -134,7 +181,7 @@ function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
       root.clear();
       root.append(...nodes);
     });
-  }, [editor, initialHtml, isFirstRender]);
+  }, [editor, initialHtml, isFirstRender, onBackgroundColorDetected]);
 
   return null;
 }
@@ -161,10 +208,16 @@ function UnmergeableColorPlugin() {
 // Convert Lexical's internal AST back to WebVTT-like text output
 function OnChangeHtmlPlugin({
   onChange,
+  backgroundColor,
 }: {
   onChange: (html: string) => void;
+  backgroundColor?: string;
 }) {
   const [editor] = useLexicalComposerContext();
+  const backgroundColorRef = React.useRef(backgroundColor);
+  backgroundColorRef.current = backgroundColor;
+  const onChangeRef = React.useRef(onChange);
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     // Helper: extract hex color from a computed style color value
@@ -256,16 +309,85 @@ function OnChangeHtmlPlugin({
           const doc = parser.parseFromString(rawHtml, "text/html");
 
           // Serialize the parsed body back to our output format
-          const html = Array.from(doc.body.childNodes)
+          let html = Array.from(doc.body.childNodes)
             .map(serializeNode)
             .join("")
             .trim();
 
-          onChange(html);
+          // Wrap with <nr> tag if a background color is set
+          const bgColor = backgroundColorRef.current;
+          if (bgColor) {
+            html = `<nr background-color="${bgColor}">${html}</nr>`;
+          }
+
+          onChangeRef.current(html);
         });
       },
     );
-  }, [editor, onChange]);
+  }, [editor]);
+
+  const prevBackgroundColor = React.useRef(backgroundColor);
+
+  // Re-emit when backgroundColor changes so the <nr> wrapper is updated immediately
+  useEffect(() => {
+    if (prevBackgroundColor.current === backgroundColor) return;
+    prevBackgroundColor.current = backgroundColor;
+
+    editor.getEditorState().read(() => {
+      const rawHtml = $generateHtmlFromNodes(editor, null);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml, "text/html");
+
+      // Re-use the same serializeNode approach inline
+      const serialize = (node: Node): string => {
+        if (node.nodeType === Node.TEXT_NODE) return node.textContent || "";
+        if (node.nodeType !== Node.ELEMENT_NODE) return "";
+        const el = node as Element;
+        const tag = el.tagName.toLowerCase();
+        const childContent = Array.from(el.childNodes).map(serialize).join("");
+        if (tag === "br") return "\n";
+        if (tag === "p") return childContent + "\n";
+        const style = el.getAttribute("style") || "";
+        const hexMatch = style.match(/#([0-9a-fA-F]{3,8})\b/);
+        const rgbMatch = style.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+        const color = hexMatch
+          ? `#${hexMatch[1]}`
+          : rgbMatch
+          ? "#" +
+            [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
+              .map((c) => parseInt(c, 10).toString(16).padStart(2, "0"))
+              .join("")
+          : null;
+        let outputTag = "";
+        switch (tag) {
+          case "strong":
+            outputTag = "b";
+            break;
+          case "em":
+          case "i":
+            outputTag = "i";
+            break;
+          case "u":
+            outputTag = "u";
+            break;
+          case "span":
+            if (color) outputTag = "nc";
+            break;
+          default:
+            if (el.children.length === 0 && !childContent) return "";
+        }
+        if (!outputTag) return childContent;
+        const outputStyle = style ? ` style="${style}"` : "";
+        return `<${outputTag}${outputStyle}>${childContent}</${outputTag}>`;
+      };
+
+      let html = Array.from(doc.body.childNodes).map(serialize).join("").trim();
+      if (backgroundColor) {
+        html = `<nr background-color="${backgroundColor}">${html}</nr>`;
+      }
+      onChangeRef.current(html);
+    });
+  }, [editor, backgroundColor]);
 
   return null;
 }
@@ -277,7 +399,9 @@ function stopPropagation(e: React.KeyboardEvent) {
 export type LexicalEditorWrapperProps = {
   id?: string;
   initialText: string;
+  backgroundColor?: string;
   onChange: (text: string) => void;
+  onBackgroundColorDetected?: (color: string) => void;
   onClick?: () => void;
   onFocus?: (editor: LexicalEditor) => void;
 };
@@ -299,7 +423,9 @@ const initialConfig = {
 export function LexicalEditorWrapper({
   id,
   initialText,
+  backgroundColor,
   onChange,
+  onBackgroundColorDetected,
   onClick,
   onFocus,
 }: LexicalEditorWrapperProps) {
@@ -311,6 +437,7 @@ export function LexicalEditorWrapper({
     <EditorTextAreaWrapper onClick={onClick}>
       <LexicalComposer initialConfig={initialConfig}>
         <ContentEditableWrapper
+          $borderColor={backgroundColor}
           onKeyDown={stopPropagation}
           onKeyUp={stopPropagation}
           onKeyPress={stopPropagation}
@@ -325,8 +452,14 @@ export function LexicalEditorWrapper({
           />
           <HistoryPlugin />
           <UnmergeableColorPlugin />
-          <HtmlPlugin initialHtml={initialText} />
-          <OnChangeHtmlPlugin onChange={handleLexicalChange} />
+          <HtmlPlugin
+            initialHtml={initialText}
+            onBackgroundColorDetected={onBackgroundColorDetected}
+          />
+          <OnChangeHtmlPlugin
+            onChange={handleLexicalChange}
+            backgroundColor={backgroundColor}
+          />
         </ContentEditableWrapper>
       </LexicalComposer>
     </EditorTextAreaWrapper>
@@ -374,10 +507,14 @@ export function LexicalStaticToolbar({
   width,
   height,
   editor,
+  backgroundColor,
+  onBackgroundColorChange,
 }: {
   width: number;
   height: number;
   editor: LexicalEditor | null;
+  backgroundColor?: string;
+  onBackgroundColorChange?: (color: string) => void;
 }) {
   const [isTextSelected, setIsTextSelected] = useState(false);
   const [isBold, setIsBold] = useState(false);
@@ -449,11 +586,22 @@ export function LexicalStaticToolbar({
     });
   };
 
+  const handleBgColorChange: ColorPickerProps["onChangeComplete"] = (color) => {
+    if (!onBackgroundColorChange) return;
+    onBackgroundColorChange(`#${color.toHex()}`);
+  };
+
+  const handleClearBgColor = () => {
+    if (!onBackgroundColorChange) return;
+    onBackgroundColorChange("");
+  };
+
   const getPopupContainer = useCallback(() => {
     return document.getElementById(EDITOR_PORTAL_ELEMENT_ID) || document.body;
   }, []);
 
   const isDisabled = !editor || !isTextSelected;
+  const isBgDisabled = !editor;
 
   return (
     <StaticToolbarWrapper $width={width} $height={height}>
@@ -485,7 +633,6 @@ export function LexicalStaticToolbar({
         size="small"
         value={fontColor || "#000000"}
         disabled={isDisabled}
-        disabledAlpha
         onChangeComplete={handleColorChange}
         getPopupContainer={getPopupContainer}
       >
@@ -507,6 +654,44 @@ export function LexicalStaticToolbar({
           }}
         />
       </ColorPicker>
+      <ColorPicker
+        size="small"
+        value={backgroundColor || "#252525"}
+        disabled={isBgDisabled}
+        onChangeComplete={handleBgColorChange}
+        getPopupContainer={getPopupContainer}
+      >
+        <Button
+          size="small"
+          type="text"
+          disabled={isBgDisabled}
+          icon={
+            <BgColorsOutlined
+              style={{
+                color: isBgDisabled
+                  ? colors.disabledText
+                  : backgroundColor || colors.text,
+              }}
+            />
+          }
+          onMouseDown={(e) => {
+            e.preventDefault();
+          }}
+        />
+      </ColorPicker>
+      {backgroundColor && (
+        <Button
+          size="small"
+          type="text"
+          icon={
+            <CloseOutlined style={{ color: colors.text, fontSize: "10px" }} />
+          }
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleClearBgColor();
+          }}
+        />
+      )}
     </StaticToolbarWrapper>
   );
 }
