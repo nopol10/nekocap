@@ -8,11 +8,16 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import {
+  $applyNodeReplacement,
   $getRoot,
   $getSelection,
   $isRangeSelection,
+  $isTextNode,
+  DOMConversionMap,
+  DOMConversionOutput,
   FORMAT_TEXT_COMMAND,
   LexicalEditor,
+  SerializedTextNode,
   TextNode,
   COMMAND_PRIORITY_LOW,
   FOCUS_COMMAND,
@@ -135,6 +140,100 @@ export function extractNrTag(html: string): {
   return { backgroundColor: "", innerHtml: html };
 }
 
+/**
+ * TextNode subclass that preserves the `color` style attribute when importing
+ * <span style="color: ..."> elements via Lexical's HTML pipeline. Lexical's
+ * default convertSpanElement only carries over bold/italic/underline/etc.
+ * format flags and discards the `color` value, so without this override the
+ * previously-applied font color would get stripped every time the editor
+ * remounts (e.g. when a neighbouring cue's end time changes, flipping this
+ * cue's row key) and then written back to Redux by OnChangeHtmlPlugin.
+ */
+class ColoredTextNode extends TextNode {
+  static getType(): string {
+    return "colored-text";
+  }
+
+  static clone(node: ColoredTextNode): ColoredTextNode {
+    return new ColoredTextNode(node.__text, node.__key);
+  }
+
+  static importDOM(): DOMConversionMap | null {
+    const importers = TextNode.importDOM();
+    return {
+      ...importers,
+      span: () => ({
+        conversion: $convertSpanElementPreservingColor,
+        priority: 1,
+      }),
+    };
+  }
+
+  static importJSON(serializedNode: SerializedTextNode): ColoredTextNode {
+    return $applyNodeReplacement(
+      new ColoredTextNode(serializedNode.text),
+    ).updateFromJSON(serializedNode);
+  }
+
+  exportJSON(): SerializedTextNode {
+    return {
+      ...super.exportJSON(),
+      type: "colored-text",
+    };
+  }
+}
+
+function $convertSpanElementPreservingColor(
+  domNode: HTMLSpanElement,
+): DOMConversionOutput {
+  const styleAttr = domNode.getAttribute("style") || "";
+  const colorMatch = styleAttr.match(/color\s*:\s*([^;]+)/i);
+  const color = colorMatch ? colorMatch[1].trim().replace(/;$/, "") : null;
+
+  const cssStyle = domNode.style;
+  const fontWeight = cssStyle.fontWeight;
+  const textDecoration = (cssStyle.textDecoration || "").split(" ");
+  const hasBoldFontWeight = fontWeight === "700" || fontWeight === "bold";
+  const hasItalicFontStyle = cssStyle.fontStyle === "italic";
+  const hasUnderlineTextDecoration = textDecoration.includes("underline");
+  const hasLinethroughTextDecoration = textDecoration.includes("line-through");
+  const verticalAlign = cssStyle.verticalAlign;
+
+  return {
+    node: null,
+    forChild: (lexicalNode) => {
+      if (!$isTextNode(lexicalNode)) {
+        return lexicalNode;
+      }
+      if (hasBoldFontWeight && !lexicalNode.hasFormat("bold")) {
+        lexicalNode.toggleFormat("bold");
+      }
+      if (hasItalicFontStyle && !lexicalNode.hasFormat("italic")) {
+        lexicalNode.toggleFormat("italic");
+      }
+      if (hasUnderlineTextDecoration && !lexicalNode.hasFormat("underline")) {
+        lexicalNode.toggleFormat("underline");
+      }
+      if (
+        hasLinethroughTextDecoration &&
+        !lexicalNode.hasFormat("strikethrough")
+      ) {
+        lexicalNode.toggleFormat("strikethrough");
+      }
+      if (verticalAlign === "sub" && !lexicalNode.hasFormat("subscript")) {
+        lexicalNode.toggleFormat("subscript");
+      }
+      if (verticalAlign === "super" && !lexicalNode.hasFormat("superscript")) {
+        lexicalNode.toggleFormat("superscript");
+      }
+      if (color) {
+        lexicalNode.setStyle(`color: ${color}`);
+      }
+      return lexicalNode;
+    },
+  };
+}
+
 // Plugin to parse initial HTML (WebVTT strings converted to HTML)
 function HtmlPlugin({
   initialHtml,
@@ -159,7 +258,6 @@ function HtmlPlugin({
     }
 
     editor.update(() => {
-      const parser = new DOMParser();
       // Pre-process webvtt tags
       let processedHtml = htmlWithoutNr;
       processedHtml = processedHtml
@@ -175,6 +273,7 @@ function HtmlPlugin({
 
       processedHtml = `<p>${processedHtml.replace(/\n/g, "<br>")}</p>`;
 
+      const parser = new DOMParser();
       const dom = parser.parseFromString(processedHtml, "text/html");
       const nodes = $generateNodesFromDOM(editor, dom);
       const root = $getRoot();
@@ -192,7 +291,7 @@ function UnmergeableColorPlugin() {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    return editor.registerNodeTransform(TextNode, (node) => {
+    return editor.registerNodeTransform(ColoredTextNode, (node) => {
       const hasColor = node.getStyle().includes("color:");
       if (hasColor && !node.isUnmergeable()) {
         node.toggleUnmergeable();
@@ -203,6 +302,95 @@ function UnmergeableColorPlugin() {
   }, [editor]);
 
   return null;
+}
+
+/**
+ * Recursively serialize a DOM tree (produced by `$generateHtmlFromNodes`) into
+ * the WebVTT-like format we persist to Redux.
+ *
+ * Lexical exports a TextNode with bold/italic format AND a `color` style as
+ * `<i><b><strong style="color: ...">...</strong></b></i>`: the format flags
+ * become outer <b>/<i> wrappers AND become the inner tag (<strong>/<em>) via
+ * `getElementInnerTag`, and the `style` ends up on the inner tag. To keep
+ * `color` round-trippable we have to emit it as a separate `<nc style="...">`
+ * wrapper rather than leave the style on the format tag — on reload, Lexical's
+ * default <strong>/<em>/<b>/<i> importers only carry bold/italic/etc. flags
+ * from style, dropping the colour entirely.
+ *
+ * <b>/<i> are treated as passthrough when their only child is the
+ * corresponding inner format tag (Lexical's own redundant wrap), so we don't
+ * emit `<b><b>text</b></b>` for a single bold node.
+ */
+function serializeNode(node: Node): string {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent || "";
+  }
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return "";
+  }
+  const el = node as Element;
+  const tag = el.tagName.toLowerCase();
+  let childContent = Array.from(el.childNodes).map(serializeNode).join("");
+
+  if (tag === "br") return "\n";
+  if (tag === "p") return childContent + "\n";
+
+  const styleAttr = el.getAttribute("style") || "";
+  const colorMatch = styleAttr.match(/color\s*:\s*([^;]+)/i);
+  if (colorMatch) {
+    const color = colorMatch[1].trim().replace(/;$/, "");
+    childContent = `<nc style="color: ${color}">${childContent}</nc>`;
+  }
+
+  switch (tag) {
+    case "strong":
+      return `<b>${childContent}</b>`;
+    case "em":
+      return `<i>${childContent}</i>`;
+    case "u":
+      return `<u>${childContent}</u>`;
+    case "b":
+      // Lexical wraps its <strong> inner tag with an outer <b>; treat as
+      // passthrough when the child already emits a <b>, so we don't double-wrap.
+      if (
+        el.children.length === 1 &&
+        el.children[0].tagName.toLowerCase() === "strong"
+      ) {
+        return childContent;
+      }
+      return `<b>${childContent}</b>`;
+    case "i":
+      if (
+        el.children.length === 1 &&
+        el.children[0].tagName.toLowerCase() === "em"
+      ) {
+        return childContent;
+      }
+      return `<i>${childContent}</i>`;
+    case "span":
+      // Plain <span> passes through; any colour has already been emitted as
+      // <nc> above. Spans without colour add no semantic info.
+      return childContent;
+    default:
+      if (el.children.length === 0 && !childContent) {
+        return "";
+      }
+      return childContent;
+  }
+}
+
+function serializeEditorToHtml(
+  editor: LexicalEditor,
+  backgroundColor: string | undefined,
+): string {
+  const rawHtml = $generateHtmlFromNodes(editor, null);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(rawHtml, "text/html");
+  let html = Array.from(doc.body.childNodes).map(serializeNode).join("").trim();
+  if (backgroundColor) {
+    html = `<nr background-color="${backgroundColor}">${html}</nr>`;
+  }
+  return html;
 }
 
 // Convert Lexical's internal AST back to WebVTT-like text output
@@ -220,107 +408,15 @@ function OnChangeHtmlPlugin({
   onChangeRef.current = onChange;
 
   useEffect(() => {
-    // Helper: extract hex color from a computed style color value
-    const extractHexColor = (value: string): string | null => {
-      // Match hex color directly
-      const hexMatch = value.match(/#([0-9a-fA-F]{3,8})\b/);
-      if (hexMatch) return `#${hexMatch[1]}`;
-      // Match rgb/rgba
-      const rgbMatch = value.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-      if (rgbMatch) {
-        return (
-          "#" +
-          [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
-            .map((c) => parseInt(c, 10).toString(16).padStart(2, "0"))
-            .join("")
-        );
-      }
-      return null;
-    };
-
-    // Recursively serialize a DOM node to the WebVTT-like output format
-    const serializeNode = (node: Node): string => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return node.textContent || "";
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        return "";
-      }
-      const el = node as Element;
-      const tag = el.tagName.toLowerCase();
-      const childContent = Array.from(el.childNodes)
-        .map(serializeNode)
-        .join("");
-      const style = el.getAttribute("style") || "";
-      const color = extractHexColor(style);
-      let outputTag = "";
-      switch (tag) {
-        case "br":
-          return "\n";
-        case "p":
-          // Flatten <p> blocks into text separated by newlines
-          return childContent + "\n";
-        case "strong":
-          outputTag = "b";
-          break;
-        case "em":
-        case "i":
-          outputTag = "i";
-          break;
-        case "u":
-          outputTag = "u";
-          break;
-        case "span": {
-          if (color) {
-            outputTag = "nc";
-          }
-          // Strip spans without a valid color
-          // return childContent;
-          break;
-        }
-        default:
-          // For any other tags (b, i, etc.), pass through as-is
-          if (el.children.length === 0 && !childContent) {
-            return "";
-          }
-          outputTag = "";
-      }
-      if (!outputTag) {
-        return childContent;
-      }
-      let outputStyle = "";
-      if (style) {
-        outputStyle = ` style="${style}"`;
-      }
-      return `<${outputTag}${outputStyle}>${childContent}</${outputTag}>`;
-    };
-
     return editor.registerUpdateListener(
       ({ editorState, dirtyElements, dirtyLeaves }) => {
         if (dirtyElements.size === 0 && dirtyLeaves.size === 0) {
           return;
         }
         editorState.read(() => {
-          // Convert Lexical editor nodes to HTML string
-          const rawHtml = $generateHtmlFromNodes(editor, null);
-
-          // Parse with DOMParser for accurate traversal
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(rawHtml, "text/html");
-
-          // Serialize the parsed body back to our output format
-          let html = Array.from(doc.body.childNodes)
-            .map(serializeNode)
-            .join("")
-            .trim();
-
-          // Wrap with <nr> tag if a background color is set
-          const bgColor = backgroundColorRef.current;
-          if (bgColor) {
-            html = `<nr background-color="${bgColor}">${html}</nr>`;
-          }
-
-          onChangeRef.current(html);
+          onChangeRef.current(
+            serializeEditorToHtml(editor, backgroundColorRef.current),
+          );
         });
       },
     );
@@ -334,58 +430,7 @@ function OnChangeHtmlPlugin({
     prevBackgroundColor.current = backgroundColor;
 
     editor.getEditorState().read(() => {
-      const rawHtml = $generateHtmlFromNodes(editor, null);
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(rawHtml, "text/html");
-
-      // Re-use the same serializeNode approach inline
-      const serialize = (node: Node): string => {
-        if (node.nodeType === Node.TEXT_NODE) return node.textContent || "";
-        if (node.nodeType !== Node.ELEMENT_NODE) return "";
-        const el = node as Element;
-        const tag = el.tagName.toLowerCase();
-        const childContent = Array.from(el.childNodes).map(serialize).join("");
-        if (tag === "br") return "\n";
-        if (tag === "p") return childContent + "\n";
-        const style = el.getAttribute("style") || "";
-        const hexMatch = style.match(/#([0-9a-fA-F]{3,8})\b/);
-        const rgbMatch = style.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-        const color = hexMatch
-          ? `#${hexMatch[1]}`
-          : rgbMatch
-          ? "#" +
-            [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
-              .map((c) => parseInt(c, 10).toString(16).padStart(2, "0"))
-              .join("")
-          : null;
-        let outputTag = "";
-        switch (tag) {
-          case "strong":
-            outputTag = "b";
-            break;
-          case "em":
-          case "i":
-            outputTag = "i";
-            break;
-          case "u":
-            outputTag = "u";
-            break;
-          case "span":
-            if (color) outputTag = "nc";
-            break;
-          default:
-            if (el.children.length === 0 && !childContent) return "";
-        }
-        if (!outputTag) return childContent;
-        const outputStyle = style ? ` style="${style}"` : "";
-        return `<${outputTag}${outputStyle}>${childContent}</${outputTag}>`;
-      };
-
-      let html = Array.from(doc.body.childNodes).map(serialize).join("").trim();
-      if (backgroundColor) {
-        html = `<nr background-color="${backgroundColor}">${html}</nr>`;
-      }
-      onChangeRef.current(html);
+      onChangeRef.current(serializeEditorToHtml(editor, backgroundColor));
     });
   }, [editor, backgroundColor]);
 
@@ -408,6 +453,14 @@ export type LexicalEditorWrapperProps = {
 
 const initialConfig = {
   namespace: "CaptionEditor",
+  nodes: [
+    ColoredTextNode,
+    {
+      replace: TextNode,
+      with: (node: TextNode) => new ColoredTextNode(node.__text),
+      withKlass: ColoredTextNode,
+    },
+  ],
   theme: {
     text: {
       bold: "lexical-bold",
