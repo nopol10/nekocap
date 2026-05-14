@@ -225,6 +225,8 @@ const CaptionEditorInternal = ({
   );
 
   // --- Hotkeys hook ---
+  const [isRichTextMode, setIsRichTextMode] = useState(false);
+
   const {
     hotkeyHandlers,
     handleClickPlay,
@@ -457,6 +459,7 @@ const CaptionEditorInternal = ({
                 queueDebounceUpdateCaption={queueDebounceUpdateCaption}
                 setSelectedCaption={setSelectedCaption}
                 setVideoTime={setVideoTime}
+                isRichTextMode={isRichTextMode}
               />
               <VideoPane>
                 <EditorVideoContainer
@@ -517,6 +520,8 @@ const CaptionEditorInternal = ({
                       canUndo={canUndo}
                       canRedo={canRedo}
                       onExport={onExport}
+                      isRichTextMode={isRichTextMode}
+                      onChangeRichTextMode={setIsRichTextMode}
                     >
                       {toolbarChildren}
                     </EditorToolbar>

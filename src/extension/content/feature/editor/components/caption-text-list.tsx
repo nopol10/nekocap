@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, MutableRefObject } from "react";
+import { ChangeEvent, MutableRefObject, useState } from "react";
 import { colors } from "@/common/colors";
 import { DurationInput } from "@/common/components/duration-input";
 import { WarningText } from "@/common/components/warning-text";
@@ -40,8 +40,16 @@ import {
   TimeInputLabel,
   NotAvailableWrapper,
 } from "./caption-editor.styled";
+import {
+  LexicalEditorWrapper,
+  LexicalStaticToolbar,
+  extractNrTag,
+} from "./lexical";
+import { LexicalEditor } from "lexical";
 
 dayjs.extend(duration);
+
+const RICH_TEXT_TOOLBAR_HEIGHT = 48;
 
 function NotAvailableWithAdvancedCaption() {
   return (
@@ -62,6 +70,7 @@ type CaptionTextListProps = {
   queueDebounceUpdateCaption: (action: PayloadAction<any>) => void;
   setSelectedCaption: (captionId: number) => void;
   setVideoTime: (timeInSeconds: number, scrollTimeline?: boolean) => void;
+  isRichTextMode?: boolean;
 };
 
 export const CaptionTextList = ({
@@ -75,7 +84,14 @@ export const CaptionTextList = ({
   queueDebounceUpdateCaption,
   setSelectedCaption,
   setVideoTime,
+  isRichTextMode,
 }: CaptionTextListProps) => {
+  const [activeLexicalEditor, setActiveLexicalEditor] =
+    useState<LexicalEditor | null>(null);
+  const [activeBackgroundColor, setActiveBackgroundColor] =
+    useState<string>("");
+  // Track which caption index the active background color belongs to
+  const [activeBgCaptionIndex, setActiveBgCaptionIndex] = useState<number>(-1);
   const handleStartTimeKeyboardInput =
     (trackId: number, captionId: number) => (value: string) => {
       updateCaption(
@@ -116,12 +132,13 @@ export const CaptionTextList = ({
 
   const handleChangeCaptionText =
     (trackId: number, captionId: number) =>
-    (event: ChangeEvent<HTMLTextAreaElement>) => {
+    (event: ChangeEvent<HTMLTextAreaElement> | string) => {
+      const text = typeof event === "string" ? event : event.target.value;
       queueDebounceUpdateCaption(
         modifyCaptionText({
           trackId,
           captionId,
-          text: event.target.value,
+          text,
         }),
       );
     };
@@ -235,26 +252,53 @@ export const CaptionTextList = ({
         selected={index === selectedCaption}
       >
         <AddBetween
-          top={true}
-          first={index === 0}
+          $top={true}
+          $first={index === 0}
           onClick={handleClickAddCaptionBetweenCaptions(selectedTrack, index)}
         >
           <PlusCircleFilled />
         </AddBetween>
         <TextEditorRow>
           <TextEditorColumn>
-            <EditorTextAreaWrapper>
-              <EditorTextArea
-                dir="auto"
-                key={rowKey}
-                name={`nc-ta-${index}`}
+            {isRichTextMode ? (
+              <LexicalEditorWrapper
                 id={`nc-ta-${index}`}
-                dirName={`nc-ta-${index}.dir`}
-                defaultValue={currentCaption.text}
-                onClick={handleClickCaptionTextArea(selectedTrack, index)}
+                initialText={currentCaption.text}
+                backgroundColor={
+                  activeBgCaptionIndex === index
+                    ? activeBackgroundColor
+                    : extractNrTag(currentCaption.text || "").backgroundColor
+                }
                 onChange={handleChangeCaptionText(selectedTrack, index)}
+                onBackgroundColorDetected={(color) => {
+                  setActiveBackgroundColor(color);
+                  setActiveBgCaptionIndex(index);
+                }}
+                onClick={handleClickCaptionTextArea(selectedTrack, index)}
+                onFocus={(editor) => {
+                  setActiveLexicalEditor(editor);
+                  // Load this cue's background color into toolbar state
+                  const bgColor = extractNrTag(
+                    currentCaption.text || "",
+                  ).backgroundColor;
+                  setActiveBackgroundColor(bgColor);
+                  setActiveBgCaptionIndex(index);
+                }}
               />
-            </EditorTextAreaWrapper>
+            ) : (
+              <EditorTextAreaWrapper>
+                <EditorTextArea
+                  dir="auto"
+                  key={rowKey}
+                  name={`nc-ta-${index}`}
+                  id={`nc-ta-${index}`}
+                  dirName={`nc-ta-${index}.dir`}
+                  defaultValue={currentCaption.text}
+                  onClick={handleClickCaptionTextArea(selectedTrack, index)}
+                  onChange={handleChangeCaptionText(selectedTrack, index)}
+                />
+              </EditorTextAreaWrapper>
+            )}
             <WarningText $warn={characterPerSecond > 25}>
               {charPerSecString} char/s
             </WarningText>
@@ -320,8 +364,8 @@ export const CaptionTextList = ({
         </TextEditorRow>
         {index === currentTrack.cues.length - 1 && (
           <AddBetween
-            top={false}
-            last={true}
+            $top={false}
+            $last={true}
             onClick={handleClickAddCaptionBetweenCaptions(
               selectedTrack,
               index + 1,
@@ -351,16 +395,31 @@ export const CaptionTextList = ({
       {!isAdvancedCaption && (
         <AutoSizer>
           {({ width, height }) => (
-            <List
-              ref={textEditorScrollRef}
-              height={height}
-              width={width}
-              rowCount={captionCount}
-              rowHeight={170}
-              overscanRowCount={2}
-              noRowsRenderer={noTextRowRenderer}
-              rowRenderer={trackTextRowRenderer}
-            />
+            <>
+              <List
+                ref={textEditorScrollRef}
+                height={
+                  height - (isRichTextMode ? RICH_TEXT_TOOLBAR_HEIGHT : 0)
+                }
+                width={width}
+                rowCount={captionCount}
+                rowHeight={170}
+                overscanRowCount={2}
+                noRowsRenderer={noTextRowRenderer}
+                rowRenderer={trackTextRowRenderer}
+              />
+              {isRichTextMode && (
+                <LexicalStaticToolbar
+                  width={width}
+                  height={RICH_TEXT_TOOLBAR_HEIGHT}
+                  editor={activeLexicalEditor}
+                  backgroundColor={activeBackgroundColor}
+                  onBackgroundColorChange={(color) => {
+                    setActiveBackgroundColor(color);
+                  }}
+                />
+              )}
+            </>
           )}
         </AutoSizer>
       )}

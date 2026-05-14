@@ -1,4 +1,4 @@
-import NekoLogoSvg from "-!@svgr/webpack!@/assets/images/nekocap.svg";
+import NekoLogoSvg from "@/assets/images/nekocap.svg?react";
 import React from "react";
 import styled from "styled-components";
 

@@ -34,6 +34,7 @@ import {
 import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { refreshVideoMeta } from "../utils";
 import { createGlobalStyle } from "styled-components";
+import { usePurifier } from "../feature/editor/hooks/use-purifier";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   captionContainerElement?: HTMLElement;
@@ -72,6 +73,9 @@ font-family: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Ne
 const DEFAULT_BOTTOM_OFFSET_FACTOR = 0.074074; // How many pixels to offset the caption from the bottom of the video (a factor of the video height)
 const DEFAULT_TOP_OFFSET_FACTOR = 0.0333333; // How many pixels to offset the caption from the top of the video (a factor of the video height)
 const DEFAULT_FONT_SIZE_FACTOR = 43 / 1080; // Factor of font size based on the width of the video
+
+export const SAFE_STYLE_RE =
+  /^color:\s*#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/i;
 
 type AlignmentMeta = {
   leftDefault: number;
@@ -197,6 +201,7 @@ const CaptionRendererInternal = React.forwardRef(
     const previousTime = useRef<number>(-1);
     const [recreateLocalCaptionContainer, setRecreateLocalCaptionContainer] =
       useState<boolean>(false);
+    const purifier = usePurifier();
 
     const updateRenderedCaption = useCallback(
       (
@@ -266,9 +271,46 @@ const CaptionRendererInternal = React.forwardRef(
             break;
           default:
         }
-        currentTextElement.innerText = currentCaption.text;
+
+        let rawText = currentCaption.text || "";
+
+        // Extract <nr background-color="..."> wrapper before sanitization
+        let cueBackgroundColor = "";
+        const nrParser = new DOMParser();
+        const nrDoc = nrParser.parseFromString(rawText, "text/html");
+        const nrElement = nrDoc.body.querySelector("nr");
+        if (nrElement) {
+          const bgAttr = nrElement.getAttribute("background-color") || "";
+          // Validate hex color format
+          if (
+            /^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/i.test(
+              bgAttr,
+            )
+          ) {
+            cueBackgroundColor = bgAttr;
+          }
+          // Unwrap: replace <nr> with its children
+          nrElement.replaceWith(...Array.from(nrElement.childNodes));
+          rawText = nrDoc.body.innerHTML;
+        }
+
+        rawText = rawText.replace(/\n/g, "<br>");
+
+        // Apply background-color to the caption text element
+        if (cueBackgroundColor) {
+          currentTextElement.style.backgroundColor = cueBackgroundColor;
+        } else {
+          // Reset to default
+          currentTextElement.style.backgroundColor = "rgb(37 37 37 / 90%)";
+        }
+
+        currentTextElement.innerHTML = purifier?.sanitize(rawText, {
+          RETURN_TRUSTED_TYPE: true,
+          ALLOWED_TAGS: ["b", "i", "u", "ruby", "rt", "lang", "br", "nc"],
+          ALLOWED_ATTR: ["lang", "style"],
+        }) as unknown as string;
       },
-      [preferences.fontSizeMultiplier],
+      [preferences.fontSizeMultiplier, purifier],
     );
 
     const handleTimeUpdate = useCallback(
@@ -309,7 +351,7 @@ const CaptionRendererInternal = React.forwardRef(
                   trackIndex * MAX_CONCURRENT_CAPTIONS + containerId
                 ];
               if (currentTextElement) {
-                currentTextElement.innerText = "";
+                currentTextElement.innerHTML = "";
               }
             }
             continue;
@@ -383,7 +425,7 @@ const CaptionRendererInternal = React.forwardRef(
                 trackIndex * MAX_CONCURRENT_CAPTIONS + unsetCaptionId
               ];
             if (textElement) {
-              textElement.innerText = "";
+              textElement.innerHTML = "";
             }
           }
         }
