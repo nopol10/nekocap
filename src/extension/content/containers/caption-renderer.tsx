@@ -272,8 +272,6 @@ const CaptionRendererInternal = React.forwardRef(
           default:
         }
 
-        // WebVTT tags often use classes like <c.myclass> which isn't valid HTML. We can convert them to <c class="myclass">
-        // Same for <v Voice>.
         let rawText = currentCaption.text || "";
 
         // Extract <nr background-color="..."> wrapper before sanitization
@@ -308,19 +306,8 @@ const CaptionRendererInternal = React.forwardRef(
 
         currentTextElement.innerHTML = purifier?.sanitize(rawText, {
           RETURN_TRUSTED_TYPE: true,
-          ALLOWED_TAGS: [
-            "b",
-            "i",
-            "u",
-            "c",
-            "v",
-            "ruby",
-            "rt",
-            "lang",
-            "br",
-            "nc",
-          ],
-          ALLOWED_ATTR: ["class", "title", "lang", "style"],
+          ALLOWED_TAGS: ["b", "i", "u", "ruby", "rt", "lang", "br", "nc"],
+          ALLOWED_ATTR: ["lang", "style"],
         }) as unknown as string;
       },
       [preferences.fontSizeMultiplier, purifier],

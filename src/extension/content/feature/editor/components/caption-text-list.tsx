@@ -44,7 +44,7 @@ import {
   LexicalEditorWrapper,
   LexicalStaticToolbar,
   extractNrTag,
-} from "./lexical-editor-wrapper";
+} from "./lexical";
 import { LexicalEditor } from "lexical";
 
 dayjs.extend(duration);
