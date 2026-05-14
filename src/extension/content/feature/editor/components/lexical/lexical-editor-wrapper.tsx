@@ -16,13 +16,14 @@ import {
   UnmergeableColorPlugin,
 } from "./plugins";
 
-const ContentEditableWrapper = styled.div`
+const ContentEditableWrapper = styled.div<{ $borderColor?: string }>`
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   overflow: auto;
-  border: 1px solid #d9d9d9;
+  border: ${({ $borderColor }) =>
+    $borderColor ? `2px solid ${$borderColor}` : "1px solid #d9d9d9"};
   font-family: "consolas", monospace;
   background-color: transparent;
   color: inherit;
@@ -88,7 +89,9 @@ function stopPropagation(e: React.KeyboardEvent) {
 export type LexicalEditorWrapperProps = {
   id?: string;
   initialText: string;
+  backgroundColor?: string;
   onChange: (text: string) => void;
+  onBackgroundColorDetected?: (color: string) => void;
   onClick?: () => void;
   onFocus?: (editor: LexicalEditor) => void;
 };
@@ -96,7 +99,9 @@ export type LexicalEditorWrapperProps = {
 export function LexicalEditorWrapper({
   id,
   initialText,
+  backgroundColor,
   onChange,
+  onBackgroundColorDetected,
   onClick,
   onFocus,
 }: LexicalEditorWrapperProps) {
@@ -104,6 +109,7 @@ export function LexicalEditorWrapper({
     <EditorTextAreaWrapper onClick={onClick}>
       <LexicalComposer initialConfig={initialConfig}>
         <ContentEditableWrapper
+          $borderColor={backgroundColor}
           onKeyDown={stopPropagation}
           onKeyUp={stopPropagation}
           onKeyPress={stopPropagation}
@@ -118,8 +124,14 @@ export function LexicalEditorWrapper({
           />
           <HistoryPlugin />
           <UnmergeableColorPlugin />
-          <HtmlPlugin initialHtml={initialText} />
-          <OnChangeHtmlPlugin onChange={onChange} />
+          <HtmlPlugin
+            initialHtml={initialText}
+            onBackgroundColorDetected={onBackgroundColorDetected}
+          />
+          <OnChangeHtmlPlugin
+            onChange={onChange}
+            backgroundColor={backgroundColor}
+          />
         </ContentEditableWrapper>
       </LexicalComposer>
     </EditorTextAreaWrapper>

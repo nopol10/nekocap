@@ -272,11 +272,41 @@ const CaptionRendererInternal = React.forwardRef(
           default:
         }
 
-        const rawText = (currentCaption.text || "").replace(/\n/g, "<br>");
+        let rawText = currentCaption.text || "";
+
+        // Extract <nr background-color="..."> wrapper before sanitization
+        let cueBackgroundColor = "";
+        const nrParser = new DOMParser();
+        const nrDoc = nrParser.parseFromString(rawText, "text/html");
+        const nrElement = nrDoc.body.querySelector("nr");
+        if (nrElement) {
+          const bgAttr = nrElement.getAttribute("background-color") || "";
+          // Validate hex color format
+          if (
+            /^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$/i.test(
+              bgAttr,
+            )
+          ) {
+            cueBackgroundColor = bgAttr;
+          }
+          // Unwrap: replace <nr> with its children
+          nrElement.replaceWith(...Array.from(nrElement.childNodes));
+          rawText = nrDoc.body.innerHTML;
+        }
+
+        rawText = rawText.replace(/\n/g, "<br>");
+
+        // Apply background-color to the caption text element
+        if (cueBackgroundColor) {
+          currentTextElement.style.backgroundColor = cueBackgroundColor;
+        } else {
+          // Reset to default
+          currentTextElement.style.backgroundColor = "rgb(37 37 37 / 90%)";
+        }
 
         currentTextElement.innerHTML = purifier?.sanitize(rawText, {
           RETURN_TRUSTED_TYPE: true,
-          ALLOWED_TAGS: ["b", "i", "u", "ruby", "rt", "lang", "br", "span"],
+          ALLOWED_TAGS: ["b", "i", "u", "ruby", "rt", "lang", "br", "nc"],
           ALLOWED_ATTR: ["lang", "style"],
         }) as unknown as string;
       },

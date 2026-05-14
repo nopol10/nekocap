@@ -27,7 +27,7 @@ vi.mock("@/common/client-utils", () => ({
   isInExtension: () => false,
 }));
 
-describe("CaptionRenderer html formatting", () => {
+describe("CaptionRenderer webvtt formatting", () => {
   let captionContainerElement: HTMLElement;
 
   beforeEach(() => {
