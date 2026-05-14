@@ -2,56 +2,25 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import { LexicalEditor } from "lexical";
 
 /**
- * Extract background-color from an <nr> wrapper tag using DOMParser.
- * Returns the color value and the inner HTML with the <nr> tag stripped.
+ * Wrap the persisted caption HTML in a single <p> and convert literal newlines
+ * to <br> so Lexical's $generateNodesFromDOM produces a single block.
  */
-export function extractNrTag(html: string): {
-  backgroundColor: string;
-  innerHtml: string;
-} {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const nrElement = doc.body.querySelector("nr");
-  if (nrElement) {
-    const bgColor = nrElement.getAttribute("background-color") || "";
-    nrElement.replaceWith(...Array.from(nrElement.childNodes));
-    return { backgroundColor: bgColor, innerHtml: doc.body.innerHTML };
-  }
-  return { backgroundColor: "", innerHtml: html };
-}
-
-/**
- * Convert the persisted WebVTT-flavoured HTML (with <c.x>, <v x>, <nc>) into
- * the plain HTML Lexical can consume via $generateNodesFromDOM. Wraps the
- * result in a single <p> and converts newlines to <br>.
- *
- * The caller is expected to have already stripped any outer <nr> wrapper via
- * extractNrTag, since <nr> is reapplied at serialise time from prop state.
- */
-export function webvttToLexicalHtml(html: string): string {
-  const processed = html
-    .replace(/<c\.([^>]+)>/g, '<span class="$1">')
-    .replace(/<\/c>/g, "</span>")
-    .replace(/<v ([^>]+)>/g, '<span title="$1">')
-    .replace(/<\/v>/g, "</span>")
-    .replace(/<nc\s+style="([^"]*)"/g, '<span style="$1"')
-    .replace(/<\/nc>/g, "</span>");
-
-  return `<p>${processed.replace(/\n/g, "<br>")}</p>`;
+export function prepareInitialHtml(html: string): string {
+  return `<p>${html.replace(/\n/g, "<br>")}</p>`;
 }
 
 /**
  * Recursively serialize a DOM tree (produced by `$generateHtmlFromNodes`) into
- * the WebVTT-like format we persist to Redux.
+ * the HTML format we persist to Redux.
  *
  * Lexical exports a TextNode with bold/italic format AND a `color` style as
  * `<i><b><strong style="color: ...">...</strong></b></i>`: the format flags
  * become outer <b>/<i> wrappers AND become the inner tag (<strong>/<em>) via
  * `getElementInnerTag`, and the `style` ends up on the inner tag. To keep
- * `color` round-trippable we have to emit it as a separate `<nc style="...">`
- * wrapper rather than leave the style on the format tag — on reload, Lexical's
- * default <strong>/<em>/<b>/<i> importers only carry bold/italic/etc. flags
- * from style, dropping the colour entirely.
+ * `color` round-trippable we emit it as a separate `<span style="color: ...">`
+ * wrapper rather than leaving the style on the format tag — on reload,
+ * Lexical's default <strong>/<em>/<b>/<i> importers only carry bold/italic/etc.
+ * flags from style, dropping the colour entirely.
  *
  * <b>/<i> are treated as passthrough when their only child is the
  * corresponding inner format tag (Lexical's own redundant wrap), so we don't
@@ -75,7 +44,7 @@ function serializeNode(node: Node): string {
   const colorMatch = styleAttr.match(/color\s*:\s*([^;]+)/i);
   if (colorMatch) {
     const color = colorMatch[1].trim().replace(/;$/, "");
-    childContent = `<nc style="color: ${color}">${childContent}</nc>`;
+    childContent = `<span style="color: ${color}">${childContent}</span>`;
   }
 
   switch (tag) {
@@ -102,6 +71,8 @@ function serializeNode(node: Node): string {
       }
       return `<i>${childContent}</i>`;
     case "span":
+      // The colour-bearing <span> has already been emitted above; any
+      // remaining bare span adds no semantic info, so unwrap it.
       return childContent;
     default:
       if (el.children.length === 0 && !childContent) {
@@ -111,16 +82,9 @@ function serializeNode(node: Node): string {
   }
 }
 
-export function serializeEditorToHtml(
-  editor: LexicalEditor,
-  backgroundColor: string | undefined,
-): string {
+export function serializeEditorToHtml(editor: LexicalEditor): string {
   const rawHtml = $generateHtmlFromNodes(editor, null);
   const parser = new DOMParser();
   const doc = parser.parseFromString(rawHtml, "text/html");
-  let html = Array.from(doc.body.childNodes).map(serializeNode).join("").trim();
-  if (backgroundColor) {
-    html = `<nr background-color="${backgroundColor}">${html}</nr>`;
-  }
-  return html;
+  return Array.from(doc.body.childNodes).map(serializeNode).join("").trim();
 }

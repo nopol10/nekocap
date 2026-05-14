@@ -40,11 +40,7 @@ import {
   TimeInputLabel,
   NotAvailableWrapper,
 } from "./caption-editor.styled";
-import {
-  LexicalEditorWrapper,
-  LexicalStaticToolbar,
-  extractNrTag,
-} from "./lexical";
+import { LexicalEditorWrapper, LexicalStaticToolbar } from "./lexical";
 import { LexicalEditor } from "lexical";
 
 dayjs.extend(duration);
@@ -88,10 +84,6 @@ export const CaptionTextList = ({
 }: CaptionTextListProps) => {
   const [activeLexicalEditor, setActiveLexicalEditor] =
     useState<LexicalEditor | null>(null);
-  const [activeBackgroundColor, setActiveBackgroundColor] =
-    useState<string>("");
-  // Track which caption index the active background color belongs to
-  const [activeBgCaptionIndex, setActiveBgCaptionIndex] = useState<number>(-1);
   const handleStartTimeKeyboardInput =
     (trackId: number, captionId: number) => (value: string) => {
       updateCaption(
@@ -264,25 +256,10 @@ export const CaptionTextList = ({
               <LexicalEditorWrapper
                 id={`nc-ta-${index}`}
                 initialText={currentCaption.text}
-                backgroundColor={
-                  activeBgCaptionIndex === index
-                    ? activeBackgroundColor
-                    : extractNrTag(currentCaption.text || "").backgroundColor
-                }
                 onChange={handleChangeCaptionText(selectedTrack, index)}
-                onBackgroundColorDetected={(color) => {
-                  setActiveBackgroundColor(color);
-                  setActiveBgCaptionIndex(index);
-                }}
                 onClick={handleClickCaptionTextArea(selectedTrack, index)}
                 onFocus={(editor) => {
                   setActiveLexicalEditor(editor);
-                  // Load this cue's background color into toolbar state
-                  const bgColor = extractNrTag(
-                    currentCaption.text || "",
-                  ).backgroundColor;
-                  setActiveBackgroundColor(bgColor);
-                  setActiveBgCaptionIndex(index);
                 }}
               />
             ) : (
@@ -413,10 +390,6 @@ export const CaptionTextList = ({
                   width={width}
                   height={RICH_TEXT_TOOLBAR_HEIGHT}
                   editor={activeLexicalEditor}
-                  backgroundColor={activeBackgroundColor}
-                  onBackgroundColorChange={(color) => {
-                    setActiveBackgroundColor(color);
-                  }}
                 />
               )}
             </>

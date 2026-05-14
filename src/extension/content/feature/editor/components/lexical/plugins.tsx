@@ -9,11 +9,7 @@ import {
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $generateNodesFromDOM } from "@lexical/html";
 import { ColoredTextNode } from "./colored-text-node";
-import {
-  extractNrTag,
-  serializeEditorToHtml,
-  webvttToLexicalHtml,
-} from "./serialization";
+import { prepareInitialHtml, serializeEditorToHtml } from "./serialization";
 
 export function FocusEmitterPlugin({
   onFocus,
@@ -40,14 +36,8 @@ export function FocusEmitterPlugin({
   return null;
 }
 
-// Plugin to parse initial HTML (WebVTT strings converted to HTML)
-export function HtmlPlugin({
-  initialHtml,
-  onBackgroundColorDetected,
-}: {
-  initialHtml: string;
-  onBackgroundColorDetected?: (color: string) => void;
-}) {
+// Plugin to parse initialHtml on first mount
+export function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
   const [editor] = useLexicalComposerContext();
   const [isFirstRender, setIsFirstRender] = useState(true);
 
@@ -55,15 +45,8 @@ export function HtmlPlugin({
     if (!isFirstRender) return;
     setIsFirstRender(false);
 
-    const { backgroundColor, innerHtml: htmlWithoutNr } = extractNrTag(
-      initialHtml || "",
-    );
-    if (onBackgroundColorDetected) {
-      onBackgroundColorDetected(backgroundColor);
-    }
-
     editor.update(() => {
-      const processedHtml = webvttToLexicalHtml(htmlWithoutNr);
+      const processedHtml = prepareInitialHtml(initialHtml || "");
       const parser = new DOMParser();
       const dom = parser.parseFromString(processedHtml, "text/html");
       const nodes = $generateNodesFromDOM(editor, dom);
@@ -71,7 +54,7 @@ export function HtmlPlugin({
       root.clear();
       root.append(...nodes);
     });
-  }, [editor, initialHtml, isFirstRender, onBackgroundColorDetected]);
+  }, [editor, initialHtml, isFirstRender]);
 
   return null;
 }
@@ -95,17 +78,13 @@ export function UnmergeableColorPlugin() {
   return null;
 }
 
-// Convert Lexical's internal AST back to WebVTT-like text output
+// Convert Lexical's internal AST back to the HTML we persist
 export function OnChangeHtmlPlugin({
   onChange,
-  backgroundColor,
 }: {
   onChange: (html: string) => void;
-  backgroundColor?: string;
 }) {
   const [editor] = useLexicalComposerContext();
-  const backgroundColorRef = React.useRef(backgroundColor);
-  backgroundColorRef.current = backgroundColor;
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -116,25 +95,11 @@ export function OnChangeHtmlPlugin({
           return;
         }
         editorState.read(() => {
-          onChangeRef.current(
-            serializeEditorToHtml(editor, backgroundColorRef.current),
-          );
+          onChangeRef.current(serializeEditorToHtml(editor));
         });
       },
     );
   }, [editor]);
-
-  const prevBackgroundColor = React.useRef(backgroundColor);
-
-  // Re-emit when backgroundColor changes so the <nr> wrapper is updated immediately
-  useEffect(() => {
-    if (prevBackgroundColor.current === backgroundColor) return;
-    prevBackgroundColor.current = backgroundColor;
-
-    editor.getEditorState().read(() => {
-      onChangeRef.current(serializeEditorToHtml(editor, backgroundColor));
-    });
-  }, [editor, backgroundColor]);
 
   return null;
 }

@@ -16,8 +16,6 @@ import BoldOutlined from "@ant-design/icons/BoldOutlined";
 import ItalicOutlined from "@ant-design/icons/ItalicOutlined";
 import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
 import FontColorsOutlined from "@ant-design/icons/FontColorsOutlined";
-import BgColorsOutlined from "@ant-design/icons/BgColorsOutlined";
-import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import styled from "styled-components";
 import { colors } from "@/common/colors";
 import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
@@ -74,14 +72,10 @@ export function LexicalStaticToolbar({
   width,
   height,
   editor,
-  backgroundColor,
-  onBackgroundColorChange,
 }: {
   width: number;
   height: number;
   editor: LexicalEditor | null;
-  backgroundColor?: string;
-  onBackgroundColorChange?: (color: string) => void;
 }) {
   const [isTextSelected, setIsTextSelected] = useState(false);
   const [isBold, setIsBold] = useState(false);
@@ -153,22 +147,11 @@ export function LexicalStaticToolbar({
     });
   };
 
-  const handleBgColorChange: ColorPickerProps["onChangeComplete"] = (color) => {
-    if (!onBackgroundColorChange) return;
-    onBackgroundColorChange(`#${color.toHex()}`);
-  };
-
-  const handleClearBgColor = () => {
-    if (!onBackgroundColorChange) return;
-    onBackgroundColorChange("");
-  };
-
   const getPopupContainer = useCallback(() => {
     return document.getElementById(EDITOR_PORTAL_ELEMENT_ID) || document.body;
   }, []);
 
   const isDisabled = !editor || !isTextSelected;
-  const isBgDisabled = !editor;
 
   return (
     <StaticToolbarWrapper $width={width} $height={height}>
@@ -221,44 +204,6 @@ export function LexicalStaticToolbar({
           }}
         />
       </ColorPicker>
-      <ColorPicker
-        size="small"
-        value={backgroundColor || "#252525"}
-        disabled={isBgDisabled}
-        onChangeComplete={handleBgColorChange}
-        getPopupContainer={getPopupContainer}
-      >
-        <Button
-          size="small"
-          type="text"
-          disabled={isBgDisabled}
-          icon={
-            <BgColorsOutlined
-              style={{
-                color: isBgDisabled
-                  ? colors.disabledText
-                  : backgroundColor || colors.text,
-              }}
-            />
-          }
-          onMouseDown={(e) => {
-            e.preventDefault();
-          }}
-        />
-      </ColorPicker>
-      {backgroundColor && (
-        <Button
-          size="small"
-          type="text"
-          icon={
-            <CloseOutlined style={{ color: colors.text, fontSize: "10px" }} />
-          }
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleClearBgColor();
-          }}
-        />
-      )}
     </StaticToolbarWrapper>
   );
 }
