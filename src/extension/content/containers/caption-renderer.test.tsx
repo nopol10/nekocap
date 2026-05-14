@@ -1,8 +1,8 @@
-import React from "react";
+import { CaptionContainer, VideoSource } from "@/common/feature/video/types";
 import { render } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CaptionRenderer } from "./caption-renderer";
-import { CaptionContainer } from "@/common/feature/video/types";
 
 // Mock useAnimationFrame and useResize to avoid act warnings and endless loops
 vi.mock("@/hooks", () => ({
@@ -37,8 +37,7 @@ describe("CaptionRenderer webvtt formatting", () => {
 
   it("renders standard html tags like b, i, u correctly", () => {
     const caption: CaptionContainer = {
-      type: "subtitles",
-      language: "en",
+      languageCode: "en",
       data: {
         tracks: [
           {
@@ -52,6 +51,11 @@ describe("CaptionRenderer webvtt formatting", () => {
           },
         ],
       },
+      videoId: "",
+      videoSource: VideoSource.Youtube,
+      loadedByUser: false,
+      userLike: null,
+      userDislike: null,
     };
 
     render(
@@ -60,17 +64,13 @@ describe("CaptionRenderer webvtt formatting", () => {
         captionContainerElement={captionContainerElement}
         showCaption={true}
         isIframe={true}
-        iframeProps={
-          {
-            getCurrentTime: () => 5, // 5 seconds in
-            width: 800,
-            height: 600,
-          } as unknown as {
-            getCurrentTime: () => number;
-            width: number;
-            height: number;
-          }
-        }
+        iframeProps={{
+          getCurrentTime: () => 5, // 5 seconds in
+          width: 800,
+          height: 600,
+          left: 0,
+          top: 0,
+        }}
       />,
     );
 
@@ -90,8 +90,7 @@ describe("CaptionRenderer webvtt formatting", () => {
 
   it("sanitizes malicious input", () => {
     const caption: CaptionContainer = {
-      type: "subtitles",
-      language: "en",
+      languageCode: "en",
       data: {
         tracks: [
           {
@@ -101,6 +100,11 @@ describe("CaptionRenderer webvtt formatting", () => {
           },
         ],
       },
+      videoId: "",
+      videoSource: VideoSource.Youtube,
+      loadedByUser: false,
+      userLike: null,
+      userDislike: null,
     };
 
     render(
@@ -109,17 +113,13 @@ describe("CaptionRenderer webvtt formatting", () => {
         captionContainerElement={captionContainerElement}
         showCaption={true}
         isIframe={true}
-        iframeProps={
-          {
-            getCurrentTime: () => 5,
-            width: 800,
-            height: 600,
-          } as unknown as {
-            getCurrentTime: () => number;
-            width: number;
-            height: number;
-          }
-        }
+        iframeProps={{
+          getCurrentTime: () => 5,
+          width: 800,
+          height: 600,
+          left: 0,
+          top: 0,
+        }}
       />,
     );
 
