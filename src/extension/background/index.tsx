@@ -25,6 +25,30 @@ import { UserExtensionPreferenceState } from "./feature/user-extension-preferenc
 import { initFirebase } from "./firebase";
 import { removeAllTemporaryRawCaptions } from "./remove-temporary-raw-caption";
 
+// Dev-only: poll a sentinel file written by the watch driver and reload the
+// extension when its contents change. The `process.env.NODE_ENV` check is
+// replaced at build time by Vite's define, so this whole block is dropped from
+// production bundles.
+if (process.env.NODE_ENV !== "production") {
+  let lastReloadValue: string | null = null;
+  const sentinelUrl = chrome.runtime.getURL(".reload");
+  setInterval(async () => {
+    try {
+      const res = await fetch(sentinelUrl, { cache: "no-store" });
+      if (!res.ok) return;
+      const value = await res.text();
+      if (lastReloadValue === null) {
+        lastReloadValue = value;
+      } else if (value !== lastReloadValue) {
+        console.log("[dev] Rebuild detected — reloading extension");
+        chrome.runtime.reload();
+      }
+    } catch {
+      // sentinel may not exist yet
+    }
+  }, 1000);
+}
+
 // Clear redux but keep user preferences
 chrome.runtime.onStartup.addListener(async () => {
   console.log("Extension started");

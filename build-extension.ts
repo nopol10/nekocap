@@ -7,13 +7,14 @@
  *   tsx build-extension.ts [--mode=production|development] [--target=chrome|firefox] [--watch]
  */
 import { build, loadEnv, type InlineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 import svgr from "vite-plugin-svgr";
 import license from "rollup-plugin-license";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import type { RollupWatcher } from "rollup";
 
 // @ts-ignore
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -104,6 +105,121 @@ function updateManifest(
 }
 
 // ──────────────────────────────────────────────────────────────
+// Extension static asset copy (manifest, locales, icons, HTML, subtitle-octopus)
+// Extracted so watch mode can run it once at startup instead of on every rebuild.
+// ──────────────────────────────────────────────────────────────
+function copyExtensionStatics() {
+  const outDir = path.resolve(__dirname, "dist", "extension");
+  fs.mkdirSync(outDir, { recursive: true });
+
+  const copyFile = (src: string, dest: string) => {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(src, dest);
+  };
+  const copyDir = (src: string, dest: string) => {
+    fs.mkdirSync(dest, { recursive: true });
+    for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        copyDir(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  };
+
+  // _locales
+  copyDir(
+    path.resolve(__dirname, "extension-statics", "_locales"),
+    path.join(outDir, "_locales"),
+  );
+
+  // Icons
+  for (const file of fs.readdirSync(
+    path.resolve(__dirname, "extension-statics"),
+  )) {
+    if (file.endsWith(".png")) {
+      copyFile(
+        path.resolve(__dirname, "extension-statics", file),
+        path.join(outDir, file),
+      );
+    }
+  }
+
+  // Manifest
+  copyFile(
+    path.resolve(
+      __dirname,
+      "extension-statics",
+      `manifest-${targetBrowser}.json`,
+    ),
+    path.join(outDir, "manifest.json"),
+  );
+
+  // HTML
+  copyFile(
+    path.resolve(__dirname, "src", "extension", "popup", "popup.html"),
+    path.join(outDir, "popup.html"),
+  );
+  copyFile(
+    path.resolve(
+      __dirname,
+      "src",
+      "extension",
+      "background",
+      "background.html",
+    ),
+    path.join(outDir, "background.html"),
+  );
+  copyFile(
+    path.resolve(
+      __dirname,
+      "src",
+      "extension",
+      "content",
+      "canvas-iframe",
+      "index.html",
+    ),
+    path.join(outDir, "canvas-iframe.html"),
+  );
+
+  // subtitle-octopus js/wasm/data
+  const octopusDir = path.resolve(__dirname, "src", "libs", "subtitle-octopus");
+  const octopusOutDir = path.join(outDir, "js", "subtitle-octopus");
+  fs.mkdirSync(octopusOutDir, { recursive: true });
+  for (const file of fs.readdirSync(octopusDir)) {
+    if (
+      file.endsWith(".js") ||
+      file.endsWith(".wasm") ||
+      file.endsWith(".data") ||
+      file.endsWith(".mem") ||
+      file === "COPYRIGHT"
+    ) {
+      copyFile(path.join(octopusDir, file), path.join(octopusOutDir, file));
+    }
+  }
+
+  // subtitle-octopus assets
+  const assetsDir = path.join(octopusDir, "assets");
+  const assetsOutDir = path.join(outDir, "sub-assets");
+  fs.mkdirSync(assetsOutDir, { recursive: true });
+  for (const file of fs.readdirSync(assetsDir)) {
+    copyFile(path.join(assetsDir, file), path.join(assetsOutDir, file));
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Watch-mode reload sentinel: writing this file signals the background SW
+// (which polls it) to call chrome.runtime.reload().
+// ──────────────────────────────────────────────────────────────
+function writeReloadSentinel() {
+  const outDir = path.resolve(__dirname, "dist", "extension");
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, ".reload"), Date.now().toString());
+}
+
+// ──────────────────────────────────────────────────────────────
 // Vite config factory
 // ──────────────────────────────────────────────────────────────
 interface ConfigOptions {
@@ -138,111 +254,7 @@ function createConfig(
     plugins.push({
       name: "copy-extension-statics",
       closeBundle() {
-        const outDir = path.resolve(__dirname, "dist", "extension");
-        const copyFile = (src: string, dest: string) => {
-          fs.mkdirSync(path.dirname(dest), { recursive: true });
-          fs.copyFileSync(src, dest);
-        };
-        const copyDir = (src: string, dest: string) => {
-          fs.mkdirSync(dest, { recursive: true });
-          for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-            const srcPath = path.join(src, entry.name);
-            const destPath = path.join(dest, entry.name);
-            if (entry.isDirectory()) {
-              copyDir(srcPath, destPath);
-            } else {
-              fs.copyFileSync(srcPath, destPath);
-            }
-          }
-        };
-
-        // Copy _locales directory
-        copyDir(
-          path.resolve(__dirname, "extension-statics", "_locales"),
-          path.join(outDir, "_locales"),
-        );
-
-        // Copy icons
-        for (const file of fs.readdirSync(
-          path.resolve(__dirname, "extension-statics"),
-        )) {
-          if (file.endsWith(".png")) {
-            copyFile(
-              path.resolve(__dirname, "extension-statics", file),
-              path.join(outDir, file),
-            );
-          }
-        }
-
-        // Copy manifest
-        copyFile(
-          path.resolve(
-            __dirname,
-            "extension-statics",
-            `manifest-${targetBrowser}.json`,
-          ),
-          path.join(outDir, "manifest.json"),
-        );
-
-        // Copy HTML files
-        copyFile(
-          path.resolve(__dirname, "src", "extension", "popup", "popup.html"),
-          path.join(outDir, "popup.html"),
-        );
-        copyFile(
-          path.resolve(
-            __dirname,
-            "src",
-            "extension",
-            "background",
-            "background.html",
-          ),
-          path.join(outDir, "background.html"),
-        );
-        copyFile(
-          path.resolve(
-            __dirname,
-            "src",
-            "extension",
-            "content",
-            "canvas-iframe",
-            "index.html",
-          ),
-          path.join(outDir, "canvas-iframe.html"),
-        );
-
-        // Copy subtitle-octopus files
-        const octopusDir = path.resolve(
-          __dirname,
-          "src",
-          "libs",
-          "subtitle-octopus",
-        );
-        const octopusOutDir = path.join(outDir, "js", "subtitle-octopus");
-        fs.mkdirSync(octopusOutDir, { recursive: true });
-        for (const file of fs.readdirSync(octopusDir)) {
-          if (
-            file.endsWith(".js") ||
-            file.endsWith(".wasm") ||
-            file.endsWith(".data") ||
-            file.endsWith(".mem") ||
-            file === "COPYRIGHT"
-          ) {
-            copyFile(
-              path.join(octopusDir, file),
-              path.join(octopusOutDir, file),
-            );
-          }
-        }
-
-        // Copy subtitle-octopus assets
-        const assetsDir = path.join(octopusDir, "assets");
-        const assetsOutDir = path.join(outDir, "sub-assets");
-        fs.mkdirSync(assetsOutDir, { recursive: true });
-        for (const file of fs.readdirSync(assetsDir)) {
-          copyFile(path.join(assetsDir, file), path.join(assetsOutDir, file));
-        }
-
+        copyExtensionStatics();
         console.log("  📋 Copied extension static files");
       },
     });
@@ -292,6 +304,10 @@ function createConfig(
       outDir: path.resolve(__dirname, "dist", "extension"),
       emptyOutDir,
       minify: !devMode,
+      // gzip-size reporting on a 5MB+ IIFE is purely cosmetic and noticeably
+      // slow on every rebuild; skip in watch (and dev one-shots).
+      reportCompressedSize: !devMode,
+      chunkSizeWarningLimit: devMode ? Infinity : 500,
       // esbuild charset: 'ascii' is equivalent to terser's ascii_only option
       // (important for CJK content in the extension)
       ...(devMode
@@ -299,7 +315,10 @@ function createConfig(
         : {
             target: "es2020",
           }),
-      sourcemap: devMode ? "inline" : false,
+      // Inline sourcemaps balloon the IIFE output and slow every rewrite in
+      // watch mode. Disable in watch (rebuild speed wins), keep for one-shot
+      // dev builds, none in prod.
+      sourcemap: devMode && !watchMode ? "inline" : false,
       rollupOptions: {
         input: {
           [entryDef.outputName]: path.resolve(__dirname, entryDef.input),
@@ -329,6 +348,113 @@ function createConfig(
 // ──────────────────────────────────────────────────────────────
 // Main build execution
 // ──────────────────────────────────────────────────────────────
+async function runWatch(entries: string[]) {
+  const outDir = path.resolve(__dirname, "dist", "extension");
+
+  // Clear dist once up front, then never empty during parallel builds (each
+  // build with emptyOutDir: true would race against the others' outputs).
+  if (fs.existsSync(outDir)) {
+    fs.rmSync(outDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(outDir, { recursive: true });
+
+  // Copy statics once at startup. Source files don't change during a watch
+  // session — re-copying _locales/icons/subtitle-octopus on every rebuild is
+  // pure overhead.
+  copyExtensionStatics();
+  console.log("📋 Copied extension static files");
+
+  // pendingBuilds starts pre-populated so the sentinel isn't written between
+  // watcher setup and the first START events (initial state = "still building").
+  const pendingBuilds = new Set<string>(entries);
+  let sentinelDebounce: NodeJS.Timeout | null = null;
+  let firstCycleDone = false;
+  let errored = false;
+
+  const scheduleSentinel = () => {
+    if (sentinelDebounce) clearTimeout(sentinelDebounce);
+    sentinelDebounce = setTimeout(() => {
+      if (pendingBuilds.size === 0 && !errored) {
+        writeReloadSentinel();
+        if (!firstCycleDone) {
+          firstCycleDone = true;
+          console.log(
+            `\n✅ Initial watch build complete. Auto-reload active.\n`,
+          );
+        } else {
+          console.log(`🔁 Rebuild emitted — signaling extension auto-reload`);
+        }
+      }
+      errored = false;
+    }, 200);
+  };
+
+  console.log(
+    `\n📦 Starting ${entries.length} parallel watchers: ${entries.join(
+      ", ",
+    )}\n`,
+  );
+
+  const watchers = (await Promise.all(
+    entries.map((entry) =>
+      build(
+        createConfig(entry, {
+          emptyOutDir: false,
+          copyStatics: false,
+          includeLicense: false,
+        }),
+      ),
+    ),
+  )) as unknown as RollupWatcher[];
+
+  watchers.forEach((watcher, idx) => {
+    const entryName = entries[idx];
+    watcher.on("event", (event) => {
+      if (event.code === "START") {
+        pendingBuilds.add(entryName);
+      } else if (event.code === "END") {
+        pendingBuilds.delete(entryName);
+        scheduleSentinel();
+      } else if (event.code === "ERROR") {
+        pendingBuilds.delete(entryName);
+        errored = true;
+        console.error(`❌ ${entryName}:`, event.error);
+      }
+    });
+  });
+
+  // Resolves never — watchers keep the process alive.
+  return new Promise<void>(() => {
+    // intentional no-op
+  });
+}
+
+async function runOneShot(entries: string[]) {
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    const isFirst = i === 0;
+    const isLast = i === entries.length - 1;
+
+    console.log(`\n📦 Building entry: ${entry} (${i + 1}/${entries.length})\n`);
+
+    const config = createConfig(entry, {
+      emptyOutDir: isFirst,
+      copyStatics: isLast,
+      includeLicense: !devMode && isLast,
+    });
+
+    await build(config);
+  }
+
+  // Post-build: zip for production
+  if (!devMode) {
+    console.log(`\n📁 Zipping extension...\n`);
+    execSync(`node zip-extension.js --target=${targetBrowser}`, {
+      stdio: "inherit",
+    });
+  }
+}
+
 async function main() {
   console.log(
     `\n🔨 Building extension: mode=${mode}, target=${targetBrowser}, watch=${watchMode}\n`,
@@ -350,33 +476,12 @@ async function main() {
   }
 
   try {
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      const isFirst = i === 0;
-      const isLast = i === entries.length - 1;
-
-      console.log(
-        `\n📦 Building entry: ${entry} (${i + 1}/${entries.length})\n`,
-      );
-
-      const config = createConfig(entry, {
-        emptyOutDir: isFirst,
-        copyStatics: isLast,
-        includeLicense: !devMode && isLast,
-      });
-
-      await build(config);
-    }
-
-    // Post-build: zip for production
-    if (!devMode && !watchMode) {
-      console.log(`\n📁 Zipping extension...\n`);
-      execSync(`node zip-extension.js --target=${targetBrowser}`, {
-        stdio: "inherit",
-      });
+    if (watchMode) {
+      await runWatch(entries);
+    } else {
+      await runOneShot(entries);
     }
   } finally {
-    // Restore original manifest if it was modified
     if (originalManifestString) {
       fs.writeFileSync(manifestPath, originalManifestString);
       console.log(`\n✅ Restored original manifest\n`);
