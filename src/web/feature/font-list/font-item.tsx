@@ -3,7 +3,8 @@ import { SUBSTATION_GROUPED_FONTS } from "@/common/substation-fonts";
 import { Col, Row, Typography } from "antd";
 import { startCase } from "lodash-es";
 import { useTranslation } from "next-i18next";
-import styled, { CSSProperties } from "styled-components";
+import { CSSProperties } from "react";
+import styled from "styled-components";
 
 const { Link, Text } = Typography;
 
