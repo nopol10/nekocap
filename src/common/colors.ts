@@ -11,6 +11,7 @@ export const colors = {
   lightDislike: "#ffd9d9",
   error: "#af1135",
   text: "#565656",
+  disabledText: "#bbbbbb",
   socialIcon: "#565656",
   socialIconHovered: "#212121",
   divider: "#d8d8d8",

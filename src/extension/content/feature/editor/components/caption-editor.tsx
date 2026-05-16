@@ -1,551 +1,55 @@
-import NekoLogoSvg from "@/assets/images/nekocap.svg";
-import { getImageLink } from "@/common/chrome-utils";
 import { isInExtension } from "@/common/client-utils";
-import { colors } from "@/common/colors";
-import { DurationInput } from "@/common/components/duration-input";
-import { SplitPane } from "@/common/components/multi-split-pane/split-pane";
-import { WarningText } from "@/common/components/warning-text";
 import { EDITOR_PORTAL_ELEMENT_ID, TIME } from "@/common/constants";
-import debounce from "@/common/debounce";
 import {
-  addCaptionToTrackRelative,
   addCaptionToTrackTime,
   addTrack,
   changeCaptionTrackId,
-  deleteCaption,
   fixOverlaps,
-  modifyCaption,
-  modifyCaptionEndTime,
-  modifyCaptionGlobalSettings,
-  modifyCaptionStartTime,
-  modifyCaptionText,
   modifyCaptionTime,
-  modifyCaptionTrackSettings,
-  modifyCaptionWithMultipleActions,
   removeTrack,
   shiftTimings,
 } from "@/common/feature/caption-editor/actions";
-import {
-  CaptionModificationState,
-  EDITOR_KEYS,
-  EditorShortcutHandlers,
-} from "@/common/feature/caption-editor/types";
+import { CaptionModificationState } from "@/common/feature/caption-editor/types";
 import { CaptionContainer } from "@/common/feature/video/types";
 import { findClosestCaption } from "@/common/feature/video/utils";
-import { darkModeSelector } from "@/common/processor-utils";
-import { DEVICE } from "@/common/style-constants";
-import {
-  CaptionFileFormat,
-  Coords,
-  CSSPosition,
-  UndoComponentProps,
-} from "@/common/types";
-import { BooleanFilter, clamp, isInputElementSelected } from "@/common/utils";
+import { CaptionFileFormat, UndoComponentProps } from "@/common/types";
 import { useGetVideoPlayerFrameRate } from "@/extension/content/hooks/use-get-video-player-frame-rate";
 import {
-  useMount,
-  useResize,
-  useStateRef,
   useVideoPlayerDurationChange,
   useVideoPlayerPlayPause,
   useVideoPlayerVolumeChange,
 } from "@/hooks";
-import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
-import ClockCircleOutlined from "@ant-design/icons/ClockCircleOutlined";
-import CompressOutlined from "@ant-design/icons/CompressOutlined";
-import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
-import LoginOutlined from "@ant-design/icons/LoginOutlined";
-import LogoutOutlined from "@ant-design/icons/LogoutOutlined";
-import PauseOutlined from "@ant-design/icons/PauseOutlined";
-import PlusCircleFilled from "@ant-design/icons/PlusCircleFilled";
-import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnyAction, PayloadAction } from "@reduxjs/toolkit";
-import { Button, message, Popover, Slider, Space } from "antd";
-import * as dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
+import { message, Space } from "antd";
 import { isEqual } from "lodash-es";
 import * as React from "react";
-import {
-  ChangeEvent,
-  LegacyRef,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
-import { HotKeys, KeySequence, ObserveKeys } from "react-hotkeys-ce";
-import NumberFormat from "react-number-format";
-import { AutoSizer, List, ListRowProps } from "react-virtualized";
-import styled from "styled-components";
-import { DEFAULT_LAYOUT_SETTINGS, MAX_VOLUME } from "../constants";
+import { HotKeys, KeySequence } from "react-hotkeys-ce";
+import { List } from "react-virtualized";
+import { MAX_VOLUME } from "../constants";
 import { ShiftTimingsModal } from "../containers/shift-timings-modal";
-import { CaptionMutators, useCaptionDrag } from "../utils";
-import { triggerEnterKeyupEvent } from "../utils/trigger-enter-keyup-event";
+import { CaptionMutators } from "../utils";
 import { VideoPlayer } from "../video-player/video-player";
+import {
+  EditorVideoContainer,
+  NotAvailableWrapper,
+  RootPane,
+  RootSplitPane,
+  SettingsInfoMessage,
+  SettingsPane,
+  TimelineContainer,
+  VideoPane,
+} from "./caption-editor.styled";
+import { CaptionTextList } from "./caption-text-list";
 import { EditorTimeline, SetTimelineScroll } from "./editor-timeline";
 import { EditorToolbar } from "./editor-toolbar";
 import { SettingsPanel } from "./settings-panel";
-import { VideoScrubber } from "./video-scrubber";
-
-dayjs.extend(duration);
-
-const VideoPane = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  width: 100%;
-  height: 100%;
-  background-color: ${colors.white};
-  color: ${colors.text};
-
-  ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: #e0e0e0;
-  `)}
-`;
-
-const SettingsPane = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 0 20px 20px;
-  box-sizing: border-box;
-  background-color: ${colors.white};
-  color: ${colors.text};
-
-  ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: #e0e0e0;
-  `)}
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url(${getImageLink(NekoLogoSvg)});
-    background-repeat: no-repeat;
-    background-position: 97% 97%;
-    background-size: 200px;
-    background-origin: content-box;
-    opacity: 0.3;
-  }
-`;
-
-const SettingsInfoMessage = styled.div`
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  padding: 0 10px;
-  background-color: ${colors.white}77;
-  border-top: 1px solid ${colors.divider};
-  width: 100%;
-`;
-
-const VideoControls = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 5px 10px;
-`;
-
-const VolumeSlider = styled(Slider)`
-  display: inline-block;
-  vertical-align: middle;
-  width: 100px;
-`;
-
-const TextEditorColumn = styled.div<{ $justify?: string }>`
-  display: flex !important;
-  flex-direction: column !important;
-  ${({ $justify }) =>
-    $justify ? `justify-content: ${$justify} !important;` : ""}
-
-  & > div,button:not(:last-child) {
-    margin-bottom: 5px;
-  }
-`;
-
-const TextEditorRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 10px;
-  & ${TextEditorColumn} {
-    &:nth-child(1) {
-      flex-grow: 1;
-      flex-shrink: 0;
-    }
-    &:nth-child(2) {
-      justify-content: center;
-    }
-  }
-`;
-
-type EditorVideoContainerProps = React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
-> & {
-  $playerStyles: string;
-  innerRef: LegacyRef<HTMLDivElement>;
-};
-const EditorVideoContainer = styled(
-  ({ innerRef, ...rest }: EditorVideoContainerProps) => {
-    return <div {...rest} ref={innerRef} />;
-  },
-)`
-  width: 100%;
-  height: 100%;
-  position: relative;
-
-  ${({ $playerStyles }) => {
-    return $playerStyles;
-  }}
-`;
-
-const RootSplitPane = styled(SplitPane)`
-  position: relative !important;
-  background-color: ${colors.white};
-  min-height: unset !important;
-  color: ${colors.text};
-
-  ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: #e0e0e0;
-  `)}
-`;
-
-type RootPaneType = {
-  $show: boolean;
-  $captionMoveType?: CaptionModificationState;
-};
-
-const RootPane = styled.div<RootPaneType>`
-  display: ${({ $show }: RootPaneType) => ($show ? "flex" : "none")} !important;
-  background-color: ${colors.white};
-  color: ${colors.text};
-  flex-direction: column;
-  height: 100vh;
-  pointer-events: all;
-  font-size: 14px;
-  font-family: "Arial", sans-serif;
-
-  .ant-tabs-tab-btn {
-    font-family: "Arial", sans-serif;
-  }
-
-  ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: #e0e0e0;
-  `)}
-
-  .nekocap-cap-container {
-    /* pointer-events: all !important; */
-    user-select: none;
-
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-  }
-
-  .nekocap-caption {
-    // Override the caption container to allow dragging of captions in the editor
-    pointer-events: all !important;
-
-    ${({ $captionMoveType }: RootPaneType) => {
-      if ($captionMoveType === CaptionModificationState.Global) {
-        return `
-          &[data-layout-type="global"] {
-            .nekocap-caption-text:not(:empty)::before {
-              content: "Global";
-              border: 1px solid #41b1f1;
-            }
-          }
-    `;
-      } else if ($captionMoveType === CaptionModificationState.Track) {
-        return `
-          &[data-layout-type="track"] {
-            .nekocap-caption-text:not(:empty)::before {
-              content: "Track";
-              border: 1px solid #e6aa3b;
-            }
-          }
-`;
-      } else if ($captionMoveType === CaptionModificationState.Caption) {
-        return `
-          &[data-layout-type="caption"] {
-            .nekocap-caption-text:not(:empty)::before {
-              content: "Caption";
-              border: 1px solid #65df2d;
-            }
-          }
-`;
-      }
-      return "";
-    }}
-  }
-
-  .nekocap-caption-text {
-    font-family: apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
-      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    &:not(:empty)::before {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 0 5px;
-      transform: translate(0, -100%);
-      pointer-events: none;
-      font-size: 0.7em;
-      background-color: #33333375;
-    }
-  }
-
-  *,
-  *:focus,
-  *:hover {
-    outline: none;
-  }
-
-  // Pane specific styles
-  .Resizer {
-    background: #000;
-    opacity: 0.2;
-    z-index: 1;
-    box-sizing: border-box;
-    background-clip: padding-box;
-
-    &.horizontal {
-      height: 11px;
-      margin: -5px 0;
-      border-top: 5px solid rgba(255, 255, 255, 0);
-      border-bottom: 5px solid rgba(255, 255, 255, 0);
-      cursor: row-resize;
-      &:hover,
-      &.resizing {
-        border-top: 5px solid rgba(0, 0, 0, 0.5);
-        border-bottom: 5px solid rgba(0, 0, 0, 0.5);
-      }
-    }
-
-    &.vertical {
-      width: 11px;
-      margin: 0 -5px;
-      border-left: 5px solid rgba(255, 255, 255, 0);
-      border-right: 5px solid rgba(255, 255, 255, 0);
-      cursor: col-resize;
-
-      &:hover,
-      &.resizing {
-        border-left: 5px solid rgba(0, 0, 0, 0.5);
-        border-right: 5px solid rgba(0, 0, 0, 0.5);
-      }
-    }
-
-    &:hover {
-      transition: all 2s ease;
-    }
-  }
-
-  .DragLayer {
-    opacity: 0;
-    pointer-events: none;
-    &.resizing {
-      pointer-events: auto;
-    }
-    &.horizontal {
-      cursor: row-resize;
-    }
-    &.vertical {
-      cursor: col-resize;
-    }
-  }
-`;
-
-const TimelineContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding-top: 20px;
-  height: 100%;
-  box-sizing: border-box;
-  background-color: ${colors.white};
-  color: ${colors.text};
-
-  * {
-    box-sizing: border-box;
-  }
-
-  ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: ${colors.textDark};
-  `)}
-`;
-
-const TextEditorPane = styled.div`
-  display: block;
-  width: 100%;
-  background-color: ${colors.white};
-
-  ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: ${colors.textDark};
-  `)}
-`;
-
-type CaptionTextRowProps = {
-  selected: boolean;
-};
-
-const CaptionTextRow = styled.div<CaptionTextRowProps>`
-  position: relative;
-  box-sizing: border-box;
-  padding: 10px;
-  background-color: ${({ selected }: CaptionTextRowProps) =>
-    selected ? colors.lightHighlight : "unset"};
-  color: ${colors.text};
-
-  ${({ selected }) =>
-    darkModeSelector(`
-      background-color: ${selected ? "#333333" : "unset"};
-      color: ${colors.white};
-    `)}
-`;
-
-const ScrollingTime = styled.div`
-  font-size: 30px;
-  font-weight: bold;
-`;
-
-const ScrollingText = styled.div`
-  font-size: 26px;
-`;
-
-const ScrollingEditorField = styled.div`
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  top: 0;
-  left: 0;
-  background-color: ${colors.white}33;
-  backdrop-filter: blur(5px);
-  opacity: 0;
-  transition: opacity 200ms;
-  pointer-events: none;
-`;
-
-const NoTextInTrack = styled.div`
-  text-align: center;
-  font-size: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-`;
-
-type AddBetweenProps = {
-  top: boolean;
-  first?: boolean;
-  last?: boolean;
-};
-
-const AddBetween = styled.div<AddBetweenProps>`
-  position: absolute;
-  width: 100%;
-  opacity: 0;
-  font-size: ${({ first }: AddBetweenProps) => (first ? "13px" : "20px")};
-  transition: opacity 200ms;
-  transform: ${({ last }: AddBetweenProps) =>
-    last ? "translate(-50%, -120%)" : "translate(-50%, -50%)"};
-  left: 50%;
-  text-align: center;
-  ${({ top, first }: AddBetweenProps) => {
-    if (first) {
-      return "top: 10px";
-    }
-    return top ? "top: 0" : "top: unset";
-  }};
-  z-index: 10;
-
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-const TimeInputLabel = styled.div`
-  display: inline-block;
-  flex: 0;
-  border: 1px solid #d9d9d9;
-  border-right: none;
-  padding: 10px;
-  background-color: white;
-  ${darkModeSelector(`
-    background-color: ${colors.disabledFieldDark};
-    color: ${colors.textDark};
-  `)}
-`;
-
-const TimeInput = styled.div`
-  display: flex;
-`;
-
-const EditorTextAreaWrapper = styled(ObserveKeys)`
-  flex: 1;
-  width: 100%;
-`;
-
-const EditorTextArea = styled.textarea`
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  border: 1px solid #d9d9d9;
-  resize: none !important;
-  transition: none;
-  font-family: "consolas", monospace;
-
-  ${darkModeSelector(`
-    background-color: #1f1f1f;
-    color: #e0e0e0;
-  `)}
-`;
-
-const CueActionButton = styled(Button)`
-  padding: 0 2px;
-  font-size: 12px;
-  @media ${DEVICE.largeDesktop} {
-    padding: 0 7px;
-    font-size: 14px;
-  }
-`;
-
-const DisabledNumberFormat = styled(NumberFormat<unknown>)`
-  padding: 10px;
-  letter-spacing: 2px;
-  flex: 1;
-  border: 1px solid #d9d9d9;
-  background-color: ${colors.disabledField};
-  overflow-x: hidden;
-  font-size: 12px;
-  @media ${DEVICE.largeDesktop} {
-    font-size: 14px;
-  }
-  ${darkModeSelector(`
-    background-color: ${colors.disabledFieldDark};
-    color: ${colors.textDark};
-  `)}
-`;
+import { useCaptionDragHandler } from "../hooks/use-caption-drag-handler";
+import { useCaptionEditorHotkeys } from "../hooks/use-caption-editor-hotkeys";
+import { useVideoElementManagement } from "../hooks/use-video-element-management";
+import { VideoControlsPanel } from "./video-controls-panel";
+import { SplitPane } from "@/common/components/multi-split-pane/split-pane";
 
 const focusCaptionTextArea = (captionId: number, delay = 0) => {
   if (!isInExtension()) {
@@ -596,9 +100,6 @@ const CaptionEditorInternal = ({
   toolbarChildren,
   isAdvancedCaption,
 }: CaptionEditorProps) => {
-  const [editorVideoContainer, editorVideoContainerRef] =
-    useStateRef<HTMLDivElement>();
-  const originalCaptionContainerParent = useRef<HTMLElement | null>();
   const setTimelineScroll = useRef<SetTimelineScroll>(() => {
     /* */
   });
@@ -619,7 +120,6 @@ const CaptionEditorInternal = ({
   const focusNewCaptionIndex = useRef<number>(-1);
   const lastDebouncedAction = useRef<PayloadAction<any>>();
   const hotKeysRef = useRef<HTMLDivElement>(null);
-  const videoDimensions = useRef<Coords>({ x: 0, y: 0 });
   const [isPlaying, _, isPlayingRef] = useVideoPlayerPlayPause(videoPlayer);
   const {
     volume: [volume, setVolume],
@@ -630,176 +130,18 @@ const CaptionEditorInternal = ({
 
   const { data } = captionContainer || {};
 
-  /**
-   * Effect for moving the video element to the editor and back
-   */
-  useEffect(() => {
-    if (!videoPlayer || !editorVideoContainer || !captionContainerElement) {
-      return;
-    }
-    if (children) {
-      return;
-    }
-
-    if (showEditor) {
-      // Move the video in
-      if (editorVideoContainer.contains(captionContainerElement)) {
-        return;
-      }
-      originalCaptionContainerParent.current =
-        captionContainerElement.parentElement;
-      editorVideoContainer.appendChild(captionContainerElement);
-      // TODO: Fix host website overriding this property
-      document.body.style.overflow = "hidden";
-    } else {
-      if (!editorVideoContainer.contains(captionContainerElement)) {
-        return;
-      }
-      if (originalCaptionContainerParent.current) {
-        originalCaptionContainerParent.current.appendChild(
-          captionContainerElement,
-        );
-      }
-      document.body.style.overflow = "unset";
-    }
-  }, [
-    showEditor,
-    captionContainerElement,
-    editorVideoContainer,
-    videoPlayer,
-    children,
-  ]);
-
-  useMount(() => {
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  });
+  const { editorVideoContainerRef, videoDimensions } =
+    useVideoElementManagement(
+      showEditor,
+      videoPlayer,
+      captionContainerElement,
+      !!children,
+    );
 
   useEffect(() => {
     // Force a refresh of the caption text list on the next update
     captionListKeySuffix.current++;
   }, [showEditor, captionListKeySuffix]);
-
-  const handleDragCaptionEnd = (trackId: number, position: CSSPosition) => {
-    const draggedCaption = data?.tracks[trackId].cues[selectedCaption];
-    if (!draggedCaption) {
-      return;
-    }
-    const x =
-      ((position.left !== undefined ? position.left : position.right) || 0) /
-      100;
-    const y =
-      ((position.bottom !== undefined ? position.bottom : position.top) || 0) /
-      100;
-    if (currentMoveType === CaptionModificationState.Caption) {
-      updateCaption(
-        modifyCaption({
-          trackId,
-          captionId: selectedCaption,
-          newCaption: {
-            ...draggedCaption,
-            layout: {
-              ...DEFAULT_LAYOUT_SETTINGS, // We have to set alignment to the default if it does not exist for the positioning to take effect
-              // alignment: CaptionAlignment.BottomCenter,
-              ...draggedCaption?.layout,
-              position: {
-                x,
-                y,
-              },
-            },
-          },
-        }),
-      );
-    } else if (currentMoveType === CaptionModificationState.Track) {
-      const trackData = data.tracks[trackId];
-      const trackSettings = trackData.settings;
-      updateCaption(
-        modifyCaptionTrackSettings({
-          trackId,
-          settings: {
-            ...draggedCaption,
-            ...trackSettings,
-            layout: {
-              ...DEFAULT_LAYOUT_SETTINGS,
-              ...trackSettings?.layout,
-              position: {
-                x,
-                y,
-              },
-            },
-          },
-        }),
-      );
-    } else if (currentMoveType === CaptionModificationState.Global) {
-      const globalSettings = data.settings;
-      updateCaption(
-        modifyCaptionGlobalSettings({
-          settings: {
-            ...globalSettings,
-            layout: {
-              ...DEFAULT_LAYOUT_SETTINGS,
-              ...globalSettings?.layout,
-              position: {
-                x,
-                y,
-              },
-            },
-          },
-        }),
-      );
-    }
-  };
-
-  const canDragCaption = (trackId: number, captionId: number) => {
-    if (currentMoveType === CaptionModificationState.None) {
-      return false;
-    }
-    const trackLayout = data?.tracks[trackId].settings?.layout;
-    const captionLayout = data?.tracks[trackId].cues[captionId].layout;
-    if (
-      currentMoveType === CaptionModificationState.Global &&
-      (trackLayout || captionLayout)
-    ) {
-      // Can't change global position when current caption overrides global position
-      return false;
-    }
-    if (currentMoveType === CaptionModificationState.Track) {
-      if (captionLayout) {
-        return false;
-      }
-      if (selectedTrack !== trackId) {
-        // In track mode, can't move another track's position
-        return false;
-      }
-    }
-    if (
-      currentMoveType === CaptionModificationState.Caption &&
-      (selectedCaption !== captionId || selectedTrack !== trackId)
-    ) {
-      return false;
-    }
-    return true;
-  };
-
-  useCaptionDrag(
-    showEditor,
-    videoDimensions,
-    canDragCaption,
-    handleDragCaptionEnd,
-    [captionContainer, selectedTrack, selectedCaption, currentMoveType],
-  );
-
-  const updateVideoDimensions = (width: number, height: number) => {
-    videoDimensions.current = {
-      x: width,
-      y: height,
-    };
-  };
-
-  useResize(videoPlayer?.element(), updateVideoDimensions, 0, [
-    videoPlayer?.element(),
-  ]);
 
   const setVideoTime = useCallback(
     (timeInSeconds: number, scrollTimeline = true) => {
@@ -855,6 +197,63 @@ const CaptionEditorInternal = ({
     }
   }, [showEditor]);
 
+  // --- Caption drag handler hook ---
+  useCaptionDragHandler(
+    showEditor,
+    videoDimensions,
+    data,
+    selectedTrack,
+    selectedCaption,
+    currentMoveType,
+    captionContainer,
+    updateCaption,
+  );
+
+  // --- New caption handler ---
+  const handleNewCaption = useCallback(
+    (trackId: number, newTime: number) => {
+      captionListKeySuffix.current++;
+      updateCaption(
+        addCaptionToTrackTime({
+          trackId,
+          timeMs: newTime,
+          skipValidityChecks: false,
+        }),
+      );
+    },
+    [updateCaption],
+  );
+
+  // --- Hotkeys hook ---
+  const [isRichTextMode, setIsRichTextMode] = useState(false);
+
+  const {
+    hotkeyHandlers,
+    handleClickPlay,
+    handleUndo,
+    handleRedo,
+    debouncedUpdateCaption,
+    queueDebounceUpdateCaption,
+  } = useCaptionEditorHotkeys({
+    data,
+    videoPlayer,
+    videoFps,
+    selectedTrack,
+    selectedCaption,
+    isPlayingRef,
+    captionListKeySuffix,
+    focusNewCaptionIndex,
+    lastDebouncedAction,
+    updateCaption,
+    selectAndScrollToCaptionId,
+    setVideoTime,
+    handleNewCaption,
+    onUndo,
+    onRedo,
+    onSave,
+  });
+
+  // --- Move type toggles ---
   const handleToggleMoveCaptionPosition = () => {
     if (currentMoveType === CaptionModificationState.Caption) {
       setCurrentMoveType(CaptionModificationState.None);
@@ -879,266 +278,7 @@ const CaptionEditorInternal = ({
     }
   };
 
-  // useCallback not necessary for the next few functions, changed it while attempting to fix react-hotkey issues
-  // too lazy to change back
-  const handleClickPlay = useCallback(
-    (event) => {
-      if (!videoPlayer) {
-        return;
-      }
-      event.preventDefault();
-      if (isPlayingRef.current) {
-        videoPlayer.pause();
-      } else {
-        videoPlayer.play();
-      }
-    },
-    [videoPlayer, isPlayingRef],
-  );
-
-  const handleSetStartToCurrentTime = useCallback(
-    (event) => {
-      if (!data) {
-        return;
-      }
-      if (
-        selectedTrack < 0 ||
-        selectedTrack >= data.tracks.length ||
-        selectedCaption < 0
-      ) {
-        return;
-      }
-      const caption = data.tracks[selectedTrack].cues[selectedCaption];
-      if (!caption) {
-        return;
-      }
-      event.preventDefault();
-      const newStartTime = videoPlayer.currentTime() * 1000;
-      let newEndTime = caption.end;
-      if (caption.end < newStartTime) {
-        // If the start time is after the end time, we'll shift the end time so that the same duration remains
-        newEndTime = newStartTime + (caption.end - caption.start);
-      }
-      updateCaption(
-        modifyCaptionTime({
-          trackId: selectedTrack,
-          captionId: selectedCaption,
-          startMs: newStartTime,
-          endMs: newEndTime,
-        }),
-      );
-    },
-    [data, selectedTrack, selectedCaption, videoPlayer, updateCaption],
-  );
-
-  const handleSetEndToCurrentTime = useCallback(
-    (event) => {
-      if (!data) {
-        return;
-      }
-      if (
-        selectedTrack < 0 ||
-        selectedTrack >= data.tracks.length ||
-        selectedCaption < 0
-      ) {
-        return;
-      }
-      const caption = data.tracks[selectedTrack].cues[selectedCaption];
-      if (!caption) {
-        return;
-      }
-      event.preventDefault();
-      const newEndTime = videoPlayer.currentTime() * 1000;
-      let newStartTime = caption.start;
-      if (caption.start > newEndTime) {
-        // If the end time is before the start time, we'll shift the start time so that the same duration remains
-        newStartTime = newEndTime - (caption.end - caption.start);
-      }
-      updateCaption(
-        modifyCaptionTime({
-          trackId: selectedTrack,
-          captionId: selectedCaption,
-          startMs: newStartTime,
-          endMs: newEndTime,
-        }),
-      );
-    },
-    [data, selectedTrack, selectedCaption, videoPlayer, updateCaption],
-  );
-
-  const handleGotoNextCaption = useCallback(
-    (event) => {
-      if (!data) {
-        return;
-      }
-      if (selectedCaption < 0) {
-        return;
-      }
-      const newId = selectedCaption + 1;
-
-      if (newId >= data.tracks[selectedTrack].cues.length) {
-        return;
-      }
-      event.preventDefault();
-      selectAndScrollToCaptionId(newId);
-      const startTime = data.tracks[selectedTrack].cues[newId].start;
-      setVideoTime(startTime / 1000, true);
-      focusCaptionTextArea(newId, 0);
-    },
-    [
-      data,
-      selectedCaption,
-      selectedTrack,
-      selectAndScrollToCaptionId,
-      setVideoTime,
-    ],
-  );
-
-  const handleGotoPreviousCaption = useCallback(
-    (event) => {
-      if (!data || selectedCaption < 0) {
-        return;
-      }
-      const newId = selectedCaption - 1;
-      if (newId < 0) {
-        return;
-      }
-      event.preventDefault();
-      selectAndScrollToCaptionId(newId);
-      const startTime = data.tracks[selectedTrack].cues[newId].start;
-      setVideoTime(startTime / 1000, true);
-      focusCaptionTextArea(newId, 0);
-    },
-    [
-      data,
-      selectedCaption,
-      selectAndScrollToCaptionId,
-      selectedTrack,
-      setVideoTime,
-    ],
-  );
-  const debouncedUpdateCaption = useMemo(
-    () => debounce(updateCaption, 500),
-    [updateCaption],
-  );
-
-  const handleNewCaption = useCallback(
-    (trackId: number, newTime: number) => {
-      captionListKeySuffix.current++;
-      updateCaption(
-        addCaptionToTrackTime({
-          trackId,
-          timeMs: newTime,
-          skipValidityChecks: false,
-        }),
-      );
-    },
-    [updateCaption],
-  );
-
-  const handleNewCaptionFromShortcut = useCallback(
-    (event: Event) => {
-      if (!data || selectedTrack < 0) {
-        return;
-      }
-      event.preventDefault();
-      console.log(
-        "Adding new caption at current time",
-        videoPlayer.currentTime(),
-        "last debounced action",
-        lastDebouncedAction.current,
-      );
-      let newTime = videoPlayer.currentTime() * 1000;
-      if (selectedCaption >= 0) {
-        newTime = Math.max(
-          newTime,
-          data.tracks[selectedTrack].cues[selectedCaption].end,
-        );
-      }
-      // Dry run adding it to see what the new id will be
-      const { newCaptionId } = CaptionMutators.addCaptionToTrackTime(
-        data,
-        selectedTrack,
-        newTime,
-        undefined,
-        false,
-      );
-      focusNewCaptionIndex.current = newCaptionId;
-      if (isInputElementSelected()) {
-        const inputElement = document.activeElement;
-        let batchUpdates = false;
-        if (debouncedUpdateCaption.pending()) {
-          // We'll do the update and creation of new caption together
-          batchUpdates = true;
-          debouncedUpdateCaption.cancel();
-        } else {
-          debouncedUpdateCaption.flush();
-        }
-
-        const dispatchUpdates = () => {
-          if (batchUpdates) {
-            captionListKeySuffix.current++;
-            updateCaption(
-              modifyCaptionWithMultipleActions({
-                actions: [
-                  lastDebouncedAction.current,
-                  addCaptionToTrackTime({
-                    trackId: selectedTrack,
-                    timeMs: newTime,
-                    skipValidityChecks: false,
-                  }),
-                ].filter(BooleanFilter),
-              }),
-            );
-          } else {
-            handleNewCaption(selectedTrack, newTime);
-          }
-        };
-        // Force keyup now as we will trigger a rerender right after this, which causes the keyup to not be detected
-        // that leads to hotkeys not working until a refocus.
-        triggerEnterKeyupEvent(inputElement);
-        dispatchUpdates();
-
-        if (!isInExtension()) {
-          focusNewCaptionIndex.current = newCaptionId;
-        }
-      } else {
-        debouncedUpdateCaption.flush();
-        handleNewCaption(selectedTrack, newTime);
-      }
-    },
-    [
-      data,
-      debouncedUpdateCaption,
-      handleNewCaption,
-      selectedCaption,
-      selectedTrack,
-      updateCaption,
-      videoPlayer,
-    ],
-  );
-
-  const handleUndo = useCallback(() => {
-    if (isInputElementSelected()) {
-      return;
-    }
-    captionListKeySuffix.current++;
-    if (onUndo) onUndo();
-  }, [captionListKeySuffix, onUndo]);
-
-  const handleRedo = useCallback(() => {
-    if (isInputElementSelected()) {
-      return;
-    }
-    captionListKeySuffix.current++;
-    if (onRedo) onRedo();
-  }, [captionListKeySuffix, onRedo]);
-
-  const queueDebounceUpdateCaption = (action: PayloadAction<any>) => {
-    lastDebouncedAction.current = { ...action };
-    debouncedUpdateCaption(action);
-  };
-
+  // --- Timeline handlers ---
   const handleChangeTimelineZoom = (value: number) => {
     setTimelineScale(value);
   };
@@ -1228,300 +368,7 @@ const CaptionEditorInternal = ({
     }
   };
 
-  const handleStartTimeKeyboardInput =
-    (trackId: number, captionId: number) => (value: string) => {
-      updateCaption(
-        modifyCaptionStartTime({ trackId, captionId, newFormattedTime: value }),
-      );
-    };
-
-  const handleChangeStartTime =
-    (trackId: number, captionId: number) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      queueDebounceUpdateCaption(
-        modifyCaptionStartTime({
-          trackId,
-          captionId,
-          newFormattedTime: event.target.value,
-        }),
-      );
-    };
-
-  const handleEndTimeKeyboardInput =
-    (trackId: number, captionId: number) => (value: string) => {
-      updateCaption(
-        modifyCaptionEndTime({ trackId, captionId, newFormattedTime: value }),
-      );
-    };
-
-  const handleChangeEndTime =
-    (trackId: number, captionId: number) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      queueDebounceUpdateCaption(
-        modifyCaptionEndTime({
-          trackId,
-          captionId,
-          newFormattedTime: event.target.value,
-        }),
-      );
-    };
-
-  const handleChangeCaptionText =
-    (trackId: number, captionId: number) =>
-    (event: ChangeEvent<HTMLTextAreaElement>) => {
-      queueDebounceUpdateCaption(
-        modifyCaptionText({
-          trackId,
-          captionId,
-          text: event.target.value,
-        }),
-      );
-    };
-
-  const handleClickCaptionTextArea =
-    (trackId: number, captionId: number) => () => {
-      if (!textEditorScrollRef.current) {
-        return;
-      }
-      setSelectedCaption(captionId);
-    };
-
-  const handleJumpToCaption = (trackId: number, captionId: number) => () => {
-    if (!data || !textEditorScrollRef.current) {
-      return;
-    }
-    const startTime = data.tracks[trackId].cues[captionId].start;
-    setVideoTime(startTime / 1000, true);
-    setSelectedCaption(captionId);
-  };
-
-  const handleDeleteCaption = (trackId: number, captionId: number) => () => {
-    if (!data) {
-      return;
-    }
-    captionListKeySuffix.current++;
-    if (captionId === selectedCaption) {
-      if (selectedCaption >= data.tracks[trackId].cues.length - 1) {
-        // Is the last, we need to make the previous caption the selected one
-        setSelectedCaption(selectedCaption - 1 >= 0 ? selectedCaption - 1 : -1);
-      }
-    }
-    updateCaption(deleteCaption({ trackId, captionId }));
-  };
-
-  const handleClickAddCaptionBetweenCaptions =
-    (trackId: number, captionId: number) => (event: React.MouseEvent) => {
-      captionListKeySuffix.current++;
-      updateCaption(addCaptionToTrackRelative({ trackId, captionId }));
-    };
-
-  const noTextRowRenderer = () => {
-    return (
-      <NoTextInTrack
-        onClick={handleClickAddCaptionBetweenCaptions(selectedTrack, 0)}
-      >
-        <div>Add caption</div>
-        <PlusCircleFilled />
-      </NoTextInTrack>
-    );
-  };
-
-  const renderTrackList = () => {
-    if (!data) {
-      return <></>;
-    }
-    const captionCount =
-      selectedTrack >= 0 &&
-      data.tracks[selectedTrack] &&
-      data.tracks[selectedTrack].cues
-        ? data.tracks[selectedTrack].cues.length
-        : 0;
-
-    const trackTextRowRenderer = ({
-      key,
-      style,
-      index,
-      isScrolling,
-    }: ListRowProps) => {
-      const { tracks } = data;
-      const currentTrack = tracks[selectedTrack];
-      if (!currentTrack) {
-        return <></>;
-      }
-
-      const currentCaption = currentTrack.cues[index];
-
-      const formattedStartTime = dayjs
-        .duration(Math.floor(currentCaption.start), "milliseconds")
-        .format("HH:mm:ss.SSS");
-
-      const start = dayjs
-        .duration(currentCaption.start, "milliseconds")
-        .format("HHmmssSSS");
-
-      const end = dayjs
-        .duration(currentCaption.end, "milliseconds")
-        .format("HHmmssSSS");
-      const durationPreformat = dayjs.duration(
-        currentCaption.end - currentCaption.start,
-        "milliseconds",
-      );
-      const duration =
-        durationPreformat.format("HHmmss") +
-        durationPreformat.milliseconds().toFixed(0).padStart(3, "0");
-
-      // Use a property of the previous caption as part of this row's key so that reordering captions will trigger a refresh
-      const previousCaptionKeyPart = currentTrack.cues[index - 1]
-        ? currentTrack.cues[index - 1].end
-        : "0";
-      const rowKey = `${key}_${selectedTrack}_${captionListKeySuffix.current}_${previousCaptionKeyPart}`;
-      const characterPerSecond =
-        (currentCaption.text || "").length /
-        (currentCaption.end - currentCaption.start) /
-        TIME.MS_TO_SECONDS;
-      const charPerSecString = characterPerSecond.toFixed(2);
-      return (
-        <CaptionTextRow
-          key={rowKey}
-          style={style}
-          selected={index === selectedCaption}
-        >
-          <AddBetween
-            top={true}
-            first={index === 0}
-            onClick={handleClickAddCaptionBetweenCaptions(selectedTrack, index)}
-          >
-            <PlusCircleFilled />
-          </AddBetween>
-          <TextEditorRow>
-            <TextEditorColumn>
-              <EditorTextAreaWrapper>
-                <EditorTextArea
-                  dir="auto"
-                  key={rowKey}
-                  name={`nc-ta-${index}`}
-                  id={`nc-ta-${index}`}
-                  dirName={`nc-ta-${index}.dir`}
-                  defaultValue={currentCaption.text}
-                  onClick={handleClickCaptionTextArea(selectedTrack, index)}
-                  onChange={handleChangeCaptionText(selectedTrack, index)}
-                />
-              </EditorTextAreaWrapper>
-              <WarningText $warn={characterPerSecond > 25}>
-                {charPerSecString} char/s
-              </WarningText>
-            </TextEditorColumn>
-            <TextEditorColumn>
-              <CueActionButton
-                onClick={handleJumpToCaption(selectedTrack, index)}
-                size="small"
-              >
-                <CompressOutlined />
-              </CueActionButton>
-              <CueActionButton
-                onClick={handleDeleteCaption(selectedTrack, index)}
-                size="small"
-              >
-                <DeleteOutlined style={{ color: colors.dislike }} />
-              </CueActionButton>
-            </TextEditorColumn>
-            <TextEditorColumn>
-              <div>
-                <TimeInput>
-                  <TimeInputLabel>
-                    <LoginOutlined />
-                  </TimeInputLabel>
-                  <DurationInput
-                    value={start}
-                    onChange={handleChangeStartTime(selectedTrack, index)}
-                    onKeyboardShortcutInput={handleStartTimeKeyboardInput(
-                      selectedTrack,
-                      index,
-                    )}
-                  />
-                </TimeInput>
-              </div>
-              <div>
-                <TimeInput>
-                  <TimeInputLabel>
-                    <ClockCircleOutlined />
-                  </TimeInputLabel>
-                  <DisabledNumberFormat
-                    format={"##:##:##.###"}
-                    value={duration}
-                    displayType="text"
-                  />
-                </TimeInput>
-              </div>
-              <div>
-                <TimeInput>
-                  <TimeInputLabel>
-                    <LogoutOutlined />
-                  </TimeInputLabel>
-                  <DurationInput
-                    value={end}
-                    onChange={handleChangeEndTime(selectedTrack, index)}
-                    onKeyboardShortcutInput={handleEndTimeKeyboardInput(
-                      selectedTrack,
-                      index,
-                    )}
-                  />
-                </TimeInput>
-              </div>
-            </TextEditorColumn>
-          </TextEditorRow>
-          {index === currentTrack.cues.length - 1 && (
-            <AddBetween
-              top={false}
-              last={true}
-              onClick={handleClickAddCaptionBetweenCaptions(
-                selectedTrack,
-                index + 1,
-              )}
-            >
-              <PlusCircleFilled />
-            </AddBetween>
-          )}
-          <ScrollingEditorField
-            style={{
-              height: style.height,
-              width: style.width,
-              opacity: isScrolling ? 1 : 0,
-            }}
-            key={key}
-          >
-            <ScrollingTime>{formattedStartTime}</ScrollingTime>
-            <ScrollingText>
-              {currentCaption.text.substring(0, 32)}
-            </ScrollingText>
-          </ScrollingEditorField>
-        </CaptionTextRow>
-      );
-    };
-
-    return (
-      <TextEditorPane>
-        {isAdvancedCaption && <NotAvailableWithAdvancedCaption />}
-        {!isAdvancedCaption && (
-          <AutoSizer>
-            {({ width, height }) => (
-              <List
-                ref={textEditorScrollRef}
-                height={height}
-                width={width}
-                rowCount={captionCount}
-                rowHeight={170}
-                overscanRowCount={2}
-                noRowsRenderer={noTextRowRenderer}
-                rowRenderer={trackTextRowRenderer}
-              />
-            )}
-          </AutoSizer>
-        )}
-      </TextEditorPane>
-    );
-  };
-
+  // --- Volume handlers ---
   const handleClickMute = async () => {
     if (!videoPlayer) {
       return;
@@ -1550,50 +397,6 @@ const CaptionEditorInternal = ({
     setVideoTime(seekedTime, true);
   };
 
-  const handleSeekShortcut = (duration: number) => (event) => {
-    event.preventDefault();
-    setVideoTime(
-      clamp(
-        videoPlayer.currentTime(
-          videoPlayer.currentTime() + duration * TIME.MS_TO_SECONDS,
-        ),
-        0,
-        videoPlayer.duration(),
-      ),
-      true,
-    );
-  };
-
-  const handleSeekNextFrame = useCallback(
-    (event) => {
-      event.preventDefault();
-      setVideoTime(
-        clamp(
-          videoPlayer.currentTime() + 1 / videoFps,
-          0,
-          videoPlayer.duration(),
-        ),
-        true,
-      );
-    },
-    [setVideoTime, videoFps, videoPlayer],
-  );
-
-  const handleSeekPreviousFrame = useCallback(
-    (event) => {
-      event.preventDefault();
-      setVideoTime(
-        clamp(
-          videoPlayer.currentTime() - 1 / videoFps,
-          0,
-          videoPlayer.duration(),
-        ),
-        true,
-      );
-    },
-    [setVideoTime, videoFps, videoPlayer],
-  );
-
   const renderInfoMessage = () => {
     if (currentMoveType !== CaptionModificationState.None) {
       return (
@@ -1604,11 +407,6 @@ const CaptionEditorInternal = ({
       );
     }
     return null;
-  };
-
-  const handleShortcutSave = (event: Event) => {
-    event.preventDefault();
-    onSave();
   };
 
   const handleFixOverlaps = () => {
@@ -1631,24 +429,6 @@ const CaptionEditorInternal = ({
     updateCaption(shiftTimings({ duration: shiftMs, startMs, endMs }));
   };
 
-  const hotkeyHandlers: EditorShortcutHandlers = {
-    [EDITOR_KEYS.PLAY_PAUSE]: handleClickPlay,
-    [EDITOR_KEYS.SET_START_TO_CURRENT_TIME]: handleSetStartToCurrentTime,
-    [EDITOR_KEYS.SET_END_TO_CURRENT_TIME]: handleSetEndToCurrentTime,
-    [EDITOR_KEYS.UNDO]: handleUndo,
-    [EDITOR_KEYS.REDO]: handleRedo,
-    [EDITOR_KEYS.GO_TO_NEXT_CAPTION]: handleGotoNextCaption,
-    [EDITOR_KEYS.GO_TO_PREVIOUS_CAPTION]: handleGotoPreviousCaption,
-    [EDITOR_KEYS.SEEK_NEXT_FRAME]: handleSeekNextFrame,
-    [EDITOR_KEYS.SEEK_PREVIOUS_FRAME]: handleSeekPreviousFrame,
-    [EDITOR_KEYS.SEEK_FORWARD_500_MS]: handleSeekShortcut(500),
-    [EDITOR_KEYS.SEEK_BACK_500_MS]: handleSeekShortcut(-500),
-    [EDITOR_KEYS.SEEK_FORWARD_5_SECONDS]: handleSeekShortcut(5000),
-    [EDITOR_KEYS.SEEK_BACK_5_SECONDS]: handleSeekShortcut(-5000),
-    [EDITOR_KEYS.NEW_CAPTION]: handleNewCaptionFromShortcut,
-    [EDITOR_KEYS.SAVE]: handleShortcutSave,
-  };
-
   const editorPortalElement = document.getElementById(EDITOR_PORTAL_ELEMENT_ID);
   if (!editorPortalElement) {
     return <></>;
@@ -1668,7 +448,19 @@ const CaptionEditorInternal = ({
         >
           <RootSplitPane split="horizontal" defaultSizes={[1, 1]}>
             <SplitPane split="vertical">
-              {renderTrackList()}
+              <CaptionTextList
+                data={data}
+                selectedTrack={selectedTrack}
+                selectedCaption={selectedCaption}
+                isAdvancedCaption={isAdvancedCaption}
+                captionListKeySuffix={captionListKeySuffix}
+                textEditorScrollRef={textEditorScrollRef}
+                updateCaption={updateCaption}
+                queueDebounceUpdateCaption={queueDebounceUpdateCaption}
+                setSelectedCaption={setSelectedCaption}
+                setVideoTime={setVideoTime}
+                isRichTextMode={isRichTextMode}
+              />
               <VideoPane>
                 <EditorVideoContainer
                   $playerStyles={
@@ -1678,43 +470,16 @@ const CaptionEditorInternal = ({
                 >
                   {children}
                 </EditorVideoContainer>
-                <VideoControls>
-                  <VideoScrubber
-                    videoPlayer={videoPlayer}
-                    onSeek={handleSeek}
-                  />
-                  <Space style={{ justifyContent: "center" }}>
-                    <Popover
-                      placement={"top"}
-                      content={
-                        <div>
-                          <VolumeSlider
-                            range={false}
-                            step={0.1}
-                            min={0}
-                            max={MAX_VOLUME}
-                            value={volume * MAX_VOLUME}
-                            onChange={handleChangeVolume}
-                          />
-                        </div>
-                      }
-                    >
-                      <Button onClick={handleClickMute}>
-                        <FontAwesomeIcon
-                          icon={
-                            volume > 0 && !isMute ? faVolumeUp : faVolumeMute
-                          }
-                          style={{
-                            verticalAlign: "middle",
-                          }}
-                        />
-                      </Button>
-                    </Popover>
-                    <Button onClick={handleClickPlay}>
-                      {isPlaying ? <PauseOutlined /> : <CaretRightOutlined />}
-                    </Button>
-                  </Space>
-                </VideoControls>
+                <VideoControlsPanel
+                  videoPlayer={videoPlayer}
+                  isPlaying={isPlaying}
+                  volume={volume}
+                  isMute={isMute}
+                  onClickPlay={handleClickPlay}
+                  onSeek={handleSeek}
+                  onChangeVolume={handleChangeVolume}
+                  onClickMute={handleClickMute}
+                />
               </VideoPane>
               <SettingsPane>
                 {isAdvancedCaption && <NotAvailableWithAdvancedCaption />}
@@ -1755,6 +520,8 @@ const CaptionEditorInternal = ({
                       canUndo={canUndo}
                       canRedo={canRedo}
                       onExport={onExport}
+                      isRichTextMode={isRichTextMode}
+                      onChangeRichTextMode={setIsRichTextMode}
                     >
                       {toolbarChildren}
                     </EditorToolbar>
@@ -1835,15 +602,3 @@ function NotAvailableWithAdvancedCaption() {
     </NotAvailableWrapper>
   );
 }
-
-const NotAvailableWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* ${darkModeSelector(`
-    background-color: ${colors.backgroundDark};
-    color: ${colors.textDark};
-  `)} */
-`;

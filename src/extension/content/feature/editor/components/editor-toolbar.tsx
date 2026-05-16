@@ -13,6 +13,7 @@ import UndoOutlined from "@ant-design/icons/UndoOutlined";
 import ZoomInOutlined from "@ant-design/icons/ZoomInOutlined";
 import ZoomOutOutlined from "@ant-design/icons/ZoomOutOutlined";
 import { faKeyboard } from "@fortawesome/free-solid-svg-icons";
+import { Switch } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Button,
@@ -47,6 +48,8 @@ type EditorToolbarProps = UndoComponentProps &
     onOpenShiftTimings: () => void;
     onChangeZoom: (value: number) => void;
     onExport: (fileFormat: keyof typeof CaptionFileFormat) => void;
+    isRichTextMode?: boolean;
+    onChangeRichTextMode?: (checked: boolean) => void;
   }>;
 
 type KeyboardShortcutModalProps = {
@@ -151,6 +154,8 @@ export const EditorToolbar = ({
   canRedo,
   onFixOverlaps,
   onOpenShiftTimings,
+  isRichTextMode,
+  onChangeRichTextMode,
   children,
 }: EditorToolbarProps) => {
   const [showShortcutModal, setShowShortcutModal] = useState(false);
@@ -240,6 +245,10 @@ export const EditorToolbar = ({
         <Button onClick={handleClickShortcutsHelp}>
           <FontAwesomeIcon icon={faKeyboard} />
         </Button>
+        <Space>
+          <span>Rich Text</span>
+          <Switch checked={isRichTextMode} onChange={onChangeRichTextMode} />
+        </Space>
         {children}
       </Space>
     </>

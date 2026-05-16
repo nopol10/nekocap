@@ -16,7 +16,7 @@ import {
   useRef,
 } from "react";
 import { createGlobalStyle } from "styled-components";
-import * as SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus";
+import SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus.cjs";
 import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { CaptionRendererHandle } from "./caption-renderer";
 import { OctopusRendererIframeProxy } from "./octopus-renderer-iframe-proxy";

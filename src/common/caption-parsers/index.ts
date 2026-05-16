@@ -1,14 +1,15 @@
-import { Captions, parse, stringify as stringifySrt } from "subtitle";
-import { parseSBV } from "./sbv-parser";
-import { NekoCaption, CaptionDataContainer, Track } from "./types";
 import { compile as compileAss, CompiledASS, Dialogue } from "ass-compiler";
+import DOMPurify from "dompurify";
+import { Captions, parse, stringify as stringifySrt } from "subtitle";
 import { CaptionFileFormat, Coords } from "../types";
 import { isRTLString } from "../utils";
+import { parseSBV } from "./sbv-parser";
 import { parseTxt } from "./txt-parser";
+import { CaptionDataContainer, NekoCaption, Track } from "./types";
 
 // #region Parse
 const convertSrtCaptionsToNekoCaptionData = (
-  captions: Captions
+  captions: Captions,
 ): CaptionDataContainer => {
   return {
     tracks: [
@@ -26,7 +27,7 @@ const convertSrtCaptionsToNekoCaptionData = (
 };
 
 const convertAssCaptionsToNekoCaptionData = (
-  compiledAss: CompiledASS
+  compiledAss: CompiledASS,
 ): CaptionDataContainer => {
   const dialogues: Dialogue[] = compiledAss.dialogues || [];
   const size: Coords = {
@@ -55,7 +56,7 @@ const convertAssCaptionsToNekoCaptionData = (
     if (trackId >= tracks.length) {
       // Add enough new tracks
       tracks.push(
-        ...Array<Track>(trackId - tracks.length + 1).fill({ cues: [] })
+        ...Array<Track>(trackId - tracks.length + 1).fill({ cues: [] }),
       );
     }
     tracks[trackId].cues.push({
@@ -82,7 +83,7 @@ const convertAssCaptionsToNekoCaptionData = (
 
 export const parseCaption = (
   fileType: string,
-  content: string
+  content: string,
 ): CaptionDataContainer => {
   switch (fileType.toLowerCase()) {
     case CaptionFileFormat.srt:
@@ -134,18 +135,22 @@ const stringifyNekoToSrt = (captionContainer: CaptionDataContainer) => {
         text = text.replace(/\u202B/g, "");
         text = "\u202B" + text + "\u202C";
       }
+      const purifiedText = DOMPurify.sanitize(text, {
+        ALLOWED_TAGS: ["b", "u", "i"],
+        ALLOWED_ATTR: [],
+      });
       return {
         start: Math.floor(caption.start),
         end: Math.floor(caption.end),
-        text,
+        text: purifiedText,
       };
-    })
+    }),
   );
 };
 
 export const stringifyCaption = (
   format: keyof typeof CaptionFileFormat,
-  caption: CaptionDataContainer
+  caption: CaptionDataContainer,
 ): string => {
   switch (format) {
     case "srt":

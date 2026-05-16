@@ -20,4 +20,5 @@ Dockerfile
 .next/
 .sentryclirc
 public/fonts/*
+public/fontlist.json
 certificates
