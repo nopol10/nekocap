@@ -6,19 +6,19 @@
  * Usage:
  *   tsx build-extension.ts [--mode=production|development] [--target=chrome|firefox] [--watch]
  */
-import { build, loadEnv, type InlineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import svgr from "vite-plugin-svgr";
-import license from "rollup-plugin-license";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import type { RollupWatcher } from "rollup";
+import license from "rollup-plugin-license";
+import { fileURLToPath } from "url";
+import { build, loadEnv, type InlineConfig } from "vite";
+import svgr from "vite-plugin-svgr";
 
 // @ts-ignore
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
+const PROD_ENV_MODE = "prod";
 // ──────────────────────────────────────────────────────────────
 // CLI argument parsing
 // ──────────────────────────────────────────────────────────────
@@ -28,10 +28,12 @@ function getArg(name: string): string | undefined {
   return arg ? arg.split("=")[1] : undefined;
 }
 
-const mode = (getArg("mode") || "production") as "production" | "development";
+const mode = (getArg("mode") || PROD_ENV_MODE) as
+  | typeof PROD_ENV_MODE
+  | "development";
 const targetBrowser = (getArg("target") || "chrome") as "chrome" | "firefox";
 const watchMode = args.includes("--watch");
-const devMode = mode !== "production";
+const devMode = mode !== PROD_ENV_MODE;
 const isChrome = targetBrowser === "chrome";
 
 // ──────────────────────────────────────────────────────────────
@@ -65,7 +67,7 @@ const ENTRIES: Record<string, EntryDefinition> = {
 // Environment variable handling
 // ──────────────────────────────────────────────────────────────
 function getEnvDefines(): Record<string, string> {
-  const env = loadEnv(mode, process.cwd(), "");
+  const env = loadEnv(mode, process.cwd(), "NEXT_");
   const defines: Record<string, string> = {};
   for (const [key, value] of Object.entries(env)) {
     // Skip keys with invalid identifier characters (e.g. comments from .env)
@@ -285,7 +287,9 @@ function createConfig(
     },
     define: {
       ...envDefines,
-      "process.env.NODE_ENV": JSON.stringify(mode),
+      "process.env.NODE_ENV": JSON.stringify(
+        devMode ? "development" : "production",
+      ),
       global: "globalThis",
     },
     resolve: {
@@ -318,6 +322,7 @@ function createConfig(
       // Inline sourcemaps balloon the IIFE output and slow every rewrite in
       // watch mode. Disable in watch (rebuild speed wins), keep for one-shot
       // dev builds, none in prod.
+      modulePreload: false,
       sourcemap: devMode && !watchMode ? "inline" : false,
       rollupOptions: {
         input: {
@@ -328,6 +333,13 @@ function createConfig(
           entryFileNames: "[name].js",
           // Force single file bundle for the extension entry (prevents chunking from dynamic imports)
           inlineDynamicImports: true,
+          // esbuild's minifier emits `__name(fn, "originalName")` calls to
+          // preserve function/class `.name` after renaming, but in IIFE output
+          // (non-lib build) the matching helper definition gets dropped. Define
+          // it ourselves so the reference resolves at runtime. This is what
+          // shows up in Firefox as `ReferenceError: __name is not defined`.
+          banner:
+            'var __name=(t,v)=>Object.defineProperty(t,"name",{value:v,configurable:true});',
           assetFileNames: (assetInfo) => {
             const name = assetInfo.name || assetInfo.names?.[0] || "";
             if (name.endsWith(".css")) {
