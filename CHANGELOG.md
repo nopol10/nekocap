@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.23.0](https://github.com/nopol10/nekocap/compare/1.22.2...1.23.0) (2026-05-16)
+
+### Features
+
+* add basic support for colors ([da75f2b](https://github.com/nopol10/nekocap/commit/da75f2bc057a7726e443e5695aa8ff1e577fa775))
+* add support for cue level background color changes ([1744bf3](https://github.com/nopol10/nekocap/commit/1744bf3025e409f25fa251f4a6edb149a487c9cc))
+* integrate Lexical rich text editor for captions ([fc32acb](https://github.com/nopol10/nekocap/commit/fc32acbda402f3bad69667ec511c425da5a03e33))
+* remove unusable html tags from SRT export ([655357f](https://github.com/nopol10/nekocap/commit/655357fb55d658d428355540e1a0b058ae786a80))
+* strip tags from cue in editor timeline ([5736fce](https://github.com/nopol10/nekocap/commit/5736fce62616dde447ecfc21b9e88d12bd82a2e6))
+* support webvtt text style tags in caption renderer ([894c5dd](https://github.com/nopol10/nekocap/commit/894c5dd17403cec3cf7dacef66f303bd758cb9d7))
+* unify svg loader for next and vite builds ([1736998](https://github.com/nopol10/nekocap/commit/17369988bc7e3b902b08c2482468a3b508ccce8f))
+* update lexical rich text editor implementation ([d10dbef](https://github.com/nopol10/nekocap/commit/d10dbeffe5f15fa4a6e402eaa5acb8e4bcf991e4))
+* update toolbar button colors based on formatting ([8e0750b](https://github.com/nopol10/nekocap/commit/8e0750b5fa70433af3a6de72c0e67de903e1489b))
+
+### Bug Fixes
+
+* fix build errors ([926d2e9](https://github.com/nopol10/nekocap/commit/926d2e99a81f8bce62072ed152f9ad39963acc4b))
+* fix color picker not being clickable in extension ([6d5480f](https://github.com/nopol10/nekocap/commit/6d5480f0ed86d4137b89ee5c0009fcef7bb94a7a))
+* fix dark mode for rich text editor ([ae5d7fb](https://github.com/nopol10/nekocap/commit/ae5d7fb45455601457f939aa691d8063d99dbafe))
+* fix fontitem type ([7ae5044](https://github.com/nopol10/nekocap/commit/7ae5044ece2662247e4bc6a38db0c6990491e00e))
+* fix styling issues in lexical editor ([6d24055](https://github.com/nopol10/nekocap/commit/6d24055ed902f926570d657b190f3b66e8fdc4f5))
+* fix text color going missing when changing times of a cue ([a0a3c85](https://github.com/nopol10/nekocap/commit/a0a3c85031f4edcb8fdd5e6a87f558835fea6817))
+* fix type issues ([9064943](https://github.com/nopol10/nekocap/commit/9064943e49482b320be87998eeb560aab41bbac4))
+* restore support for converting WebVTT specific styling tags ([a5b7c98](https://github.com/nopol10/nekocap/commit/a5b7c9839005e7b091eddedf8ae8153263e15e26))
+
+### Performance Improvements
+
+* speed up extension watch rebuilds with parallel builds + SWC ([0a3e1e7](https://github.com/nopol10/nekocap/commit/0a3e1e791dbb45f5f76402242b838529da1c2e1b))
+
 ## [1.22.2](https://github.com/nopol10/nekocap/compare/1.22.1...1.22.2) (2026-04-26)
 
 ### Bug Fixes
