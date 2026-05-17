@@ -1,6 +1,9 @@
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { LexicalEditor } from "lexical";
 
+const SAFE_STYLE_RE =
+  /^color:\s*(#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*\d*\.?\d+\s*)?\))$/i;
+
 /**
  * Extract background-color from an <nr> wrapper tag using DOMParser.
  * Returns the color value and the inner HTML with the <nr> tag stripped.

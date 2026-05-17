@@ -1,26 +1,26 @@
-import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { colors } from "@/common/colors";
+import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
+import BgColorsOutlined from "@ant-design/icons/BgColorsOutlined";
+import BoldOutlined from "@ant-design/icons/BoldOutlined";
+import CloseOutlined from "@ant-design/icons/CloseOutlined";
+import FontColorsOutlined from "@ant-design/icons/FontColorsOutlined";
+import ItalicOutlined from "@ant-design/icons/ItalicOutlined";
+import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
+import {
+  $getSelectionStyleValueForProperty,
+  $patchStyleText,
+} from "@lexical/selection";
+import type { ColorPickerProps } from "antd";
+import { Button, ColorPicker } from "antd";
 import {
   $getSelection,
   $isRangeSelection,
   FORMAT_TEXT_COMMAND,
   LexicalEditor,
 } from "lexical";
-import {
-  $getSelectionStyleValueForProperty,
-  $patchStyleText,
-} from "@lexical/selection";
-import { Button, ColorPicker } from "antd";
-import type { ColorPickerProps } from "antd";
-import BoldOutlined from "@ant-design/icons/BoldOutlined";
-import ItalicOutlined from "@ant-design/icons/ItalicOutlined";
-import UnderlineOutlined from "@ant-design/icons/UnderlineOutlined";
-import FontColorsOutlined from "@ant-design/icons/FontColorsOutlined";
-import BgColorsOutlined from "@ant-design/icons/BgColorsOutlined";
-import CloseOutlined from "@ant-design/icons/CloseOutlined";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { colors } from "@/common/colors";
-import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
 
 const StaticToolbarWrapper = styled.div<{ $width: number; $height: number }>`
   display: flex;
@@ -202,6 +202,7 @@ export function LexicalStaticToolbar({
         disabled={isDisabled}
         onChangeComplete={handleColorChange}
         getPopupContainer={getPopupContainer}
+        format="hex"
       >
         <Button
           size="small"
@@ -227,6 +228,7 @@ export function LexicalStaticToolbar({
         disabled={isBgDisabled}
         onChangeComplete={handleBgColorChange}
         getPopupContainer={getPopupContainer}
+        format="hex"
       >
         <Button
           size="small"
