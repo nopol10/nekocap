@@ -5,6 +5,7 @@ import {
   loadPrivateCaptionerData,
 } from "@/common/feature/captioner/actions";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
+import { AdvancedFilter } from "@/common/feature/captioner/types";
 import {
   assignReviewer,
   assignReviewerManager,
@@ -85,6 +86,7 @@ export const OwnProfile = (): ReactElement => {
     page: number,
     pageSize = 1,
     tags?: string[],
+    advancedFilter?: AdvancedFilter,
   ) => {
     dispatch(
       loadLoggedInUserCaptions.request({
@@ -92,6 +94,7 @@ export const OwnProfile = (): ReactElement => {
         pageNumber: page,
         captionerId,
         tags,
+        advancedFilter,
       }),
     );
   };
@@ -131,8 +134,8 @@ export const OwnProfile = (): ReactElement => {
     setIsEditing(false);
   };
 
-  const handleSetFilteredTags = (tags: string[]) => {
-    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
+  const handleSetFilters = (tags: string[], advancedFilter: AdvancedFilter) => {
+    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags, advancedFilter);
   };
 
   const handleUpdateCaption = () => {
@@ -168,7 +171,7 @@ export const OwnProfile = (): ReactElement => {
       onAssignReviewer={handleAssignReviewer(captionerId, dispatch)}
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}
       onBanCaptioner={handleBanCaptioner(captionerId, dispatch)}
-      onSetFilteredTags={handleSetFilteredTags}
+      onSetFilters={handleSetFilters}
       onUpdateCaption={handleUpdateCaption}
     />
   );

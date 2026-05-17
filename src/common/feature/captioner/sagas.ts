@@ -25,13 +25,14 @@ import { LoadCaptionListResult } from "../video/types";
 import { Locator } from "@/common/locator/locator";
 
 function* loadUserCaptionsRequestSaga(
-  action: PayloadAction<CaptionsPagedRequest>
+  action: PayloadAction<CaptionsPagedRequest>,
 ) {
   const isLoggedIn = yield select(isLoggedInSelector);
   if (!isLoggedIn) {
     throw new Error("You must be logged in to perform this action!");
   }
-  const { pageNumber, pageSize, captionerId, tags } = action.payload;
+  const { pageNumber, pageSize, captionerId, tags, advancedFilter } =
+    action.payload;
 
   const { captions, hasMore }: LoadCaptionListResult = yield call(
     [Locator.provider(), "loadUserCaptions"],
@@ -39,11 +40,12 @@ function* loadUserCaptionsRequestSaga(
       ...getLimitOffsetFromPagination(pageSize, pageNumber),
       captionerId,
       tags,
-    }
+      advancedFilter,
+    },
   );
 
   yield put(
-    loadUserCaptions.success({ pageNumber, pageSize, captions, hasMore })
+    loadUserCaptions.success({ pageNumber, pageSize, captions, hasMore }),
   );
 }
 
@@ -54,7 +56,7 @@ function* loadUserCaptionsSuccessSaga({
 }
 
 function* loadPrivateCaptionerDataRequestSaga(
-  action: PayloadAction<LoadPrivateCaptionerDataRequestParams>
+  action: PayloadAction<LoadPrivateCaptionerDataRequestParams>,
 ) {
   const params = action.payload;
   const isLoggedIn = yield select(isLoggedInSelector);
@@ -64,7 +66,7 @@ function* loadPrivateCaptionerDataRequestSaga(
   }
   const privateData: PrivateCaptionerData = yield call(
     [Locator.provider(), "loadPrivateCaptionerData"],
-    params
+    params,
   );
   const { captioner, privateProfile, captions } = privateData;
   if (!captioner || !privateProfile || !captions) {
@@ -80,7 +82,7 @@ function* loadPrivateCaptionerDataSuccessSaga({
 }
 
 function* updateCaptionerProfileRequestSaga(
-  action: PayloadAction<UpdateCaptionerProfileParams>
+  action: PayloadAction<UpdateCaptionerProfileParams>,
 ) {
   const params = action.payload;
   const isLoggedIn = yield select(isLoggedInSelector);
@@ -90,7 +92,7 @@ function* updateCaptionerProfileRequestSaga(
   }
   const privateData: PrivateCaptionerData = yield call(
     [Locator.provider(), "updateCaptionerProfile"],
-    params
+    params,
   );
   const { captioner, privateProfile, captions } = privateData;
   if (!captioner || !privateProfile || !captions) {
@@ -109,7 +111,7 @@ function* deleteServerCaptionSaga(action: PayloadAction<string>) {
   const captionId = action.payload;
   const result: ServerResponse = yield call(
     [Locator.provider(), "deleteCaption"],
-    captionId
+    captionId,
   );
   if (result.status === "error") {
     throw new Error(result.error);
@@ -123,28 +125,28 @@ function* deleteServerCaptionSaga(action: PayloadAction<string>) {
 export function* captionerSaga() {
   yield takeLatest(
     loadUserCaptions.REQUEST,
-    loadUserCaptions.requestSaga(loadUserCaptionsRequestSaga)
+    loadUserCaptions.requestSaga(loadUserCaptionsRequestSaga),
   );
   yield takeLatest(loadUserCaptions.SUCCESS, safe(loadUserCaptionsSuccessSaga));
   yield takeLatest(
     loadPrivateCaptionerData.REQUEST,
-    loadPrivateCaptionerData.requestSaga(loadPrivateCaptionerDataRequestSaga)
+    loadPrivateCaptionerData.requestSaga(loadPrivateCaptionerDataRequestSaga),
   );
   yield takeLatest(
     loadPrivateCaptionerData.SUCCESS,
-    safe(loadPrivateCaptionerDataSuccessSaga)
+    safe(loadPrivateCaptionerDataSuccessSaga),
   );
   yield takeLatest(
     updateCaptionerProfile.REQUEST,
-    updateCaptionerProfile.requestSaga(updateCaptionerProfileRequestSaga)
+    updateCaptionerProfile.requestSaga(updateCaptionerProfileRequestSaga),
   );
   yield takeLatest(
     deleteServerCaption.REQUEST,
-    deleteServerCaption.requestSaga(deleteServerCaptionSaga)
+    deleteServerCaption.requestSaga(deleteServerCaptionSaga),
   );
   yield takeLatest(
     updateCaptionerProfile.SUCCESS,
-    safe(updateCaptionerProfileSuccessSaga)
+    safe(updateCaptionerProfileSuccessSaga),
   );
 }
 
