@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.23.2](https://github.com/nopol10/nekocap/compare/1.23.1...1.23.2) (2026-05-17)
+
 ## [1.23.1](https://github.com/nopol10/nekocap/compare/1.23.0...1.23.1) (2026-05-17)
 
 ### Bug Fixes
