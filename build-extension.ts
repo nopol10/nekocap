@@ -8,6 +8,7 @@
  */
 import react from "@vitejs/plugin-react-swc";
 import { execSync } from "child_process";
+import { transformSync } from "esbuild";
 import fs from "fs";
 import path from "path";
 import type { RollupWatcher } from "rollup";
@@ -191,8 +192,19 @@ function copyExtensionStatics() {
   const octopusOutDir = path.join(outDir, "js", "subtitle-octopus");
   fs.mkdirSync(octopusOutDir, { recursive: true });
   for (const file of fs.readdirSync(octopusDir)) {
-    if (
-      file.endsWith(".js") ||
+    if (file.endsWith(".js")) {
+      const srcPath = path.join(octopusDir, file);
+      const destPath = path.join(octopusOutDir, file);
+      const source = fs.readFileSync(srcPath, "utf-8");
+      const { code } = transformSync(source, {
+        minify: true,
+        legalComments: "none",
+        charset: "ascii",
+        target: "es2020",
+      });
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
+      fs.writeFileSync(destPath, code);
+    } else if (
       file.endsWith(".wasm") ||
       file.endsWith(".data") ||
       file.endsWith(".mem") ||
