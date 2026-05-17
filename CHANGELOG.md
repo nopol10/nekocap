@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.23.1](https://github.com/nopol10/nekocap/compare/1.23.0...1.23.1) (2026-05-17)
+
+### Bug Fixes
+
+* fix renderer sanitization ([63e91b5](https://github.com/nopol10/nekocap/commit/63e91b540bc4f123e1348f279996763843f05c77))
+
 ## [1.23.0](https://github.com/nopol10/nekocap/compare/1.22.2...1.23.0) (2026-05-16)
 
 ### Features
