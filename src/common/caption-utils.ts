@@ -9,12 +9,12 @@ export const hasTag = (tags: string[], tag: string) => {
 };
 
 export const getCaptionCues = (
-  captions: CaptionDataContainer
+  captions: CaptionDataContainer,
 ): NekoCaption[] => {
   if (!captions || !captions.tracks) {
     return [];
   }
-  return captions.tracks.reduce((acc, track) => {
+  return captions.tracks.reduce<NekoCaption[]>((acc, track) => {
     return [...acc, ...track.cues];
   }, []);
 };
