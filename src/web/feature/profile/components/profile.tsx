@@ -1,5 +1,6 @@
 import { colors } from "@/common/colors";
 import {
+  AdvancedFilter,
   CaptionerFields,
   CaptionerPrivateFields,
 } from "@/common/feature/captioner/types";
@@ -22,7 +23,16 @@ import {
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Layout, message, Select, Space, Tag, Tooltip, Typography } from "antd";
+import {
+  Layout,
+  message,
+  Segmented,
+  Select,
+  Space,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
@@ -113,7 +123,12 @@ type ProfileProps = {
   isEditing?: boolean;
   canEdit?: boolean;
   hasMore: boolean; // has more captions to load
-  onChangePage?: (page: number, pageSize?: number, tags?: string[]) => void;
+  onChangePage?: (
+    page: number,
+    pageSize?: number,
+    tags?: string[],
+    advancedFilter?: AdvancedFilter,
+  ) => void;
   onDelete?: (caption: CaptionListFields) => void;
   onDownloadCaption?: (captionId: string) => void;
   onSetEditing?: (isEditing: boolean) => void;
@@ -123,7 +138,7 @@ type ProfileProps = {
   onAssignReviewer: () => void;
   onVerifyCaptioner: () => void;
   onBanCaptioner: () => void;
-  onSetFilteredTags: (tags: string[]) => void;
+  onSetFilters: (tags: string[], advancedFilter: AdvancedFilter) => void;
   onUpdateCaption: (captionId: string) => void;
 };
 
@@ -162,7 +177,7 @@ export const Profile = ({
   onBanCaptioner = () => {
     /*do nothing*/
   },
-  onSetFilteredTags,
+  onSetFilters,
   onUpdateCaption,
 }: ProfileProps): ReactElement => {
   const { t } = useTranslation("common");
@@ -187,6 +202,8 @@ export const Profile = ({
   }, [captionTags]);
 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [advancedFilter, setAdvancedFilterState] =
+    useState<AdvancedFilter>("all");
 
   const router = useRouter();
   const hasPerformedInitialFilter = useRef(false);
@@ -197,20 +214,29 @@ export const Profile = ({
       return;
     }
     hasPerformedInitialFilter.current = true;
+
+    const advancedQuery = router.query.advanced;
+    const initialAdvanced: AdvancedFilter =
+      advancedQuery === "advanced" || advancedQuery === "nonAdvanced"
+        ? advancedQuery
+        : "all";
+
     let defaultFilterTagNames = router.query.tags || "";
-    if (!defaultFilterTagNames) {
-      return;
-    }
     if (typeof defaultFilterTagNames === "string") {
-      defaultFilterTagNames = [defaultFilterTagNames];
+      defaultFilterTagNames = defaultFilterTagNames
+        ? [defaultFilterTagNames]
+        : [];
     }
     const defaultTags = existingTags
       .filter((tag) => {
         return tag.name && defaultFilterTagNames.includes(tag.name);
       })
       .map((tag) => tag.tag);
-    if (defaultTags.length > 0) {
-      handleChangeTagFilter(defaultTags);
+
+    if (defaultTags.length > 0 || initialAdvanced !== "all") {
+      setSelectedTags(defaultTags);
+      setAdvancedFilterState(initialAdvanced);
+      onSetFilters(defaultTags, initialAdvanced);
     }
   }, [existingTags]);
 
@@ -219,8 +245,8 @@ export const Profile = ({
     (currentCaptionPage - 1) * CAPTION_LIST_PAGE_SIZE +
     (hasMore ? 1 : 0);
 
-  const currentCaptionListCount =
-    selectedTags.length > 0 ? filteredCount : captionCount;
+  const isFiltering = selectedTags.length > 0 || advancedFilter !== "all";
+  const currentCaptionListCount = isFiltering ? filteredCount : captionCount;
 
   const handleCopyProfileLink = () => {
     if (navigator && navigator.clipboard) {
@@ -237,9 +263,7 @@ export const Profile = ({
     router.push(routeNames.captioner.settings);
   };
 
-  const handleChangeTagFilter = (tags: string[]) => {
-    setSelectedTags(tags);
-    onSetFilteredTags(tags);
+  const syncFiltersToUrl = (tags: string[], advanced: AdvancedFilter) => {
     const newUrl = new URL(window.location.href);
     newUrl.search = "";
     if (tags.length > 0) {
@@ -247,11 +271,26 @@ export const Profile = ({
         newUrl.searchParams.append("tags", getCaptionGroupTagName(tag));
       });
     }
+    if (advanced !== "all") {
+      newUrl.searchParams.set("advanced", advanced);
+    }
     window.history.pushState({}, document.title, newUrl);
   };
 
+  const handleChangeTagFilter = (tags: string[]) => {
+    setSelectedTags(tags);
+    onSetFilters(tags, advancedFilter);
+    syncFiltersToUrl(tags, advancedFilter);
+  };
+
+  const handleChangeAdvancedFilter = (value: AdvancedFilter) => {
+    setAdvancedFilterState(value);
+    onSetFilters(selectedTags, value);
+    syncFiltersToUrl(selectedTags, value);
+  };
+
   const handleOnChangePage = (page: number, pageSize: number) => {
-    onChangePage?.(page, pageSize, selectedTags);
+    onChangePage?.(page, pageSize, selectedTags, advancedFilter);
   };
 
   return (
@@ -349,6 +388,24 @@ export const Profile = ({
               <div style={{ padding: "40px 40px" }}>
                 <Title level={3}>{t("profile.contributedCaptions")}</Title>
                 {/* do a client check to prevent ssr issues */}
+                {inClient && (
+                  <Segmented<AdvancedFilter>
+                    style={{ marginBottom: 6 }}
+                    value={advancedFilter}
+                    onChange={handleChangeAdvancedFilter}
+                    options={[
+                      { label: t("profile.advancedFilter.all"), value: "all" },
+                      {
+                        label: t("profile.advancedFilter.advanced"),
+                        value: "advanced",
+                      },
+                      {
+                        label: t("profile.advancedFilter.nonAdvanced"),
+                        value: "nonAdvanced",
+                      },
+                    ]}
+                  />
+                )}
                 {inClient && (
                   <Select
                     mode="multiple"

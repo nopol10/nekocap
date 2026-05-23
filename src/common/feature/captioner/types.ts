@@ -1,6 +1,8 @@
 import { OffsetRequest, PagedType, ServerResponse } from "@/common/types";
 import { CaptionListFields } from "../video/types";
 
+export type AdvancedFilter = "all" | "advanced" | "nonAdvanced";
+
 // For all captioner (logged in user) related data
 export type CaptionerState = {
   captions?: CaptionListFields[];
@@ -40,6 +42,7 @@ export type CaptionsResponse = ServerResponse & {
 export type CaptionsPagedRequest = PagedType & {
   captionerId: string;
   tags?: string[];
+  advancedFilter?: AdvancedFilter;
 };
 
 export type CaptionsPagedResult = PagedType & {
@@ -50,6 +53,7 @@ export type CaptionsPagedResult = PagedType & {
 export type CaptionsRequest = OffsetRequest & {
   captionerId: string;
   tags?: string[];
+  advancedFilter?: AdvancedFilter;
 };
 
 export type RoleRequest = {

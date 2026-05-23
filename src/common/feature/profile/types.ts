@@ -17,7 +17,7 @@ export type LoadProfileParams = {
 
 export type PublicProfileData = {
   captions?: CaptionListFields[];
-  captioner: CaptionerFields;
+  captioner?: CaptionerFields;
 };
 
 export type EditProfileFields = {

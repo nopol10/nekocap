@@ -1,6 +1,7 @@
 import { exportCaption } from "@/common/feature/caption-editor/export-caption";
 import { deleteServerCaption } from "@/common/feature/captioner/actions";
 import { captionerSelector } from "@/common/feature/captioner/selectors";
+import { AdvancedFilter } from "@/common/feature/captioner/types";
 import {
   assignReviewer,
   assignReviewerManager,
@@ -58,6 +59,7 @@ export const CaptionerProfile = () => {
     page: number,
     pageSize: number = CAPTION_LIST_PAGE_SIZE,
     tags?: string[],
+    advancedFilter?: AdvancedFilter,
   ) => {
     dispatch(
       loadUserCaptions.request({
@@ -65,6 +67,7 @@ export const CaptionerProfile = () => {
         pageNumber: page,
         captionerId,
         tags,
+        advancedFilter,
       }),
     );
   };
@@ -89,8 +92,8 @@ export const CaptionerProfile = () => {
     }
   };
 
-  const handleSetFilteredTags = (tags: string[]) => {
-    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags);
+  const handleSetFilters = (tags: string[], advancedFilter: AdvancedFilter) => {
+    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags, advancedFilter);
   };
 
   const handleUpdateCaption = () => {
@@ -122,7 +125,7 @@ export const CaptionerProfile = () => {
       onAssignReviewer={handleAssignReviewer(captionerId, dispatch)}
       onVerifyCaptioner={handleVerifyCaptioner(captionerId, dispatch)}
       onBanCaptioner={handleBanCaptioner(captionerId, dispatch)}
-      onSetFilteredTags={handleSetFilteredTags}
+      onSetFilters={handleSetFilters}
       onUpdateCaption={handleUpdateCaption}
     />
   );

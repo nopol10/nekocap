@@ -41,7 +41,7 @@ function* loadProfileRequestSaga({
 }: PayloadAction<LoadProfileParams>) {
   const profile: PublicProfileData = yield call(
     [Locator.provider(), "loadProfile"],
-    payload
+    payload,
   );
 
   yield put(loadProfile.success(profile));
@@ -54,22 +54,28 @@ function* loadProfileSuccessSaga({
 }
 
 function* loadUserCaptionsRequestSaga(
-  action: PayloadAction<CaptionsPagedRequest>
+  action: PayloadAction<CaptionsPagedRequest>,
 ) {
   const {
     pageNumber,
     pageSize,
     captionerId: captionerId,
     tags,
+    advancedFilter,
   } = action.payload;
 
   const { captions, hasMore }: LoadCaptionListResult = yield call(
     [Locator.provider(), "loadUserCaptions"],
-    { ...getLimitOffsetFromPagination(pageSize, pageNumber), captionerId, tags }
+    {
+      ...getLimitOffsetFromPagination(pageSize, pageNumber),
+      captionerId,
+      tags,
+      advancedFilter,
+    },
   );
 
   yield put(
-    loadUserCaptions.success({ pageNumber, pageSize, captions, hasMore })
+    loadUserCaptions.success({ pageNumber, pageSize, captions, hasMore }),
   );
 }
 
@@ -84,7 +90,7 @@ function* updateProfileRequestSaga({
 }: PayloadAction<EditProfileFields>) {
   const privateData: PrivateCaptionerData = yield call(
     [Locator.provider(), "updateCaptionerProfile"],
-    { ...payload, name: "" }
+    { ...payload, name: "" },
   );
 
   yield put(updateProfile.success(privateData));
@@ -94,9 +100,8 @@ function* updateProfileSuccessSaga({
   payload,
 }: PayloadAction<PrivateCaptionerData>) {
   const { captioner, privateProfile } = payload;
-  const { captions: captions }: CaptionerState = yield select(
-    captionerSelector
-  );
+  const { captions: captions }: CaptionerState =
+    yield select(captionerSelector);
   if (!privateProfile || !captioner) {
     console.error("No captioner data found.");
     return;
@@ -106,22 +111,20 @@ function* updateProfileSuccessSaga({
       captions: captions || [],
       privateProfile,
       captioner,
-    })
+    }),
   );
 }
 
 function* reloadUserId(userId: string) {
   // Update the loaded data
-  const { captioner: profileCaptioner }: ProfileState = yield select(
-    profileSelector
-  );
+  const { captioner: profileCaptioner }: ProfileState =
+    yield select(profileSelector);
   if (profileCaptioner && profileCaptioner.userId === userId) {
     yield put(loadProfile.request({ profileId: userId, withCaptions: true }));
   }
 
-  const { captioner: userCaptioner }: CaptionerState = yield select(
-    captionerSelector
-  );
+  const { captioner: userCaptioner }: CaptionerState =
+    yield select(captionerSelector);
   if (userCaptioner && userCaptioner.userId === userId) {
     yield put(loadPrivateCaptionerData.request({ withCaptions: true }));
   }
@@ -132,7 +135,7 @@ function* assignReviewerManagerRequestSaga({
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
     [Locator.provider(), "assignReviewerManager"],
-    { targetUserId }
+    { targetUserId },
   );
   if (response.status === "error") {
     throw new Error(response.error);
@@ -148,7 +151,7 @@ function* assignReviewerRequestSaga({
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
     [Locator.provider(), "assignReviewer"],
-    { targetUserId }
+    { targetUserId },
   );
   if (response.status === "error") {
     throw new Error(response.error);
@@ -164,7 +167,7 @@ function* verifyCaptionerRequestSaga({
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
     [Locator.provider(), "verifyCaptioner"],
-    { targetUserId }
+    { targetUserId },
   );
   if (response.status === "error") {
     throw new Error(response.error);
@@ -179,7 +182,7 @@ function* banCaptionerRequestSaga({
 }: PayloadAction<string>) {
   const response: ServerResponse = yield call(
     [Locator.provider(), "banCaptioner"],
-    { targetUserId }
+    { targetUserId },
   );
   if (response.status === "error") {
     throw new Error(response.error);
@@ -192,39 +195,39 @@ function* banCaptionerRequestSaga({
 function* profileSaga() {
   yield takeLatest(
     loadProfile.REQUEST,
-    loadProfile.requestSaga(loadProfileRequestSaga)
+    loadProfile.requestSaga(loadProfileRequestSaga),
   );
   yield takeLatest(loadProfile.SUCCESS, safe(loadProfileSuccessSaga));
 
   yield takeLatest(
     loadUserCaptions.REQUEST,
-    loadUserCaptions.requestSaga(loadUserCaptionsRequestSaga)
+    loadUserCaptions.requestSaga(loadUserCaptionsRequestSaga),
   );
   yield takeLatest(loadUserCaptions.SUCCESS, safe(loadUserCaptionsSuccessSaga));
 
   yield takeLatest(
     updateProfile.REQUEST,
-    updateProfile.requestSaga(updateProfileRequestSaga)
+    updateProfile.requestSaga(updateProfileRequestSaga),
   );
   yield takeLatest(updateProfile.SUCCESS, safe(updateProfileSuccessSaga));
 
   yield takeLatest(
     assignReviewerManager.REQUEST,
-    assignReviewerManager.requestSaga(assignReviewerManagerRequestSaga)
+    assignReviewerManager.requestSaga(assignReviewerManagerRequestSaga),
   );
   yield takeLatest(
     assignReviewer.REQUEST,
-    assignReviewer.requestSaga(assignReviewerRequestSaga)
+    assignReviewer.requestSaga(assignReviewerRequestSaga),
   );
 
   yield takeLatest(
     verifyCaptioner.REQUEST,
-    verifyCaptioner.requestSaga(verifyCaptionerRequestSaga)
+    verifyCaptioner.requestSaga(verifyCaptionerRequestSaga),
   );
 
   yield takeLatest(
     banCaptioner.REQUEST,
-    banCaptioner.requestSaga(banCaptionerRequestSaga)
+    banCaptioner.requestSaga(banCaptionerRequestSaga),
   );
 }
 
