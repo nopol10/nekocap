@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "Đã cật nhật!",
     "roleAssignmentFailure": "Cật nhật thất bại: {{error}}",
     "filterByTags": "Filter by tags (up to {{maxTags}})",
-    "noTags": "No tags"
+    "noTags": "No tags",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "Duyệt các phụ đề khác",
