@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "更新されました",
     "roleAssignmentFailure": "更新に失敗しました {{error}}",
     "filterByTags": "タグでフィルター (最大 {{maxTags}})",
-    "noTags": "タグがありません"
+    "noTags": "タグがありません",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "他の字幕を参照",
