@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "Mis à jour !",
     "roleAssignmentFailure": "Impossible de mettre à jour : {{error}}",
     "filterByTags": "Filtrer par étiquettes (jusqu'à {{maxTags}})",
-    "noTags": "Aucune étiquette"
+    "noTags": "Aucune étiquette",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "Parcourir d'autres sous-titres",
