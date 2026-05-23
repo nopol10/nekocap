@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "بروزرسانی شد!",
     "roleAssignmentFailure": "ناموفق در بروزرسانی: {{error}}",
     "filterByTags": "فیلتر بر اساس تگ ها (حداکثر تا {{maxTags}})",
-    "noTags": "هیچ تگ ای نیست"
+    "noTags": "هیچ تگ ای نیست",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "مرور دیگر کپشن ها",
