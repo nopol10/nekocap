@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "已更新!",
     "roleAssignmentFailure": "更新失败：{{error}}",
     "filterByTags": "筛选标签（最多{{maxTags}} 个）",
-    "noTags": "没有标签"
+    "noTags": "没有标签",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "搜索其他字幕",
