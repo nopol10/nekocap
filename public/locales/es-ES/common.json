@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "¡Actualizado!",
     "roleAssignmentFailure": "Error al actualizar: {{error}}",
     "filterByTags": "Filtrar por etiquetas (hasta {{maxTags}})",
-    "noTags": "Sin etiquetas"
+    "noTags": "Sin etiquetas",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "Ver otros subtítulos",
