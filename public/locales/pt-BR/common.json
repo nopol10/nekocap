@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "Atualizado!",
     "roleAssignmentFailure": "Falha ao atualizar: {{error}}",
     "filterByTags": "Filtrar por etiquetas (até {{maxTags}})",
-    "noTags": "Sem etiquetas"
+    "noTags": "Sem etiquetas",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "Procurar outras legendas",
