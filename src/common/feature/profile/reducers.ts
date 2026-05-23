@@ -33,7 +33,7 @@ export const profileReducer = createReducer<ProfileState>(
         return {
           ...state,
           captions: captions || [],
-          captioner,
+          captioner: captioner ?? null,
         };
       })
       .addCase(setListedCaptions, (state, action) => {
@@ -60,5 +60,5 @@ export const profileReducer = createReducer<ProfileState>(
           ...action.payload.profile,
         };
       });
-  }
+  },
 );
