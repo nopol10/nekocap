@@ -147,7 +147,13 @@
     "roleAssignmentSuccess": "Updated!",
     "roleAssignmentFailure": "Failed to update: {{error}}",
     "filterByTags": "Filter by tags (up to {{maxTags}})",
-    "noTags": "No tags"
+    "noTags": "No tags",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "Browse other captions",
