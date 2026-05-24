@@ -7,7 +7,7 @@ import StarOutlined from "@ant-design/icons/StarOutlined";
 import ThunderboltOutlined from "@ant-design/icons/ThunderboltOutlined";
 import { Trans, useTranslation } from "next-i18next";
 import Image from "next/image";
-import React, { ReactElement, useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const Section = styled.section`
@@ -184,50 +184,8 @@ const EditorPlayer = styled.div`
   overflow: hidden;
 `;
 
-const EditorCaption = styled.div`
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 3px;
-  white-space: nowrap;
-`;
-
-const Timeline = styled.div`
-  height: 36px;
-  background: #333;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  gap: 4px;
-  overflow: hidden;
-`;
-
-const CueBlock = styled.div<{ $width: number }>`
-  height: 20px;
-  width: ${({ $width }) => $width}%;
-  background: ${colors.base};
-  border-radius: 3px;
-  flex-shrink: 0;
-  opacity: 0.85;
-`;
-
-const PlayHead = styled.div`
-  width: 2px;
-  height: 28px;
-  background: #fff;
-  flex-shrink: 0;
-  margin-left: 4px;
-`;
-
 const MiniEditorVisual = ({
   altText,
-  captionText,
 }: {
   altText: string;
   captionText: string;
@@ -238,18 +196,9 @@ const MiniEditorVisual = ({
         src={useEditorImage.src}
         alt={altText}
         fill
-        style={{ objectFit: "cover", opacity: 0.6 }}
+        style={{ objectFit: "cover" }}
       />
-      <EditorCaption>{captionText}</EditorCaption>
     </EditorPlayer>
-    <Timeline>
-      <CueBlock $width={12} />
-      <CueBlock $width={8} />
-      <PlayHead />
-      <CueBlock $width={15} />
-      <CueBlock $width={6} />
-      <CueBlock $width={10} />
-    </Timeline>
   </EditorVisual>
 );
 
@@ -310,13 +259,10 @@ export const FeaturesGrid = (): ReactElement => {
             </IconWrap>
             <div>
               <CardTitle>{t("home.features.cards.editor.title")}</CardTitle>
-              <CardDesc>
-                {t("home.features.cards.editor.description")}
-              </CardDesc>
+              <CardDesc>{t("home.features.cards.editor.description")}</CardDesc>
             </div>
             <MiniEditorVisual
               altText={t("home.features.cards.editor.imageAlt")}
-              captionText={t("home.features.cards.editor.captionPreview")}
             />
           </Card>
         </Grid>

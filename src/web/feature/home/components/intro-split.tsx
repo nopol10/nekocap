@@ -1,13 +1,13 @@
 import { colors } from "@/common/colors";
-import { CaptionListFields } from "@/common/feature/video/types";
-import { formatThousands } from "@/common/format";
-import { useHomepageStats } from "@/common/hooks/use-homepage-stats";
 import {
   CHROME_DOWNLOAD_URL,
   DISCORD_INVITE_URL,
   FIREFOX_DOWNLOAD_URL,
   GITHUB_URL,
 } from "@/common/constants";
+import { CaptionListFields } from "@/common/feature/video/types";
+import { formatThousands } from "@/common/format";
+import { useHomepageStats } from "@/common/hooks/use-homepage-stats";
 import { DEVICE } from "@/common/style-constants";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
 import GithubOutlined from "@ant-design/icons/GithubOutlined";
@@ -17,7 +17,7 @@ import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
 import { Spin } from "antd";
 import { Trans, useTranslation } from "next-i18next";
 import Link from "next/link";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
 import { routeNames } from "../../route-types";
 import { CaptionTile } from "./caption-tile";
@@ -130,6 +130,10 @@ const HeroLogoWrap = styled.div`
 
   @media ${DEVICE.tablet} {
     display: block;
+  }
+
+  @media ${DEVICE.desktop} {
+    margin-top: -180px;
   }
 `;
 
@@ -467,7 +471,7 @@ export const IntroSplit = ({
       <Inner>
         <IntroCopy>
           <HeroLogoWrap id={HERO_LOGO_ID}>
-            <NekoLogo $height="56px" />
+            <NekoLogo />
           </HeroLogoWrap>
 
           <EyebrowPill>
@@ -553,7 +557,6 @@ export const IntroSplit = ({
         </IntroCopy>
 
         <IntroCaps>
-          <CapsEyebrow>{t("home.intro.captionsEyebrow")}</CapsEyebrow>
           <CapsHeading>
             <Trans
               i18nKey="home.intro.captionsHeading"

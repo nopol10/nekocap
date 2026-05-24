@@ -1,10 +1,9 @@
 import { colors } from "@/common/colors";
 import { DEVICE } from "@/common/style-constants";
 import SearchOutlined from "@ant-design/icons/SearchOutlined";
-import TranslationOutlined from "@ant-design/icons/TranslationOutlined";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import styled from "styled-components";
 import { routeNames } from "../../route-types";
 
@@ -134,12 +133,12 @@ export const BrowseCTA = (): ReactElement => {
                   {t("home.browseCta.primary")}
                 </PrimaryBtn>
               </Link>
-              <Link href={routeNames.caption.browse} passHref legacyBehavior>
+              {/* <Link href={routeNames.caption.browse} passHref legacyBehavior>
                 <GhostBtn>
                   <TranslationOutlined />
                   {t("home.browseCta.secondary")}
                 </GhostBtn>
-              </Link>
+              </Link> */}
             </ButtonRow>
           </Content>
         </Card>
