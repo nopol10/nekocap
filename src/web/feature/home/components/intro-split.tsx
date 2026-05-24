@@ -1,5 +1,7 @@
 import { colors } from "@/common/colors";
 import { CaptionListFields } from "@/common/feature/video/types";
+import { formatThousands } from "@/common/format";
+import { useHomepageStats } from "@/common/hooks/use-homepage-stats";
 import {
   CHROME_DOWNLOAD_URL,
   FIREFOX_DOWNLOAD_URL,
@@ -355,11 +357,21 @@ type IntroSplitProps = {
   isLoading: boolean;
 };
 
+const PLACEHOLDER = "—";
+
 export const IntroSplit = ({
   captions,
   isLoading,
 }: IntroSplitProps): ReactElement => {
   const { t } = useTranslation("common");
+  const { data: stats } = useHomepageStats();
+  const captionsLabel = stats
+    ? `${formatThousands(stats.totalCaptions)}+`
+    : PLACEHOLDER;
+  const languagesLabel = stats
+    ? formatThousands(stats.totalLanguages)
+    : PLACEHOLDER;
+  const sitesLabel = stats ? formatThousands(stats.totalSites) : PLACEHOLDER;
   return (
     <Section>
       <Inner>
@@ -405,15 +417,15 @@ export const IntroSplit = ({
 
           <StatsRow>
             <StatItem>
-              <strong>24,800+</strong>
+              <strong>{captionsLabel}</strong>
               <span>{t("home.intro.stats.captions")}</span>
             </StatItem>
             <StatItem>
-              <strong>26</strong>
+              <strong>{languagesLabel}</strong>
               <span>{t("home.intro.stats.languages")}</span>
             </StatItem>
             <StatItem>
-              <strong>8</strong>
+              <strong>{sitesLabel}</strong>
               <span>{t("home.intro.stats.sites")}</span>
             </StatItem>
           </StatsRow>
