@@ -13,6 +13,7 @@ import MenuOutlined from "@ant-design/icons/MenuOutlined";
 import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
 import { Divider, Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { ReactElement, useState } from "react";
 import ReactDOM from "react-dom";
@@ -29,6 +30,13 @@ const BrandArea = styled.div`
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  height: 64px;
+
+  svg {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
 `;
 
 const Spacer = styled.div`
@@ -101,9 +109,77 @@ const AddToChromeBtn = styled.a`
   }
 `;
 
-const DashboardBtn = styled(WSButton)`
+const GhostBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: ${colors.text};
+  font-weight: 600;
+  font-size: 14px;
+  padding: 0 14px;
   height: 36px;
-  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #d0d0d0;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    border-color: ${colors.secondary};
+    color: ${colors.secondary};
+    background: ${colors.lightHighlight};
+  }
+`;
+
+const SearchSlot = styled.div`
+  display: inline-flex;
+  align-items: center;
+
+  form {
+    display: flex;
+    align-items: center;
+  }
+
+  .ant-input {
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    font-size: 14px;
+  }
+
+  .ant-input:focus,
+  .ant-input-focused {
+    border-color: ${colors.secondary};
+    box-shadow: none;
+  }
+
+  .ant-btn {
+    height: 36px;
+    min-width: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    color: ${colors.text};
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background 0.2s;
+  }
+
+  .ant-btn:hover {
+    border-color: ${colors.secondary};
+    color: ${colors.secondary};
+    background: ${colors.lightHighlight};
+  }
 `;
 
 const MobileMenu = styled.div<{ $open: boolean }>`
@@ -213,18 +289,25 @@ export const WebHeader = (): ReactElement => {
         {isTablet && (
           <>
             <NavLink href="/#features">Features</NavLink>
-            <NavLink href="/#browse">Browse</NavLink>
-            <BasicSearchBar />
+            <Link href={routeNames.caption.browse} passHref legacyBehavior>
+              <NavLink>Browse</NavLink>
+            </Link>
+            <SearchSlot>
+              <BasicSearchBar />
+            </SearchSlot>
             <Spin spinning={isLoggingOut}>
-              <DashboardBtn
+              <GhostBtn
                 onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
               >
                 {t("home.navigation.dashboard")}
-              </DashboardBtn>
+              </GhostBtn>
               {isLoggedIn && (
-                <DashboardBtn onClick={handleClickLogout}>
+                <GhostBtn
+                  onClick={handleClickLogout}
+                  style={{ marginLeft: 8 }}
+                >
                   {t("home.navigation.logout")}
-                </DashboardBtn>
+                </GhostBtn>
               )}
             </Spin>
             <AddToChromeBtn
@@ -256,7 +339,9 @@ export const WebHeader = (): ReactElement => {
                   <Divider />
                   <AntdLink href="/#features">Features</AntdLink>
                   <Divider />
-                  <AntdLink href="/#browse">Browse</AntdLink>
+                  <Link href={routeNames.caption.browse} passHref legacyBehavior>
+                    <AntdLink>Browse</AntdLink>
+                  </Link>
                   <Divider />
                   <AntdLink
                     onClick={
