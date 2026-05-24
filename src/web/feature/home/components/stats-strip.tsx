@@ -1,14 +1,15 @@
 import { colors } from "@/common/colors";
 import { DEVICE } from "@/common/style-constants";
+import { useTranslation } from "next-i18next";
 import React, { ReactElement } from "react";
 import styled from "styled-components";
 
 const STATS = [
-  { num: "24,891", lbl: "captions published" },
-  { num: "1,204", lbl: "contributors" },
-  { num: "26", lbl: "languages" },
-  { num: "3.2 M", lbl: "caption views" },
-];
+  { num: "24,891", key: "captions" },
+  { num: "1,204", key: "contributors" },
+  { num: "26", key: "languages" },
+  { num: "3.2 M", key: "views" },
+] as const;
 
 const Section = styled.section`
   position: relative;
@@ -65,13 +66,14 @@ const Lbl = styled.div`
 `;
 
 export const StatsStrip = (): ReactElement => {
+  const { t } = useTranslation("common");
   return (
     <Section>
       <Grid>
         {STATS.map((stat) => (
-          <StatItem key={stat.lbl}>
+          <StatItem key={stat.key}>
             <Num>{stat.num}</Num>
-            <Lbl>{stat.lbl}</Lbl>
+            <Lbl>{t(`home.stats.${stat.key}`)}</Lbl>
           </StatItem>
         ))}
       </Grid>

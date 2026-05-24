@@ -1,7 +1,7 @@
 import { isClient } from "@/common/client-utils";
 import { colors } from "@/common/colors";
 import { WSButton } from "@/common/components/ws-button";
-import { CHROME_DOWNLOAD_URL, GITHUB_URL } from "@/common/constants";
+import { GITHUB_URL } from "@/common/constants";
 import { webLogout } from "@/common/feature/login/actions";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
 import { DEVICE } from "@/common/style-constants";
@@ -86,26 +86,6 @@ const NavLink = styled.a`
   &:hover {
     color: ${colors.base};
     background: ${colors.lightHighlight};
-  }
-`;
-
-const AddToChromeBtn = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: ${colors.base};
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 0 16px;
-  height: 36px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #ff8c0a;
-    color: #fff;
   }
 `;
 
@@ -288,9 +268,11 @@ export const WebHeader = (): ReactElement => {
 
         {isTablet && (
           <>
-            <NavLink href="/#features">Features</NavLink>
+            <NavLink href="/#features">
+              {t("home.navigation.features")}
+            </NavLink>
             <Link href={routeNames.caption.browse} passHref legacyBehavior>
-              <NavLink>Browse</NavLink>
+              <NavLink>{t("home.navigation.browse")}</NavLink>
             </Link>
             <SearchSlot>
               <BasicSearchBar />
@@ -310,13 +292,6 @@ export const WebHeader = (): ReactElement => {
                 </GhostBtn>
               )}
             </Spin>
-            <AddToChromeBtn
-              href={CHROME_DOWNLOAD_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Add to Chrome
-            </AddToChromeBtn>
           </>
         )}
 
@@ -334,13 +309,15 @@ export const WebHeader = (): ReactElement => {
                     </CloseButton>
                   </div>
                   <AntdLink onClick={handleClickHome} href="#">
-                    Home
+                    {t("home.navigation.home")}
                   </AntdLink>
                   <Divider />
-                  <AntdLink href="/#features">Features</AntdLink>
+                  <AntdLink href="/#features">
+                    {t("home.navigation.features")}
+                  </AntdLink>
                   <Divider />
                   <Link href={routeNames.caption.browse} passHref legacyBehavior>
-                    <AntdLink>Browse</AntdLink>
+                    <AntdLink>{t("home.navigation.browse")}</AntdLink>
                   </Link>
                   <Divider />
                   <AntdLink
@@ -349,23 +326,16 @@ export const WebHeader = (): ReactElement => {
                     }
                     href="#"
                   >
-                    Dashboard
+                    {t("home.navigation.dashboard")}
                   </AntdLink>
                   <Divider />
                   <BasicSearchBar forceOpen={true} onSearch={handleOnSearch} />
                   <Divider />
                   {isLoggedIn && (
-                    <WSButton onClick={handleClickLogout}>Logout</WSButton>
+                    <WSButton onClick={handleClickLogout}>
+                      {t("home.navigation.logout")}
+                    </WSButton>
                   )}
-                  <Divider />
-                  <AddToChromeBtn
-                    href={CHROME_DOWNLOAD_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ justifyContent: "center", width: "100%" }}
-                  >
-                    Add to Chrome
-                  </AddToChromeBtn>
                 </MobileMenu>,
                 document.body,
               )}

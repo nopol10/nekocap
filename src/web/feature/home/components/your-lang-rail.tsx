@@ -7,6 +7,7 @@ import {
 } from "@/common/languages";
 import { DEVICE } from "@/common/style-constants";
 import { Spin } from "antd";
+import { Trans, useTranslation } from "next-i18next";
 import React, { ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
 import { CaptionTile } from "./caption-tile";
@@ -119,6 +120,7 @@ export const YourLangRail = ({
   isLoading,
   langOverride,
 }: YourLangRailProps): ReactElement => {
+  const { t } = useTranslation("common");
   const [activeLang, setActiveLang] = useState<string>("");
   const [detectedLang, setDetectedLang] = useState<string>("");
 
@@ -149,9 +151,13 @@ export const YourLangRail = ({
       <Inner>
         <RailHead>
           <Heading>
-            In <span>{activeLangName}</span>, captions you can watch right now
+            <Trans
+              i18nKey="home.yourLang.heading"
+              values={{ language: activeLangName }}
+              components={{ span: <span /> }}
+            />
           </Heading>
-          <Sub>Auto-detected from your browser</Sub>
+          <Sub>{t("home.yourLang.subtitle")}</Sub>
         </RailHead>
 
         {availableLangs.length > 1 && (
@@ -181,8 +187,7 @@ export const YourLangRail = ({
               ))
           ) : (
             <EmptyCard>
-              No captions in {activeLangName} yet. Be the first to add one,
-              install the extension and start a caption on a video without one.
+              {t("home.yourLang.empty", { language: activeLangName })}
             </EmptyCard>
           )}
         </CaptionsGrid>

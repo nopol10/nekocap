@@ -1,3 +1,4 @@
+import { useTranslation } from "next-i18next";
 import React, { ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
 import { colors } from "@/common/colors";
@@ -92,11 +93,12 @@ const Swatch = styled.span<{ $color: string }>`
 `;
 
 export const SitesMarquee = (): ReactElement => {
+  const { t } = useTranslation("common");
   const doubled = [...SITES, ...SITES];
 
   return (
     <Section>
-      <Label>Captions appear right inside the player on</Label>
+      <Label>{t("home.sites.label")}</Label>
       <Marquee>
         <Track className="marquee-track">
           {doubled.map((site, i) => (

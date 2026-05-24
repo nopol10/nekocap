@@ -1,11 +1,16 @@
 import { colors } from "@/common/colors";
 import { CaptionListFields } from "@/common/feature/video/types";
-import { CHROME_DOWNLOAD_URL, GITHUB_URL } from "@/common/constants";
+import {
+  CHROME_DOWNLOAD_URL,
+  FIREFOX_DOWNLOAD_URL,
+  GITHUB_URL,
+} from "@/common/constants";
 import { DEVICE } from "@/common/style-constants";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
 import GithubOutlined from "@ant-design/icons/GithubOutlined";
 import RightOutlined from "@ant-design/icons/RightOutlined";
 import { Spin } from "antd";
+import { Trans, useTranslation } from "next-i18next";
 import Link from "next/link";
 import React, { ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
@@ -242,6 +247,30 @@ const GhostBtn = styled.a`
   }
 `;
 
+const SecondaryBtn = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: ${colors.base};
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0 22px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid ${colors.base};
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+
+  &:hover {
+    background: ${colors.lightHighlight};
+    color: ${colors.base};
+    transform: translateY(-1px);
+  }
+`;
+
 const StatsRow = styled.div`
   display: flex;
   gap: 28px;
@@ -329,25 +358,25 @@ export const IntroSplit = ({
   captions,
   isLoading,
 }: IntroSplitProps): ReactElement => {
+  const { t } = useTranslation("common");
   return (
     <Section>
       <Inner>
         <IntroCopy>
           <EyebrowPill>
             <PulseDot />
-            Free, open source, community-built
+            {t("home.intro.eyebrow")}
           </EyebrowPill>
 
           <H1>
-            Watch any video with <em>community-made</em> captions.
+            <Trans i18nKey="home.intro.heading" components={{ em: <em /> }} />
           </H1>
 
           <Lede>
-            NekoCap is a browser extension that drops community captions
-            straight into{" "}
-            <strong>YouTube, Vimeo, niconico, bilibili, TVer, Netflix</strong>{" "}
-            and more, so anyone can subtitle a video, and anyone can watch it in
-            their language.
+            <Trans
+              i18nKey="home.intro.description"
+              components={{ strong: <strong /> }}
+            />
           </Lede>
 
           <CtaRow>
@@ -357,34 +386,45 @@ export const IntroSplit = ({
               rel="noreferrer"
             >
               <DownloadOutlined />
-              Add to Chrome
+              {t("home.intro.addToChrome")}
             </PrimaryBtn>
+            <SecondaryBtn
+              href={FIREFOX_DOWNLOAD_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <DownloadOutlined />
+              {t("home.intro.addToFirefox")}
+            </SecondaryBtn>
             <GhostBtn href={GITHUB_URL} target="_blank" rel="noreferrer">
               <GithubOutlined />
-              Star on GitHub
+              {t("home.intro.starOnGithub")}
             </GhostBtn>
           </CtaRow>
 
           <StatsRow>
             <StatItem>
               <strong>24,800+</strong>
-              <span>community captions</span>
+              <span>{t("home.intro.stats.captions")}</span>
             </StatItem>
             <StatItem>
               <strong>26</strong>
-              <span>languages</span>
+              <span>{t("home.intro.stats.languages")}</span>
             </StatItem>
             <StatItem>
               <strong>8</strong>
-              <span>sites supported</span>
+              <span>{t("home.intro.stats.sites")}</span>
             </StatItem>
           </StatsRow>
         </IntroCopy>
 
         <IntroCaps>
-          <CapsEyebrow>Latest</CapsEyebrow>
+          <CapsEyebrow>{t("home.intro.captionsEyebrow")}</CapsEyebrow>
           <CapsHeading>
-            Fresh from the <span>community</span>
+            <Trans
+              i18nKey="home.intro.captionsHeading"
+              components={{ span: <span /> }}
+            />
           </CapsHeading>
 
           <CapsGrid>
@@ -403,7 +443,7 @@ export const IntroSplit = ({
 
           <Link href={routeNames.caption.browse} passHref legacyBehavior>
             <BrowseLink>
-              Browse all captions <RightOutlined />
+              {t("home.intro.browseAll")} <RightOutlined />
             </BrowseLink>
           </Link>
         </IntroCaps>
