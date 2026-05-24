@@ -52,13 +52,31 @@ const NavArea = styled.div`
 
 const Socials = styled.div`
   display: inline-flex;
-  gap: 6px;
+  gap: 14px;
   border-right: 1px solid #e8e8e8;
-  padding-right: 12px;
-  margin-right: 6px;
+  padding-right: 16px;
+  margin-right: 8px;
 
   a {
-    font-size: 26px;
+    font-size: 24px;
+    color: ${colors.socialIcon};
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: ${colors.socialIconHovered};
+    }
+  }
+`;
+
+const MobileSocials = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 12px 0 4px;
+
+  a {
+    font-size: 32px;
     color: ${colors.socialIcon};
     display: flex;
     align-items: center;
@@ -246,28 +264,27 @@ export const WebHeader = (): ReactElement => {
       <Spacer />
 
       <NavArea>
-        <Socials>
-          <a
-            href="https://www.instagram.com/nekocaption"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <InstagramOutlined />
-          </a>
-          <a
-            href="https://www.twitter.com/nekocaption"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <TwitterOutlined />
-          </a>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-            <GithubOutlined />
-          </a>
-        </Socials>
-
         {isTablet && (
           <>
+            <Socials>
+              <a
+                href="https://www.instagram.com/nekocaption"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <InstagramOutlined />
+              </a>
+              <a
+                href="https://www.twitter.com/nekocaption"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <TwitterOutlined />
+              </a>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                <GithubOutlined />
+              </a>
+            </Socials>
             <NavLink href="/#features">
               {t("home.navigation.features")}
             </NavLink>
@@ -336,6 +353,26 @@ export const WebHeader = (): ReactElement => {
                       {t("home.navigation.logout")}
                     </WSButton>
                   )}
+                  <Divider />
+                  <MobileSocials>
+                    <a
+                      href="https://www.instagram.com/nekocaption"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <InstagramOutlined />
+                    </a>
+                    <a
+                      href="https://www.twitter.com/nekocaption"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <TwitterOutlined />
+                    </a>
+                    <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                      <GithubOutlined />
+                    </a>
+                  </MobileSocials>
                 </MobileMenu>,
                 document.body,
               )}
