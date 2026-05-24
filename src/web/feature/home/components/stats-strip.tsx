@@ -1,14 +1,14 @@
 import { colors } from "@/common/colors";
+import { formatCompactViews, formatThousands } from "@/common/format";
+import { useHomepageStats } from "@/common/hooks/use-homepage-stats";
 import { DEVICE } from "@/common/style-constants";
+import { useTranslation } from "next-i18next";
 import React, { ReactElement } from "react";
 import styled from "styled-components";
 
-const STATS = [
-  { num: "24,891", lbl: "captions published" },
-  { num: "1,204", lbl: "contributors" },
-  { num: "26", lbl: "languages" },
-  { num: "3.2 M", lbl: "caption views" },
-];
+const STAT_KEYS = ["captions", "contributors", "languages", "views"] as const;
+type StatKey = (typeof STAT_KEYS)[number];
+const PLACEHOLDER = "—";
 
 const Section = styled.section`
   position: relative;
@@ -65,13 +65,23 @@ const Lbl = styled.div`
 `;
 
 export const StatsStrip = (): ReactElement => {
+  const { t } = useTranslation("common");
+  const { data: stats } = useHomepageStats();
+
+  const values: Record<StatKey, string> = {
+    captions: stats ? formatThousands(stats.totalCaptions) : PLACEHOLDER,
+    contributors: stats ? formatThousands(stats.totalCaptioners) : PLACEHOLDER,
+    languages: stats ? formatThousands(stats.totalLanguages) : PLACEHOLDER,
+    views: stats ? formatCompactViews(stats.totalViews) : PLACEHOLDER,
+  };
+
   return (
     <Section>
       <Grid>
-        {STATS.map((stat) => (
-          <StatItem key={stat.lbl}>
-            <Num>{stat.num}</Num>
-            <Lbl>{stat.lbl}</Lbl>
+        {STAT_KEYS.map((key) => (
+          <StatItem key={key}>
+            <Num>{values[key]}</Num>
+            <Lbl>{t(`home.stats.${key}`)}</Lbl>
           </StatItem>
         ))}
       </Grid>

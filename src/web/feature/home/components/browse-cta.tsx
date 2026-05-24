@@ -1,9 +1,9 @@
 import { colors } from "@/common/colors";
 import { DEVICE } from "@/common/style-constants";
 import SearchOutlined from "@ant-design/icons/SearchOutlined";
-import TranslationOutlined from "@ant-design/icons/TranslationOutlined";
+import { useTranslation } from "next-i18next";
 import Link from "next/link";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import styled from "styled-components";
 import { routeNames } from "../../route-types";
 
@@ -63,14 +63,6 @@ const H3 = styled.h3`
   font-size: clamp(26px, 3vw, 36px);
   font-weight: 500;
   line-height: 1.15;
-  margin: 0 0 20px;
-  color: #fff;
-`;
-
-const Desc = styled.p`
-  font-size: 16px;
-  line-height: 1.55;
-  opacity: 0.95;
   margin: 0 0 32px;
   color: #fff;
 `;
@@ -127,30 +119,26 @@ const GhostBtn = styled.a`
 `;
 
 export const BrowseCTA = (): ReactElement => {
+  const { t } = useTranslation("common");
   return (
     <Section id="browse">
       <Inner>
         <Card>
           <Content>
-            <H3>Browse every caption the community has ever made.</H3>
-            <Desc>
-              Filter by source language, target language, video platform, or
-              creator. Find subs your friends wrote, follow captioners you like,
-              leave reactions, it&apos;s a whole archive of work.
-            </Desc>
+            <H3>{t("home.browseCta.heading")}</H3>
             <ButtonRow>
               <Link href={routeNames.caption.browse} passHref legacyBehavior>
                 <PrimaryBtn>
                   <SearchOutlined />
-                  Browse all captions
+                  {t("home.browseCta.primary")}
                 </PrimaryBtn>
               </Link>
-              <Link href={routeNames.caption.browse} passHref legacyBehavior>
+              {/* <Link href={routeNames.caption.browse} passHref legacyBehavior>
                 <GhostBtn>
                   <TranslationOutlined />
-                  Browse by language
+                  {t("home.browseCta.secondary")}
                 </GhostBtn>
-              </Link>
+              </Link> */}
             </ButtonRow>
           </Content>
         </Card>

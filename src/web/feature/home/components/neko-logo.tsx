@@ -1,4 +1,5 @@
 import NekoLogoSvg from "@/assets/images/nekocap.svg?react";
+import Link from "next/link";
 import React from "react";
 import styled from "styled-components";
 
@@ -38,9 +39,9 @@ const NekoTitle = styled.div<NekoLogoProps>`
 export const NekoLogo = ({ $width, $height, style }: NekoLogoProps) => {
   return (
     <NekoTitle $width={$width} $height={$height} style={style}>
-      <a href="https://nekocap.com/" target="_blank" rel="noreferrer">
+      <Link href="https://nekocap.com/">
         <NekoLogoSvg />
-      </a>
+      </Link>
     </NekoTitle>
   );
 };

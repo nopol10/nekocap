@@ -1,16 +1,31 @@
+import discordLogo from "@/assets/images/discord.png";
 import { colors } from "@/common/colors";
+import {
+  CHROME_DOWNLOAD_URL,
+  DISCORD_INVITE_URL,
+  FIREFOX_DOWNLOAD_URL,
+  GITHUB_URL,
+} from "@/common/constants";
 import { CaptionListFields } from "@/common/feature/video/types";
-import { CHROME_DOWNLOAD_URL, GITHUB_URL } from "@/common/constants";
+import { formatThousands } from "@/common/format";
+import { useHomepageStats } from "@/common/hooks/use-homepage-stats";
 import { DEVICE } from "@/common/style-constants";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
 import GithubOutlined from "@ant-design/icons/GithubOutlined";
+import InstagramOutlined from "@ant-design/icons/InstagramOutlined";
 import RightOutlined from "@ant-design/icons/RightOutlined";
+import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
 import { Spin } from "antd";
+import { Trans, useTranslation } from "next-i18next";
+import Image from "next/image";
 import Link from "next/link";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
 import { routeNames } from "../../route-types";
 import { CaptionTile } from "./caption-tile";
+import { NekoLogo } from "./neko-logo";
+
+export const HERO_LOGO_ID = "hero-logo";
 
 const ping = keyframes`
   0% { transform: scale(1); opacity: 1; }
@@ -109,6 +124,19 @@ const IntroCopy = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 20px;
+`;
+
+const HeroLogoWrap = styled.div`
+  display: none;
+  margin-bottom: 8px;
+
+  @media ${DEVICE.tablet} {
+    display: block;
+  }
+
+  @media ${DEVICE.desktop} {
+    margin-top: -180px;
+  }
 `;
 
 const EyebrowPill = styled.div`
@@ -242,6 +270,71 @@ const GhostBtn = styled.a`
   }
 `;
 
+const SecondaryBtn = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: ${colors.base};
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0 22px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid ${colors.base};
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+
+  &:hover {
+    background: ${colors.lightHighlight};
+    color: ${colors.base};
+    transform: translateY(-1px);
+  }
+`;
+
+const DiscordBtn = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+`;
+
+const MobileSocialRow = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+
+  @media ${DEVICE.tablet} {
+    display: none;
+  }
+`;
+
+const SocialIconLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  color: ${colors.text};
+  font-size: 18px;
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.15s;
+
+  &:hover {
+    border-color: ${colors.secondary};
+    color: ${colors.secondary};
+    transform: translateY(-1px);
+  }
+`;
+
 const StatsRow = styled.div`
   display: flex;
   gap: 28px;
@@ -269,14 +362,6 @@ const IntroCaps = styled.div`
   gap: 16px;
 `;
 
-const CapsEyebrow = styled.div`
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: ${colors.secondary};
-  font-weight: 600;
-`;
-
 const CapsHeading = styled.h2`
   font-size: clamp(20px, 2.5vw, 24px);
   font-weight: 500;
@@ -290,10 +375,11 @@ const CapsHeading = styled.h2`
 
 const CapsGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
 
   @media ${DEVICE.tablet} {
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
   }
 `;
@@ -325,29 +411,43 @@ type IntroSplitProps = {
   isLoading: boolean;
 };
 
+const PLACEHOLDER = "—";
+
 export const IntroSplit = ({
   captions,
   isLoading,
 }: IntroSplitProps): ReactElement => {
+  const { t } = useTranslation("common");
+  const { data: stats } = useHomepageStats();
+  const captionsLabel = stats
+    ? `${formatThousands(stats.totalCaptions)}+`
+    : PLACEHOLDER;
+  const languagesLabel = stats
+    ? formatThousands(stats.totalLanguages)
+    : PLACEHOLDER;
+  const sitesLabel = stats ? formatThousands(stats.totalSites) : PLACEHOLDER;
   return (
     <Section>
       <Inner>
         <IntroCopy>
+          <HeroLogoWrap id={HERO_LOGO_ID}>
+            <NekoLogo />
+          </HeroLogoWrap>
+
           <EyebrowPill>
             <PulseDot />
-            Free, open source, community-built
+            {t("home.intro.eyebrow")}
           </EyebrowPill>
 
           <H1>
-            Watch any video with <em>community-made</em> captions.
+            <Trans i18nKey="home.intro.heading" components={{ em: <em /> }} />
           </H1>
 
           <Lede>
-            NekoCap is a browser extension that drops community captions
-            straight into{" "}
-            <strong>YouTube, Vimeo, niconico, bilibili, TVer, Netflix</strong>{" "}
-            and more, so anyone can subtitle a video, and anyone can watch it in
-            their language.
+            <Trans
+              i18nKey="home.intro.description"
+              components={{ strong: <strong /> }}
+            />
           </Lede>
 
           <CtaRow>
@@ -357,34 +457,77 @@ export const IntroSplit = ({
               rel="noreferrer"
             >
               <DownloadOutlined />
-              Add to Chrome
+              {t("home.intro.addToChrome")}
             </PrimaryBtn>
+            <SecondaryBtn
+              href={FIREFOX_DOWNLOAD_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <DownloadOutlined />
+              {t("home.intro.addToFirefox")}
+            </SecondaryBtn>
             <GhostBtn href={GITHUB_URL} target="_blank" rel="noreferrer">
               <GithubOutlined />
-              Star on GitHub
+              {t("home.intro.starOnGithub")}
             </GhostBtn>
+            <DiscordBtn
+              href={DISCORD_INVITE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Image
+                id="discord-badge"
+                src={discordLogo.src}
+                width={188}
+                height={60}
+                alt={t("home.discordBadgeAlt")}
+              />
+              {/* <DiscordIcon /> */}
+            </DiscordBtn>
           </CtaRow>
+
+          <MobileSocialRow>
+            <SocialIconLink
+              href="https://www.instagram.com/nekocaption"
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t("home.intro.socials.instagram")}
+            >
+              <InstagramOutlined />
+            </SocialIconLink>
+            <SocialIconLink
+              href="https://www.twitter.com/nekocaption"
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t("home.intro.socials.twitter")}
+            >
+              <TwitterOutlined />
+            </SocialIconLink>
+          </MobileSocialRow>
 
           <StatsRow>
             <StatItem>
-              <strong>24,800+</strong>
-              <span>community captions</span>
+              <strong>{captionsLabel}</strong>
+              <span>{t("home.intro.stats.captions")}</span>
             </StatItem>
             <StatItem>
-              <strong>26</strong>
-              <span>languages</span>
+              <strong>{languagesLabel}</strong>
+              <span>{t("home.intro.stats.languages")}</span>
             </StatItem>
             <StatItem>
-              <strong>8</strong>
-              <span>sites supported</span>
+              <strong>{sitesLabel}</strong>
+              <span>{t("home.intro.stats.sites")}</span>
             </StatItem>
           </StatsRow>
         </IntroCopy>
 
         <IntroCaps>
-          <CapsEyebrow>Latest</CapsEyebrow>
           <CapsHeading>
-            Fresh from the <span>community</span>
+            <Trans
+              i18nKey="home.intro.captionsHeading"
+              components={{ span: <span /> }}
+            />
           </CapsHeading>
 
           <CapsGrid>
@@ -394,7 +537,7 @@ export const IntroSplit = ({
               </LoadingBox>
             ) : (
               captions
-                .slice(0, 4)
+                .slice(0, 6)
                 .map((caption) => (
                   <CaptionTile key={caption.id} caption={caption} />
                 ))
@@ -403,7 +546,7 @@ export const IntroSplit = ({
 
           <Link href={routeNames.caption.browse} passHref legacyBehavior>
             <BrowseLink>
-              Browse all captions <RightOutlined />
+              {t("home.intro.browseAll")} <RightOutlined />
             </BrowseLink>
           </Link>
         </IntroCaps>

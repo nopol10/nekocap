@@ -5,8 +5,9 @@ import { DEVICE } from "@/common/style-constants";
 import DragOutlined from "@ant-design/icons/DragOutlined";
 import StarOutlined from "@ant-design/icons/StarOutlined";
 import ThunderboltOutlined from "@ant-design/icons/ThunderboltOutlined";
+import { Trans, useTranslation } from "next-i18next";
 import Image from "next/image";
-import React, { ReactElement, useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const Section = styled.section`
@@ -118,7 +119,7 @@ const VisualBox = styled.div`
   border: 1px solid #e8e8e8;
 `;
 
-const KARAOKE_CHARS = ["君", "の", "瞳", "の", "中"];
+const KARAOKE_CHARS = ["愛", "を", "伝", "え", "た", "い"];
 
 const KaraokeDemo = styled.div`
   background: #111;
@@ -183,84 +184,33 @@ const EditorPlayer = styled.div`
   overflow: hidden;
 `;
 
-const EditorCaption = styled.div`
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 3px;
-  white-space: nowrap;
-`;
-
-const Timeline = styled.div`
-  height: 36px;
-  background: #333;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  gap: 4px;
-  overflow: hidden;
-`;
-
-const CueBlock = styled.div<{ $width: number }>`
-  height: 20px;
-  width: ${({ $width }) => $width}%;
-  background: ${colors.base};
-  border-radius: 3px;
-  flex-shrink: 0;
-  opacity: 0.85;
-`;
-
-const PlayHead = styled.div`
-  width: 2px;
-  height: 28px;
-  background: #fff;
-  flex-shrink: 0;
-  margin-left: 4px;
-`;
-
-const MiniEditorVisual = () => (
+const MiniEditorVisual = ({ altText }: { altText: string }) => (
   <EditorVisual>
     <EditorPlayer>
       <Image
         src={useEditorImage.src}
-        alt="Caption editor"
+        alt={altText}
         fill
-        style={{ objectFit: "cover", opacity: 0.6 }}
+        style={{ objectFit: "cover" }}
       />
-      <EditorCaption>Hello, world!</EditorCaption>
     </EditorPlayer>
-    <Timeline>
-      <CueBlock $width={12} />
-      <CueBlock $width={8} />
-      <PlayHead />
-      <CueBlock $width={15} />
-      <CueBlock $width={6} />
-      <CueBlock $width={10} />
-    </Timeline>
   </EditorVisual>
 );
 
 export const FeaturesGrid = (): ReactElement => {
+  const { t } = useTranslation("common");
   return (
     <Section id="features">
       <Inner>
         <SectionHead>
-          <Eyebrow>What NekoCap does</Eyebrow>
+          <Eyebrow>{t("home.features.eyebrow")}</Eyebrow>
           <H2>
-            A captioning toolkit that <em>respects</em> the player you&apos;re
-            already in.
+            <Trans
+              i18nKey="home.features.heading"
+              components={{ em: <em /> }}
+            />
           </H2>
-          <SubP>
-            No re-uploads. No copies. Captions float over the original video,
-            exactly where they belong, and they&apos;re written and reviewed by
-            humans who love the content.
-          </SubP>
+          <SubP>{t("home.features.subtitle")}</SubP>
         </SectionHead>
 
         <Grid>
@@ -269,17 +219,15 @@ export const FeaturesGrid = (): ReactElement => {
               <DragOutlined />
             </IconWrap>
             <div>
-              <CardTitle>Captions in-player</CardTitle>
+              <CardTitle>{t("home.features.cards.inPlayer.title")}</CardTitle>
               <CardDesc>
-                Install the extension, open a video, pick a caption from the
-                dropdown above the player. It&apos;s the same place YouTube puts
-                its own subtitles, so there&apos;s nothing new to learn.
+                {t("home.features.cards.inPlayer.description")}
               </CardDesc>
             </div>
             <VisualBox>
               <Image
                 src={captionDropdownImage.src}
-                alt="Caption dropdown in player"
+                alt={t("home.features.cards.inPlayer.imageAlt")}
                 width={captionDropdownImage.width}
                 height={captionDropdownImage.height}
                 style={{ width: "100%", height: "auto", display: "block" }}
@@ -292,11 +240,9 @@ export const FeaturesGrid = (): ReactElement => {
               <StarOutlined />
             </IconWrap>
             <div>
-              <CardTitle>Advanced effects</CardTitle>
+              <CardTitle>{t("home.features.cards.advanced.title")}</CardTitle>
               <CardDesc>
-                Renders Advanced Substation Alpha (SSA/ASS) via SubtitleOctopus,
-                with karaoke timing, fades, positioning, and custom fonts. Good
-                for music videos, anime, and fan-typeset releases.
+                {t("home.features.cards.advanced.description")}
               </CardDesc>
             </div>
             <KaraokeVisual />
@@ -307,14 +253,12 @@ export const FeaturesGrid = (): ReactElement => {
               <ThunderboltOutlined />
             </IconWrap>
             <div>
-              <CardTitle>Convenient editor</CardTitle>
-              <CardDesc>
-                Time and translate from inside the player. Hotkeys for cue
-                boundaries, drag the wave, custom positioning, instant preview.
-                Export to SRT when you&apos;re done.
-              </CardDesc>
+              <CardTitle>{t("home.features.cards.editor.title")}</CardTitle>
+              <CardDesc>{t("home.features.cards.editor.description")}</CardDesc>
             </div>
-            <MiniEditorVisual />
+            <MiniEditorVisual
+              altText={t("home.features.cards.editor.imageAlt")}
+            />
           </Card>
         </Grid>
       </Inner>
