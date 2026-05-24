@@ -5,10 +5,12 @@ import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import { languages } from "@/common/languages";
 import { getDirectCaptionLoadLink } from "@/common/processor-utils";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
+import PlayCircleFilled from "@ant-design/icons/PlayCircleFilled";
 import UserOutlined from "@ant-design/icons/UserOutlined";
-import { Typography } from "antd";
+import { Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useTranslation } from "next-i18next";
 import React from "react";
 import styled from "styled-components";
 import { routeNames } from "../../route-types";
@@ -166,6 +168,33 @@ const ClickableBox = styled.a`
   z-index: 1;
 `;
 
+const SourceLink = styled.a`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+
+  &:hover {
+    background: ${colors.base};
+    color: #fff;
+    transform: scale(1.08);
+  }
+`;
+
 const CreatorLink = styled(Link)`
   font-size: 12px;
   color: ${colors.text} !important;
@@ -178,6 +207,7 @@ type CaptionTileProps = {
 };
 
 export const CaptionTile = ({ caption }: CaptionTileProps) => {
+  const { t } = useTranslation("common");
   if (!caption) return null;
 
   const fromLanguage =
@@ -218,6 +248,21 @@ export const CaptionTile = ({ caption }: CaptionTileProps) => {
               <FeatTag key={tag}>{tag}</FeatTag>
             ))}
           </FeatTagsRow>
+        )}
+        {canWatchInWebsite && processor && (
+          <Tooltip
+            title={t("home.watchOnService", { service: processor.name })}
+          >
+            <SourceLink
+              href={directLink}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              aria-label={t("home.watchOnService", { service: processor.name })}
+            >
+              <PlayCircleFilled />
+            </SourceLink>
+          </Tooltip>
         )}
       </ThumbArea>
       <Body>
