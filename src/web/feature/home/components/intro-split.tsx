@@ -319,10 +319,11 @@ const CapsHeading = styled.h2`
 
 const CapsGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
 
   @media ${DEVICE.tablet} {
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
   }
 `;
@@ -434,7 +435,7 @@ export const IntroSplit = ({
               </LoadingBox>
             ) : (
               captions
-                .slice(0, 4)
+                .slice(0, 6)
                 .map((caption) => (
                   <CaptionTile key={caption.id} caption={caption} />
                 ))

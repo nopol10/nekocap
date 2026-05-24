@@ -237,7 +237,7 @@ export const CaptionTile = ({ caption }: CaptionTileProps) => {
             {caption.creatorName}
           </CreatorLink>
           <Dot>·</Dot>
-          <span>{dayjs(caption.createdDate).fromNow()}</span>
+          <span>{dayjs.unix(caption.createdDate).fromNow()}</span>
         </MetaRow>
       </Body>
     </TileWrapper>

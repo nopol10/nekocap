@@ -51,7 +51,7 @@ export const Home = (): ReactElement => {
         }}
       >
         <IntroSplit
-          captions={latestCaptions.slice(0, 4)}
+          captions={latestCaptions.slice(0, 6)}
           isLoading={isLoadingLatest}
         />
         <SitesMarquee />
