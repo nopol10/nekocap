@@ -1,3 +1,4 @@
+import discordLogo from "@/assets/images/discord.png";
 import { colors } from "@/common/colors";
 import {
   CHROME_DOWNLOAD_URL,
@@ -16,6 +17,7 @@ import RightOutlined from "@ant-design/icons/RightOutlined";
 import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
 import { Spin } from "antd";
 import { Trans, useTranslation } from "next-i18next";
+import Image from "next/image";
 import Link from "next/link";
 import { ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
@@ -292,46 +294,12 @@ const SecondaryBtn = styled.a`
   }
 `;
 
-const DISCORD_COLOR = "#5865F2";
-const DISCORD_COLOR_HOVER = "#4752c4";
-
 const DiscordBtn = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #fff;
-  color: ${DISCORD_COLOR};
-  font-weight: 700;
-  font-size: 15px;
-  padding: 0 22px;
-  height: 44px;
-  border-radius: 8px;
-  border: 1px solid ${DISCORD_COLOR};
   text-decoration: none;
-  transition:
-    background 0.2s,
-    color 0.2s,
-    transform 0.15s;
-
-  &:hover {
-    background: ${DISCORD_COLOR};
-    color: #fff;
-    border-color: ${DISCORD_COLOR_HOVER};
-    transform: translateY(-1px);
-  }
 `;
-
-const DiscordIcon = (): ReactElement => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    aria-hidden="true"
-  >
-    <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3a.07.07 0 0 0-.074.035c-.207.37-.405.762-.567 1.149a18.27 18.27 0 0 0-5.487 0 12.51 12.51 0 0 0-.575-1.149.075.075 0 0 0-.075-.035 19.74 19.74 0 0 0-3.76 1.369.07.07 0 0 0-.03.027C2.07 8.046 1.32 11.59 1.687 15.094a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.077.077 0 0 0 .084-.028 14.2 14.2 0 0 0 1.226-1.994.075.075 0 0 0-.041-.104 13.1 13.1 0 0 1-1.872-.892.075.075 0 0 1-.008-.125c.126-.094.252-.192.372-.291a.075.075 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.061 0a.075.075 0 0 1 .079.009c.12.099.246.198.373.292a.075.075 0 0 1-.006.125 12.3 12.3 0 0 1-1.873.891.075.075 0 0 0-.04.105c.36.698.772 1.362 1.225 1.993a.077.077 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-4.054-.838-7.57-3.549-10.698a.061.061 0 0 0-.031-.028zM8.02 12.96c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z" />
-  </svg>
-);
 
 const MobileSocialRow = styled.div`
   display: flex;
@@ -392,14 +360,6 @@ const IntroCaps = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-`;
-
-const CapsEyebrow = styled.div`
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: ${colors.secondary};
-  font-weight: 600;
 `;
 
 const CapsHeading = styled.h2`
@@ -516,8 +476,14 @@ export const IntroSplit = ({
               target="_blank"
               rel="noreferrer"
             >
-              <DiscordIcon />
-              {t("home.intro.joinDiscord")}
+              <Image
+                id="discord-badge"
+                src={discordLogo.src}
+                width={188}
+                height={60}
+                alt={t("home.discordBadgeAlt")}
+              />
+              {/* <DiscordIcon /> */}
             </DiscordBtn>
           </CtaRow>
 
