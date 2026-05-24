@@ -21,6 +21,9 @@ import React, { ReactElement } from "react";
 import styled, { keyframes } from "styled-components";
 import { routeNames } from "../../route-types";
 import { CaptionTile } from "./caption-tile";
+import { NekoLogo } from "./neko-logo";
+
+export const HERO_LOGO_ID = "hero-logo";
 
 const ping = keyframes`
   0% { transform: scale(1); opacity: 1; }
@@ -119,6 +122,15 @@ const IntroCopy = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 20px;
+`;
+
+const HeroLogoWrap = styled.div`
+  display: none;
+  margin-bottom: 8px;
+
+  @media ${DEVICE.tablet} {
+    display: block;
+  }
 `;
 
 const EyebrowPill = styled.div`
@@ -454,6 +466,10 @@ export const IntroSplit = ({
     <Section>
       <Inner>
         <IntroCopy>
+          <HeroLogoWrap id={HERO_LOGO_ID}>
+            <NekoLogo $height="56px" />
+          </HeroLogoWrap>
+
           <EyebrowPill>
             <PulseDot />
             {t("home.intro.eyebrow")}

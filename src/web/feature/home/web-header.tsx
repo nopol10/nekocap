@@ -15,27 +15,37 @@ import { Divider, Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { routeNames } from "../route-types";
+import { HERO_LOGO_ID } from "./components/intro-split";
 import { NekoLogo } from "./components/neko-logo";
 import { BasicSearchBar } from "./containers/basic-search-bar";
 import { LoginModal } from "./login-modal";
 
 const { Link: AntdLink } = Typography;
 
-const BrandArea = styled.div`
+const BrandArea = styled.div<{ $hiddenOnDesktop?: boolean }>`
   display: flex;
   align-items: center;
   flex-shrink: 0;
   height: 64px;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 
   svg {
     display: block;
     height: 32px;
     width: auto;
+  }
+
+  @media ${DEVICE.tablet} {
+    opacity: ${({ $hiddenOnDesktop }) => ($hiddenOnDesktop ? 0 : 1)};
+    visibility: ${({ $hiddenOnDesktop }) =>
+      $hiddenOnDesktop ? "hidden" : "visible"};
   }
 `;
 
@@ -209,7 +219,22 @@ export const WebHeader = (): ReactElement => {
   const isLoggingOut = useSelector(webLogout.isLoading(undefined));
   const [showLogin, setShowLogin] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [heroLogoVisible, setHeroLogoVisible] = useState(true);
   const isTablet = useSSRMediaQuery({ query: DEVICE.tablet });
+
+  useEffect(() => {
+    const heroLogo = document.getElementById(HERO_LOGO_ID);
+    if (!heroLogo) {
+      setHeroLogoVisible(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroLogoVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(heroLogo);
+    return () => observer.disconnect();
+  }, []);
   const { t } = useTranslation("common");
   const router = useRouter();
 
@@ -257,7 +282,7 @@ export const WebHeader = (): ReactElement => {
         />
       )}
 
-      <BrandArea>
+      <BrandArea $hiddenOnDesktop={heroLogoVisible}>
         <NekoLogo $height="32px" />
       </BrandArea>
 
@@ -285,9 +310,7 @@ export const WebHeader = (): ReactElement => {
                 <GithubOutlined />
               </a>
             </Socials>
-            <NavLink href="/#features">
-              {t("home.navigation.features")}
-            </NavLink>
+            <NavLink href="/#features">{t("home.navigation.features")}</NavLink>
             <Link href={routeNames.caption.browse} passHref legacyBehavior>
               <NavLink>{t("home.navigation.browse")}</NavLink>
             </Link>
@@ -301,10 +324,7 @@ export const WebHeader = (): ReactElement => {
                 {t("home.navigation.dashboard")}
               </GhostBtn>
               {isLoggedIn && (
-                <GhostBtn
-                  onClick={handleClickLogout}
-                  style={{ marginLeft: 8 }}
-                >
+                <GhostBtn onClick={handleClickLogout} style={{ marginLeft: 8 }}>
                   {t("home.navigation.logout")}
                 </GhostBtn>
               )}
@@ -333,7 +353,11 @@ export const WebHeader = (): ReactElement => {
                     {t("home.navigation.features")}
                   </AntdLink>
                   <Divider />
-                  <Link href={routeNames.caption.browse} passHref legacyBehavior>
+                  <Link
+                    href={routeNames.caption.browse}
+                    passHref
+                    legacyBehavior
+                  >
                     <AntdLink>{t("home.navigation.browse")}</AntdLink>
                   </Link>
                   <Divider />
