@@ -1,262 +1,69 @@
-import chromeLogo from "@/assets/images/chrome-web-store-badge.png";
-import discordLogo from "@/assets/images/discord.png";
-import firefoxLogo from "@/assets/images/firefox-get-the-addon-badge.png";
-import { colors } from "@/common/colors";
-import { Badges } from "@/common/components/badges";
-import { NekoLogo } from "./components/neko-logo";
-import { WSLayout } from "@/common/components/ws-layout";
-import { WSLinkButton } from "@/common/components/ws-link-button";
-import { WSTitle } from "@/common/components/ws-title";
 import {
-  CHROME_DOWNLOAD_URL,
-  DISCORD_INVITE_URL,
-  FIREFOX_DOWNLOAD_URL,
-  GITHUB_URL,
-} from "@/common/constants";
-import { DEVICE } from "@/common/style-constants";
-import { Col, Layout, Row } from "antd";
-import { Trans, useTranslation } from "next-i18next";
-import Image from "next/image";
-import { ReactElement } from "react";
-import styled from "styled-components";
+  loadLatestCaptions,
+  loadLatestUserLanguageCaptions,
+} from "@/common/feature/public-dashboard/actions";
+import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
+import { getBaseLanguageCode } from "@/common/languages";
+import React, { ReactElement, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { KofiWidget } from "../common/containers/kofi-widget";
-import { routeNames } from "../route-types";
-import { FeatureList } from "./components/feature-list";
-import { Instructions } from "./components/instructions";
-import { LatestCaptions } from "./containers/latest-captions";
-import { LatestUserLanguageCaptions } from "./containers/latest-user-language-caps";
-
-const { Content } = Layout;
-
-const MainLogo = styled.div`
-  @keyframes tilt {
-    0% {
-      transform: rotate(-4deg);
-    }
-    70% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(0deg);
-    }
-  }
-  padding-top: 64px;
-  font-size: 64px;
-  background-color: ${colors.white};
-
-  svg {
-    position: relative;
-    height: 12vw;
-
-    @media ${DEVICE.tablet} {
-      height: 80px;
-    }
-
-    .nekocap_svg__cat-wrapper {
-      transform-origin: center;
-      animation: tilt 900ms infinite alternate;
-    }
-  }
-
-  div {
-    font-size: 16px;
-    font-family: monospace;
-  }
-`;
-
-const DividerWrapper = styled.div`
-  height: 75px;
-  overflow: hidden;
-  position: relative;
-  width: 100vw;
-  left: 50%;
-  transform: translateX(-50%);
-  @media ${DEVICE.tablet} {
-    height: 150px;
-  }
-`;
-
-const WaveDivider = () => {
-  return (
-    <DividerWrapper>
-      <svg
-        viewBox="0 0 500 150"
-        preserveAspectRatio="none"
-        style={{ height: "100%", width: "100%" }}
-      >
-        <path
-          d="M0.00,49.98 C122.74,160.36 310.10,2.47 500.00,49.98 L500.00,0.00 L0.00,0.00 Z"
-          style={{ stroke: "none", fill: colors.white }}
-        ></path>
-      </svg>
-    </DividerWrapper>
-  );
-};
-
-const BrowseCaptionButton = styled(WSLinkButton)`
-  display: flex;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 12px 0;
-  height: unset;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  background-color: ${colors.secondary};
-  width: 100%;
-  &.ant-btn-lg {
-    line-height: unset;
-  }
-  @media ${DEVICE.tablet} {
-    font-size: 32px;
-  }
-`;
-
-const CaptionDigestGrid = () => {
-  return (
-    <>
-      <Row gutter={[24, 24]} justify={"center"}>
-        <Col span={12} lg={12} md={24} sm={24} xs={24}>
-          <LatestCaptions />
-        </Col>
-        <Col span={12} lg={12} md={24} sm={24} xs={24}>
-          <LatestUserLanguageCaptions />
-        </Col>
-      </Row>
-    </>
-  );
-};
+import { BrowseCTA } from "./components/browse-cta";
+import { FeaturesGrid } from "./components/features-grid";
+import { IntroSplit } from "./components/intro-split";
+import { SitesMarquee } from "./components/sites-marquee";
+import { StatsStrip } from "./components/stats-strip";
+import { YourLangRail } from "./components/your-lang-rail";
 
 export const Home = (): ReactElement => {
-  const { t } = useTranslation("common");
+  const dispatch = useDispatch();
+  const { latestCaptions, latestUserLanguageCaptions } = useSelector(
+    publicDashboardSelector,
+  );
+  const isLoadingLatest = useSelector(loadLatestCaptions.isLoading(undefined));
+  const isLoadingLang = useSelector(
+    loadLatestUserLanguageCaptions.isLoading(undefined),
+  );
+  const [langOverride, setLangOverride] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (latestCaptions.length === 0) {
+      dispatch(loadLatestCaptions.request());
+    }
+  }, []);
+
+  useEffect(() => {
+    const lang = navigator.language;
+    setLangOverride(getBaseLanguageCode(lang));
+    if (latestUserLanguageCaptions.length === 0) {
+      dispatch(loadLatestUserLanguageCaptions.request(lang));
+    }
+  }, []);
+
   return (
     <>
       <KofiWidget />
       <div
         style={{
-          flex: "1",
+          flex: 1,
           display: "flex",
           flexDirection: "column",
           marginTop: "-64px",
         }}
       >
-        <div style={{ textAlign: "center" }}>
-          <MainLogo>
-            <NekoLogo />
-            <div>(beta)</div>
-          </MainLogo>
-        </div>
-        <HomeLayout>
-          <WaveDivider />
-          <Content
-            style={{
-              padding: "0 40px",
-              maxWidth: "1400px",
-              overflowX: "hidden",
-            }}
-          >
-            <WSTitle level={2} textAlign={"center"}>
-              <Trans
-                i18nKey={"home.summary"}
-                components={{
-                  bold: <em />,
-                  open: (
-                    <a
-                      target="_blank"
-                      rel="noreferrer"
-                      href={GITHUB_URL}
-                      style={{ fontWeight: "bold" }}
-                    />
-                  ),
-                }}
-              ></Trans>
-            </WSTitle>
-            <Badges>
-              <a target="_blank" rel="noreferrer" href={CHROME_DOWNLOAD_URL}>
-                <Image
-                  id="chrome-badge"
-                  src={chromeLogo.src}
-                  width={200}
-                  height={60}
-                  alt={t("home.chromeBadgeAlt")}
-                />
-              </a>
-              <a target="_blank" rel="noreferrer" href={FIREFOX_DOWNLOAD_URL}>
-                <Image
-                  id="firefox-badge"
-                  src={firefoxLogo.src}
-                  width={172}
-                  height={60}
-                  alt={t("home.firefoxBadgeAlt")}
-                />
-              </a>
-            </Badges>
-            <Badges>
-              <a target="_blank" rel="noreferrer" href={DISCORD_INVITE_URL}>
-                <Image
-                  id="discord-badge"
-                  src={discordLogo.src}
-                  width={188}
-                  height={60}
-                  alt={t("home.discordBadgeAlt")}
-                />
-              </a>
-            </Badges>
-            <FeatureList />
-            <Instructions />
-            <BrowseCaptionButton
-              size={"large"}
-              type={"primary"}
-              href={routeNames.caption.browse}
-            >
-              {t("home.browseAllCaptions")}
-            </BrowseCaptionButton>
-            <CaptionDigestGrid />
-          </Content>
-        </HomeLayout>
+        <IntroSplit
+          captions={latestCaptions.slice(0, 4)}
+          isLoading={isLoadingLatest}
+        />
+        <SitesMarquee />
+        <FeaturesGrid />
+        <StatsStrip />
+        <YourLangRail
+          captions={latestUserLanguageCaptions}
+          isLoading={isLoadingLang}
+          langOverride={langOverride}
+        />
+        <BrowseCTA />
       </div>
     </>
   );
 };
-
-const HomeLayout = styled(WSLayout)`
-  @media ${DEVICE.tablet} {
-    align-items: center;
-  }
-
-  @property --gradientX {
-    syntax: "<percentage>";
-    inherits: false;
-    initial-value: 20%;
-  }
-  @property --gradientY {
-    syntax: "<percentage>";
-    inherits: false;
-    initial-value: 10%;
-  }
-
-  height: 100%;
-  padding-bottom: 20px;
-  animation: wave 6s infinite alternate;
-  background: radial-gradient(
-    ellipse at var(--gradientX) var(--gradientY),
-    #f5f5f5 0,
-    #b6b6b629 32%,
-    #75d8ff31 100%
-  );
-
-  @keyframes wave {
-    0% {
-      --gradientX: 20%;
-      --gradientY: 10%;
-    }
-    50% {
-      --gradientX: 60%;
-      --gradientY: 30%;
-    }
-    100% {
-      --gradientX: 45%;
-      --gradientY: 20%;
-    }
-  }
-`;
