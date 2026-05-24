@@ -119,7 +119,7 @@ const VisualBox = styled.div`
   border: 1px solid #e8e8e8;
 `;
 
-const KARAOKE_CHARS = ["君", "の", "瞳", "の", "中"];
+const KARAOKE_CHARS = ["愛", "を", "伝", "え", "た", "い"];
 
 const KaraokeDemo = styled.div`
   background: #111;
