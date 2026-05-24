@@ -184,12 +184,7 @@ const EditorPlayer = styled.div`
   overflow: hidden;
 `;
 
-const MiniEditorVisual = ({
-  altText,
-}: {
-  altText: string;
-  captionText: string;
-}) => (
+const MiniEditorVisual = ({ altText }: { altText: string }) => (
   <EditorVisual>
     <EditorPlayer>
       <Image
