@@ -95,7 +95,70 @@
     "navigation": {
       "home": "ホーム",
       "dashboard": "ダッシュボード",
-      "logout": "ログアウト"
+      "logout": "ログアウト",
+      "features": "Features",
+      "browse": "Browse"
+    },
+    "intro": {
+      "eyebrow": "Free, open source, community supported",
+      "heading": "Watch any video with <em>community-made</em> captions.",
+      "description": "NekoCap is a browser extension that drops community captions straight into <strong>YouTube, Vimeo, niconico, bilibili, TVer, Netflix</strong> and more, so anyone can subtitle a video, and anyone can watch it in their language.",
+      "addToChrome": "Add to Chrome",
+      "addToFirefox": "Add to Firefox",
+      "starOnGithub": "Star on GitHub",
+      "joinDiscord": "Join Discord",
+      "socials": {
+        "instagram": "Instagram",
+        "twitter": "Twitter"
+      },
+      "stats": {
+        "captions": "community captions",
+        "languages": "languages",
+        "sites": "sites supported"
+      },
+      "captionsEyebrow": "Latest",
+      "captionsHeading": "Latest from the <span>community</span>",
+      "browseAll": "Browse all captions"
+    },
+    "features": {
+      "eyebrow": "What NekoCap does",
+      "heading": "A captioning toolkit that <em>respects</em> the player you're already in.",
+      "subtitle": "Say goodbye to re-uploads! Captions float over the original video and they're written by humans who love the content as much as you!",
+      "cards": {
+        "inPlayer": {
+          "title": "Captions in-player",
+          "description": "Install the extension, open a video, pick a caption from the dropdown below the player.",
+          "imageAlt": "Caption dropdown in player"
+        },
+        "advanced": {
+          "title": "Advanced effects",
+          "description": "Renders Advanced Substation Alpha (SSA/ASS), with karaoke timing, fades, positioning, and custom fonts. Good for music videos, anime, and fan-typeset releases."
+        },
+        "editor": {
+          "title": "Convenient editor",
+          "description": "Time and translate from inside the player. Hotkeys for cue boundaries, with custom positioning, colors and instant preview. Submit or export to SRT when you're done.",
+          "imageAlt": "Caption editor"
+        }
+      }
+    },
+    "stats": {
+      "captions": "captions published",
+      "contributors": "contributors",
+      "languages": "languages",
+      "views": "caption views"
+    },
+    "sites": {
+      "label": "Captions appear right inside the player on"
+    },
+    "yourLang": {
+      "heading": "In <span>{{language}}</span>, captions you can watch right now",
+      "subtitle": "Auto-detected from your browser",
+      "empty": "No captions in {{language}} yet. Be the first to add one, install the extension and start a caption on a video without one."
+    },
+    "browseCta": {
+      "heading": "Browse every caption the community has ever made.",
+      "primary": "Browse all captions",
+      "secondary": "Browse by language"
     }
   },
   "review": {
