@@ -17,3 +17,12 @@ export type StatsResponse = ServerResponse & {
 export type StatsState = {
   globalStats: GlobalStats;
 };
+
+export type HomepageStats = {
+  totalViews: number;
+  totalCaptions: number;
+  totalCaptioners: number;
+  totalLanguages: number;
+  totalSites: number;
+  computedAt: string;
+};

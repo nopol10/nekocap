@@ -13,27 +13,180 @@ import MenuOutlined from "@ant-design/icons/MenuOutlined";
 import TwitterOutlined from "@ant-design/icons/TwitterOutlined";
 import { Divider, Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { routeNames } from "../route-types";
+import { HERO_LOGO_ID } from "./components/intro-split";
+import { NekoLogo } from "./components/neko-logo";
 import { BasicSearchBar } from "./containers/basic-search-bar";
 import { LoginModal } from "./login-modal";
 
 const { Link: AntdLink } = Typography;
 
+const BrandArea = styled.div<{ $hiddenOnDesktop?: boolean }>`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 64px;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+
+  svg {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
+
+  @media ${DEVICE.tablet} {
+    opacity: ${({ $hiddenOnDesktop }) => ($hiddenOnDesktop ? 0 : 1)};
+    visibility: ${({ $hiddenOnDesktop }) =>
+      $hiddenOnDesktop ? "hidden" : "visible"};
+  }
+`;
+
+const Spacer = styled.div`
+  flex: 1;
+`;
+
+const NavArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+`;
+
 const Socials = styled.div`
   display: inline-flex;
-  gap: 15px;
-  margin-right: auto;
+  gap: 14px;
+  border-right: 1px solid #e8e8e8;
+  padding-right: 16px;
+  margin-right: 8px;
+
   a {
-    font-size: 26px;
+    font-size: 24px;
     color: ${colors.socialIcon};
+    display: flex;
+    align-items: center;
+
     &:hover {
       color: ${colors.socialIconHovered};
     }
+  }
+`;
+
+const MobileSocials = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 12px 0 4px;
+
+  a {
+    font-size: 32px;
+    color: ${colors.socialIcon};
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: ${colors.socialIconHovered};
+    }
+  }
+`;
+
+const NavLink = styled.a`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${colors.text};
+  text-decoration: none;
+  padding: 0 8px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+
+  &:hover {
+    color: ${colors.base};
+    background: ${colors.lightHighlight};
+  }
+`;
+
+const GhostBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: ${colors.text};
+  font-weight: 600;
+  font-size: 14px;
+  padding: 0 14px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #d0d0d0;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    border-color: ${colors.secondary};
+    color: ${colors.secondary};
+    background: ${colors.lightHighlight};
+  }
+`;
+
+const SearchSlot = styled.div`
+  display: inline-flex;
+  align-items: center;
+
+  form {
+    display: flex;
+    align-items: center;
+  }
+
+  .ant-input {
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    font-size: 14px;
+  }
+
+  .ant-input:focus,
+  .ant-input-focused {
+    border-color: ${colors.secondary};
+    box-shadow: none;
+  }
+
+  .ant-btn {
+    height: 36px;
+    min-width: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    color: ${colors.text};
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background 0.2s;
+  }
+
+  .ant-btn:hover {
+    border-color: ${colors.secondary};
+    color: ${colors.secondary};
+    background: ${colors.lightHighlight};
   }
 `;
 
@@ -60,21 +213,28 @@ const MobileMenu = styled.div<{ $open: boolean }>`
 
 const CloseButton = styled(WSButton)``;
 
-const Buttons = styled.div``;
-
-const HorizontalSpace = styled.div`
-  display: inline-flex;
-  flex-direction: row;
-  grid-column-gap: 8px;
-`;
-
 export const WebHeader = (): ReactElement => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(isLoggedInSelector);
   const isLoggingOut = useSelector(webLogout.isLoading(undefined));
   const [showLogin, setShowLogin] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [heroLogoVisible, setHeroLogoVisible] = useState(true);
   const isTablet = useSSRMediaQuery({ query: DEVICE.tablet });
+
+  useEffect(() => {
+    const heroLogo = document.getElementById(HERO_LOGO_ID);
+    if (!heroLogo) {
+      setHeroLogoVisible(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroLogoVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(heroLogo);
+    return () => observer.disconnect();
+  }, []);
   const { t } = useTranslation("common");
   const router = useRouter();
 
@@ -102,31 +262,6 @@ export const WebHeader = (): ReactElement => {
     router.push(routeNames.home);
   };
 
-  const renderButtons = () => {
-    return (
-      <Buttons>
-        <Spin spinning={isLoggingOut}>
-          <HorizontalSpace>
-            <BasicSearchBar />
-            <WSButton onClick={handleClickHome}>
-              {t("home.navigation.home")}
-            </WSButton>
-            <WSButton
-              onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
-            >
-              {t("home.navigation.dashboard")}
-            </WSButton>
-            {isLoggedIn && (
-              <WSButton onClick={handleClickLogout}>
-                {t("home.navigation.logout")}
-              </WSButton>
-            )}
-          </HorizontalSpace>
-        </Spin>
-      </Buttons>
-    );
-  };
-
   const handleClickMobileMenu = () => {
     setShowMobileMenu(true);
   };
@@ -146,60 +281,128 @@ export const WebHeader = (): ReactElement => {
           modalProps={{ open: showLogin, onCancel: handleCloseLoginModal }}
         />
       )}
-      <Socials>
-        <a
-          href="https://www.instagram.com/nekocaption"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <InstagramOutlined />
-        </a>
-        <a
-          href="https://www.twitter.com/nekocaption"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <TwitterOutlined />
-        </a>
-        <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-          <GithubOutlined />
-        </a>
-      </Socials>
-      {isTablet && renderButtons()}
-      {!isTablet && (
-        <>
-          <WSButton style={{ marginTop: 16 }} onClick={handleClickMobileMenu}>
-            <MenuOutlined />
-          </WSButton>
-          {isClient() &&
-            ReactDOM.createPortal(
-              <MobileMenu $open={showMobileMenu}>
-                <div style={{ textAlign: "right" }}>
-                  <CloseButton onClick={handleClickCloseMobileMenu}>
-                    <CloseOutlined />
-                  </CloseButton>
-                </div>
-                <AntdLink onClick={handleClickHome} href="#">
-                  Home
-                </AntdLink>
-                <Divider />
-                <AntdLink
-                  onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
-                  href="#"
-                >
-                  Dashboard
-                </AntdLink>
-                <Divider />
-                <BasicSearchBar forceOpen={true} onSearch={handleOnSearch} />
-                <Divider />
-                {isLoggedIn && (
-                  <WSButton onClick={handleClickLogout}>Logout</WSButton>
-                )}
-              </MobileMenu>,
-              document.body,
-            )}
-        </>
-      )}
+
+      <BrandArea $hiddenOnDesktop={heroLogoVisible}>
+        <NekoLogo $height="32px" />
+      </BrandArea>
+
+      <Spacer />
+
+      <NavArea>
+        {isTablet && (
+          <>
+            <Socials>
+              <a
+                href="https://www.instagram.com/nekocaption"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <InstagramOutlined />
+              </a>
+              <a
+                href="https://www.twitter.com/nekocaption"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <TwitterOutlined />
+              </a>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                <GithubOutlined />
+              </a>
+            </Socials>
+            <NavLink href="/#features">{t("home.navigation.features")}</NavLink>
+            <Link href={routeNames.caption.browse} passHref legacyBehavior>
+              <NavLink>{t("home.navigation.browse")}</NavLink>
+            </Link>
+            <SearchSlot>
+              <BasicSearchBar />
+            </SearchSlot>
+            <Spin spinning={isLoggingOut}>
+              <GhostBtn
+                onClick={isLoggedIn ? handleClickDashboard : handleClickLogin}
+              >
+                {t("home.navigation.dashboard")}
+              </GhostBtn>
+              {isLoggedIn && (
+                <GhostBtn onClick={handleClickLogout} style={{ marginLeft: 8 }}>
+                  {t("home.navigation.logout")}
+                </GhostBtn>
+              )}
+            </Spin>
+          </>
+        )}
+
+        {!isTablet && (
+          <>
+            <WSButton style={{ marginTop: 0 }} onClick={handleClickMobileMenu}>
+              <MenuOutlined />
+            </WSButton>
+            {isClient() &&
+              ReactDOM.createPortal(
+                <MobileMenu $open={showMobileMenu}>
+                  <div style={{ textAlign: "right" }}>
+                    <CloseButton onClick={handleClickCloseMobileMenu}>
+                      <CloseOutlined />
+                    </CloseButton>
+                  </div>
+                  <AntdLink onClick={handleClickHome} href="#">
+                    {t("home.navigation.home")}
+                  </AntdLink>
+                  <Divider />
+                  <AntdLink href="/#features">
+                    {t("home.navigation.features")}
+                  </AntdLink>
+                  <Divider />
+                  <Link
+                    href={routeNames.caption.browse}
+                    passHref
+                    legacyBehavior
+                  >
+                    <AntdLink>{t("home.navigation.browse")}</AntdLink>
+                  </Link>
+                  <Divider />
+                  <AntdLink
+                    onClick={
+                      isLoggedIn ? handleClickDashboard : handleClickLogin
+                    }
+                    href="#"
+                  >
+                    {t("home.navigation.dashboard")}
+                  </AntdLink>
+                  <Divider />
+                  <BasicSearchBar forceOpen={true} onSearch={handleOnSearch} />
+                  <Divider />
+                  {isLoggedIn && (
+                    <WSButton onClick={handleClickLogout}>
+                      {t("home.navigation.logout")}
+                    </WSButton>
+                  )}
+                  <Divider />
+                  <MobileSocials>
+                    <a
+                      href="https://www.instagram.com/nekocaption"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <InstagramOutlined />
+                    </a>
+                    <a
+                      href="https://www.twitter.com/nekocaption"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <TwitterOutlined />
+                    </a>
+                    <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                      <GithubOutlined />
+                    </a>
+                  </MobileSocials>
+                </MobileMenu>,
+                document.body,
+              )}
+          </>
+        )}
+      </NavArea>
     </>
   );
 };
