@@ -1,7 +1,4 @@
-import {
-  loadLatestCaptions,
-  loadLatestUserLanguageCaptions,
-} from "@/common/feature/public-dashboard/actions";
+import { loadLatestUserLanguageCaptions } from "@/common/feature/public-dashboard/actions";
 import { publicDashboardSelector } from "@/common/feature/public-dashboard/selectors";
 import { getBaseLanguageCode } from "@/common/languages";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -19,17 +16,10 @@ export const Home = (): ReactElement => {
   const { latestCaptions, latestUserLanguageCaptions } = useSelector(
     publicDashboardSelector,
   );
-  const isLoadingLatest = useSelector(loadLatestCaptions.isLoading(undefined));
   const isLoadingLang = useSelector(
     loadLatestUserLanguageCaptions.isLoading(undefined),
   );
   const [langOverride, setLangOverride] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (latestCaptions.length === 0) {
-      dispatch(loadLatestCaptions.request());
-    }
-  }, []);
 
   useEffect(() => {
     const lang = navigator.language;
@@ -52,7 +42,7 @@ export const Home = (): ReactElement => {
       >
         <IntroSplit
           captions={latestCaptions.slice(0, 6)}
-          isLoading={isLoadingLatest}
+          isLoading={false}
         />
         <SitesMarquee />
         <FeaturesGrid />
