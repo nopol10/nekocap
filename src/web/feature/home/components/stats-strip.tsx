@@ -3,7 +3,7 @@ import { formatCompactViews, formatThousands } from "@/common/format";
 import { useHomepageStats } from "@/common/hooks/use-homepage-stats";
 import { DEVICE } from "@/common/style-constants";
 import { useTranslation } from "next-i18next";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import styled from "styled-components";
 
 const STAT_KEYS = ["captions", "contributors", "languages", "views"] as const;
@@ -69,10 +69,12 @@ export const StatsStrip = (): ReactElement => {
   const { data: stats } = useHomepageStats();
 
   const values: Record<StatKey, string> = {
-    captions: stats ? formatThousands(stats.totalCaptions) : PLACEHOLDER,
-    contributors: stats ? formatThousands(stats.totalCaptioners) : PLACEHOLDER,
+    captions: stats ? formatThousands(stats.totalCaptions) + "+" : PLACEHOLDER,
+    contributors: stats
+      ? formatThousands(stats.totalCaptioners) + "+"
+      : PLACEHOLDER,
     languages: stats ? formatThousands(stats.totalLanguages) : PLACEHOLDER,
-    views: stats ? formatCompactViews(stats.totalViews) : PLACEHOLDER,
+    views: stats ? formatCompactViews(stats.totalViews) + "+" : PLACEHOLDER,
   };
 
   return (

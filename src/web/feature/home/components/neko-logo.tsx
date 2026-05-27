@@ -1,4 +1,5 @@
 import NekoLogoSvg from "@/assets/images/nekocap.svg?react";
+import { DEVICE } from "@/common/style-constants";
 import Link from "next/link";
 import React from "react";
 import styled from "styled-components";
@@ -26,6 +27,15 @@ const NekoTitle = styled.div<NekoLogoProps>`
     }
     return "auto";
   }};
+
+  @media ${DEVICE.tablet} {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  @media ${DEVICE.desktop} {
+    margin: 0 0;
+  }
 
   path.letter {
     fill: #ffc011;
