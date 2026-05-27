@@ -5,13 +5,16 @@ import { ParseProvider } from "../providers/parse/parse-provider";
 import Parse from "parse";
 import { RootState } from "../store/types";
 import { PassthroughProvider } from "../providers/passthrough-provider";
+import { createNestJsProvider } from "../providers/nestjs/nestjs-provider";
 
 export const Locator = {
   provider(): BackendProvider<RootState> {
     if (isClient()) {
       if (!globalThis.backendProvider) {
         if (isInBackgroundScript() || !isInExtension()) {
-          globalThis.backendProvider = new ParseProvider(Parse);
+          globalThis.backendProvider = createNestJsProvider(
+            new ParseProvider(Parse),
+          );
         } else {
           globalThis.backendProvider = new PassthroughProvider();
         }

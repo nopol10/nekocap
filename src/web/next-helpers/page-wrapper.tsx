@@ -1,12 +1,15 @@
+import { createNestJsProvider } from "@/common/providers/nestjs/nestjs-provider";
 import { ParseProvider } from "@/common/providers/parse/parse-provider";
 import type { GetServerSideProps, GetStaticProps } from "next";
 import Parse from "parse/node";
 
-const parseProvider = new ParseProvider(
-  Parse,
-  process.env.NEXT_PUBLIC_PARSE_APP_ID,
-  process.env.PARSE_INTERNAL_SERVER_URL,
-  process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
+const parseProvider = createNestJsProvider(
+  new ParseProvider(
+    Parse,
+    process.env.NEXT_PUBLIC_PARSE_APP_ID,
+    process.env.PARSE_INTERNAL_SERVER_URL,
+    process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
+  ),
 );
 
 export const NextWrapper = {
