@@ -7,6 +7,7 @@ import StarOutlined from "@ant-design/icons/StarOutlined";
 import ThunderboltOutlined from "@ant-design/icons/ThunderboltOutlined";
 import { Trans, useTranslation } from "next-i18next";
 import Image from "next/image";
+import Link from "next/link";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
@@ -243,6 +244,10 @@ export const FeaturesGrid = (): ReactElement => {
               <CardTitle>{t("home.features.cards.advanced.title")}</CardTitle>
               <CardDesc>
                 {t("home.features.cards.advanced.description")}
+                <br />
+                <Link href={"/fontlist"}>
+                  {t("home.feature.advancedEffects.viewSupportedFonts")}
+                </Link>
               </CardDesc>
             </div>
             <KaraokeVisual />
