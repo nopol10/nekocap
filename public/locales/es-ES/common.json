@@ -136,7 +136,7 @@
         },
         "editor": {
           "title": "Convenient editor",
-          "description": "Time and translate from inside the player. Hotkeys for cue boundaries, with custom positioning, colors and instant preview. Submit or export to SRT when you're done.",
+          "description": "Sincroniza y traduce desde el reproductor, con atajos, posiciones, colores y vista previa, porque puedes exportar a SRT cuando termines.",
           "imageAlt": "Caption editor"
         }
       }
