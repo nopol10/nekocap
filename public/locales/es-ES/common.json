@@ -96,69 +96,69 @@
       "home": "Principal",
       "dashboard": "Panel de control",
       "logout": "Cerrar sesión",
-      "features": "Features",
-      "browse": "Browse"
+      "features": "Funciones",
+      "browse": "Buscar"
     },
     "intro": {
-      "eyebrow": "Free, open source, community supported",
-      "heading": "Watch any video with <em>community-made</em> captions.",
-      "description": "NekoCap is a browser extension that drops community captions straight into <strong>YouTube, Vimeo, niconico, bilibili, TVer, Netflix</strong> and more, so anyone can subtitle a video, and anyone can watch it in their language.",
-      "addToChrome": "Add to Chrome",
-      "addToFirefox": "Add to Firefox",
-      "starOnGithub": "Star on GitHub",
-      "joinDiscord": "Join Discord",
+      "eyebrow": "Gratis, de Código abierto, Respaldado por la comunidad",
+      "heading": "Mira cualquier video con subtítulos <em>hechos</em> por la comunidad.",
+      "description": "NekoCap es una extensión que pone subtítulos <strong>de la comunidad directo en YouTube, Vimeo y más,</strong> porque cualquiera puede poner subtítulos y verlos en su idioma.",
+      "addToChrome": "Añadir a Chrome",
+      "addToFirefox": "Añadir a Firefox",
+      "starOnGithub": "Dale Estrellita en GitHub",
+      "joinDiscord": "Únete a Discord",
       "socials": {
         "instagram": "Instagram",
         "twitter": "Twitter"
       },
       "stats": {
-        "captions": "community captions",
-        "languages": "languages",
-        "sites": "sites supported"
+        "captions": "subtítulos de la comunidad",
+        "languages": "idiomas",
+        "sites": "sitios compatibles"
       },
-      "captionsEyebrow": "Latest",
-      "captionsHeading": "Latest from the <span>community</span>",
-      "browseAll": "Browse all captions"
+      "captionsEyebrow": "Lo Último",
+      "captionsHeading": "Lo último de la comunidad",
+      "browseAll": "Ver todos los subtítulos"
     },
     "features": {
-      "eyebrow": "What NekoCap does",
-      "heading": "A captioning toolkit that <em>respects</em> the player you're already in.",
-      "subtitle": "Say goodbye to re-uploads! Captions float over the original video and they're written by humans who love the content as much as you!",
+      "eyebrow": "Lo que hace NekoCap",
+      "heading": "Una herramienta de subtítulos que <em>respeta </em> el reproductor que ya usas.",
+      "subtitle": "¡Dile adiós a las resubidas! Los subtítulos flotan sobre el video original y los hacen personas que aman el contenido tanto como tú!",
       "cards": {
         "inPlayer": {
-          "title": "Captions in-player",
-          "description": "Install the extension, open a video, pick a caption from the dropdown below the player.",
-          "imageAlt": "Caption dropdown in player"
+          "title": "Subtítulos en el reproductor",
+          "description": "Instala la extensión, abre un video y elige un subtítulo en el menú debajo del reproductor.",
+          "imageAlt": "Menú desplegable de subtítulos en el reproductor"
         },
         "advanced": {
-          "title": "Advanced effects",
-          "description": "Renders Advanced Substation Alpha (SSA/ASS), with karaoke timing, fades, positioning, and custom fonts. Good for music videos, anime, and fan-typeset releases."
+          "title": "Efectos avanzados",
+          "description": "Renderiza archivos SSA/ASS con tiempos de karaoke, desvanecimientos, posición y fuentes personalizados, ideal para anime y videos musicales"
         },
         "editor": {
-          "title": "Convenient editor",
+          "title": "Editor cómodo",
           "description": "Sincroniza y traduce desde el reproductor, con atajos, posiciones, colores y vista previa, porque puedes exportar a SRT cuando termines.",
-          "imageAlt": "Caption editor"
+          "imageAlt": "Editor de subtítulos"
         }
       }
     },
     "stats": {
-      "captions": "captions published",
-      "contributors": "contributors",
-      "languages": "languages",
-      "views": "caption views"
+      "captions": "subtítulos publicados",
+      "contributors": "contribuyentes",
+      "languages": "idioma",
+      "views": "vistas del subtítulo"
     },
     "sites": {
-      "label": "Captions appear right inside the player on"
+      "label": "Los subtítulos aparecen justo dentro del reproductor"
     },
     "yourLang": {
-      "heading": "In <span>{{language}}</span>, captions you can watch right now",
-      "subtitle": "Auto-detected from your browser",
-      "empty": "No captions in {{language}} yet. Be the first to add one, install the extension and start a caption on a video without one."
+      "heading": "En <span>{{language}}</span>, subtítulos que puedes ver ahora",
+      "subtitle": "Auto-detectado desde el navegador",
+      "empty": "No hay subtítulos en {{language}} todavía, porque puedes ser el primero en agregar uno, solo instala la extensión y comienza un subtítulo en un video que no tenga."
     },
     "browseCta": {
-      "heading": "Browse every caption the community has ever made.",
-      "primary": "Browse all captions",
-      "secondary": "Browse by language"
+      "heading": "Explora todos los subtítulos que la comunidad ha creado",
+      "primary": "Ver todos los subtítulos",
+      "secondary": "Explorar por idioma"
     }
   },
   "review": {
@@ -212,10 +212,10 @@
     "filterByTags": "Filtrar por etiquetas (hasta {{maxTags}})",
     "noTags": "Sin etiquetas",
     "advancedFilter": {
-      "label": "Caption type",
-      "all": "All",
-      "advanced": "Advanced only",
-      "nonAdvanced": "Non-advanced only"
+      "label": "Tipo de subtítulo",
+      "all": "Todo",
+      "advanced": "Solo Avanzado",
+      "nonAdvanced": "Básicos solamente"
     }
   },
   "viewer": {
