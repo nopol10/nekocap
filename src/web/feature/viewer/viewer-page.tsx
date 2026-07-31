@@ -117,9 +117,10 @@ const FullScreenButton = styled.div`
 `;
 
 export type ViewerPageProps = {
-  captionId: string;
+  captionId?: string;
   hasRawCaption?: boolean;
   isEmbed: boolean;
+  showDetails?: boolean;
 };
 
 function videoPreferencesReducer(
@@ -139,6 +140,7 @@ function videoPreferencesReducer(
 export const ViewerPage = ({
   hasRawCaption = undefined,
   isEmbed,
+  showDetails = true,
 }: ViewerPageProps): JSX.Element => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -327,7 +329,7 @@ export const ViewerPage = ({
             />
           </FullScreenWrapper>
         </FullScreen>
-        {caption && !isEmbed && (
+        {caption && !isEmbed && showDetails && (
           <DetailsWrapper>
             <Row gutter={[16, 16]}>
               <Col md={16}>

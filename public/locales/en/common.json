@@ -225,7 +225,17 @@
     "copyEmbedCodeSuccess": "Copied embed code to clipboard!",
     "captionSubmittedBy": "Caption submitted by <captioner>{{creatorName}}</captioner>",
     "downloadNekocapMessage": "For the best caption viewing & creating experience, download the NekoCap extension and view captions directly in {{site}}.",
-    "captionRenderError": "There was an error rendering this caption. Sorry!"
+    "captionRenderError": "There was an error rendering this caption. Sorry!",
+    "preview": {
+      "title": "Caption preview",
+      "instructions": "Preview a NekoCap caption on its video without uploading it. Encode the caption JSON below as base64 and append it to this page's URL:",
+      "supportedSites": "Supported sites: {{sites}}",
+      "urlLengthNote": "Note: links with very large captions may get truncated by some messaging apps.",
+      "decodeError": "The caption data in this link could not be decoded. Check that the link was copied completely.",
+      "tooLargeError": "The caption data in this link is too large to preview.",
+      "invalidFormatError": "The caption data is not in the NekoCap caption format. Expected shape: { \"videoId\": \"...\", \"videoSource\": 0, \"data\": { \"tracks\": [...] } }",
+      "unsupportedSourceError": "This video's site cannot be played on the NekoCap website. Supported sites: {{sites}}"
+    }
   },
   "common": {
     "loading": "Loading...",
