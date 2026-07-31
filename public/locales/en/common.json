@@ -231,6 +231,7 @@
       "instructions": "Preview a NekoCap caption on its video without uploading it. Encode the caption JSON below as base64 and append it to this page's URL:",
       "supportedSites": "Supported sites: {{sites}}",
       "urlLengthNote": "Note: links with very large captions may get truncated by some messaging apps.",
+      "downloadSrt": "Download SRT",
       "decodeError": "The caption data in this link could not be decoded. Check that the link was copied completely.",
       "tooLargeError": "The caption data in this link is too large to preview.",
       "invalidFormatError": "The caption data is not in the NekoCap caption format. Expected shape: { \"videoId\": \"...\", \"videoSource\": 0, \"data\": { \"tracks\": [...] } }",
