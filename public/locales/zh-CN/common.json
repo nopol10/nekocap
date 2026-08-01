@@ -225,7 +225,20 @@
     "copyEmbedCodeSuccess": "已拷贝嵌入代码到剪贴板！",
     "captionSubmittedBy": "字幕制作者 <captioner>{{creatorName}}</captioner>",
     "downloadNekocapMessage": "为了获得最佳的字幕观看和创建体验，下载NekoCap 扩展程序并直接在 {{site}} 上观看字幕。",
-    "captionRenderError": "渲染此字幕时出错。抱歉！"
+    "captionRenderError": "渲染此字幕时出错。抱歉！",
+    "preview": {
+      "title": "Caption preview",
+      "instructions": "Preview a NekoCap caption on its video without uploading it. Compress the caption JSON below with raw DEFLATE, encode the result as base64, and append it to this page's URL:",
+      "loading": "Reading caption data...",
+      "uncompressedNote": "Uncompressed base64 also works, and is easier to produce by hand, but makes for much longer links:",
+      "supportedSites": "Supported sites: {{sites}}",
+      "urlLengthNote": "Note: links with very large captions may get truncated by some messaging apps.",
+      "downloadSrt": "Download SRT",
+      "decodeError": "The caption data in this link could not be decoded. Check that the link was copied completely.",
+      "tooLargeError": "The caption data in this link is too large to preview.",
+      "invalidFormatError": "The caption data is not in the NekoCap caption format. Expected shape: { \"videoId\": \"...\", \"videoSource\": 0, \"data\": { \"tracks\": [...] } }",
+      "unsupportedSourceError": "This video's site cannot be played on the NekoCap website. Supported sites: {{sites}}"
+    }
   },
   "common": {
     "loading": "加载中…",
