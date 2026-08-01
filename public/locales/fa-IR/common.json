@@ -225,7 +225,20 @@
     "copyEmbedCodeSuccess": "کد جایگذاری در کلیپ بورد کپی شد!",
     "captionSubmittedBy": "کپشن ارسال شده توسط <captioner>{{creatorName}}</captioner>",
     "downloadNekocapMessage": "برای بهترین تجربه دیدن و ایجاد کپشن، افزونه NekoCap را دانلود و کپشن ها را مستقیما در {{site}} ببینید.",
-    "captionRenderError": "یک خطا در رندر این کپشن بود. متاسفیم!"
+    "captionRenderError": "یک خطا در رندر این کپشن بود. متاسفیم!",
+    "preview": {
+      "title": "Caption preview",
+      "instructions": "Preview a NekoCap caption on its video without uploading it. Compress the caption JSON below with raw DEFLATE, encode the result as base64, and append it to this page's URL:",
+      "loading": "Reading caption data...",
+      "uncompressedNote": "Uncompressed base64 also works, and is easier to produce by hand, but makes for much longer links:",
+      "supportedSites": "Supported sites: {{sites}}",
+      "urlLengthNote": "Note: links with very large captions may get truncated by some messaging apps.",
+      "downloadSrt": "Download SRT",
+      "decodeError": "The caption data in this link could not be decoded. Check that the link was copied completely.",
+      "tooLargeError": "The caption data in this link is too large to preview.",
+      "invalidFormatError": "The caption data is not in the NekoCap caption format. Expected shape: { \"videoId\": \"...\", \"videoSource\": 0, \"data\": { \"tracks\": [...] } }",
+      "unsupportedSourceError": "This video's site cannot be played on the NekoCap website. Supported sites: {{sites}}"
+    }
   },
   "common": {
     "loading": "در حال بارگذاری...",
