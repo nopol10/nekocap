@@ -1,8 +1,10 @@
 import { VideoSource } from "@/common/feature/video/types";
+import { deflateRawSync } from "zlib";
 import { describe, expect, it } from "vitest";
 import {
   getPreviewSupportedSiteNames,
   MAX_PREVIEW_BASE64_LENGTH,
+  MAX_PREVIEW_DECOMPRESSED_BYTES,
   parsePreviewHash,
   PreviewCaptionError,
 } from "./preview-data";
@@ -29,15 +31,21 @@ const encode = (payload: unknown): string =>
 const encodeUrlSafe = (payload: unknown): string =>
   Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
 
+/** Matches what the bot produces: raw DEFLATE, then base64url. */
+const encodeCompressed = (payload: unknown): string =>
+  deflateRawSync(Buffer.from(JSON.stringify(payload), "utf-8"), {
+    level: 9,
+  }).toString("base64url");
+
 describe("parsePreviewHash", () => {
-  it("returns undefined when the hash has no data param", () => {
-    expect(parsePreviewHash("")).toBeUndefined();
-    expect(parsePreviewHash("#")).toBeUndefined();
-    expect(parsePreviewHash("#other=value")).toBeUndefined();
+  it("returns undefined when the hash has no data param", async () => {
+    expect(await parsePreviewHash("")).toBeUndefined();
+    expect(await parsePreviewHash("#")).toBeUndefined();
+    expect(await parsePreviewHash("#other=value")).toBeUndefined();
   });
 
-  it("decodes a standard base64 payload with unicode text", () => {
-    const result = parsePreviewHash(`#data=${encode(samplePayload())}`);
+  it("decodes a standard base64 payload with unicode text", async () => {
+    const result = await parsePreviewHash(`#data=${encode(samplePayload())}`);
     expect(result).toMatchObject({
       status: "success",
       caption: {
@@ -54,12 +62,14 @@ describe("parsePreviewHash", () => {
     );
   });
 
-  it("decodes URL-safe base64 without padding", () => {
-    const result = parsePreviewHash(`#data=${encodeUrlSafe(samplePayload())}`);
+  it("decodes URL-safe base64 without padding", async () => {
+    const result = await parsePreviewHash(
+      `#data=${encodeUrlSafe(samplePayload())}`,
+    );
     expect(result?.status).toEqual("success");
   });
 
-  it("preserves + characters instead of decoding them as spaces", () => {
+  it("preserves + characters instead of decoding them as spaces", async () => {
     // Craft a payload whose base64 encoding contains a "+"
     let payload = samplePayload();
     let encoded = encode(payload);
@@ -68,47 +78,51 @@ describe("parsePreviewHash", () => {
       encoded = encode(payload);
     }
     expect(encoded).toContain("+");
-    expect(parsePreviewHash(`#data=${encoded}`)?.status).toEqual("success");
+    expect((await parsePreviewHash(`#data=${encoded}`))?.status).toEqual(
+      "success",
+    );
   });
 
-  it("accepts percent-encoded payloads", () => {
+  it("accepts percent-encoded payloads", async () => {
     const encoded = encodeURIComponent(encode(samplePayload()));
-    expect(parsePreviewHash(`#data=${encoded}`)?.status).toEqual("success");
+    expect((await parsePreviewHash(`#data=${encoded}`))?.status).toEqual(
+      "success",
+    );
   });
 
-  it("ignores whitespace inside the base64 payload", () => {
+  it("ignores whitespace inside the base64 payload", async () => {
     const encoded = encode(samplePayload());
     const withWhitespace = `${encoded.slice(0, 10)}\n${encoded.slice(10)}`;
-    expect(parsePreviewHash(`#data=${withWhitespace}`)?.status).toEqual(
+    expect((await parsePreviewHash(`#data=${withWhitespace}`))?.status).toEqual(
       "success",
     );
   });
 
-  it("reads the data param when other hash params are present", () => {
+  it("reads the data param when other hash params are present", async () => {
     const encoded = encode(samplePayload());
-    expect(parsePreviewHash(`#foo=bar&data=${encoded}`)?.status).toEqual(
-      "success",
-    );
+    expect(
+      (await parsePreviewHash(`#foo=bar&data=${encoded}`))?.status,
+    ).toEqual("success");
   });
 
-  it("rejects oversized payloads", () => {
+  it("rejects oversized payloads", async () => {
     const oversized = "A".repeat(MAX_PREVIEW_BASE64_LENGTH + 1);
-    expect(parsePreviewHash(`#data=${oversized}`)).toEqual({
+    expect(await parsePreviewHash(`#data=${oversized}`)).toEqual({
       status: "error",
       error: PreviewCaptionError.TooLarge,
     });
   });
 
-  it("rejects malformed base64", () => {
-    expect(parsePreviewHash("#data=!!!not-base64!!!")).toEqual({
+  it("rejects malformed base64", async () => {
+    expect(await parsePreviewHash("#data=!!!not-base64!!!")).toEqual({
       status: "error",
       error: PreviewCaptionError.InvalidBase64,
     });
   });
 
-  it("rejects base64 that does not contain JSON", () => {
+  it("rejects base64 that does not contain JSON", async () => {
     const encoded = Buffer.from("not json at all", "utf-8").toString("base64");
-    expect(parsePreviewHash(`#data=${encoded}`)).toEqual({
+    expect(await parsePreviewHash(`#data=${encoded}`)).toEqual({
       status: "error",
       error: PreviewCaptionError.InvalidJson,
     });
@@ -143,15 +157,15 @@ describe("parsePreviewHash", () => {
         data: { tracks: [{ cues: [{ start: 1, end: 2, text: 3 }] }] },
       }),
     ],
-  ])("rejects invalid shape: %s", (description, payload) => {
-    expect(parsePreviewHash(`#data=${encode(payload)}`)).toEqual({
+  ])("rejects invalid shape: %s", async (description, payload) => {
+    expect(await parsePreviewHash(`#data=${encode(payload)}`)).toEqual({
       status: "error",
       error: PreviewCaptionError.InvalidShape,
     });
   });
 
-  it("rejects sources that cannot be watched on the NekoCap site", () => {
-    const result = parsePreviewHash(
+  it("rejects sources that cannot be watched on the NekoCap site", async () => {
+    const result = await parsePreviewHash(
       `#data=${encode(samplePayload({ videoSource: VideoSource.Netflix }))}`,
     );
     expect(result).toEqual({
@@ -160,28 +174,114 @@ describe("parsePreviewHash", () => {
     });
   });
 
-  it("clamps the number of tracks to the maximum", () => {
+  it("clamps the number of tracks to the maximum", async () => {
     const track = {
       cues: [{ start: 0, end: 1000, text: "cue" }],
     };
     const payload = samplePayload({
       data: { tracks: Array.from({ length: 15 }, () => track) },
     });
-    const result = parsePreviewHash(`#data=${encode(payload)}`);
+    const result = await parsePreviewHash(`#data=${encode(payload)}`);
     if (result?.status !== "success") {
       throw new Error("expected success");
     }
     expect(result.caption.data.tracks).toHaveLength(10);
   });
 
-  it("rejects payloads with too many cues in total", () => {
+  it("rejects payloads with too many cues in total", async () => {
     const cues = Array.from({ length: 20001 }, (unused, index) => ({
       start: index,
       end: index + 1,
       text: "c",
     }));
     const payload = samplePayload({ data: { tracks: [{ cues }] } });
-    expect(parsePreviewHash(`#data=${encode(payload)}`)).toEqual({
+    expect(await parsePreviewHash(`#data=${encode(payload)}`)).toEqual({
+      status: "error",
+      error: PreviewCaptionError.TooLarge,
+    });
+  });
+});
+
+describe("parsePreviewHash with a compressed payload", () => {
+  it("decodes a deflate-raw payload with unicode text", async () => {
+    const result = await parsePreviewHash(
+      `#dataz=${encodeCompressed(samplePayload())}`,
+    );
+    if (result?.status !== "success") {
+      throw new Error("expected success");
+    }
+    expect(result.caption.videoId).toEqual("dQw4w9WgXcQ");
+    expect(result.caption.data.tracks[0].cues[0].text).toEqual(
+      "こんにちは、プレビュー",
+    );
+  });
+
+  it("produces the same caption as the uncompressed form", async () => {
+    const compressed = await parsePreviewHash(
+      `#dataz=${encodeCompressed(samplePayload())}`,
+    );
+    const plain = await parsePreviewHash(`#data=${encode(samplePayload())}`);
+    expect(compressed).toEqual(plain);
+  });
+
+  it("is dramatically shorter than the uncompressed form", async () => {
+    const cues = Array.from({ length: 120 }, (unused, index) => ({
+      start: index * 2500,
+      end: index * 2500 + 2200,
+      text: "So anyway, that is roughly how it works.",
+    }));
+    const payload = samplePayload({ data: { tracks: [{ cues }] } });
+    expect(encodeCompressed(payload).length * 5).toBeLessThan(
+      encodeUrlSafe(payload).length,
+    );
+  });
+
+  it("reads dataz when other hash params are present", async () => {
+    const encoded = encodeCompressed(samplePayload());
+    expect(
+      (await parsePreviewHash(`#foo=bar&dataz=${encoded}`))?.status,
+    ).toEqual("success");
+  });
+
+  it("prefers dataz when both params are present", async () => {
+    const compressed = encodeCompressed(
+      samplePayload({ videoId: "aaaaaaaaaaa" }),
+    );
+    const plain = encode(samplePayload({ videoId: "bbbbbbbbbbb" }));
+    const result = await parsePreviewHash(`#data=${plain}&dataz=${compressed}`);
+    if (result?.status !== "success") {
+      throw new Error("expected success");
+    }
+    expect(result.caption.videoId).toEqual("aaaaaaaaaaa");
+  });
+
+  it("rejects base64 that is not valid deflate data", async () => {
+    const notDeflate = Buffer.from("definitely not deflate", "utf-8").toString(
+      "base64url",
+    );
+    expect(await parsePreviewHash(`#dataz=${notDeflate}`)).toEqual({
+      status: "error",
+      error: PreviewCaptionError.InvalidCompressedData,
+    });
+  });
+
+  it("rejects a decompression bomb instead of inflating it", async () => {
+    // A few hundred KB of zeros deflates to a tiny payload but inflates to far
+    // more than the cap, which would otherwise hang the tab
+    const bomb = deflateRawSync(
+      Buffer.alloc(MAX_PREVIEW_DECOMPRESSED_BYTES * 4, 0),
+      { level: 9 },
+    ).toString("base64url");
+    expect(bomb.length).toBeLessThan(MAX_PREVIEW_BASE64_LENGTH);
+    expect(await parsePreviewHash(`#dataz=${bomb}`)).toEqual({
+      status: "error",
+      error: PreviewCaptionError.InvalidCompressedData,
+    });
+  });
+
+  it("still rejects an oversized encoded payload before inflating", async () => {
+    const oversized = "A".repeat(MAX_PREVIEW_BASE64_LENGTH + 1);
+    expect(await parsePreviewHash(`#dataz=${oversized}`)).toEqual({
       status: "error",
       error: PreviewCaptionError.TooLarge,
     });
@@ -189,7 +289,7 @@ describe("parsePreviewHash", () => {
 });
 
 describe("getPreviewSupportedSiteNames", () => {
-  it("lists the sites that can be watched on the NekoCap website", () => {
+  it("lists the sites that can be watched on the NekoCap website", async () => {
     const names = getPreviewSupportedSiteNames();
     expect(names).toContain("YouTube");
     expect(names).toContain("Vimeo");

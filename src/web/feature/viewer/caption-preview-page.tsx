@@ -9,7 +9,7 @@ import {
   CaptionRendererType,
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
-import { Alert, Typography } from "antd";
+import { Alert, Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import { useEffect, useRef, useState } from "react";
 import { batch, useDispatch } from "react-redux";
@@ -56,6 +56,7 @@ const SAMPLE_PAYLOAD_SHAPE = `{
 
 type PreviewState =
   | { status: "idle" }
+  | { status: "loading" }
   | { status: "success"; caption: CaptionContainer }
   | { status: "error"; error: PreviewCaptionError };
 
@@ -72,18 +73,41 @@ export const CaptionPreviewPage = ({
   const lastHashRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
+    // Parsing is asynchronous for compressed payloads, so a slow parse of an
+    // old hash must not overwrite the result of a newer one
+    let currentHash: string | undefined;
+    let disposed = false;
     const readHash = () => {
       const hash = globalThis.location.hash;
       if (hash === lastHashRef.current) {
         return;
       }
       lastHashRef.current = hash;
-      const result = parsePreviewHash(hash);
-      setState(result === undefined ? { status: "idle" } : result);
+      currentHash = hash;
+      setState({ status: "loading" });
+      parsePreviewHash(hash)
+        .then((result) => {
+          if (disposed || currentHash !== hash) {
+            return;
+          }
+          setState(result === undefined ? { status: "idle" } : result);
+        })
+        .catch(() => {
+          if (disposed || currentHash !== hash) {
+            return;
+          }
+          setState({
+            status: "error",
+            error: PreviewCaptionError.InvalidCompressedData,
+          });
+        });
     };
     readHash();
     globalThis.addEventListener("hashchange", readHash);
-    return () => globalThis.removeEventListener("hashchange", readHash);
+    return () => {
+      disposed = true;
+      globalThis.removeEventListener("hashchange", readHash);
+    };
   }, []);
 
   useEffect(() => {
@@ -133,6 +157,7 @@ export const CaptionPreviewPage = ({
         case PreviewCaptionError.TooLarge:
           return t("viewer.preview.tooLargeError");
         case PreviewCaptionError.InvalidBase64:
+        case PreviewCaptionError.InvalidCompressedData:
         case PreviewCaptionError.InvalidJson:
           return t("viewer.preview.decodeError");
         case PreviewCaptionError.UnsupportedSource:
@@ -156,11 +181,27 @@ export const CaptionPreviewPage = ({
     );
   }
 
+  if (state.status === "loading") {
+    return (
+      <MessageWrapper>
+        <Spin size="large" tip={t("viewer.preview.loading")}>
+          <div style={{ minHeight: "80px" }} />
+        </Spin>
+      </MessageWrapper>
+    );
+  }
+
   if (state.status === "idle") {
     return (
       <MessageWrapper>
         <Title>{t("viewer.preview.title")}</Title>
         <Paragraph>{t("viewer.preview.instructions")}</Paragraph>
+        <Paragraph>
+          <Text code>{"/view/preview#dataz=<deflate-raw base64 JSON>"}</Text>
+        </Paragraph>
+        <Paragraph type="secondary">
+          {t("viewer.preview.uncompressedNote")}
+        </Paragraph>
         <Paragraph>
           <Text code>{"/view/preview#data=<base64 caption JSON>"}</Text>
         </Paragraph>
