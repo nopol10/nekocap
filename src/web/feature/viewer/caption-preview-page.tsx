@@ -1,3 +1,5 @@
+import { WSButton } from "@/common/components/ws-button";
+import { exportCaption } from "@/common/feature/caption-editor/export-caption";
 import {
   clearTabData,
   setLoadedCaption,
@@ -9,6 +11,7 @@ import {
   CaptionRendererType,
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
 import { Alert, Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
 import { useEffect, useRef, useState } from "react";
@@ -30,6 +33,12 @@ const MessageWrapper = styled.div`
   margin-left: auto;
   margin-right: auto;
   padding: 40px 20px;
+`;
+
+const ActionsWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px;
 `;
 
 const SampleShape = styled.pre`
@@ -216,11 +225,24 @@ export const CaptionPreviewPage = ({
     );
   }
 
+  const handleDownloadSrt = () => {
+    exportCaption({ caption: state.caption, rawCaption: null });
+  };
+
   return (
-    <ViewerPage
-      hasRawCaption={false}
-      isEmbed={isEmbed}
-      showDetails={false}
-    ></ViewerPage>
+    <>
+      <ViewerPage
+        hasRawCaption={false}
+        isEmbed={isEmbed}
+        showDetails={false}
+      ></ViewerPage>
+      {!isEmbed && (
+        <ActionsWrapper>
+          <WSButton icon={<DownloadOutlined />} onClick={handleDownloadSrt}>
+            {t("viewer.preview.downloadSrt")}
+          </WSButton>
+        </ActionsWrapper>
+      )}
+    </>
   );
 };
