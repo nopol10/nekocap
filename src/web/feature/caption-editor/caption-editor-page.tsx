@@ -1,5 +1,9 @@
 import { EDITOR_PORTAL_ELEMENT_ID } from "@/common/constants";
-import { createNewCaption } from "@/common/feature/caption-editor/actions";
+import {
+  clearHistory,
+  createNewCaption,
+  setEditorCaptionAfterEdit,
+} from "@/common/feature/caption-editor/actions";
 import {
   isUserCaptionLoadedSelector,
   tabEditorDataSelector,
@@ -18,8 +22,9 @@ import EditorContainer from "@/extension/content/containers/editor-container";
 import { VideoPlayer } from "@/extension/content/feature/editor/video-player/video-player";
 import { useForceUpdate } from "@/hooks";
 import React, { Suspense, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { batch, useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { parsePreviewHash } from "../viewer/preview-data";
 import { Viewer } from "../viewer/viewer";
 
 const InPageVideoContainer = styled.div`
@@ -76,21 +81,52 @@ export const CaptionEditorPage = ({
   const handleFontsLoaded = useHandleFontsLoaded();
 
   useEffect(() => {
+    let cancelled = false;
     setIsLoading(true);
     globalThis.tabId = 0;
     globalThis.videoSource = videoSource ?? VideoSource.NekoCapYoutube;
     globalThis.videoId = videoId;
     globalThis.selectedProcessor =
       videoSourceToProcessorMap[VideoSource.NekoCapYoutube];
+    // A caption sent over from the preview page rides along in the url hash.
+    // Decoding starts here but is only applied after the new caption is created,
+    // so the editor never flashes an empty caption before the imported one.
+    const importedCaption = parsePreviewHash(globalThis.location.hash).catch(
+      () => undefined,
+    );
     dispatch(
       createNewCaption.request({
         videoId: globalThis.videoId,
         videoSource: globalThis.videoSource,
         tabId: TAB_ID,
       }),
-    ).then(() => {
+    ).then(async () => {
+      const result = await importedCaption;
+      if (cancelled) {
+        return;
+      }
+      if (
+        result?.status === "success" &&
+        result.caption.videoId === globalThis.videoId &&
+        result.caption.videoSource === globalThis.videoSource
+      ) {
+        batch(() => {
+          // Clearing first makes the imported caption the undo baseline
+          // instead of letting undo wipe it back to an empty caption
+          dispatch(clearHistory(TAB_ID));
+          dispatch(
+            setEditorCaptionAfterEdit({
+              caption: result.caption,
+              tabId: TAB_ID,
+            }),
+          );
+        });
+      }
       setIsLoading(false);
     });
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch, videoId, videoSource]);
 
   const renderLoading = () => {
