@@ -14,6 +14,7 @@ export const routeNames = {
     browse: "/browse/1",
     create: "/create",
     view: "/view/:id",
+    preview: "/view/preview",
     main: "/caption/:id",
   },
 };
