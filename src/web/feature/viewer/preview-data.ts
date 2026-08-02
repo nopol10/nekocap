@@ -5,6 +5,7 @@ import type {
 import { MAX_TRACKS } from "@/common/feature/video/constants";
 import { CaptionContainer, VideoSource } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
+import { routeNames } from "@/web/feature/route-types";
 
 /**
  * Caps to keep decoding and validation of untrusted preview payloads fast.
@@ -256,6 +257,40 @@ export const parsePreviewHash = async (
     return errorResult(PreviewCaptionError.InvalidJson);
   }
   return validatePayload(payload);
+};
+
+/**
+ * Builds the web editor link that opens a previewed caption for editing.
+ *
+ * The caption payload is handed over by carrying the preview hash across
+ * unchanged, so the editor can decode it with parsePreviewHash just like the
+ * preview page does. That keeps the link self contained: it survives a reload
+ * and can be shared as an "edit this caption" link. videoId and videoSource are
+ * repeated in the query string because the editor page reads them from there.
+ *
+ * Only the recognised payload param is carried over, so anything else in the
+ * hash is left behind. Returns undefined when the hash has no payload.
+ */
+export const buildEditorUrlFromPreviewHash = (
+  caption: CaptionContainer,
+  hash: string,
+): string | undefined => {
+  const extracted = extractPreviewData(hash);
+  if (extracted === undefined) {
+    return undefined;
+  }
+  const param = ENCODING_PARAMS.find(
+    ({ encoding }) => encoding === extracted.encoding,
+  )?.param;
+  if (!param) {
+    return undefined;
+  }
+  const query = `videoId=${encodeURIComponent(caption.videoId)}&videoSource=${
+    caption.videoSource
+  }`;
+  return `${routeNames.caption.create}?${query}#${param}=${encodeURIComponent(
+    extracted.data,
+  )}`;
 };
 
 /**

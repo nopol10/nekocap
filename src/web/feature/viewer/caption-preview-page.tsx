@@ -12,12 +12,15 @@ import {
 } from "@/common/feature/video/types";
 import { videoSourceToProcessorMap } from "@/common/feature/video/utils";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
+import EditOutlined from "@ant-design/icons/EditOutlined";
 import { Alert, Spin, Typography } from "antd";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { batch, useDispatch } from "react-redux";
 import styled from "styled-components";
 import {
+  buildEditorUrlFromPreviewHash,
   getPreviewSupportedSiteNames,
   parsePreviewHash,
   PreviewCaptionError,
@@ -37,6 +40,8 @@ const MessageWrapper = styled.div`
 
 const ActionsWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   justify-content: center;
   padding: 16px 20px;
 `;
@@ -77,6 +82,7 @@ export const CaptionPreviewPage = ({
   isEmbed,
 }: CaptionPreviewPageProps): JSX.Element => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { t } = useTranslation("common");
   const [state, setState] = useState<PreviewState>({ status: "idle" });
   const lastHashRef = useRef<string | undefined>(undefined);
@@ -229,6 +235,18 @@ export const CaptionPreviewPage = ({
     exportCaption({ caption: state.caption, rawCaption: null });
   };
 
+  const editorUrl = buildEditorUrlFromPreviewHash(
+    state.caption,
+    globalThis.location.hash,
+  );
+
+  const handleEditCaption = () => {
+    if (!editorUrl) {
+      return;
+    }
+    router.push(editorUrl);
+  };
+
   return (
     <>
       <ViewerPage
@@ -241,6 +259,11 @@ export const CaptionPreviewPage = ({
           <WSButton icon={<DownloadOutlined />} onClick={handleDownloadSrt}>
             {t("viewer.preview.downloadSrt")}
           </WSButton>
+          {editorUrl && (
+            <WSButton icon={<EditOutlined />} onClick={handleEditCaption}>
+              {t("viewer.preview.editCaption")}
+            </WSButton>
+          )}
         </ActionsWrapper>
       )}
     </>

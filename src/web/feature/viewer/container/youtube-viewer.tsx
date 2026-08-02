@@ -2,7 +2,7 @@ import { useYoutubeVideoData } from "@/common/hooks/use-youtube-video-data";
 import { VideoPlayer } from "@/extension/content/feature/editor/video-player/video-player";
 import { YoutubeEmbedVideoPlayer } from "@/extension/content/feature/editor/video-player/youtube-embed-video-player";
 import { debounce } from "lodash-es";
-import React, { ReactElement, useCallback, useEffect } from "react";
+import React, { ReactElement, useCallback, useEffect, useRef } from "react";
 import YouTube, { YouTubePlayer } from "react-youtube";
 import { ViewerProps } from "./viewer-props";
 
@@ -27,6 +27,15 @@ export const YoutubeViewer = ({
   const { data: youtubeData } = useYoutubeVideoData(
     retrieveVideoData ? caption?.videoId : undefined,
   );
+  const videoPlayer = useRef<YoutubeEmbedVideoPlayer>();
+
+  // The player polls the video for its properties on a timer, which has to be
+  // stopped or it keeps running after the page is gone
+  useEffect(() => {
+    return () => {
+      videoPlayer.current?.destruct();
+    };
+  }, []);
 
   useEffect(
     function updateGlobalVideoData() {
@@ -51,12 +60,11 @@ export const YoutubeViewer = ({
       if (retrieveVideoData && !youtubeData) {
         return;
       }
-      onVideoPlayerReady?.(
-        new YoutubeEmbedVideoPlayer(internalPlayer, {
-          width: youtubeData?.width || embedWidth,
-          height: youtubeData?.height || embedHeight,
-        }),
-      );
+      videoPlayer.current = new YoutubeEmbedVideoPlayer(internalPlayer, {
+        width: youtubeData?.width || embedWidth,
+        height: youtubeData?.height || embedHeight,
+      });
+      onVideoPlayerReady?.(videoPlayer.current);
     }, 500),
     [onVideoPlayerReady, youtubeData],
   );

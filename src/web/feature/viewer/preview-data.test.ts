@@ -2,6 +2,7 @@ import { VideoSource } from "@/common/feature/video/types";
 import { deflateRawSync } from "zlib";
 import { describe, expect, it } from "vitest";
 import {
+  buildEditorUrlFromPreviewHash,
   getPreviewSupportedSiteNames,
   MAX_PREVIEW_BASE64_LENGTH,
   MAX_PREVIEW_DECOMPRESSED_BYTES,
@@ -285,6 +286,71 @@ describe("parsePreviewHash with a compressed payload", () => {
       status: "error",
       error: PreviewCaptionError.TooLarge,
     });
+  });
+});
+
+describe("buildEditorUrlFromPreviewHash", () => {
+  const captionFrom = async (payload: unknown) => {
+    const result = await parsePreviewHash(`#data=${encode(payload)}`);
+    if (result?.status !== "success") {
+      throw new Error("expected success");
+    }
+    return result.caption;
+  };
+
+  it("returns undefined when the hash has no data param", async () => {
+    const caption = await captionFrom(samplePayload());
+    expect(buildEditorUrlFromPreviewHash(caption, "")).toBeUndefined();
+    expect(
+      buildEditorUrlFromPreviewHash(caption, "#other=value"),
+    ).toBeUndefined();
+  });
+
+  it("points the editor at the video and keeps the compressed payload", async () => {
+    const payload = samplePayload();
+    const caption = await captionFrom(payload);
+    const url = buildEditorUrlFromPreviewHash(
+      caption,
+      `#dataz=${encodeCompressed(payload)}`,
+    );
+    expect(url).toBeDefined();
+    expect(
+      url?.startsWith("/create?videoId=dQw4w9WgXcQ&videoSource=0#dataz="),
+    ).toBe(true);
+  });
+
+  it("keeps an uncompressed payload on its own param", async () => {
+    const payload = samplePayload();
+    const caption = await captionFrom(payload);
+    const url = buildEditorUrlFromPreviewHash(
+      caption,
+      `#data=${encode(payload)}`,
+    );
+    expect(url).toContain("#data=");
+    expect(url).not.toContain("#dataz=");
+  });
+
+  it("drops hash params other than the payload", async () => {
+    const payload = samplePayload();
+    const caption = await captionFrom(payload);
+    const url = buildEditorUrlFromPreviewHash(
+      caption,
+      `#other=value&dataz=${encodeCompressed(payload)}`,
+    );
+    expect(url).not.toContain("other=value");
+  });
+
+  it("produces a hash the editor can decode back into the same caption", async () => {
+    const payload = samplePayload();
+    const caption = await captionFrom(payload);
+    const url = buildEditorUrlFromPreviewHash(
+      caption,
+      // Standard base64 carries "+" and "/", which must survive the round trip
+      `#data=${encode(payload)}`,
+    );
+    const hash = url?.substring(url.indexOf("#")) || "";
+    const result = await parsePreviewHash(hash);
+    expect(result).toEqual({ status: "success", caption });
   });
 });
 
