@@ -1,6 +1,10 @@
+import { delay } from "@/common/utils";
 import VimeoPlayer from "vimeo__player";
 import PlayerStates from "youtube-player/dist/constants/PlayerStates";
 import { VideoPlayer, VolumeChangeListener } from "./video-player";
+
+const DURATION_POLL_INTERVAL_MS = 200;
+const DURATION_POLL_TIMEOUT_MS = 30000;
 
 export class VimeoEmbedVideoPlayer implements VideoPlayer {
   private player: VimeoPlayer;
@@ -9,6 +13,7 @@ export class VimeoEmbedVideoPlayer implements VideoPlayer {
   private videoDuration: number;
   private previousTime: number;
   private timeUpdater: number;
+  private stopped = false;
 
   private durationChangeListenerMap: { [tag: string]: () => void };
   private volumeChangeListenerMap: { [tag: string]: () => void };
@@ -33,13 +38,24 @@ export class VimeoEmbedVideoPlayer implements VideoPlayer {
     this.runTimeUpdater();
   }
 
+  /**
+   * Polls until Vimeo reports a duration, waiting between polls so the loop
+   * cannot starve the event loop, and giving up for videos that never become
+   * playable instead of polling forever
+   */
   private async detectDuration() {
-    let duration = 0;
-    while (duration <= 0) {
-      duration = await this.player.getDuration();
+    for (
+      let waited = 0;
+      waited < DURATION_POLL_TIMEOUT_MS && !this.stopped;
+      waited += DURATION_POLL_INTERVAL_MS
+    ) {
+      const duration = await this.player.getDuration();
+      if (duration > 0) {
+        this.videoDuration = duration;
+        return;
+      }
+      await delay(DURATION_POLL_INTERVAL_MS);
     }
-    console.log("Got dur", duration);
-    this.videoDuration = duration;
   }
 
   private runTimeUpdater() {
@@ -55,6 +71,7 @@ export class VimeoEmbedVideoPlayer implements VideoPlayer {
   }
 
   destruct() {
+    this.stopped = true;
     if (this.timeUpdater) {
       window.clearInterval(this.timeUpdater);
     }

@@ -21,7 +21,7 @@ import { delay } from "@/common/utils";
 import EditorContainer from "@/extension/content/containers/editor-container";
 import { VideoPlayer } from "@/extension/content/feature/editor/video-player/video-player";
 import { useForceUpdate } from "@/hooks";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { batch, useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { parsePreviewHash } from "../viewer/preview-data";
@@ -58,6 +58,9 @@ const EditorContainerLazy = React.lazy<typeof EditorContainer>(
 
 const TAB_ID = 0;
 
+const PLAYER_ELEMENT_POLL_INTERVAL_MS = 100;
+const PLAYER_ELEMENT_TIMEOUT_MS = 10000;
+
 type CaptionEditorPageProps = {
   videoSource?: VideoSource;
   videoId: string;
@@ -75,6 +78,7 @@ export const CaptionEditorPage = ({
 
   const [isLoading, setIsLoading] = useState(true);
   const [player, setPlayer] = useState<VideoPlayer>();
+  const previewHashRef = useRef<string | undefined>(undefined);
   const triggerForceUpdate = useForceUpdate();
   const { renderer, videoDimensions } = videoData || {};
   const fontList = useSelector(fontListSelector());
@@ -89,9 +93,14 @@ export const CaptionEditorPage = ({
     globalThis.selectedProcessor =
       videoSourceToProcessorMap[VideoSource.NekoCapYoutube];
     // A caption sent over from the preview page rides along in the url hash.
+    // Read once and remembered because the hash is cleared once the caption is
+    // in, so a second run of this effect would otherwise import nothing
+    if (previewHashRef.current === undefined) {
+      previewHashRef.current = globalThis.location.hash;
+    }
     // Decoding starts here but is only applied after the new caption is created,
     // so the editor never flashes an empty caption before the imported one.
-    const importedCaption = parsePreviewHash(globalThis.location.hash).catch(
+    const importedCaption = parsePreviewHash(previewHashRef.current).catch(
       () => undefined,
     );
     dispatch(
@@ -121,6 +130,17 @@ export const CaptionEditorPage = ({
             }),
           );
         });
+        // Drop the payload from the url now that it has been imported, so that
+        // a reload starts blank instead of quietly replacing the edits the user
+        // has since made and autosaved. The existing history state is kept
+        // because Next stores its own routing state there and falls back to a
+        // full page reload when it goes missing.
+        const [urlWithoutHash] = globalThis.location.href.split("#");
+        globalThis.history.replaceState(
+          globalThis.history.state,
+          "",
+          urlWithoutHash,
+        );
       }
       setIsLoading(false);
     });
@@ -138,17 +158,24 @@ export const CaptionEditorPage = ({
       : videoData?.caption;
 
   const handleSetPlayer = async (newPlayer?: VideoPlayer) => {
-    if (!player) {
-      setPlayer(newPlayer);
-      while (!newPlayer?.element()) {
-        await delay(100);
-      }
-      const videoDimensions = await newPlayer.dimensions();
-      dispatch(
-        setVideoDimensions({ tabId: TAB_ID, dimensions: videoDimensions }),
-      );
-      triggerForceUpdate();
+    if (player || !newPlayer) {
+      return;
     }
+    setPlayer(newPlayer);
+    // Bounded because the iframe never shows up when the embed cannot load.
+    // The dimensions do not depend on it, so carry on either way
+    for (
+      let waited = 0;
+      !newPlayer.element() && waited < PLAYER_ELEMENT_TIMEOUT_MS;
+      waited += PLAYER_ELEMENT_POLL_INTERVAL_MS
+    ) {
+      await delay(PLAYER_ELEMENT_POLL_INTERVAL_MS);
+    }
+    const videoDimensions = await newPlayer.dimensions();
+    dispatch(
+      setVideoDimensions({ tabId: TAB_ID, dimensions: videoDimensions }),
+    );
+    triggerForceUpdate();
   };
 
   return (

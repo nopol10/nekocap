@@ -1,7 +1,11 @@
 import { Dimension } from "@/common/types";
+import { delay } from "@/common/utils";
 import PlayerStates from "youtube-player/dist/constants/PlayerStates";
 import { YouTubePlayer } from "youtube-player/dist/types";
 import { VideoPlayer, VolumeChangeListener } from "./video-player";
+
+const DURATION_POLL_INTERVAL_MS = 200;
+const DURATION_POLL_TIMEOUT_MS = 30000;
 
 export class YoutubeEmbedVideoPlayer implements VideoPlayer {
   private player: YouTubePlayer;
@@ -11,6 +15,7 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
   private previousTime: number;
   private previousVolume: number;
   private timeUpdater: number;
+  private stopped = false;
 
   private durationChangeListenerMap: { [tag: string]: () => void };
   private volumeChangeListenerMap: { [tag: string]: () => void };
@@ -35,17 +40,34 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
       this.iframeElement = iframe;
     });
     this.player.addEventListener("onStateChange", this.onStateChange);
+    this.player.addEventListener("onError", this.onError);
     this.detectDuration();
     this.runPropertyUpdater();
   }
 
+  /**
+   * Polls until Youtube reports a duration.
+   *
+   * The wait between polls is essential: getDuration resolves on the microtask
+   * queue once the player is ready, so polling it without yielding starves the
+   * event loop and locks up the whole page. Youtube fires "ready" even for
+   * videos the uploader has blocked from being embedded, and those never report
+   * a duration, so this also has to give up eventually.
+   */
   private async detectDuration() {
-    let duration = 0;
-    while (duration <= 0) {
-      duration = await this.player.getDuration();
+    for (
+      let waited = 0;
+      waited < DURATION_POLL_TIMEOUT_MS && !this.stopped;
+      waited += DURATION_POLL_INTERVAL_MS
+    ) {
+      const duration = await this.player.getDuration();
+      if (duration > 0) {
+        this.videoDuration = duration;
+        this.triggerDurationChangeListeners();
+        return;
+      }
+      await delay(DURATION_POLL_INTERVAL_MS);
     }
-    this.videoDuration = duration;
-    this.triggerDurationChangeListeners();
   }
 
   private runPropertyUpdater() {
@@ -61,10 +83,19 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
   }
 
   destruct() {
+    this.stopped = true;
     if (this.timeUpdater) {
       window.clearInterval(this.timeUpdater);
     }
   }
+
+  /**
+   * Unplayable videos (embedding disabled, removed, private) will never report
+   * a duration, so stop polling for one instead of waiting out the timeout
+   */
+  onError = (): void => {
+    this.stopped = true;
+  };
 
   onStateChange = (state): void => {
     this.currentState = state.data;
