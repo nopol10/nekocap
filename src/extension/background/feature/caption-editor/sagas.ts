@@ -103,9 +103,9 @@ import {
 } from "@/common/types";
 import { getStringByteLength } from "@/common/utils";
 import { CaptionMutators } from "@/extension/content/feature/editor/utils";
-import { compressToBase64 as lzCompress } from "lz-string";
 import { SUPPORTED_EXPORT_FORMATS } from "./constants";
 import {
+  compressRawCaptionForUpload,
   getCaptionContainersFromFile,
   getLocalCaptionDataFromStorage,
   saveLocalCaptionDataToStorage,
@@ -490,12 +490,13 @@ function* submitCaptionSaga({ payload }: ThunkedPayloadAction<SubmitCaption>) {
     languageCode,
     translatedTitle,
   };
-  const rawCaption = yield select(tabEditorRawDataSelector(tabId));
-  // The raw caption will be compressed locally and decompressed on retrieval
-  const processedRawCaption = { ...rawCaption };
-  if (processedRawCaption.data) {
-    processedRawCaption.data = lzCompress(rawCaption.data);
-  }
+  const rawCaption: RawCaptionData | undefined = yield select(
+    tabEditorRawDataSelector(tabId),
+  );
+  // Spreading a missing raw caption used to produce an empty object here, which
+  // made the server try to store an empty raw file and report the whole
+  // submission as failed even though the caption itself had already been saved
+  const processedRawCaption = compressRawCaptionForUpload(rawCaption);
   const response: UploadResult = yield call(
     [Locator.provider(), "submitCaption"],
     {
@@ -543,17 +544,12 @@ function* updateUploadedCaptionSaga({
     rawCaption = convertedCaptions.rawCaptionData;
     captionData = convertedCaptions.captionData;
   }
-  // The raw caption will be compressed locally and decompressed on retrieval
   if (rawCaption) {
     captionData = undefined;
   } else if (captionData) {
     rawCaption = undefined;
   }
-  let processedRawCaption: RawCaptionData | undefined = undefined;
-  if (rawCaption && rawCaption.data) {
-    processedRawCaption = { ...rawCaption };
-    processedRawCaption.data = lzCompress(rawCaption.data);
-  }
+  const processedRawCaption = compressRawCaptionForUpload(rawCaption);
   const response: UploadResponse = yield call(
     [Locator.provider(), "updateCaption"],
     {

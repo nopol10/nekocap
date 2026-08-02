@@ -6,6 +6,7 @@ import { isInExtension } from "@/common/client-utils";
 import { EditorStorage } from "@/common/feature/caption-editor/types";
 import { RawCaptionData, VideoSource } from "@/common/feature/video/types";
 import { CaptionFileFormat } from "@/common/types";
+import { compressToBase64 as lzCompress } from "lz-string";
 
 export const EDITOR_STORAGE_KEY = "editor";
 
@@ -44,6 +45,22 @@ export async function saveLocalCaptionDataToStorage(result: EditorStorage) {
   } else {
     globalThis.localStorage.setItem(EDITOR_STORAGE_KEY, JSON.stringify(result));
   }
+}
+
+/**
+ * Prepares a raw caption for submission to the server.
+ * Captions without raw data (anything written in the editor and any non ass
+ * file) must not send a raw caption at all: the server would try to store an
+ * empty raw file, which the file upload endpoint rejects.
+ * The data is compressed here and decompressed on retrieval.
+ */
+export function compressRawCaptionForUpload(
+  rawCaption?: RawCaptionData,
+): RawCaptionData | undefined {
+  if (!rawCaption || !rawCaption.data) {
+    return undefined;
+  }
+  return { ...rawCaption, data: lzCompress(rawCaption.data) };
 }
 
 export function getCaptionContainersFromFile({
