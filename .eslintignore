@@ -4,3 +4,4 @@ webpack.extension.js
 src/libs/*
 public/js/subtitle-octopus/*
 src/sass-vars-to-less.js
+next-env.d.ts
