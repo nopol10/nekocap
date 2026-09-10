@@ -95,7 +95,70 @@
     "navigation": {
       "home": "ホーム",
       "dashboard": "ダッシュボード",
-      "logout": "ログアウト"
+      "logout": "ログアウト",
+      "features": "Features",
+      "browse": "Browse"
+    },
+    "intro": {
+      "eyebrow": "Free, open source, community supported",
+      "heading": "Watch any video with <em>community-made</em> captions.",
+      "description": "NekoCap is a browser extension that drops community captions straight into <strong>YouTube, Vimeo, niconico, bilibili, TVer, Netflix</strong> and more, so anyone can subtitle a video, and anyone can watch it in their language.",
+      "addToChrome": "Add to Chrome",
+      "addToFirefox": "Add to Firefox",
+      "starOnGithub": "Star on GitHub",
+      "joinDiscord": "Join Discord",
+      "socials": {
+        "instagram": "Instagram",
+        "twitter": "Twitter"
+      },
+      "stats": {
+        "captions": "community captions",
+        "languages": "languages",
+        "sites": "sites supported"
+      },
+      "captionsEyebrow": "Latest",
+      "captionsHeading": "Latest from the <span>community</span>",
+      "browseAll": "Browse all captions"
+    },
+    "features": {
+      "eyebrow": "What NekoCap does",
+      "heading": "A captioning toolkit that <em>respects</em> the player you're already in.",
+      "subtitle": "Say goodbye to re-uploads! Captions float over the original video and they're written by humans who love the content as much as you!",
+      "cards": {
+        "inPlayer": {
+          "title": "Captions in-player",
+          "description": "Install the extension, open a video, pick a caption from the dropdown below the player.",
+          "imageAlt": "Caption dropdown in player"
+        },
+        "advanced": {
+          "title": "Advanced effects",
+          "description": "Renders Advanced Substation Alpha (SSA/ASS), with karaoke timing, fades, positioning, and custom fonts. Good for music videos, anime, and fan-typeset releases."
+        },
+        "editor": {
+          "title": "Convenient editor",
+          "description": "Time and translate from inside the player. Hotkeys for cue boundaries, with custom positioning, colors and instant preview. Submit or export to SRT when you're done.",
+          "imageAlt": "Caption editor"
+        }
+      }
+    },
+    "stats": {
+      "captions": "captions published",
+      "contributors": "contributors",
+      "languages": "languages",
+      "views": "caption views"
+    },
+    "sites": {
+      "label": "Captions appear right inside the player on"
+    },
+    "yourLang": {
+      "heading": "In <span>{{language}}</span>, captions you can watch right now",
+      "subtitle": "Auto-detected from your browser",
+      "empty": "No captions in {{language}} yet. Be the first to add one, install the extension and start a caption on a video without one."
+    },
+    "browseCta": {
+      "heading": "Browse every caption the community has ever made.",
+      "primary": "Browse all captions",
+      "secondary": "Browse by language"
     }
   },
   "review": {
@@ -147,7 +210,13 @@
     "roleAssignmentSuccess": "更新されました",
     "roleAssignmentFailure": "更新に失敗しました {{error}}",
     "filterByTags": "タグでフィルター (最大 {{maxTags}})",
-    "noTags": "タグがありません"
+    "noTags": "タグがありません",
+    "advancedFilter": {
+      "label": "Caption type",
+      "all": "All",
+      "advanced": "Advanced only",
+      "nonAdvanced": "Non-advanced only"
+    }
   },
   "viewer": {
     "browseOtherCaptions": "他の字幕を参照",
@@ -156,7 +225,21 @@
     "copyEmbedCodeSuccess": "クリップボードに埋め込みコードをコピーしました",
     "captionSubmittedBy": "字幕制作 <captioner>{{creatorName}}</captioner>",
     "downloadNekocapMessage": "高度な字幕の表示と作成をするには、NekoCap拡張機能をダウンロードし、 {{site}} で直接字幕を表示します",
-    "captionRenderError": "字幕の書込み中にエラーが発生しました。申し訳ありません。"
+    "captionRenderError": "字幕の書込み中にエラーが発生しました。申し訳ありません。",
+    "preview": {
+      "title": "Caption preview",
+      "instructions": "Preview a NekoCap caption on its video without uploading it. Compress the caption JSON below with raw DEFLATE, encode the result as base64, and append it to this page's URL:",
+      "loading": "Reading caption data...",
+      "uncompressedNote": "Uncompressed base64 also works, and is easier to produce by hand, but makes for much longer links:",
+      "supportedSites": "Supported sites: {{sites}}",
+      "urlLengthNote": "Note: links with very large captions may get truncated by some messaging apps.",
+      "downloadSrt": "Download SRT",
+      "editCaption": "Edit caption",
+      "decodeError": "The caption data in this link could not be decoded. Check that the link was copied completely.",
+      "tooLargeError": "The caption data in this link is too large to preview.",
+      "invalidFormatError": "The caption data is not in the NekoCap caption format. Expected shape: { \"videoId\": \"...\", \"videoSource\": 0, \"data\": { \"tracks\": [...] } }",
+      "unsupportedSourceError": "This video's site cannot be played on the NekoCap website. Supported sites: {{sites}}"
+    }
   },
   "common": {
     "loading": "読み込み中...",
