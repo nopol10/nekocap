@@ -48,6 +48,9 @@ export const NicoNicoProcessor: Processor = {
     .nekocap-cap-container {
       z-index: 2;
     }
+    .libassjs-canvas-parent {
+      z-index: 3;
+    }
   `,
   supportAutoCaptions: () => false,
   getVideoId: () => {
@@ -65,7 +68,7 @@ export const NicoNicoProcessor: Processor = {
     return ``;
   },
   retrieveVideoDimensions: async function (
-    videoId: string
+    videoId: string,
   ): Promise<Dimension> {
     return await retrieveVideoDimensions(videoId, this);
   },
