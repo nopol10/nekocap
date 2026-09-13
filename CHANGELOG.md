@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.1](https://github.com/nopol10/nekocap/compare/1.24.0...1.24.1) (2026-09-13)
+
+### Bug Fixes
+
+* resolve all npm audit vulnerabilities ([fb16b8a](https://github.com/nopol10/nekocap/commit/fb16b8a1933f31128c09954471b9402f767dfad6))
+* stop a second caption details modal lingering behind the upload success modal ([098b263](https://github.com/nopol10/nekocap/commit/098b263701df9aea4a25d163f105e2876f61a080))
+
 ## [1.24.0](https://github.com/nopol10/nekocap/compare/1.23.2...1.24.0) (2026-09-13)
 
 ### Features
