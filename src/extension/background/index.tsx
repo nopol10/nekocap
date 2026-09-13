@@ -76,10 +76,26 @@ if (typeof self !== undefined && isInServiceWorker()) {
 }
 
 // Firebase for auth
-const { auth } = initFirebase(getAuth);
-if (isInServiceWorker() || isFirefoxExtension()) {
+// initFirebase() throws when the Firebase values in .env are missing/invalid,
+// which used to crash this whole script before it reached the onMessage
+// listener below, silently breaking the extension on every site. Set
+// NEXT_PUBLIC_SKIP_FIREBASE_AUTH_INIT=true locally to keep going without auth.
+let auth: ReturnType<typeof getAuth> | undefined;
+try {
+  ({ auth } = initFirebase(getAuth));
+} catch (e) {
+  if (process.env.NEXT_PUBLIC_SKIP_FIREBASE_AUTH_INIT !== "true") {
+    throw e;
+  }
+  console.warn(
+    "NEXT_PUBLIC_SKIP_FIREBASE_AUTH_INIT is set: continuing without Firebase auth after an init failure.",
+    e,
+  );
+}
+if (auth && (isInServiceWorker() || isFirefoxExtension())) {
+  const authenticatedAuth = auth;
   initStore().then(({ store }) => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(authenticatedAuth, (user) => {
       if (user && user.uid && !globalThis.skipAutoLogin) {
         store.dispatch(autoLogin.request());
       }
@@ -94,7 +110,9 @@ chrome.runtime.onMessageExternal.addListener(
       const { id, credentialIdToken, idToken, name } =
         message.payload as FirebaseLoggedInUser;
       const credential = GoogleAuthProvider.credential(credentialIdToken);
-      signInWithCredential(auth, credential).then(async () => {
+      // auth is only ever undefined via the NEXT_PUBLIC_SKIP_FIREBASE_AUTH_INIT
+      // dev bypass above, in which case there's no real login flow to complete.
+      signInWithCredential(auth!, credential).then(async () => {
         const { store } = await backgroundStoreInitPromise;
         const userData: UserData =
           await globalThis.backendProvider.completeDeferredLogin(
