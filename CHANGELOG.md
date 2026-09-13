@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.24.0](https://github.com/nopol10/nekocap/compare/1.23.2...1.24.0) (2026-09-13)
+
+### Features
+
+* accept deflate-compressed caption payloads in the preview ([4debe69](https://github.com/nopol10/nekocap/commit/4debe6901e8df31f9b24237921febe6513327781))
+* add advanced/non-advanced filter to caption profile page ([dbc44ae](https://github.com/nopol10/nekocap/commit/dbc44ae2187a4ca9a81a9fcdecb4e0848538b750))
+* add SRT download button to the caption preview page ([bbe74d5](https://github.com/nopol10/nekocap/commit/bbe74d5e5add97abd699782531557aff8acfeae3))
+* preview base64-encoded captions in the web viewer ([f5254b9](https://github.com/nopol10/nekocap/commit/f5254b93e7091970078688f2e238238915582add))
+* re-add link to fontlist ([2b480dc](https://github.com/nopol10/nekocap/commit/2b480dcf943fbf68423c4226d09880aef5925ec6))
+* render video meta tags for preview links ([dcf4b10](https://github.com/nopol10/nekocap/commit/dcf4b10ea317cf4b37539b2afbddeec06a48815c))
+* send previewed caption into the web editor ([6735bc5](https://github.com/nopol10/nekocap/commit/6735bc5584b0766afdec8ba5c484d9fbdc1c27e7))
+* update homepage copy ([b58dba6](https://github.com/nopol10/nekocap/commit/b58dba6dc701f703d7793a71c2bf3073149422b5))
+* update homepage logo size and homepage stats count display ([1ba145e](https://github.com/nopol10/nekocap/commit/1ba145e0dcff3733cafa5c49a2c5df3dfcaeba23))
+* update styles and copy in homepage ([367f65b](https://github.com/nopol10/nekocap/commit/367f65b66329a13c7840731f1ec340497c0ddc4e))
+* use NestJS provider as a wrapper around existing Parse provider ([a44a82d](https://github.com/nopol10/nekocap/commit/a44a82d7b0a5052df5ba97f01a518008f30c115c))
+
+### Bug Fixes
+
+* coerce undefined captioner to null in setProfile reducer ([6b2ac72](https://github.com/nopol10/nekocap/commit/6b2ac727241bbe123b1678783a73e120110c6527))
+* fix advanced subtitles not appearing in niconico ([1ff6753](https://github.com/nopol10/nekocap/commit/1ff6753ef60b93174ab920468d851554291508bd))
+* fix discord button ([31191a8](https://github.com/nopol10/nekocap/commit/31191a858fc1c1e329204485d2f54090bc0f7e1d))
+* fix type error in features-grid ([37b5b47](https://github.com/nopol10/nekocap/commit/37b5b4759722a194d5b4971ec7c70bf2ed578831))
+* fix types ([5f44f9d](https://github.com/nopol10/nekocap/commit/5f44f9d800d87217a53441e791cdaa56c35ffe2d))
+* restore niconico support after site redesign ([449240d](https://github.com/nopol10/nekocap/commit/449240d5263463e34b37ca0a9c4a9e831ec8c5b0))
+* stop sending an empty raw caption when submitting from the editor ([85aa81e](https://github.com/nopol10/nekocap/commit/85aa81e4d6b4992acb3588ebc991b0f4eb9d82f5))
+* stop the duration poll from freezing the page, clear the preview hash ([e17d90f](https://github.com/nopol10/nekocap/commit/e17d90f0b9ebd4435c85664c681dab7ae050a549))
+
 ## [1.23.2](https://github.com/nopol10/nekocap/compare/1.23.1...1.23.2) (2026-05-17)
 
 ## [1.23.1](https://github.com/nopol10/nekocap/compare/1.23.0...1.23.1) (2026-05-17)
