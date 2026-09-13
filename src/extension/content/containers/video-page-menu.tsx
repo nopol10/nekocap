@@ -16,6 +16,7 @@ import {
   inWebEditorSelector,
   isUserCaptionLoadedSelector,
   showEditorIfPossibleSelector,
+  showEditorSelector,
   tabEditorDataSelector,
 } from "@/common/feature/caption-editor/selectors";
 import { isLoggedInSelector } from "@/common/feature/login/selectors";
@@ -196,7 +197,15 @@ export const VideoPageMenu = ({
   const [editorMenuVisible, setEditorMenuVisible] = useState(false);
   const inWebEditor = useSelector(inWebEditorSelector);
   const isInPopup = useIsInPopup();
-  const isSubmitOpen = editorTabData?.showSubmitModalOpen || false;
+  const showEditor = useSelector(showEditorSelector(globalThis.tabId));
+  // The editor container keeps its own copy of this menu mounted (just hidden)
+  // while the in-page menu is visible, and both copies read the same shared
+  // "submit modal open" flag. Only the copy whose menu is actually visible may
+  // show the submit modal, otherwise two modals open at once and the hidden
+  // copy is left showing the caption details form after a successful upload.
+  const canShowSubmitModal = isInPopup || inEditorScreen === showEditor;
+  const isSubmitOpen =
+    (editorTabData?.showSubmitModalOpen && canShowSubmitModal) || false;
   const setIsSubmitOpen = (isOpen: boolean) => {
     dispatch(setShowSubmitModalOpen({ tabId: globalThis.tabId, show: isOpen }));
   };

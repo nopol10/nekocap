@@ -56,3 +56,12 @@ declare module "redux-saga/effects" {
   export function put<A extends Action>(action: A): PutEffect<A>;
   export function put(actions: Action[]): PutEffect;
 }
+
+declare module "styled-components" {
+  // styled-components 6.5 removed the permissive index signature from
+  // DefaultTheme. Restore it so existing `theme.<token>` usages keep compiling.
+  export interface DefaultTheme {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  }
+}

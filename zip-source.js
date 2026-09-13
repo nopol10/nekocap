@@ -1,9 +1,7 @@
-const AdmZip = require("adm-zip");
 const fs = require("fs");
+const { zipFolder } = require("./zip-folder");
 
 const date = new Date();
-
-const zip = new AdmZip();
 
 const pad = (inString, length, padCharacter) => {
   const stringLength = inString.toString().length;
@@ -15,7 +13,7 @@ const pad = (inString, length, padCharacter) => {
   return inString;
 };
 
-zip.addLocalFolder("../nekocap", "", (filename) => {
+const sourceFilter = (filename) => {
   // Explicitly allow these files even if they match exclusion patterns
   if (
     filename.includes(".env.sample") ||
@@ -60,7 +58,7 @@ zip.addLocalFolder("../nekocap", "", (filename) => {
     }
   }
   return true;
-});
+};
 const filename = `./nekocap-source-${date.getFullYear()}-${pad(
   date.getMonth() + 1,
   2,
@@ -75,4 +73,4 @@ if (fs.existsSync(filename)) {
   fs.unlinkSync(filename);
 }
 
-zip.writeZip(filename);
+zipFolder("../nekocap", filename, sourceFilter);

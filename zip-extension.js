@@ -1,12 +1,10 @@
-const AdmZip = require("adm-zip");
 const fs = require("fs");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
+const { zipFolder } = require("./zip-folder");
 const argv = yargs(hideBin(process.argv)).argv;
 
 const date = new Date();
-
-const zip = new AdmZip();
 
 const pad = (inString, length, padCharacter) => {
   const stringLength = inString.toString().length;
@@ -18,7 +16,6 @@ const pad = (inString, length, padCharacter) => {
   return inString;
 };
 
-zip.addLocalFolder("./dist/extension/");
 const target = argv.target;
 const filename = `./dist/nekocap-extension-${target}-${date.getFullYear()}-${pad(
   date.getMonth() + 1,
@@ -34,4 +31,4 @@ if (fs.existsSync(filename)) {
   fs.unlinkSync(filename);
 }
 
-zip.writeZip(filename);
+zipFolder("./dist/extension/", filename);
