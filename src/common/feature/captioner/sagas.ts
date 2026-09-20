@@ -31,8 +31,14 @@ function* loadUserCaptionsRequestSaga(
   if (!isLoggedIn) {
     throw new Error("You must be logged in to perform this action!");
   }
-  const { pageNumber, pageSize, captionerId, tags, advancedFilter } =
-    action.payload;
+  const {
+    pageNumber,
+    pageSize,
+    captionerId,
+    tags,
+    advancedFilter,
+    titleFilter,
+  } = action.payload;
 
   const { captions, hasMore }: LoadCaptionListResult = yield call(
     [Locator.provider(), "loadUserCaptions"],
@@ -41,6 +47,7 @@ function* loadUserCaptionsRequestSaga(
       captionerId,
       tags,
       advancedFilter,
+      titleFilter,
     },
   );
 

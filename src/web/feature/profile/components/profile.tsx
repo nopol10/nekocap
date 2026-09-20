@@ -5,7 +5,10 @@ import {
   CaptionerPrivateFields,
 } from "@/common/feature/captioner/types";
 import { EditProfileFields } from "@/common/feature/profile/types";
-import { MAX_SEARCH_TAG_LIMIT } from "@/common/feature/video/constants";
+import {
+  MAX_CAPTION_TITLE_FILTER_LENGTH,
+  MAX_SEARCH_TAG_LIMIT,
+} from "@/common/feature/video/constants";
 import { CaptionListFields } from "@/common/feature/video/types";
 import {
   getCaptionGroupTagName,
@@ -15,6 +18,7 @@ import { DEVICE } from "@/common/style-constants";
 import { useIsClient } from "@/hooks";
 import CopyOutlined from "@ant-design/icons/CopyOutlined";
 import EditOutlined from "@ant-design/icons/EditOutlined";
+import SearchOutlined from "@ant-design/icons/SearchOutlined";
 import SettingOutlined from "@ant-design/icons/SettingOutlined";
 import {
   faBan,
@@ -24,6 +28,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  Input,
   Layout,
   message,
   Segmented,
@@ -33,9 +38,17 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import { debounce } from "lodash-es";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import {
   CAPTION_LIST_PAGE_SIZE,
@@ -46,6 +59,25 @@ import { ProfileSidebar } from "./profile-sidebar";
 
 const { Title } = Typography;
 const { Content, Header } = Layout;
+
+/**
+ * Captions are filtered on the server, so wait for the user to stop typing
+ * before asking for a new page of results.
+ */
+const TITLE_FILTER_DEBOUNCE_MS = 400;
+
+const getFirstQueryValue = (
+  value: string | string[] | undefined,
+): string | undefined => {
+  return Array.isArray(value) ? value[0] : value;
+};
+
+const getQueryValues = (value: string | string[] | undefined): string[] => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  return value ? [value] : [];
+};
 
 const ProfileHeader = styled(Header)`
   &.ant-layout-header {
@@ -128,6 +160,7 @@ type ProfileProps = {
     pageSize?: number,
     tags?: string[],
     advancedFilter?: AdvancedFilter,
+    titleFilter?: string,
   ) => void;
   onDelete?: (caption: CaptionListFields) => void;
   onDownloadCaption?: (captionId: string) => void;
@@ -138,7 +171,11 @@ type ProfileProps = {
   onAssignReviewer: () => void;
   onVerifyCaptioner: () => void;
   onBanCaptioner: () => void;
-  onSetFilters: (tags: string[], advancedFilter: AdvancedFilter) => void;
+  onSetFilters: (
+    tags: string[],
+    advancedFilter: AdvancedFilter,
+    titleFilter: string,
+  ) => void;
   onUpdateCaption: (captionId: string) => void;
 };
 
@@ -204,13 +241,27 @@ export const Profile = ({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [advancedFilter, setAdvancedFilterState] =
     useState<AdvancedFilter>("all");
+  // What the user is currently typing
+  const [titleFilterInput, setTitleFilterInput] = useState<string>("");
+  // The debounced value that the caption list is currently filtered by
+  const [titleFilter, setTitleFilter] = useState<string>("");
 
   const router = useRouter();
   const hasPerformedInitialFilter = useRef(false);
+  const applyTitleFilter = useRef<(value: string) => void>(() => {
+    /*do nothing*/
+  });
   const inClient = useIsClient();
 
   useEffect(() => {
-    if (existingTags.length <= 0 || hasPerformedInitialFilter.current) {
+    const defaultFilterTagNames = getQueryValues(router.query.tags);
+    if (
+      hasPerformedInitialFilter.current ||
+      // Query params are only parsed after hydration for statically generated pages
+      !router.isReady ||
+      // The captioner's tags are needed to resolve the tag names in the url
+      (defaultFilterTagNames.length > 0 && existingTags.length <= 0)
+    ) {
       return;
     }
     hasPerformedInitialFilter.current = true;
@@ -221,31 +272,36 @@ export const Profile = ({
         ? advancedQuery
         : "all";
 
-    let defaultFilterTagNames = router.query.tags || "";
-    if (typeof defaultFilterTagNames === "string") {
-      defaultFilterTagNames = defaultFilterTagNames
-        ? [defaultFilterTagNames]
-        : [];
-    }
     const defaultTags = existingTags
       .filter((tag) => {
         return tag.name && defaultFilterTagNames.includes(tag.name);
       })
       .map((tag) => tag.tag);
 
-    if (defaultTags.length > 0 || initialAdvanced !== "all") {
+    const initialTitleFilter = (getFirstQueryValue(router.query.title) || "")
+      .trim()
+      .slice(0, MAX_CAPTION_TITLE_FILTER_LENGTH);
+
+    if (
+      defaultTags.length > 0 ||
+      initialAdvanced !== "all" ||
+      initialTitleFilter
+    ) {
       setSelectedTags(defaultTags);
       setAdvancedFilterState(initialAdvanced);
-      onSetFilters(defaultTags, initialAdvanced);
+      setTitleFilterInput(initialTitleFilter);
+      setTitleFilter(initialTitleFilter);
+      onSetFilters(defaultTags, initialAdvanced, initialTitleFilter);
     }
-  }, [existingTags]);
+  }, [existingTags, router.isReady, router.query]);
 
   const filteredCount =
     captions.length +
     (currentCaptionPage - 1) * CAPTION_LIST_PAGE_SIZE +
     (hasMore ? 1 : 0);
 
-  const isFiltering = selectedTags.length > 0 || advancedFilter !== "all";
+  const isFiltering =
+    selectedTags.length > 0 || advancedFilter !== "all" || !!titleFilter;
   const currentCaptionListCount = isFiltering ? filteredCount : captionCount;
 
   const handleCopyProfileLink = () => {
@@ -263,7 +319,11 @@ export const Profile = ({
     router.push(routeNames.captioner.settings);
   };
 
-  const syncFiltersToUrl = (tags: string[], advanced: AdvancedFilter) => {
+  const syncFiltersToUrl = (
+    tags: string[],
+    advanced: AdvancedFilter,
+    title: string,
+  ) => {
     const newUrl = new URL(window.location.href);
     newUrl.search = "";
     if (tags.length > 0) {
@@ -274,23 +334,65 @@ export const Profile = ({
     if (advanced !== "all") {
       newUrl.searchParams.set("advanced", advanced);
     }
+    if (title) {
+      newUrl.searchParams.set("title", title);
+    }
     window.history.pushState({}, document.title, newUrl);
   };
 
   const handleChangeTagFilter = (tags: string[]) => {
     setSelectedTags(tags);
-    onSetFilters(tags, advancedFilter);
-    syncFiltersToUrl(tags, advancedFilter);
+    onSetFilters(tags, advancedFilter, titleFilter);
+    syncFiltersToUrl(tags, advancedFilter, titleFilter);
   };
 
   const handleChangeAdvancedFilter = (value: AdvancedFilter) => {
     setAdvancedFilterState(value);
-    onSetFilters(selectedTags, value);
-    syncFiltersToUrl(selectedTags, value);
+    onSetFilters(selectedTags, value, titleFilter);
+    syncFiltersToUrl(selectedTags, value, titleFilter);
+  };
+
+  /**
+   * Kept up to date on every render so that the debounced handler below always
+   * applies the filter with the latest props and filter state.
+   */
+  useEffect(() => {
+    applyTitleFilter.current = (value: string) => {
+      const newTitleFilter = value.trim();
+      // Typing and undoing a search within the debounce window leaves the list
+      // as it is instead of requesting the same page again
+      if (newTitleFilter === titleFilter) {
+        return;
+      }
+      setTitleFilter(newTitleFilter);
+      onSetFilters(selectedTags, advancedFilter, newTitleFilter);
+      syncFiltersToUrl(selectedTags, advancedFilter, newTitleFilter);
+    };
+  });
+
+  const commitTitleFilter = useMemo(
+    () =>
+      debounce(
+        (value: string) => applyTitleFilter.current(value),
+        TITLE_FILTER_DEBOUNCE_MS,
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      commitTitleFilter.cancel();
+    };
+  }, [commitTitleFilter]);
+
+  const handleChangeTitleFilter = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setTitleFilterInput(value);
+    commitTitleFilter(value);
   };
 
   const handleOnChangePage = (page: number, pageSize: number) => {
-    onChangePage?.(page, pageSize, selectedTags, advancedFilter);
+    onChangePage?.(page, pageSize, selectedTags, advancedFilter, titleFilter);
   };
 
   return (
@@ -404,6 +506,18 @@ export const Profile = ({
                         value: "nonAdvanced",
                       },
                     ]}
+                  />
+                )}
+                {inClient && (
+                  <Input
+                    allowClear
+                    prefix={<SearchOutlined />}
+                    maxLength={MAX_CAPTION_TITLE_FILTER_LENGTH}
+                    placeholder={t("profile.filterByTitle")}
+                    aria-label={t("profile.filterByTitle")}
+                    value={titleFilterInput}
+                    style={{ width: "100%", marginBottom: 6 }}
+                    onChange={handleChangeTitleFilter}
                   />
                 )}
                 {inClient && (
