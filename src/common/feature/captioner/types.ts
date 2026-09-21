@@ -43,6 +43,11 @@ export type CaptionsPagedRequest = PagedType & {
   captionerId: string;
   tags?: string[];
   advancedFilter?: AdvancedFilter;
+  /**
+   * Keeps only captions whose original or translated video title contains this
+   * string (case insensitive).
+   */
+  titleFilter?: string;
 };
 
 export type CaptionsPagedResult = PagedType & {
@@ -54,6 +59,11 @@ export type CaptionsRequest = OffsetRequest & {
   captionerId: string;
   tags?: string[];
   advancedFilter?: AdvancedFilter;
+  /**
+   * Keeps only captions whose original or translated video title contains this
+   * string (case insensitive).
+   */
+  titleFilter?: string;
 };
 
 export type RoleRequest = {

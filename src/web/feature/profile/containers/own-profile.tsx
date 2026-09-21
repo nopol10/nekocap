@@ -87,6 +87,7 @@ export const OwnProfile = (): ReactElement => {
     pageSize = 1,
     tags?: string[],
     advancedFilter?: AdvancedFilter,
+    titleFilter?: string,
   ) => {
     dispatch(
       loadLoggedInUserCaptions.request({
@@ -95,6 +96,7 @@ export const OwnProfile = (): ReactElement => {
         captionerId,
         tags,
         advancedFilter,
+        titleFilter,
       }),
     );
   };
@@ -134,8 +136,18 @@ export const OwnProfile = (): ReactElement => {
     setIsEditing(false);
   };
 
-  const handleSetFilters = (tags: string[], advancedFilter: AdvancedFilter) => {
-    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags, advancedFilter);
+  const handleSetFilters = (
+    tags: string[],
+    advancedFilter: AdvancedFilter,
+    titleFilter: string,
+  ) => {
+    handleChangeCaptionPage(
+      1,
+      CAPTION_LIST_PAGE_SIZE,
+      tags,
+      advancedFilter,
+      titleFilter,
+    );
   };
 
   const handleUpdateCaption = () => {

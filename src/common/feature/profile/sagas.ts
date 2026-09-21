@@ -62,6 +62,7 @@ function* loadUserCaptionsRequestSaga(
     captionerId: captionerId,
     tags,
     advancedFilter,
+    titleFilter,
   } = action.payload;
 
   const { captions, hasMore }: LoadCaptionListResult = yield call(
@@ -71,6 +72,7 @@ function* loadUserCaptionsRequestSaga(
       captionerId,
       tags,
       advancedFilter,
+      titleFilter,
     },
   );
 

@@ -60,6 +60,7 @@ export const CaptionerProfile = () => {
     pageSize: number = CAPTION_LIST_PAGE_SIZE,
     tags?: string[],
     advancedFilter?: AdvancedFilter,
+    titleFilter?: string,
   ) => {
     dispatch(
       loadUserCaptions.request({
@@ -68,6 +69,7 @@ export const CaptionerProfile = () => {
         captionerId,
         tags,
         advancedFilter,
+        titleFilter,
       }),
     );
   };
@@ -92,8 +94,18 @@ export const CaptionerProfile = () => {
     }
   };
 
-  const handleSetFilters = (tags: string[], advancedFilter: AdvancedFilter) => {
-    handleChangeCaptionPage(1, CAPTION_LIST_PAGE_SIZE, tags, advancedFilter);
+  const handleSetFilters = (
+    tags: string[],
+    advancedFilter: AdvancedFilter,
+    titleFilter: string,
+  ) => {
+    handleChangeCaptionPage(
+      1,
+      CAPTION_LIST_PAGE_SIZE,
+      tags,
+      advancedFilter,
+      titleFilter,
+    );
   };
 
   const handleUpdateCaption = () => {
