@@ -210,6 +210,7 @@
     "roleAssignmentSuccess": "Atualizado!",
     "roleAssignmentFailure": "Falha ao atualizar: {{error}}",
     "filterByTags": "Filtrar por etiquetas (até {{maxTags}})",
+    "filterByTitle": "Filter by video title (original or translated)",
     "noTags": "Sem etiquetas",
     "advancedFilter": {
       "label": "Caption type",
