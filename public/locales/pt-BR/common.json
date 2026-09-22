@@ -131,7 +131,7 @@
           "imageAlt": "Caption dropdown in player"
         },
         "advanced": {
-          "title": "Advanced effects",
+          "title": "Efeitos avançados",
           "description": "Renders Advanced Substation Alpha (SSA/ASS), with karaoke timing, fades, positioning, and custom fonts. Good for music videos, anime, and fan-typeset releases."
         },
         "editor": {
@@ -181,7 +181,7 @@
   "login": {
     "action": "Login",
     "loginModalTitle": "Conecte-se para acessar seu painel de controle",
-    "loginModalEditorTitle": "Log in to submit captions"
+    "loginModalEditorTitle": ""
   },
   "profile": {
     "admin": {
