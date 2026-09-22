@@ -1,6 +1,6 @@
 # NekoCap Privacy Policy
 
-NekoCap is a browser extension that allows users to upload self made captions to be played over videos on video streaming sites such as YouTube, bilibili and others.
+NekoCap is a browser extension and web service that allows users to upload self made captions to be played over videos on video streaming sites such as YouTube, bilibili and others.
 
 ## Stored data
 
