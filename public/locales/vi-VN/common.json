@@ -210,6 +210,7 @@
     "roleAssignmentSuccess": "Đã cật nhật!",
     "roleAssignmentFailure": "Cật nhật thất bại: {{error}}",
     "filterByTags": "Filter by tags (up to {{maxTags}})",
+    "filterByTitle": "Filter by video title (original or translated)",
     "noTags": "No tags",
     "advancedFilter": {
       "label": "Caption type",
