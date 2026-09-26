@@ -2,7 +2,6 @@ import type ParseTypeImport from "parse";
 import {
   LoadCaptionForReviewResult,
   ReasonedCaptionAction,
-  ReviewActionDetails,
 } from "../../feature/caption-review/types";
 import {
   BanRequest,
@@ -24,10 +23,8 @@ import {
 } from "../../feature/profile/types";
 import { SearchRequest, VideoSearchResults } from "../../feature/search/types";
 import {
-  CaptionContainer,
   LoadCaptionListResult,
   LoadSingleCaptionResult,
-  RawCaptionData,
   SubmitCaptionRequest,
   UpdateCaptionRequest,
   VideoFields,
@@ -74,7 +71,10 @@ import {
   isInServiceWorker,
   isServer,
 } from "../../client-utils";
-import { convertBlobToBase64 } from "../../utils";
+import {
+  toLoadCaptionForReviewResult,
+  toLoadSingleCaptionResult,
+} from "../caption-response";
 import { ChromeStorageController } from "./chrome-storage-controller";
 import type {
   BrowseResponse,
@@ -83,7 +83,7 @@ import type {
   PublicProfileResponse,
   VideoSearchResponse,
 } from "./types";
-import { AuthData, FullOptions, Object as ParseObject } from "parse";
+import { AuthData, FullOptions } from "parse";
 
 //#region
 const loginWithGoogle = async (
@@ -216,6 +216,27 @@ export class ParseProvider implements BackendProvider<ParseState> {
       initXMLHttpRequestShim();
       // controller._setXHR(XMLHttpRequest);
     }
+  }
+
+  /**
+   * The session token of the logged in user, if any
+   */
+  async getSessionToken(): Promise<string | undefined> {
+    if (!this.Parse) {
+      return undefined;
+    }
+    const currentUser = await this.Parse.User.currentAsync();
+    return currentUser?.getSessionToken() || undefined;
+  }
+
+  /**
+   * Makes the user with the given session token the current Parse user
+   */
+  async become(sessionToken: string): Promise<void> {
+    if (!this.Parse) {
+      throw new Error("Parse not found");
+    }
+    await this.Parse.User.become(sessionToken);
   }
 
   getSelectors() {
@@ -494,66 +515,7 @@ export class ParseProvider implements BackendProvider<ParseState> {
         `[loadCaption] Error for captionId ${captionId}:` + response.error,
       );
     }
-    const {
-      caption: serverCaption,
-      userLike,
-      userDislike,
-      rawCaption: serverRawCaption,
-      rawCaptionUrl: originalRawCaptionUrl,
-      originalTitle,
-      captionerName,
-    } = response;
-    const captionResponse = serverCaption as ParseObject;
-    const caption: CaptionContainer = {
-      id: captionResponse.id,
-      loadedByUser: false,
-      videoId: captionResponse.get("videoId"),
-      translatedTitle: captionResponse.get("translatedTitle") || "",
-      originalTitle: originalTitle,
-      videoSource: parseInt(captionResponse.get("videoSource")),
-      data: JSON.parse(captionResponse.get("content")),
-      creator: captionResponse.get("creatorId"),
-      creatorName: captionerName,
-      languageCode: captionResponse.get("language"),
-      likes: captionResponse.get("likes") || 0,
-      dislikes: captionResponse.get("dislikes") || 0,
-      tags: captionResponse.get("tags") || [],
-      userLike: userLike !== undefined ? userLike : null,
-      userDislike: userDislike !== undefined ? userDislike : null,
-    };
-    // Load the raw caption if a url is supplied. The server cannot send the file directly
-    // (refer to server code for reason)
-    let rawCaption: string | null = null;
-    if (originalRawCaptionUrl) {
-      let rawCaptionUrl = originalRawCaptionUrl;
-      let rawCaptionString = "";
-      if (isServer()) {
-        if (process.env.NEXT_PUBLIC_PARSE_SERVER_URL) {
-          rawCaptionUrl = rawCaptionUrl.replace(
-            process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
-            process.env.PARSE_INTERNAL_SERVER_URL || "",
-          );
-        }
-        const rawCaptionResponse = await fetch(rawCaptionUrl);
-        const arrayBuffer = await rawCaptionResponse.arrayBuffer();
-        rawCaptionString = Buffer.from(arrayBuffer).toString("base64");
-      } else {
-        const rawCaptionResponse = await fetch(rawCaptionUrl);
-        rawCaptionString = await convertBlobToBase64(
-          await rawCaptionResponse.blob(),
-        );
-        rawCaptionString = rawCaptionString.split(",")[1];
-      }
-      if (!serverRawCaption) {
-        throw new Error("No raw caption data found");
-      }
-      const rawType = (JSON.parse(serverRawCaption) as RawCaptionData).type;
-      rawCaption = JSON.stringify({
-        type: rawType,
-        data: rawCaptionString,
-      });
-    }
-    return { caption, userLike, userDislike, rawCaption };
+    return toLoadSingleCaptionResult(response);
   }
 
   async loadCaptionForReview({
@@ -569,43 +531,11 @@ export class ParseProvider implements BackendProvider<ParseState> {
         "loadCaptionForReview",
         { captionId },
       );
-    const {
-      status,
-      caption: serverCaption,
-      captioner,
-      videoName,
-      error,
-    } = response;
+    const { status, error } = response;
     if (status !== "success") {
       throw new Error(`Failed to load caption: ${error}`);
     }
-    const captionResponse = serverCaption as ParseObject;
-    const caption: CaptionContainer = {
-      id: captionResponse.id,
-      loadedByUser: false,
-      videoId: captionResponse.get("videoId"),
-      videoSource: parseInt(captionResponse.get("videoSource")),
-      data: JSON.parse(captionResponse.get("content")),
-      creator: captionResponse.get("creatorId"),
-      languageCode: captionResponse.get("language"),
-      likes: captionResponse.get("likes") || 0,
-      dislikes: captionResponse.get("dislikes") || 0,
-      tags: captionResponse.get("tags") || [],
-      userLike: false,
-      userDislike: false,
-    };
-    const rejected: boolean = captionResponse.get("rejected");
-    const verified: boolean = captionResponse.get("verified");
-    const reviewHistory: ReviewActionDetails[] =
-      captionResponse.get("reviewHistory");
-    return {
-      caption,
-      captioner,
-      videoName,
-      rejected,
-      verified,
-      reviewHistory,
-    };
+    return toLoadCaptionForReviewResult(response);
   }
 
   async likeCaption({ captionId }: { captionId: string }) {
