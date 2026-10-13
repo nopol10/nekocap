@@ -277,6 +277,7 @@ describe("NestJsProvider", () => {
       caption: {} as never,
       video: {} as never,
       hasAudioDescription: false,
+      privacy: 0,
     });
 
     expect(result).toEqual({
