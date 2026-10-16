@@ -16,6 +16,12 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
   private previousVolume: number;
   private timeUpdater: number;
   private stopped = false;
+  /**
+   * Resolves once the iframe is known. Until then element() returns undefined,
+   * so consumers that observe the element (e.g. to resize captions) should wait
+   * for this before using the player.
+   */
+  readonly elementReady: Promise<HTMLElement | undefined>;
 
   private durationChangeListenerMap: { [tag: string]: () => void };
   private volumeChangeListenerMap: { [tag: string]: () => void };
@@ -35,10 +41,11 @@ export class YoutubeEmbedVideoPlayer implements VideoPlayer {
     this.pauseListenerMap = {};
     this.timeUpdateListenerMap = {};
     this.seekListenerMap = {};
-    // @ts-ignore
-    (this.player.getIframe() as Promise<HTMLIFrameElement>).then((iframe) => {
-      this.iframeElement = iframe;
-    });
+    this.elementReady = // @ts-ignore
+      (this.player.getIframe() as Promise<HTMLIFrameElement>).then((iframe) => {
+        this.iframeElement = iframe;
+        return iframe;
+      });
     this.player.addEventListener("onStateChange", this.onStateChange);
     this.player.addEventListener("onError", this.onError);
     this.detectDuration();
