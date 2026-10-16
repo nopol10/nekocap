@@ -53,12 +53,39 @@ const NEKOCAP_EMBED_CLASSNAME = "nekocap-embed";
 
 const MAX_HEIGHT = 600;
 
+const PSEUDO_FULLSCREEN_CLASSNAME = "pseudo-fullscreen";
+
 const Wrapper = styled.div`
   padding: 0px;
   &.${NEKOCAP_EMBED_CLASSNAME} > .fullscreen {
     height: 100%;
   }
+  & > .fullscreen.${PSEUDO_FULLSCREEN_CLASSNAME} {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 2000;
+    background: ${colors.fullscreenBackground};
+  }
 `;
+
+/**
+ * iOS Safari on iPhone does not support the Fullscreen API for arbitrary
+ * elements (only native <video> elements), so we fall back to a CSS-based
+ * pseudo fullscreen there.
+ */
+const isNativeFullscreenSupported = (): boolean => {
+  if (!isClient()) {
+    return true;
+  }
+  return Boolean(
+    document.fullscreenEnabled ||
+      (document as Document & { webkitFullscreenEnabled?: boolean })
+        .webkitFullscreenEnabled,
+  );
+};
 
 const FullScreenWrapper = styled.div`
   display: flex;
@@ -156,6 +183,8 @@ export const ViewerPage = ({
   const isLoading = router.isFallback || isCaptionLoading;
   const fontList = useSelector(fontListSelector());
   const fullScreenHandle = useFullScreenHandle();
+  const [isPseudoFullScreen, setIsPseudoFullScreen] = useState(false);
+  const isFullScreenActive = fullScreenHandle.active || isPseudoFullScreen;
   const isDesktop = useSSRMediaQuery({ query: DEVICE.desktop });
   const [videoPlayerPreferences, dispatchVideoPreference] = useReducer<
     typeof videoPreferencesReducer
@@ -204,6 +233,26 @@ export const ViewerPage = ({
     tabData?.isLoadingRawCaption,
     loadComplete,
   ]);
+  useEffect(
+    function lockScrollInPseudoFullScreen() {
+      if (!isPseudoFullScreen) {
+        return;
+      }
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          setIsPseudoFullScreen(false);
+        }
+      };
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = previousOverflow;
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    },
+    [isPseudoFullScreen],
+  );
   const { t } = useTranslation("common");
 
   const noData =
@@ -255,7 +304,7 @@ export const ViewerPage = ({
   let iframeHeight = 0;
   if (isLandscape) {
     const currentEmbedHeight =
-      (fullScreenHandle.active
+      (isFullScreenActive
         ? captionContainerElement?.offsetHeight
         : embedHeight) || 0;
     iframeWidth = Math.ceil(
@@ -265,7 +314,7 @@ export const ViewerPage = ({
     );
     iframeHeight = currentEmbedHeight;
   } else {
-    const currentEmbedWidth = fullScreenHandle.active
+    const currentEmbedWidth = isFullScreenActive
       ? globalThis.innerWidth
       : embedWidth;
     iframeHeight = Math.ceil(
@@ -287,6 +336,10 @@ export const ViewerPage = ({
   };
 
   const toggleFullScreen = () => {
+    if (!isNativeFullscreenSupported()) {
+      setIsPseudoFullScreen((isActive) => !isActive);
+      return;
+    }
     if (fullScreenHandle.active) {
       fullScreenHandle.exit();
     } else {
@@ -309,7 +362,14 @@ export const ViewerPage = ({
     >
       <Skeleton active={true} loading={isLoading}>
         {renderNoDataMessage()}
-        <FullScreen handle={fullScreenHandle}>
+        <FullScreen
+          handle={fullScreenHandle}
+          className={
+            isPseudoFullScreen
+              ? `fullscreen-enabled ${PSEUDO_FULLSCREEN_CLASSNAME}`
+              : undefined
+          }
+        >
           <FullScreenWrapper>
             <Viewer
               videoDimensions={videoDimensions}
@@ -323,7 +383,7 @@ export const ViewerPage = ({
               preferences={videoPlayerPreferences}
               setFontSizeMultiplier={handleSetFontSizeMultiplier}
               rightContainer={fullScreenButton}
-              fullScreen={fullScreenHandle.active || isEmbed}
+              fullScreen={isFullScreenActive || isEmbed}
               isLoadingFont={!!tabData?.isLoadingRawCaption}
               fontLoadingProgess={tabData?.rawLoadPercentage || 0}
             />
