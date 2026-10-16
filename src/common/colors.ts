@@ -34,4 +34,6 @@ export const colors = {
   // Caption control
   captionControlBackground: "#363636",
   captionControlBorder: "#818181",
+  // Viewer
+  fullscreenBackground: "#000000",
 };

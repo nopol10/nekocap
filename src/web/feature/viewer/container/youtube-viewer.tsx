@@ -60,11 +60,18 @@ export const YoutubeViewer = ({
       if (retrieveVideoData && !youtubeData) {
         return;
       }
-      videoPlayer.current = new YoutubeEmbedVideoPlayer(internalPlayer, {
+      const player = new YoutubeEmbedVideoPlayer(internalPlayer, {
         width: youtubeData?.width || embedWidth,
         height: youtubeData?.height || embedHeight,
       });
-      onVideoPlayerReady?.(videoPlayer.current);
+      videoPlayer.current = player;
+      // The caption renderer watches the iframe for size changes (e.g. entering
+      // fullscreen), which it can only do once the iframe is known
+      player.elementReady.then(() => {
+        if (videoPlayer.current === player) {
+          onVideoPlayerReady?.(player);
+        }
+      });
     }, 500),
     [onVideoPlayerReady, youtubeData],
   );
