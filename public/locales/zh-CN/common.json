@@ -210,6 +210,7 @@
     "roleAssignmentSuccess": "已更新!",
     "roleAssignmentFailure": "更新失败：{{error}}",
     "filterByTags": "筛选标签（最多{{maxTags}} 个）",
+    "filterByTitle": "Filter by video title (original or translated)",
     "noTags": "没有标签",
     "advancedFilter": {
       "label": "Caption type",

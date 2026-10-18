@@ -210,6 +210,7 @@
     "roleAssignmentSuccess": "بروزرسانی شد!",
     "roleAssignmentFailure": "ناموفق در بروزرسانی: {{error}}",
     "filterByTags": "فیلتر بر اساس تگ ها (حداکثر تا {{maxTags}})",
+    "filterByTitle": "Filter by video title (original or translated)",
     "noTags": "هیچ تگ ای نیست",
     "advancedFilter": {
       "label": "Caption type",
