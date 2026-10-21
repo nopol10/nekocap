@@ -4,7 +4,6 @@ import {
   CanvasIframeToParentMessageType,
   ParentToCanvasIframeMessageType,
 } from "@/common/types";
-import { createGlobalStyle } from "styled-components";
 import { useAnimationFrame } from "@/hooks";
 import {
   forwardRef,
@@ -16,7 +15,11 @@ import {
 } from "react";
 import { CaptionRendererHandle } from "./caption-renderer";
 import { OctopusRendererProps } from "./octopus-renderer";
-import { VideoPlayer } from "../feature/editor/video-player/video-player";
+import {
+  getVideoContentRect,
+  observeVideoLayout,
+  VideoContentRect,
+} from "../video-layout";
 
 /**
  * This is responsible for creating the content page iframe and posting video and caption related properties to the iframe.
@@ -91,26 +94,81 @@ export const OctopusRendererIframeProxy = forwardRef(
           console.error("Caption container element is not provided");
           return;
         }
-        const { videoElementWidth, videoElementHeight, videoElementLeft } =
-          getVideoElementLayoutProperties(videoPlayer);
-        const [iframe, iframeContainer] = createContentPageCanvasIframe(
-          videoElementWidth,
-          videoElementHeight,
-          videoElementLeft,
-        );
+        const videoElement = videoPlayer?.element();
+        const [iframe, iframeContainer] = createContentPageCanvasIframe();
         captionContainerElement.appendChild(iframeContainer);
         iframeRef.current = iframe;
-        let width = 0,
-          height = 0;
-        if (isIframe && iframeProps && captionContainerElement) {
-          width = globalThis.screen.width * globalThis.devicePixelRatio;
-          height = width * (iframeProps.height / iframeProps.width);
-        } else {
-          width = videoElementWidth;
-          height = videoElementHeight;
-        }
         iframe.style.width = "100%";
         iframe.style.height = "100%";
+
+        const getVideoRect = () => {
+          if (!videoElement) {
+            return undefined;
+          }
+          return getVideoContentRect(
+            videoElement,
+            iframeContainer.offsetParent || captionContainerElement,
+          );
+        };
+        const getVideoAspect = (): number => {
+          if (isIframe && iframeProps && iframeProps.width > 0) {
+            return iframeProps.width / (iframeProps.height || 1);
+          }
+          const rect = getVideoRect();
+          if (rect) {
+            return rect.width / rect.height;
+          }
+          if (
+            videoElement instanceof HTMLVideoElement &&
+            videoElement.videoWidth > 0 &&
+            videoElement.videoHeight > 0
+          ) {
+            return videoElement.videoWidth / videoElement.videoHeight;
+          }
+          return 16 / 9;
+        };
+
+        let isIframeReady = false;
+        let sentAspect = 0;
+        const sendVideoProperties = () => {
+          sentAspect = getVideoAspect();
+          // Render at the screen's resolution so that the caption stays sharp in fullscreen.
+          // The canvas is scaled down to the size of the video by CSS.
+          const width = globalThis.screen.width * globalThis.devicePixelRatio;
+          iframe.contentWindow?.postMessage(
+            {
+              type: ParentToCanvasIframeMessageType.UpdateContentIframeVideoProperties,
+              width,
+              height: width / sentAspect,
+              rawCaption,
+            },
+            "*",
+          );
+        };
+
+        // Keep the iframe on top of the video as its size and position changes,
+        // e.g. when entering fullscreen or switching to YouTube's cinema mode
+        const updateLayout = () => {
+          const rect = getVideoRect();
+          if (!rect) {
+            return;
+          }
+          setIframeContainerLayout(iframeContainer, rect);
+          const aspect = rect.width / rect.height;
+          if (
+            isIframeReady &&
+            !isIframe &&
+            Math.abs(aspect - sentAspect) / sentAspect > 0.01
+          ) {
+            // The canvas has to be recreated with the new aspect ratio, otherwise the caption will be stretched
+            sendVideoProperties();
+          }
+        };
+        updateLayout();
+        const stopObservingLayout = videoElement
+          ? observeVideoLayout(videoElement, updateLayout)
+          : undefined;
+
         function onIframeMessage(
           event: MessageEvent<CanvasIframeToParentMessage>,
         ) {
@@ -118,26 +176,11 @@ export const OctopusRendererIframeProxy = forwardRef(
             return;
           }
           if (event.data.type === CanvasIframeToParentMessageType.Ready) {
+            // This can be called again when the iframe reloads after being moved in the DOM
             console.log("Canvas iframe listener is ready");
-            iframe.contentWindow?.postMessage(
-              {
-                type: ParentToCanvasIframeMessageType.UpdateContentIframeVideoProperties,
-                width,
-                height,
-                rawCaption,
-              },
-              "*",
-            );
-            // Need to set the style again as this can be called when the iframe's position changes
-            // For e.g. when youtube player switches from default to cinema view
-            const { videoElementWidth, videoElementHeight, videoElementLeft } =
-              getVideoElementLayoutProperties(videoPlayer);
-            setIframeContainerStyle(
-              iframeContainer,
-              videoElementWidth,
-              videoElementHeight,
-              videoElementLeft,
-            );
+            isIframeReady = true;
+            sendVideoProperties();
+            updateLayout();
           } else if (
             event.data.type === CanvasIframeToParentMessageType.FontLoadProgress
           ) {
@@ -148,6 +191,7 @@ export const OctopusRendererIframeProxy = forwardRef(
 
         return () => {
           window.removeEventListener("message", onIframeMessage);
+          stopObservingLayout?.();
           if (iframe) {
             iframe.remove();
           }
@@ -188,21 +232,22 @@ export const OctopusRendererIframeProxy = forwardRef(
         };
       },
     );
-    return (
-      <>
-        <GlobalStyle />
-      </>
-    );
+    return null;
   },
 );
 
-function createContentPageCanvasIframe(
-  width?: number,
-  height?: number,
-  left?: number,
-) {
+function createContentPageCanvasIframe() {
   const iframeContainer = document.createElement("div");
-  setIframeContainerStyle(iframeContainer, width, height, left);
+  iframeContainer.classList.add("nekocap-iframe-canvas-container");
+  iframeContainer.style.position = "absolute";
+  iframeContainer.style.pointerEvents = "none";
+  // Use a lower z-index to avoid interfering with YouTube's fullscreen stacking context
+  iframeContainer.style.zIndex = "10000";
+  // Fill the caption container until the video's layout is known
+  iframeContainer.style.top = "0";
+  iframeContainer.style.left = "0";
+  iframeContainer.style.width = "100%";
+  iframeContainer.style.height = "100%";
   const root = iframeContainer.attachShadow({ mode: "closed" });
 
   const iframe = document.createElement("iframe");
@@ -221,58 +266,12 @@ function createContentPageCanvasIframe(
   return [iframe, iframeContainer] as const;
 }
 
-function setIframeContainerStyle(
+function setIframeContainerLayout(
   iframeContainer: HTMLDivElement,
-  width?: number,
-  height?: number,
-  left?: number,
+  rect: VideoContentRect,
 ) {
-  iframeContainer.classList.add("nekocap-iframe-canvas-container");
-  iframeContainer.style.position = "absolute";
-  iframeContainer.style.pointerEvents = "none";
-  // Use a lower z-index to avoid interfering with YouTube's fullscreen stacking context
-  iframeContainer.style.zIndex = "10000";
-  // Use percentage-based dimensions so it scales properly during fullscreen
-  iframeContainer.style.height = "100%";
-  iframeContainer.style.top = "0";
-  iframeContainer.style.left = "0";
-  // iframeContainer.style.contain = "layout";
-  iframeContainer.style.setProperty(
-    "--videoAspect",
-    `${(width || 1) / (height || 1)}`,
-  );
-  iframeContainer.style.aspectRatio = "var(--videoAspect)";
-  // This is needed for Youtube's cinema mode (without full screen)
-  if (width && height && left) {
-    iframeContainer.style.left = `${left}px`;
-  }
+  iframeContainer.style.left = `${rect.left}px`;
+  iframeContainer.style.top = `${rect.top}px`;
+  iframeContainer.style.width = `${rect.width}px`;
+  iframeContainer.style.height = `${rect.height}px`;
 }
-
-function getVideoElementLayoutProperties(videoPlayer?: VideoPlayer) {
-  const videoElement = videoPlayer?.element();
-  const videoElementWidth = videoElement?.offsetWidth || 0;
-  const videoElementHeight = videoElement?.offsetHeight || 0;
-  const videoElementLeft = videoElement?.offsetLeft || 0;
-  return {
-    videoElementWidth,
-    videoElementHeight,
-    videoElementLeft,
-  };
-}
-
-/**
- * This global style ensures that when the video player enters fullscreen mode
- * or bugged full screen mode (e.g. when uBlock messes up full screen on youtube and full screen only)
- * expands within the browser viewport, it will still maintain the video's aspect ratio
- * and be centered horizontally
- */
-const GlobalStyle = createGlobalStyle`
-  .nekocap-iframe-canvas-container {
-    &:fullscreen, .ytp-full-bleed-player & {
-      height: 100% !important;
-      width: unset !important;
-      left: calc((100vw - var(--videoAspect) * 100vh) / 2) !important;
-      aspect-ratio: var(--videoAspect) !important;
-    }
-  }
-`;

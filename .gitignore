@@ -5,6 +5,7 @@ node_modules
 .env.prod.firefox
 .firebaserc
 webdist/*
+dist/*
 dist/extension
 dist/extension/js
 dist/extension/img
