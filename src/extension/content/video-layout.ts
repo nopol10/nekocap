@@ -18,9 +18,12 @@ export function getVideoContentRect(
   if (elementRect.width <= 0 || elementRect.height <= 0) {
     return undefined;
   }
-  let { width, height } = elementRect;
-  let left = elementRect.left;
-  let top = elementRect.top;
+  let rect: VideoContentRect = {
+    left: elementRect.left,
+    top: elementRect.top,
+    width: elementRect.width,
+    height: elementRect.height,
+  };
 
   // The video element's box can be a different shape from the video itself, e.g. in fullscreen
   // the element fills the screen while a 4:3 or 21:9 video is centered inside it with black bars.
@@ -36,26 +39,40 @@ export function getVideoContentRect(
       videoHeight > 0 &&
       (objectFit === "contain" || objectFit === "scale-down")
     ) {
-      const videoAspect = videoWidth / videoHeight;
-      // Compare aspect ratios to determine whether the unused space is horizontal or vertical.
-      if (width / height > videoAspect) {
-        const contentWidth = height * videoAspect;
-        left += (width - contentWidth) / 2;
-        width = contentWidth;
-      } else {
-        const contentHeight = width / videoAspect;
-        top += (height - contentHeight) / 2;
-        height = contentHeight;
-      }
+      rect = fitRectToAspect(rect, videoWidth / videoHeight);
     }
   }
 
   if (relativeTo) {
     const parentRect = relativeTo.getBoundingClientRect();
-    left += relativeTo.scrollLeft - parentRect.left - relativeTo.clientLeft;
-    top += relativeTo.scrollTop - parentRect.top - relativeTo.clientTop;
+    rect.left +=
+      relativeTo.scrollLeft - parentRect.left - relativeTo.clientLeft;
+    rect.top += relativeTo.scrollTop - parentRect.top - relativeTo.clientTop;
   }
 
+  return rect;
+}
+
+/**
+ * Returns the largest rect with the given aspect ratio that fits inside `rect`, centered in it.
+ */
+export function fitRectToAspect(
+  rect: VideoContentRect,
+  aspect: number,
+): VideoContentRect {
+  if (!(aspect > 0)) {
+    return rect;
+  }
+  let { left, top, width, height } = rect;
+  if (width / height > aspect) {
+    const fittedWidth = height * aspect;
+    left += (width - fittedWidth) / 2;
+    width = fittedWidth;
+  } else {
+    const fittedHeight = width / aspect;
+    top += (height - fittedHeight) / 2;
+    height = fittedHeight;
+  }
   return { left, top, width, height };
 }
 

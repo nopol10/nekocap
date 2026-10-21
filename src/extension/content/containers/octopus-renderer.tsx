@@ -18,6 +18,11 @@ import {
 import { createGlobalStyle } from "styled-components";
 import SubtitlesOctopus from "../../../libs/subtitle-octopus/subtitles-octopus.cjs";
 import { VideoPlayer } from "../feature/editor/video-player/video-player";
+import {
+  fitRectToAspect,
+  getVideoContentRect,
+  observeVideoLayout,
+} from "../video-layout";
 import { CaptionRendererHandle } from "./caption-renderer";
 import { OctopusRendererIframeProxy } from "./octopus-renderer-iframe-proxy";
 
@@ -70,6 +75,41 @@ export const createCanvas = (
   canvasParent.appendChild(canvas);
   captionContainerElement.prepend(canvasParent);
   return [canvas, canvasParent];
+};
+
+/**
+ * Keeps a canvas created by createCanvas on top of the iframe containing the video
+ * as the iframe's size and position changes, e.g. when entering fullscreen.
+ * Returns a function that stops following the iframe.
+ */
+const followIframeLayout = (
+  canvas: HTMLCanvasElement,
+  canvasParent: HTMLDivElement,
+  iframeElement: HTMLElement,
+  canvasAspect: number,
+): (() => void) => {
+  canvasParent.style.position = "absolute";
+  canvasParent.style.pointerEvents = "none";
+  canvas.style.top = "0";
+  canvas.style.left = "0";
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.transform = "none";
+  const updateLayout = () => {
+    const rect = getVideoContentRect(iframeElement, canvasParent.offsetParent);
+    if (!rect) {
+      return;
+    }
+    // Keep the canvas' aspect ratio so the caption is not stretched when the iframe changes shape,
+    // e.g. when it fills a screen with a different aspect ratio in fullscreen
+    const fittedRect = fitRectToAspect(rect, canvasAspect);
+    canvasParent.style.left = `${fittedRect.left}px`;
+    canvasParent.style.top = `${fittedRect.top}px`;
+    canvasParent.style.width = `${fittedRect.width}px`;
+    canvasParent.style.height = `${fittedRect.height}px`;
+  };
+  updateLayout();
+  return observeVideoLayout(iframeElement, updateLayout);
 };
 
 const OctopusRendererInternal = React.forwardRef(
@@ -216,6 +256,7 @@ const OctopusRendererDirect = forwardRef(
       };
 
       const cleanup = () => {
+        stopObservingLayout?.();
         if (octopusInstance.current) {
           octopusInstance.current.dispose();
         }
@@ -232,6 +273,7 @@ const OctopusRendererDirect = forwardRef(
       };
 
       let canvas: HTMLCanvasElement | undefined;
+      let stopObservingLayout: (() => void) | undefined;
       if (isIframe && iframeProps && captionContainerElement) {
         const width: number = useExactCanvasDimensions
           ? iframeProps.width
@@ -239,11 +281,20 @@ const OctopusRendererDirect = forwardRef(
         const height: number = useExactCanvasDimensions
           ? iframeProps.height
           : width * (iframeProps.height / iframeProps.width);
-        const canvasElements = createCanvas(
+        const [canvasElement, canvasParent] = createCanvas(
           { width: width, height: height },
           captionContainerElement,
         );
-        canvas = canvasElements[0];
+        canvas = canvasElement;
+        const iframeElement = videoPlayer?.element();
+        if (isInExtension() && canvas && canvasParent && iframeElement) {
+          stopObservingLayout = followIframeLayout(
+            canvas,
+            canvasParent,
+            iframeElement,
+            width / height,
+          );
+        }
       }
       if (!videoPlayer?.element() && !canvas) {
         return cleanup;
