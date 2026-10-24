@@ -20,7 +20,7 @@ import {
   createElementAdditionObserver,
   createElementRemovalObserver,
 } from "@/common/utils";
-import { useAnimationFrame, useResize } from "@/hooks";
+import { useAnimationFrame } from "@/hooks";
 import { isEqual } from "lodash-es";
 import * as React from "react";
 import {
@@ -35,6 +35,7 @@ import { createGlobalStyle } from "styled-components";
 import { usePurifier } from "../feature/editor/hooks/use-purifier";
 import { VideoPlayer } from "../feature/editor/video-player/video-player";
 import { refreshVideoMeta } from "../utils";
+import { getVideoContentRect, observeVideoLayout } from "../video-layout";
 interface CaptionRendererProps {
   caption?: CaptionContainer;
   captionContainerElement?: HTMLElement;
@@ -433,21 +434,30 @@ const CaptionRendererInternal = React.forwardRef(
       [caption, videoPlayer, isIframe, iframeProps, updateRenderedCaption],
     );
 
-    const updateCaptionContainerStyles = useCallback(
-      (width: number, height: number) => {
-        if (!localCaptionContainer.current || !videoPlayer) {
-          return;
-        }
-        containerDimensions.current = {
-          width: videoPlayer.element()?.offsetWidth || 0,
-          height: videoPlayer.element()?.offsetHeight || 0,
-        };
-        localCaptionContainer.current.style.width = `${width}px`;
-        localCaptionContainer.current.style.height = `${height}px`;
-        handleTimeUpdate(0, true);
-      },
-      [handleTimeUpdate, videoPlayer],
-    );
+    const videoElement = videoPlayer?.element();
+
+    // Position the caption container over the video's picture so captions follow it
+    // when its size or position changes, e.g. when entering fullscreen
+    const updateCaptionContainerLayout = useCallback(() => {
+      const container = localCaptionContainer.current;
+      if (!container || !videoElement) {
+        return;
+      }
+      const rect = getVideoContentRect(
+        videoElement,
+        container.offsetParent || captionContainerElement || null,
+      );
+      if (!rect) {
+        return;
+      }
+      containerDimensions.current = { width: rect.width, height: rect.height };
+      container.style.left = `${rect.left}px`;
+      container.style.top = `${rect.top}px`;
+      container.style.width = `${rect.width}px`;
+      container.style.height = `${rect.height}px`;
+      container.style.transform = "none";
+      handleTimeUpdate(0, true);
+    }, [captionContainerElement, handleTimeUpdate, videoElement]);
 
     // Sites like Netflix will remove the caption container. This helps us recreate it
     useEffect(() => {
@@ -634,10 +644,17 @@ const CaptionRendererInternal = React.forwardRef(
       handleVideoSeeked,
     ]);
 
-    useResize(videoPlayer?.element(), updateCaptionContainerStyles, 0, [
-      videoPlayer?.element(),
-      handleTimeUpdate,
-      updateCaptionContainerStyles,
+    useEffect(() => {
+      if (!videoElement) {
+        return;
+      }
+      updateCaptionContainerLayout();
+      return observeVideoLayout(videoElement, updateCaptionContainerLayout);
+    }, [
+      videoElement,
+      updateCaptionContainerLayout,
+      recreateLocalCaptionContainer,
+      caption,
       isIframe,
       iframeProps,
     ]);
