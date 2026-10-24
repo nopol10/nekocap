@@ -84,5 +84,20 @@ export async function performBackendProviderRequest(
     return window.backendProvider.browse(request.params);
   } else if (request.type === BackendProviderRequestTypes.GetAutoCaptionList) {
     return window.backendProvider.getAutoCaptionList(request.params);
+  } else if (
+    request.type === BackendProviderRequestTypes.CompleteDeferredLogin
+  ) {
+    const { method, userData, authData } = request.options;
+    return window.backendProvider.completeDeferredLogin(
+      method,
+      userData,
+      authData,
+    );
+  } else if (request.type === BackendProviderRequestTypes.GetGlobalStats) {
+    return window.backendProvider.getGlobalStats();
+  } else if (request.type === BackendProviderRequestTypes.GetOwnProfileTags) {
+    return window.backendProvider.getOwnProfileTags();
+  } else if (request.type === BackendProviderRequestTypes.DeleteProfileTag) {
+    return window.backendProvider.deleteProfileTag(request.params);
   }
 }
